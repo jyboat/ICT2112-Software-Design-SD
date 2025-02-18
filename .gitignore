@@ -427,3 +427,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Firebase Secrets
+ClearCare/Firebase/*.json
