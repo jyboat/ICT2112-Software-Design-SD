@@ -58,3 +58,23 @@ cd ClearCare    # Change directory to project
 dotnet run      # Run the applciation
 ```
 3. View the application on localhost
+
+#### Firebase Setup
+1. Log into firebase console (https://console.firebase.google.com/u/0/)
+2. Click **Project Settings** 
+
+![alt text](/Readme_Images/Firebase_Project_Settings.png)
+
+3. Click **Service Accounts** >**Generate new private key**
+
+![alt text](/Readme_Images/Firebase_ServiceAccount_Tab.png)
+
+4. **Rename** .json file to "**firebase-adminsdk.json**"
+
+5. Insert **firebase-adminsdk.json** to "**/ClearCare/Firebase**" folder
+
+
+![alt text](/Readme_Images/Firebase_Secret.png)
+
+<span style="color: red;">**Do not**</span> commit firebase-adminsdk to github repository
+
