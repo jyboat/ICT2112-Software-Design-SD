@@ -23,6 +23,8 @@ namespace ClearCare.DataSource
             // Get Collection in Firebase
             DocumentReference docRef = _db.Collection("ServiceAppointments").Document();
 
+            appointment.SetAppointmentId(docRef.Id);
+
             // Convert input data to firestore data format for insert
             Dictionary<string, object> appointmentData = appointment.ToFirestoreDictionary();
 
@@ -30,6 +32,27 @@ namespace ClearCare.DataSource
             await docRef.SetAsync(appointmentData);
 
             return docRef.Id;
+        }
+
+        // Retrieve all
+        public async Task<List<ServiceAppointment>> GetAllAppointmentsAsync()
+        {
+            CollectionReference appointmentsRef = _db.Collection("ServiceAppointments");
+
+            QuerySnapshot snapshot = await appointmentsRef.GetSnapshotAsync();
+            List<ServiceAppointment> appointmentList = new List<ServiceAppointment>();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                if (document.Exists)
+                {
+                    var data = document.ToDictionary();
+                    ServiceAppointment appointment = ServiceAppointment.FromFirestoreData(document.Id, data);
+                    appointmentList.Add(appointment);
+                }
+            }
+
+            return appointmentList;
         }
 
         // Retrieve an appointment by ID

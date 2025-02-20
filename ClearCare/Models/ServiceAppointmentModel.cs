@@ -36,6 +36,11 @@ namespace ClearCare.Models
         [JsonProperty("Location")]
         private string Location { get; set; }
 
+        public void SetAppointmentId(string appointmentId)
+        {
+            this.AppointmentId = appointmentId;
+        }
+
         // Private constructor
         private ServiceAppointment() { }
 
@@ -69,14 +74,30 @@ namespace ClearCare.Models
             return new ServiceAppointment
             {
                 AppointmentId = appointmentId,
-                PatientId = data["PatientId"].ToString(),
-                NurseId = data.ContainsKey("NurseId") ? data["NurseId"].ToString() : "",
-                DoctorId = data["DoctorId"].ToString(),
-                ServiceTypeId = data["ServiceTypeId"].ToString(),
-                Status = data["Status"].ToString(),
+                PatientId = data["PatientId"].ToString() ?? "",
+                NurseId = data.ContainsKey("NurseId") ? data["NurseId"].ToString() ?? "" : "" ,
+                DoctorId = data["DoctorId"].ToString() ?? "",
+                ServiceTypeId = data["ServiceTypeId"].ToString() ?? "",
+                Status = data["Status"].ToString() ?? "",
                 DateTime = ((Google.Cloud.Firestore.Timestamp)data["DateTime"]).ToDateTime(),
                 Slot = data.ContainsKey("Slot") ? Convert.ToInt32(data["Slot"]) : 0,
-                Location = data["Location"].ToString()
+                Location = data["Location"].ToString()  ?? ""
+            };
+        }
+
+        public static ServiceAppointment FromFirestore(Dictionary<string, object> data)
+        {
+            return new ServiceAppointment
+            {
+                AppointmentId = data["AppointmentId"].ToString()  ?? "",
+                PatientId = data["PatientId"].ToString() ?? "",
+                NurseId = data.ContainsKey("NurseId") ? data["NurseId"].ToString() ?? "" : "",
+                DoctorId = data["DoctorId"].ToString() ?? "",
+                ServiceTypeId = data["ServiceTypeId"].ToString() ?? "",
+                Status = data["Status"].ToString() ?? "",
+                DateTime = ((Google.Cloud.Firestore.Timestamp)data["DateTime"]).ToDateTime(),
+                Slot = data.ContainsKey("Slot") ? Convert.ToInt32(data["Slot"]) : 0,
+                Location = data["Location"].ToString() ?? ""
             };
         }
 

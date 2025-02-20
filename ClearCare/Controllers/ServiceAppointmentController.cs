@@ -31,19 +31,39 @@ public class ServiceAppointmentsController : Controller
     {
         // Map JSON data to model
         var appointment = ServiceAppointment.setApptDetails(
-            requestData["AppointmentId"].GetString(),
-            requestData["PatientId"].GetString(),
-            requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() : "",
-            requestData["DoctorId"].GetString(),
-            requestData["ServiceTypeId"].GetString(),
-            requestData["Status"].GetString(),
+            requestData["AppointmentId"].GetString() ?? "",
+            requestData["PatientId"].GetString() ?? "",
+            requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
+            requestData["DoctorId"].GetString() ?? "",
+            requestData["ServiceTypeId"].GetString() ?? "",
+            requestData["Status"].GetString() ?? "",
             requestData["DateTime"].GetDateTime(),
             requestData["Slot"].GetInt32(),
-            requestData["Location"].GetString()
+            requestData["Location"].GetString() ?? ""
         );
 
         string appointmentId = await _gateway.CreateAppointmentAsync(appointment);
         return Ok(new { Message = "Appointment created successfully", AppointmentId = appointmentId });
+    }
+
+    // GET All appointment
+    [HttpGet]
+    [Route("RetrieveAll")]
+    public async Task<IActionResult> RetrieveAll()
+    {
+        var appointment = await _gateway.GetAllAppointmentsAsync();
+
+        // No record exists
+        if (appointment == null) {
+            return NotFound(new { Message = "Appointment not found" });
+        }
+
+        // Since Model getter and setter is private use the ToFirestoreDictionary to retrieve
+        // Convert object to Dictionary for view
+        var appointmentList = appointment.Select(a => a.ToFirestoreDictionary()).ToList();
+
+        // Return as json to view in Web (I THINK)
+        return View("Index", appointmentList);
     }
 
 
@@ -67,7 +87,29 @@ public class ServiceAppointmentsController : Controller
         var appointmentDetail = appointment.ToFirestoreDictionary();
 
         // Return as json to view in Web (I THINK)
-        return View("Index", appointmentDetail);
+        return View("AppointmentDetails", appointmentDetail);
     }
+
+
+    // [HttpPost]
+    // [Route("Create")]
+    // public async Task<IActionResult> AutoAppointment([FromBody] Dictionary<string, JsonElement> requestData)
+    // {
+    //     // Map JSON data to model
+    //     var appointment = ServiceAppointment.setApptDetails(
+    //         requestData["AppointmentId"].GetString() ?? "",
+    //         requestData["PatientId"].GetString() ?? "",
+    //         requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
+    //         requestData["DoctorId"].GetString() ?? "",
+    //         requestData["ServiceTypeId"].GetString() ?? "",
+    //         requestData["Status"].GetString() ?? "",
+    //         requestData["DateTime"].GetDateTime(),
+    //         requestData["Slot"].GetInt32(),
+    //         requestData["Location"].GetString() ?? ""
+    //     );
+
+    //     string appointmentId = await _gateway.CreateAppointmentAsync(appointment);
+    //     return Ok(new { Message = "Appointment created successfully"});
+    // }
    
 }

@@ -1,23 +1,54 @@
-@model Dictionary<string, object>
+@model List<Dictionary<string, object>>
 
 @{
-    ViewData["Title"] = "Appointment Details";
+    ViewData["Title"] = "All Service Appointments";
 }
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Appointment Details</title>
-</head>
-<body>
-    <h2>Appointment Details</h2>
-    <p><strong>Appointment ID:</strong> @Model["AppointmentId"]</p>
-    <p><strong>Patient ID:</strong> @Model["PatientId"]</p>
-    <p><strong>Nurse ID:</strong> @Model["NurseId"]</p>
-    <p><strong>Doctor ID:</strong> @Model["DoctorId"]</p>
-    <p><strong>Service Type:</strong> @Model["ServiceTypeId"]</p>
-    <p><strong>Status:</strong> @Model["Status"]</p>
-    <p><strong>Date & Time:</strong> @Model["DateTime"]</p>
-    <p><strong>Location:</strong> @Model["Location"]</p>
-</body>
-</html>
+<h2>All Service Appointments</h2>
+
+<a href="" class="btn btn-primary">Manual Assign Appointment</a>
+<a href="" class="btn btn-primary">Auto Assign Appointment</a>
+
+@if (Model != null && Model.Count > 0)
+{
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Appointment ID</th>
+                <th>Patient ID</th>
+                <th>Nurse ID</th>
+                <th>Doctor ID</th>
+                <th>Service Type</th>
+                <th>Status</th>
+                <th>Date & Time</th>
+                <th>Slot</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var appointment in Model)
+            {
+                <tr>
+                    <td>@appointment["AppointmentId"]</td>
+                    <td>@appointment["PatientId"]</td>
+                    <td>@appointment["NurseId"]</td>
+                    <td>@appointment["DoctorId"]</td>
+                    <td>@appointment["ServiceTypeId"]</td>
+                    <td>@appointment["Status"]</td>
+                    <td>@Convert.ToDateTime(appointment["DateTime"]).ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@appointment["Slot"]</td>
+                    <td>@appointment["Location"]</td>
+                    <td>
+                        <a href="/api/ServiceAppointments/Retrieve/@appointment["AppointmentId"]">Edit</a> |
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No appointments found.</p>
+}
+
+
