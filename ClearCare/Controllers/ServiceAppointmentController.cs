@@ -27,9 +27,9 @@ public class ServiceAppointmentsController : Controller
     }
 
     // GET: Retrieve an appointment
-    // Route localhost:5007/api/ServiceAppointments/{Id} that retriggers GET
+    // Route localhost:5007/api/ServiceAppointments/Retrieve/{Id} that retriggers GET
     [HttpGet]
-    [Route("{appointmentId}")]
+    [Route("Retrieve/{appointmentId}")]
     public async Task<IActionResult> GetAppointment(string appointmentId)
     {
         // Pass the ID to the gateway
