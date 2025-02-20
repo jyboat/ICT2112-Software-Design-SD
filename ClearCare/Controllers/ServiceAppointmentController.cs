@@ -16,7 +16,27 @@ public class ServiceAppointmentsController : Controller
         _gateway = new ServiceAppointmentGateway();
     }
 
+        // GET All appointment
     [HttpGet]
+    public async Task<IActionResult> RetrieveAll()
+    {
+        var appointment = await _gateway.GetAllAppointmentsAsync();
+
+        // No record exists
+        if (appointment == null) {
+            return NotFound(new { Message = "Appointment not found" });
+        }
+
+        // Since Model getter and setter is private use the ToFirestoreDictionary to retrieve
+        // Convert object to Dictionary for view
+        var appointmentList = appointment.Select(a => a.ToFirestoreDictionary()).ToList();
+
+        // Return as json to view in Web (I THINK)
+        return View("Index", appointmentList);
+    }
+
+    [HttpGet]
+    [Route("CreatePage")]
     public IActionResult Create()
     {
         return View("CreateServiceAppt"); // Render the form
@@ -44,26 +64,6 @@ public class ServiceAppointmentsController : Controller
 
         string appointmentId = await _gateway.CreateAppointmentAsync(appointment);
         return Ok(new { Message = "Appointment created successfully", AppointmentId = appointmentId });
-    }
-
-    // GET All appointment
-    [HttpGet]
-    [Route("RetrieveAll")]
-    public async Task<IActionResult> RetrieveAll()
-    {
-        var appointment = await _gateway.GetAllAppointmentsAsync();
-
-        // No record exists
-        if (appointment == null) {
-            return NotFound(new { Message = "Appointment not found" });
-        }
-
-        // Since Model getter and setter is private use the ToFirestoreDictionary to retrieve
-        // Convert object to Dictionary for view
-        var appointmentList = appointment.Select(a => a.ToFirestoreDictionary()).ToList();
-
-        // Return as json to view in Web (I THINK)
-        return View("Index", appointmentList);
     }
 
 

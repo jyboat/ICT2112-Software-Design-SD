@@ -31,7 +31,9 @@
                 @* Check if user is patient *@
                 @if (true){
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Appointment" asp-action="Privacy"><i class="bi bi-calendar-week me-1"></i>Appointments</a>
+                        <a class="nav-link text-white" asp-controller="ServiceAppointments" asp-action="RetrieveAll">
+                            <i class="bi bi-calendar-week me-1"></i>Appointments
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Community" asp-action="Privacy"><i class="bi bi-person-heart me-1"></i>Community</a>
