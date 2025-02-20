@@ -2,6 +2,7 @@ using ClearCare.DataSource;
 using ClearCare.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 // Request Handling
 [Route("api/[controller]")]
@@ -13,6 +14,13 @@ public class ServiceAppointmentsController : Controller
     public ServiceAppointmentsController()
     {
         _gateway = new ServiceAppointmentGateway();
+    }
+
+    // http://localhost:5007/api/ServiceAppointments/
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View("CreateServiceAppt"); // Render the form
     }
 
     // POST: Create a new appointment

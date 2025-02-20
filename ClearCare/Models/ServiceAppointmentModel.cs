@@ -8,36 +8,38 @@ namespace ClearCare.Models
 {
     public class ServiceAppointment
     {
+        // Create does not work when properties are private
+        // I think it is due to the pass to gateway??? idk..
         [Key]
         [JsonProperty("AppointmentId")]
-        private string AppointmentId { get; set; }
+        public string AppointmentId { get; set; }
 
         [JsonProperty("PatientId")]
-        private string PatientId { get; set; }
+        public string PatientId { get; set; }
 
         [JsonProperty("NurseId")]
-        private string NurseId { get; set; }
+        public string NurseId { get; set; }
 
         [JsonProperty("DoctorId")]
-        private string DoctorId { get; set; }
+        public string DoctorId { get; set; }
 
         [JsonProperty("ServiceTypeId")]
-        private string ServiceTypeId { get; set; }
+        public string ServiceTypeId { get; set; }
 
         [JsonProperty("Status")]
-        private string Status { get; set; }
+        public string Status { get; set; }
 
         [JsonProperty("DateTime")]
-        private DateTime DateTime { get; set; }
+        public DateTime DateTime { get; set; }
 
         [JsonProperty("Slot")]
-        private int Slot { get; set; }
+        public int Slot { get; set; }
 
         [JsonProperty("Location")]
-        private string Location { get; set; }
+        public string Location { get; set; }
 
         // Private constructor
-        private ServiceAppointment() { }
+        public ServiceAppointment() { }
 
         // Constructor
         public static ServiceAppointment setApptDetails(string appointmentId, string patientId, string nurseId,
