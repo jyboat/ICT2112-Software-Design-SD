@@ -1,6 +1,7 @@
 using ClearCare.DataSource;
 using ClearCare.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 // Request Handling
@@ -15,16 +16,36 @@ public class ServiceAppointmentsController : Controller
         _gateway = new ServiceAppointmentGateway();
     }
 
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View("CreateServiceAppt"); // Render the form
+    }
+
     // POST: Create a new appointment
     // Route: localhost:5007/api/ServiceAppointments/Create that retriggers POST
     // Need add form and button to retrieve data and trigger this
     [HttpPost]
     [Route("Create")]
-    public async Task<IActionResult> CreateAppointment([FromBody] ServiceAppointment appointment)
+    public async Task<IActionResult> CreateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
     {
+        // Map JSON data to model
+        var appointment = ServiceAppointment.setApptDetails(
+            requestData["AppointmentId"].GetString(),
+            requestData["PatientId"].GetString(),
+            requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() : "",
+            requestData["DoctorId"].GetString(),
+            requestData["ServiceTypeId"].GetString(),
+            requestData["Status"].GetString(),
+            requestData["DateTime"].GetDateTime(),
+            requestData["Slot"].GetInt32(),
+            requestData["Location"].GetString()
+        );
+
         string appointmentId = await _gateway.CreateAppointmentAsync(appointment);
         return Ok(new { Message = "Appointment created successfully", AppointmentId = appointmentId });
     }
+
 
     // GET: Retrieve an appointment
     // Route localhost:5007/api/ServiceAppointments/Retrieve/{Id} that retriggers GET
