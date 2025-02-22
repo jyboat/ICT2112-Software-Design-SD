@@ -123,13 +123,27 @@ public class ServiceAppointmentsController : Controller
 
     [HttpGet]
     [Route("GetAppointmentsForCalendar")]
-    public async Task<IActionResult> GetAppointmentsForCalendar()
+    public async Task<IActionResult> GetAppointmentsForCalendar([FromQuery] string? doctorId, [FromQuery] string? patientId, [FromQuery] string? nurseId)
     {
         var appointments = await _gateway.GetAllAppointmentsAsync();
 
         if (appointments == null || !appointments.Any())
         {
             return Json(new List<object>());  // Return an empty list if no appointments exist
+        }
+
+        // Apply filtering
+        if (!string.IsNullOrEmpty(doctorId))
+        {
+            appointments = appointments.Where(a => a.ToFirestoreDictionary()["DoctorId"].ToString() == doctorId).ToList();
+        }
+        if (!string.IsNullOrEmpty(patientId))
+        {
+            appointments = appointments.Where(a => a.ToFirestoreDictionary()["PatientId"].ToString() == patientId).ToList();
+        }
+        if (!string.IsNullOrEmpty(nurseId))
+        {
+            appointments = appointments.Where(a => a.ToFirestoreDictionary()["NurseId"].ToString() == nurseId).ToList();
         }
 
         var eventList = appointments.Select(a => new
@@ -140,6 +154,7 @@ public class ServiceAppointmentsController : Controller
             extendedProps = new
             {
                 patientId = a.ToFirestoreDictionary()["PatientId"],
+                nurseId = a.ToFirestoreDictionary()["NurseId"],
                 doctorId = a.ToFirestoreDictionary()["DoctorId"],
                 status = a.ToFirestoreDictionary()["Status"],
                 location = a.ToFirestoreDictionary()["Location"]
@@ -148,7 +163,6 @@ public class ServiceAppointmentsController : Controller
 
         return Json(eventList);
     }
-
 
 
 }
