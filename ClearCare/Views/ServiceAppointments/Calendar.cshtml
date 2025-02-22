@@ -1,0 +1,37 @@
+@{
+    ViewData["Title"] = "Appointments Calendar";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Appointments Calendar</title>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #calendar {
+            max-width: 900px;
+            margin: 40px auto;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: '/api/ServiceAppointments/GetAppointmentsForCalendar',  // Fetching from the new API method
+                eventClick: function(info) {
+                    alert('Appointment ID: ' + info.event.id + '\n' +
+                          'Patient ID: ' + info.event.extendedProps.patientId + '\n' +
+                          'Doctor ID: ' + info.event.extendedProps.doctorId);
+                }
+            });
+            calendar.render();
+        });
+    </script>
+</head>
+<body>
+    <h2 style="text-align: center;">Service Appointments Calendar</h2>
+    <div id="calendar"></div>
+</body>
+</html>

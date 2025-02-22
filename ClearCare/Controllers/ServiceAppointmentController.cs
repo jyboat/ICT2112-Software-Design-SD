@@ -16,14 +16,15 @@ public class ServiceAppointmentsController : Controller
         _gateway = new ServiceAppointmentGateway();
     }
 
-        // GET All appointment
+    // GET All appointment
     [HttpGet]
     public async Task<IActionResult> RetrieveAll()
     {
         var appointment = await _gateway.GetAllAppointmentsAsync();
 
         // No record exists
-        if (appointment == null) {
+        if (appointment == null)
+        {
             return NotFound(new { Message = "Appointment not found" });
         }
 
@@ -78,7 +79,8 @@ public class ServiceAppointmentsController : Controller
         var appointment = await _gateway.GetAppointmentByIdAsync(appointmentId);
 
         // No record exists
-        if (appointment == null) {
+        if (appointment == null)
+        {
             return NotFound(new { Message = "Appointment not found" });
         }
 
@@ -111,5 +113,42 @@ public class ServiceAppointmentsController : Controller
     //     string appointmentId = await _gateway.CreateAppointmentAsync(appointment);
     //     return Ok(new { Message = "Appointment created successfully"});
     // }
-   
+
+    [HttpGet]
+    [Route("Calendar")]
+    public IActionResult Calendar()
+    {
+        return View("Calendar");
+    }
+
+    [HttpGet]
+    [Route("GetAppointmentsForCalendar")]
+    public async Task<IActionResult> GetAppointmentsForCalendar()
+    {
+        var appointments = await _gateway.GetAllAppointmentsAsync();
+
+        if (appointments == null || !appointments.Any())
+        {
+            return Json(new List<object>());  // Return an empty list if no appointments exist
+        }
+
+        var eventList = appointments.Select(a => new
+        {
+            id = a.ToFirestoreDictionary()["AppointmentId"],
+            title = "Appointment with " + a.ToFirestoreDictionary()["DoctorId"],
+            start = ((DateTime)a.ToFirestoreDictionary()["DateTime"]).ToString("yyyy-MM-ddTHH:mm:ss"),
+            extendedProps = new
+            {
+                patientId = a.ToFirestoreDictionary()["PatientId"],
+                doctorId = a.ToFirestoreDictionary()["DoctorId"],
+                status = a.ToFirestoreDictionary()["Status"],
+                location = a.ToFirestoreDictionary()["Location"]
+            }
+        });
+
+        return Json(eventList);
+    }
+
+
+
 }
