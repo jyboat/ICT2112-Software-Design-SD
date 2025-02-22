@@ -25,7 +25,7 @@
                 @* Check if user is doctor or nurse *@
                 @if (userRole == "Doctor" || userRole == "Nurse"){
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Records" asp-action="Privacy"><i class="bi bi-file-earmark-medical me-1"></i>Patient Medical Records</a>
+                        <a class="nav-link" asp-area="" asp-controller="ManageRecord" asp-action="Privacy"><i class="bi bi-file-earmark-medical me-1"></i>Patient Medical Records</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Assessment" asp-action="Privacy"><i class="bi bi-house-check me-1"></i>Home Assessment</a>

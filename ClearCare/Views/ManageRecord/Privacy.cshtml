@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "Medical Record page";
+    var userRole = Context.Session.GetString("Role"); // Retrieve user role from session
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>Use this page to detail your site's privacy policy.</p>
+
+
+@if (userRole == "Doctor")  //if user is Nurse, this button will not be displayed
+{   
+    <a class="btn btn-primary" asp-controller="ManageRecord" asp-action="CreateMD">
+        <i class="bi bi-plus-circle"></i> Create Medical Record
+    </a>
+}

@@ -1,0 +1,25 @@
+@{
+    ViewData["Title"] = "Create Medical Record";
+    var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"); // System timestamp
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form method="post" asp-controller="ManageRecord" asp-action="CreateMedicalRecord">
+    <div class="mb-3">
+        <label for="doctorNote" class="form-label">Doctor's Note</label>
+        <textarea class="form-control" id="doctorNote" name="doctorNote" rows="3" required></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="patientID" class="form-label">Patient ID</label>
+        <input type="text" class="form-control" id="patientID" name="patientID" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="timestamp" class="form-label">Timestamp</label>
+        <input type="text" class="form-control" id="timestamp" value="@timestamp" readonly>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
