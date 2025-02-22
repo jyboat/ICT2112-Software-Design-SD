@@ -10,7 +10,11 @@
 
 @if (userRole == "Doctor")  //if user is Nurse, this button will not be displayed
 {   
-    <a class="btn btn-primary" asp-controller="ManageRecord" asp-action="CreateMD">
+    <a class="btn btn-primary" asp-controller="ManageRecord" asp-action="DisplayCreateRecord">
         <i class="bi bi-plus-circle"></i> Create Medical Record
+    </a>
+
+    <a class="btn btn-primary" asp-controller="ManageRecord" asp-action="DisplayUpdateRecord">
+        <i class="bi bi-plus-circle"></i> Update Medical Record
     </a>
 }
