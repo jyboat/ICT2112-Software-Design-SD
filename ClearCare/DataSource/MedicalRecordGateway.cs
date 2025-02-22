@@ -16,7 +16,6 @@ namespace ClearCare.DataSource
             db = FirebaseService.Initialize();
         }
 
-        // Insert Medical Record into Firebase Firestore    
         public async Task<MedicalRecord> InsertMedicalRecord(string doctorNote, string patientID)
         {
             try
@@ -58,25 +57,33 @@ namespace ClearCare.DataSource
                     return null;
                 }
 
-                // Step 4: Get the latest medicalRecordID and increment
-                QuerySnapshot snapshot = await medicalRecordsRef.OrderByDescending("MedicalRecordID").Limit(1).GetSnapshotAsync();
-                int newMedicalRecordID = snapshot.Documents.Count > 0
-                    ? snapshot.Documents[0].GetValue<int>("MedicalRecordID") + 1
-                    : 1;
+                // Step 4: Find the highest existing MDx number
+                QuerySnapshot allRecordsSnapshot = await medicalRecordsRef.GetSnapshotAsync();
+                int highestID = 0;
+
+                foreach (var doc in allRecordsSnapshot.Documents)
+                {
+                    string docID = doc.Id; // Example: "MD3"
+                    if (docID.StartsWith("MD") && int.TryParse(docID.Substring(2), out int id))
+                    {
+                        highestID = Math.Max(highestID, id);
+                    }
+                }
+
+                int newMedicalRecordID = highestID + 1;
+                string newRecordID = $"MD{newMedicalRecordID}";
 
                 // Step 5: Generate current timestamp
                 Timestamp currentTimestamp = Timestamp.FromDateTime(DateTime.UtcNow);
 
                 // Step 6: Create a new medical record
-                MedicalRecord record = new MedicalRecord(doctorNote, currentTimestamp, patientID)
-                {
-                    MedicalRecordID = newMedicalRecordID
-                };
+                MedicalRecord record = new MedicalRecord(doctorNote, currentTimestamp, patientID);
 
-                // Step 7: Add record to Firestore
-                DocumentReference docRef = await medicalRecordsRef.AddAsync(record);
+                // Step 7: Add record to Firestore with unique document ID
+                DocumentReference docRef = medicalRecordsRef.Document(newRecordID);
+                await docRef.SetAsync(record);
 
-                Console.WriteLine($"Medical record inserted successfully with Firestore ID: {docRef.Id}, MedicalRecordID: {newMedicalRecordID}");
+                Console.WriteLine($"Medical record inserted successfully with Firestore ID: {newRecordID}");
 
                 return record;
             }
@@ -86,6 +93,8 @@ namespace ClearCare.DataSource
                 return null;
             }
         }
+
+
 
 
 
