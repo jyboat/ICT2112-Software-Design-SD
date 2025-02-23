@@ -1,0 +1,42 @@
+@{
+    var record = ViewData["RecordDetails"] as dynamic;
+}
+
+<h2>Medical Record Details</h2>
+<table class="table">
+    <tr>
+        <th>Medical Record ID</th>
+        <td>@record?.MedicalRecordID</td>
+    </tr>
+    <tr>
+        <th>Patient ID</th>
+        <td>@record?.PatientID</td>
+    </tr>
+    <tr>
+        <th>Created By</th>
+        <td>@record?.CreatedBy</td>
+    </tr>
+    <tr>
+        <th>Date</th>
+        <td>@record?.Date</td>
+    </tr>
+    <tr>
+        <th>Doctor Note</th>
+        <td>@record?.DoctorNote</td>
+    </tr>
+    <tr>
+        <th>Attachment</th>
+        <td>
+            @if (record?.HasAttachment)
+            {
+                <a href="/ViewRecord/ViewAttachment/@record?.MedicalRecordID">@record?.AttachmentName</a>
+            }
+            else
+            {
+                <span>No Attachment</span>
+            }
+        </td>
+    </tr>
+</table>
+
+<a href="/ViewRecord" class="btn btn-secondary">Back to Records</a>

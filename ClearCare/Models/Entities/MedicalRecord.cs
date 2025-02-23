@@ -6,45 +6,50 @@ namespace ClearCare.Models.Entities
     public class MedicalRecord
     {
         [FirestoreProperty]
-        public string DoctorNote { get; set; }
+        private string DoctorNote { get; set; }
 
         [FirestoreProperty]
-        public Timestamp Date { get; set; }
+        private Timestamp Date { get; set; }
 
         [FirestoreProperty]
-        public string PatientID { get; set; }
+        private string PatientID { get; set; }
 
         [FirestoreProperty]
-        public string MedicalRecordID { get; set; }
+        private string MedicalRecordID { get; set; }
+
+        // Stores the file as a byte array, easier retrieval
+        [FirestoreProperty]
+        private byte[] Attachment { get; set; } 
+
+        // store the name of the file
+        [FirestoreProperty]
+        private string AttachmentName { get; set; }
 
         [FirestoreProperty]
-        public byte[] Attachment { get; set; } // Stores the file as a byte array, easier retrieval
-
-        [FirestoreProperty]
-        public string AttachmentName { get; set; } // store the name of the file
+        private string UserID { get; set; }
 
 
         // Getter and Setters
-        public string getDoctorNote() => DoctorNote;
-        public Timestamp getDate() => Date;
-        public string getPatientID() => PatientID;
+        private string getDoctorNote() => DoctorNote;
+        private Timestamp getDate() => Date;
+        private string getPatientID() => PatientID;
+        private string getUserID() => UserID;
+        private string getMedicalRecordID() => MedicalRecordID;
+        private byte[] getAttachment() => Attachment;
+        private string getAttachmentName() => AttachmentName;
 
-        public string getMedicalRecordID() => MedicalRecordID;
-        public byte[] getAttachment() => Attachment;
-        public string getAttachmentName() => AttachmentName;
-
-        public void setDoctorNote(string doctorNote) => DoctorNote = doctorNote;
-        public void setDate(Timestamp date) => Date = date;
-        public void setPatientID(string patientID) => PatientID = patientID;
-        public void setAttachment(byte[] attachment) => Attachment = attachment;
-        public void setAttachmentName(string attachmentName) => AttachmentName = attachmentName;
-
-        public void setMedicalRecordID(string medicalrecordID) => MedicalRecordID = medicalrecordID;
+        private void setDoctorNote(string doctorNote) => DoctorNote = doctorNote;
+        private void setDate(Timestamp date) => Date = date;
+        private void setPatientID(string patientID) => PatientID = patientID;
+        private void setUserID(string userID) => UserID = userID;
+        private void setAttachment(byte[] attachment) => Attachment = attachment;
+        private void setAttachmentName(string attachmentName) => AttachmentName = attachmentName;
+        private void setMedicalRecordID(string medicalrecordID) => MedicalRecordID = medicalrecordID;
 
         public MedicalRecord() {}
 
         // Object Creation
-        public MedicalRecord(string doctorNote, Timestamp date, string patientID, string medicalrecordID, byte[] attachment, string attachmentName)
+        public MedicalRecord(string doctorNote, Timestamp date, string patientID, string medicalrecordID, byte[] attachment, string attachmentName, string userID)
         {
             DoctorNote = doctorNote;
             Date = date;
@@ -52,6 +57,32 @@ namespace ClearCare.Models.Entities
             MedicalRecordID = medicalrecordID;
             Attachment = attachment;
             AttachmentName = attachmentName;
+            UserID = userID;
+        }
+
+        // Method to check if an attachment exists
+        public bool HasAttachment() => getAttachment() != null && getAttachment().Length > 0;
+
+        // Method to retrieve attachment safely
+        public (byte[], string) RetrieveAttachment()
+        {
+            if (!HasAttachment()) return (null, null);
+            return (getAttachment(), getAttachmentName());
+        }
+
+        // Exposed method to return all necessary details
+        public Dictionary<string, object> GetRecordDetails()
+        {
+            return new Dictionary<string, object>
+            {
+                { "MedicalRecordID", MedicalRecordID },
+                { "PatientID", PatientID },
+                { "CreatedByUserID", UserID },
+                { "Date", Date },
+                { "DoctorNote", DoctorNote },
+                { "AttachmentName", AttachmentName },
+                { "HasAttachment", Attachment != null && Attachment.Length > 0 }
+            };
         }
 
     }

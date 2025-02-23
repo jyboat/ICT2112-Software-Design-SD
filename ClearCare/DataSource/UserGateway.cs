@@ -112,5 +112,27 @@ namespace ClearCare.DataSource
             return userList;
         }
 
+        // Method to retrieve the user's name based on their ID
+        public async Task<string> FindUserNameByID(string userID)
+        {
+            if (string.IsNullOrEmpty(userID))
+            {
+                Console.WriteLine("Error: UserID is null or empty.");
+                return "Unknown User";
+            }
+
+            DocumentReference docRef = db.Collection("User").Document(userID);
+            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+            if (!snapshot.Exists)
+            {
+                Console.WriteLine($"User with ID {userID} not found in Firestore.");
+                return "Unknown User";
+            }
+
+            return snapshot.ContainsField("Name") ? snapshot.GetValue<string>("Name") : "Unknown User";
+        }
+
+
     }
 }

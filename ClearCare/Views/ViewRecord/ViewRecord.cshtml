@@ -1,7 +1,7 @@
 @{
     ViewData["Title"] = "Medical Records";
     var userRole = Context.Session.GetString("Role");
-    var medicalRecords = ViewData["MedicalRecords"] as List<ClearCare.Models.Entities.MedicalRecord>;
+    var medicalRecords = ViewData["MedicalRecords"] as List<dynamic>;
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -24,9 +24,9 @@
     <thead>
         <tr>
             <th>Medical Record ID</th>
-            <th>Doctor Note</th>
             <th>Patient ID</th>
-            <th>Attachment</th>
+            <th>Created By</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -34,19 +34,10 @@
         {
             <tr>
                 <td>@record.MedicalRecordID</td>
-                <td>@record.DoctorNote</td>
                 <td>@record.PatientID</td>
+                <td>@record.CreatedBy</td>
                 <td>
-                    @if (!string.IsNullOrEmpty(record.AttachmentName))
-                    {
-                        <a asp-controller="ViewRecord" asp-action="ViewAttachment" asp-route-recordID="@record.MedicalRecordID" target="_blank">
-                            @record.AttachmentName
-                        </a>
-                    }
-                    else
-                    {
-                        <span>No attachment</span>
-                    }
+                    <a href="/ViewRecord/@record.RecordID" class="btn btn-primary">View More Details</a>
                 </td>
             </tr>
         }

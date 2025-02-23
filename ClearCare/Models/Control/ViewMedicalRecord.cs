@@ -8,16 +8,63 @@ namespace ClearCare.Models.Control
     public class ViewMedicalRecord
     {
         private MedicalRecordGateway MedicalRecordGateway;
+        private readonly UserGateway UserGateway;
+        private readonly EncryptionManagement encryptionManagement;
 
         public ViewMedicalRecord()
         {
             MedicalRecordGateway = new MedicalRecordGateway();
+            UserGateway = new UserGateway();
+            encryptionManagement = new EncryptionManagement();
         }
 
-        // Retrieve all medical records
-        public async Task<List<MedicalRecord>> GetAllMedicalRecords()
+        // Retrieve all medical records and process them for display
+        public async Task<List<dynamic>> GetAllProcessedMedicalRecords()
         {
-            return await MedicalRecordGateway.RetrieveAllMedicalRecords();
+            var medicalRecords = await MedicalRecordGateway.RetrieveAllMedicalRecords();
+            var processedRecords = new List<dynamic>();
+
+            foreach (var record in medicalRecords)
+            {
+                var recordDetails = record.GetRecordDetails();
+                string userName = await UserGateway.FindUserNameByID((string)recordDetails["CreatedByUserID"]);
+
+                processedRecords.Add(new
+                {
+                    MedicalRecordID = recordDetails["MedicalRecordID"],
+                    PatientID = recordDetails["PatientID"],
+                    CreatedBy = userName,
+                    RecordID = recordDetails["MedicalRecordID"]
+                });
+            }
+            return processedRecords;
+        }
+
+        // Retrieve a single medical record with full details
+        public async Task<dynamic> GetMedicalRecordWithDetails(string recordID)
+        {
+            var medicalRecord = await MedicalRecordGateway.RetrieveMedicalRecordById(recordID);
+            if (medicalRecord == null)
+            {
+                return null;
+            }
+
+            var recordDetails = medicalRecord.GetRecordDetails();
+            string userName = await UserGateway.FindUserNameByID((string)recordDetails["CreatedByUserID"]);
+
+            // Decrypt the doctor note before returning it
+            string decryptedDoctorNote = encryptionManagement.DecryptMedicalData((string)recordDetails["DoctorNote"]);
+
+            return new
+            {
+                MedicalRecordID = recordDetails["MedicalRecordID"],
+                PatientID = recordDetails["PatientID"],
+                CreatedBy = userName,
+                Date = recordDetails["Date"],
+                DoctorNote = decryptedDoctorNote,
+                AttachmentName = recordDetails["AttachmentName"],
+                HasAttachment = recordDetails["HasAttachment"]
+            };
         }
 
         public async Task<MedicalRecord> GetMedicalRecordById(string recordID)
