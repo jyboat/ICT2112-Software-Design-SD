@@ -5,6 +5,7 @@ namespace ClearCare.Models.Entities
     [FirestoreData]
     public class User
     {
+        // Class properties
         [FirestoreProperty]
         protected string UserID { get; set; }
         [FirestoreProperty]
@@ -14,18 +15,18 @@ namespace ClearCare.Models.Entities
         [FirestoreProperty]
         protected string Name { get; set; }
         [FirestoreProperty]
-        protected int MobileNumber { get; set; }
+        protected long MobileNumber { get; set; }
         [FirestoreProperty]
         protected string Address { get; set; }
         [FirestoreProperty]
         protected string Role { get; set; }
 
-        // Getter and Setters
+        // Getter and Setter
         protected string GetUserID() => UserID;
         protected string GetEmail() => Email;
         protected string GetPassword() => Password;
         protected string GetName() => Name;
-        protected int GetMobileNumber() => MobileNumber;
+        protected long GetMobileNumber() => MobileNumber;
         protected string GetAddress() => Address;
         protected string GetRole() => Role;
 
@@ -33,11 +34,12 @@ namespace ClearCare.Models.Entities
         protected void SetEmail(string email) => Email = email;
         protected void SetPassword(string password) => Password = password;
         protected void SetName(string name) => Name = name;
-        protected void SetMobileNumber(int mobileNumber) => MobileNumber = mobileNumber;
+        protected void SetMobileNumber(long mobileNumber) => MobileNumber = mobileNumber;
         protected void SetAddress(string address) => Address = address;
         protected void SetRole(string role) => Role = role;
 
-        public User(string userID, string email, string password, string name, int mobileNumber, string address, string role)
+        // Object Creation
+        public User(string userID, string email, string password, string name, long mobileNumber, string address, string role)
         {
             UserID = userID;
             Email = email;
@@ -48,38 +50,30 @@ namespace ClearCare.Models.Entities
             Role = role;
         }
 
-        public User() {}
-
-
-        // Make a new user object
-        public static User CreateUserObject(string userID, string email, string password, string name, int mobileNumber, string address, string role)
+        // Returns hashed password to compare when User logs in
+        public string GetHashedPassword()
         {
-            return new User(userID, email, password, name, mobileNumber, address, role);
+            return GetPassword(); 
         }
 
-        // Validate Password during login
-        public bool ValidatePassword(string inputPassword)
-        {
-            return GetPassword() == inputPassword;
-        }
 
-        // Provide only necessary session data in a structured format
+        // Returns userID and Role to store in Session upon User login
         public (string userID, string role) GetSessionData()
         {
             return (GetUserID(), GetRole()); 
         }
 
-        // Provide structured public access to user details
-        public virtual Dictionary<string, object> GetPublicDetails()
+        // Returns all user data to be used in Profile
+        public virtual Dictionary<string, object> GetProfileData()
         {
             return new Dictionary<string, object>
             {
-                { "UserID", UserID },
-                { "Email", Email },
-                { "Name", Name },
-                { "Role", Role },
-                { "MobileNumber", MobileNumber },
-                { "Address", Address }
+                { "UserID", GetUserID() },
+                { "Email", GetEmail() },
+                { "Name", GetName() },
+                { "MobileNumber", GetMobileNumber() },
+                { "Address", GetAddress() },
+                { "Role", GetRole() }
             };
         }
 

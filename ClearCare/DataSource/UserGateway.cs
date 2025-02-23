@@ -53,8 +53,6 @@ namespace ClearCare.DataSource
                 return null;
             }
 
-            Console.WriteLine($"User found: {snapshot.Id} - {snapshot.GetValue<string>("Email")}");
-
             // Fetch parameters for User base class
             string role = snapshot.GetValue<string>("Role");
             string emailAddress = snapshot.GetValue<string>("Email");
@@ -72,6 +70,46 @@ namespace ClearCare.DataSource
 
             // Default to generic User if no matching role found
             return new User(userID, emailAddress, password, name, mobileNumber, address, role);
+        }
+
+        // Function to get all User in a list
+        public async Task<List<User>> GetAllUsers()
+        {
+            List<User> userList = new List<User>();
+
+            QuerySnapshot snapshot = await db.Collection("User").GetSnapshotAsync();
+
+            if (snapshot.Documents.Count == 0)
+            {
+                Console.WriteLine("No users found in Firestore.");
+            }
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                if (document.Exists)
+                {
+                    try
+                    {
+                        string userID = document.ContainsField("UserID") ? document.GetValue<string>("UserID") : document.Id;
+                        string email = document.ContainsField("Email") ? document.GetValue<string>("Email") : "unknown@example.com";
+                        string password = document.ContainsField("Password") ? document.GetValue<string>("Password") : "";
+                        string name = document.ContainsField("Name") ? document.GetValue<string>("Name") : "Unknown";
+                        long mobileNumber = document.ContainsField("MobileNumber") ? document.GetValue<long>("MobileNumber") : 0;
+                        string address = document.ContainsField("Address") ? document.GetValue<string>("Address") : "Unknown";
+                        string role = document.ContainsField("Role") ? document.GetValue<string>("Role") : "User";
+
+                        // Create new User object
+                        User user = new User(userID, email, password, name, (int)mobileNumber, address, role);
+                        userList.Add(user);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error converting user {document.Id}: {ex.Message}");
+                    }
+                }
+            }
+
+            return userList;
         }
 
     }
