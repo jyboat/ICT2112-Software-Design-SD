@@ -65,13 +65,16 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Edit Availability</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <form id="editAvailabilityForm">
                     <input type="hidden" id="editAvailabilityId">
+                    <input type="hidden" id="editStartTime" value="08:00:00">
+                    <input type="hidden" id="editEndTime" value="16:00:00">
+
                     <div class="form-group">
                         <label for="editNurseID">Nurse ID</label>
                         <input type="text" class="form-control" id="editNurseID" readonly>
@@ -80,16 +83,9 @@
                         <label for="editDate">Date</label>
                         <input type="date" class="form-control" id="editDate">
                     </div>
-                    <div class="form-group">
-                        <label for="editStartTime">Start Time</label>
-                        <input type="time" class="form-control" id="editStartTime">
-                    </div>
-                    <div class="form-group">
-                        <label for="editEndTime">End Time</label>
-                        <input type="time" class="form-control" id="editEndTime">
-                    </div>
+
                     <button type="button" class="btn btn-primary" onclick="updateAvailability()">Save Changes</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
                 </form>
             </div>
         </div>
@@ -98,13 +94,18 @@
 
 <!-- JavaScript -->
 <script>
-    function openEditModal(id, nurseId, date, startTime, endTime) {
+    function openEditModal(id, nurseId, date) {
         document.getElementById("editAvailabilityId").value = id;
         document.getElementById("editNurseID").value = nurseId;
         document.getElementById("editDate").value = date;
-        document.getElementById("editStartTime").value = startTime;
-        document.getElementById("editEndTime").value = endTime;
+        document.getElementById("editStartTime").value = "08:00:00";  // Hidden but fixed value
+        document.getElementById("editEndTime").value = "16:00:00";  // Hidden but fixed value
         $('#editAvailabilityModal').modal('show');
+    }
+
+    // Fix Close Button to Properly Close the Modal
+    function closeModal() {
+        $('#editAvailabilityModal').modal('hide');
     }
 
     function updateAvailability() {
@@ -115,7 +116,7 @@
         let endTime = document.getElementById("editEndTime").value;
 
         fetch("/NurseAvailability/Update", {
-            method: "POST", // 🔹 Ensure it's POST
+            method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
             },
@@ -123,12 +124,13 @@
                 availabilityId: id,
                 nurseID: nurseID,
                 date: date,
-                startTime: startTime,
-                endTime: endTime
+                startTime: startTime,  // Hidden but fixed value
+                endTime: endTime  // Hidden but fixed value
             })
         }).then(response => {
             if (response.ok) {
                 alert("Availability updated successfully!");
+                closeModal();  
                 location.reload();
             } else {
                 alert("Error updating availability.");

@@ -26,7 +26,7 @@ namespace ClearCare.Models
         // Constructor
         public NurseAvailability() 
         { 
-            NurseID = "USR003"; // Default Nurse ID to prevent null issues
+            NurseID = "USR003"; 
         }
 
         // Public function to set availability details
