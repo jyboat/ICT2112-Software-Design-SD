@@ -23,13 +23,13 @@ namespace ClearCare.Models
         [JsonProperty("endTime")]
         private string EndTime { get; set; }
 
-        // 🔹 Private Constructor
+        // Constructor
         public NurseAvailability() 
         { 
             NurseID = "USR003"; // Default Nurse ID to prevent null issues
         }
 
-        // 🔹 Public function to set availability details
+        // Public function to set availability details
         public static NurseAvailability SetAvailabilityDetails(int availabilityId, string nurseID, string date, string startTime, string endTime)
         {
             return new NurseAvailability
@@ -42,7 +42,7 @@ namespace ClearCare.Models
             };
         }
 
-        // 🔹 Public function to retrieve details
+        // Public function to retrieve details
         public Dictionary<string, object> GetAvailabilityDetails()
         {
             return new Dictionary<string, object>

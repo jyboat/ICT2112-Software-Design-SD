@@ -73,13 +73,24 @@ namespace ClearCare.Controllers
         // ✅ Handles Updating of Availability
         [HttpPost]
         [Route("Update")]
-        public async Task<IActionResult> UpdateAvailability([FromForm] NurseAvailability updatedAvailability)
+        public async Task<IActionResult> UpdateAvailability([FromForm] int availabilityId, [FromForm] string nurseID, [FromForm] string date, [FromForm] string startTime, [FromForm] string endTime)
         {
-            if (updatedAvailability == null)
+            if (availabilityId == 0 || string.IsNullOrEmpty(date))
                 return BadRequest(new { Message = "Invalid data" });
 
+            // 🔹 Create updated availability object
+            NurseAvailability updatedAvailability = NurseAvailability.SetAvailabilityDetails(
+                availabilityId,
+                nurseID,
+                date,
+                startTime,
+                endTime
+            );
+
+            Console.WriteLine($"Attempting to update availability: {availabilityId} → {date} {startTime} - {endTime}");
+
             await _gateway.UpdateAvailabilityAsync(updatedAvailability);
-            return RedirectToAction("Index");
+            return RedirectToAction("Index"); // ✅ Refresh List
         }
 
         // ✅ Handles Deletion of Availability

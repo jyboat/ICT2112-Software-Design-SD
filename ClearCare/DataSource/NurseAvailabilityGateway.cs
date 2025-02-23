@@ -91,12 +91,36 @@ namespace ClearCare.DataSource
             await docRef.SetAsync(availability.GetAvailabilityDetails());
         }
 
-        // ✅ Update Availability
+        // ✅ Update Availability Using Firestore Document ID
         public async Task UpdateAvailabilityAsync(NurseAvailability availability)
         {
-            DocumentReference docRef = _db.Collection("NurseAvailability").Document(availability.GetAvailabilityDetails()["availabilityId"].ToString());
-            Dictionary<string, object> availabilityData = availability.GetAvailabilityDetails();
-            await docRef.SetAsync(availabilityData, SetOptions.MergeAll);
+            CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
+
+            // 🔹 Find the document with the matching availabilityId
+            Query query = availabilitiesRef.WhereEqualTo("availabilityId", availability.GetAvailabilityDetails()["availabilityId"]);
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+            if (snapshot.Documents.Count == 0)
+            {
+                Console.WriteLine($"❌ No document found with availabilityId: {availability.GetAvailabilityDetails()["availabilityId"]}");
+                return; // No matching document found
+            }
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                Console.WriteLine($"✏ Updating document {document.Id} with availabilityId: {availability.GetAvailabilityDetails()["availabilityId"]}");
+
+                Dictionary<string, object> availabilityData = new Dictionary<string, object>
+        {
+            { "availabilityId", availability.GetAvailabilityDetails()["availabilityId"] },
+            { "nurseID", availability.GetAvailabilityDetails()["nurseID"] },  // ✅ Ensure Correct Case
+            { "date", availability.GetAvailabilityDetails()["date"] },
+            { "startTime", availability.GetAvailabilityDetails()["startTime"] },
+            { "endTime", availability.GetAvailabilityDetails()["endTime"] }
+        };
+
+                await document.Reference.SetAsync(availabilityData, SetOptions.MergeAll);
+            }
         }
 
         // ✅ Delete Availability

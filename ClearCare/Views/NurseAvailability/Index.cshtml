@@ -89,6 +89,7 @@
                         <input type="time" class="form-control" id="editEndTime">
                     </div>
                     <button type="button" class="btn btn-primary" onclick="updateAvailability()">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </form>
             </div>
         </div>
@@ -114,11 +115,11 @@
         let endTime = document.getElementById("editEndTime").value;
 
         fetch("/NurseAvailability/Update", {
-            method: "PUT",
+            method: "POST", // 🔹 Ensure it's POST
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/x-www-form-urlencoded"
             },
-            body: JSON.stringify({
+            body: new URLSearchParams({
                 availabilityId: id,
                 nurseID: nurseID,
                 date: date,
