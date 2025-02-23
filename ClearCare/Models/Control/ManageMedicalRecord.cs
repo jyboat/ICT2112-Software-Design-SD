@@ -17,12 +17,13 @@ namespace ClearCare.Models.Control
             encryptionManagement = new EncryptionManagement();
         }
 
-        public async Task<MedicalRecord> AddMedicalRecord(string doctorNote, string patientID)
+        public async Task<MedicalRecord> AddMedicalRecord(string doctorNote, string patientID, byte[] fileBytes, string fileName)
         {
             encryptedText = encryptionManagement.EncryptMedicalData(doctorNote);
 
-            return await MedicalRecordGateway.InsertMedicalRecord(encryptedText, patientID);
+            return await MedicalRecordGateway.InsertMedicalRecord(encryptedText, patientID, fileBytes, fileName);
         }
+
 
     }
 

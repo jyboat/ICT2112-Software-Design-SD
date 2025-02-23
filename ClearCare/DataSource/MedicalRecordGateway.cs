@@ -15,8 +15,9 @@ namespace ClearCare.DataSource
             // Initialize Firebase
             db = FirebaseService.Initialize();
         }
-
-        public async Task<MedicalRecord> InsertMedicalRecord(string doctorNote, string patientID)
+        
+        // insert a medical record
+        public async Task<MedicalRecord> InsertMedicalRecord(string doctorNote, string patientID,  byte[] fileBytes, string fileName)
         {
             try
             {
@@ -65,7 +66,7 @@ namespace ClearCare.DataSource
                 Timestamp currentTimestamp = Timestamp.FromDateTime(DateTime.UtcNow);
 
                 // Create a new medical record
-                MedicalRecord record = new MedicalRecord(doctorNote, currentTimestamp, patientID, newRecordID);
+                MedicalRecord record = new MedicalRecord(doctorNote, currentTimestamp, patientID, newRecordID, fileBytes, fileName);
 
                 // Add record to Firestore with unique document ID
                 DocumentReference docRef = medicalRecordsRef.Document(newRecordID);
@@ -81,10 +82,6 @@ namespace ClearCare.DataSource
                 return null;
             }
         }
-
-
-
-
 
     }
 }
