@@ -6,19 +6,19 @@ namespace ClearCare.Models.Entities
     public class Erratum
     {
         [FirestoreProperty]
-        private string ErratumID { get; set; }
+        private string ErratumID { get; set; } = string.Empty;
 
         [FirestoreProperty]
-        private string MedicalRecordID { get; set; }
+        private string MedicalRecordID { get; set; } = string.Empty;
 
         [FirestoreProperty]
         private Timestamp Date { get; set; }
 
         [FirestoreProperty]
-        private string ErratumDetails { get; set; }
+        private string ErratumDetails { get; set; } = string.Empty;
 
         [FirestoreProperty]
-        private string UserID { get; set; }
+        private string UserID { get; set; } = string.Empty;
 
         // Getter and Setters
         private string getErratumID() => ErratumID;
@@ -43,6 +43,20 @@ namespace ClearCare.Models.Entities
             Date = date;
             ErratumDetails = erratumDetails;
             UserID = userID;
+        }
+
+        // Method to get Erratum details
+        public Dictionary<string, object> GetErratumDetails()
+        {
+            var details = new Dictionary<string, object>
+            {
+                { "ErratumID", ErratumID },
+                { "MedicalRecordID", MedicalRecordID },
+                { "Date", Date },
+                { "ErratumDetails", ErratumDetails },
+                { "CreatedByUserID", UserID }
+            };
+            return details;
         }
     }
 }
