@@ -17,26 +17,32 @@ namespace ClearCare.Models.Entities
         [FirestoreProperty]
         private string ErratumDetails { get; set; }
 
+        [FirestoreProperty]
+        private string UserID { get; set; }
+
         // Getter and Setters
         private string getErratumID() => ErratumID;
         private string getMedicalRecordID() => MedicalRecordID;
         private Timestamp getDate() => Date;
         private string getErratumDetails() => ErratumDetails;
+        private string getUserID() => UserID;
 
         private void setErratumID(string erratumID) => ErratumID = erratumID;
         private void setMedicalRecordID(string medicalRecordID) => MedicalRecordID = medicalRecordID;
         private void setDate(Timestamp date) => Date = date;
         private void setErratumDetails(string erratumDetails) => ErratumDetails = erratumDetails;
+        private void setUserID(string userID) => UserID = userID;
 
         public Erratum() {}
 
         // Object Creation
-        public Erratum(string erratumID, string medicalRecordID, Timestamp date, string erratumDetails)
+        public Erratum(string erratumID, string medicalRecordID, Timestamp date, string erratumDetails, string userID)
         {
             ErratumID = erratumID;
             MedicalRecordID = medicalRecordID;
             Date = date;
             ErratumDetails = erratumDetails;
+            UserID = userID;
         }
     }
 }

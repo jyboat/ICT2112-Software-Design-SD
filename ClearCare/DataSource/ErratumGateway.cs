@@ -16,7 +16,7 @@ namespace ClearCare.DataSource
             db = FirebaseService.Initialize();
         }
 
-        public async Task<Erratum> InsertErratum(string medicalRecordID, string erratumDetails)
+        public async Task<Erratum> InsertErratum(string medicalRecordID, string erratumDetails, string userID)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace ClearCare.DataSource
                 Timestamp date = Timestamp.FromDateTime(DateTime.UtcNow);
 
                 // Create new Erratum record
-                Erratum erratum = new Erratum(erratumID, medicalRecordID, date, erratumDetails);
+                Erratum erratum = new Erratum(erratumID, medicalRecordID, date, erratumDetails, userID);
 
                 // Insert new Erratum record into Firestore with unique erratum ID
                 DocumentReference docRef = erratumRef.Document(erratumID);
