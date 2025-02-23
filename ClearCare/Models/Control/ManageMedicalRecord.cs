@@ -8,15 +8,20 @@ namespace ClearCare.Models.Control
     public class ManageMedicalRecord
     {
         private MedicalRecordGateway MedicalRecordGateway;
+        private readonly EncryptionManagement encryptionManagement;
+        string encryptedText;
 
         public ManageMedicalRecord()
         {
             MedicalRecordGateway = new MedicalRecordGateway();
+            encryptionManagement = new EncryptionManagement();
         }
 
         public async Task<MedicalRecord> AddMedicalRecord(string doctorNote, string patientID)
         {
-            return await MedicalRecordGateway.InsertMedicalRecord(doctorNote, patientID);
+            encryptedText = encryptionManagement.EncryptMedicalData(doctorNote);
+
+            return await MedicalRecordGateway.InsertMedicalRecord(encryptedText, patientID);
         }
 
     }

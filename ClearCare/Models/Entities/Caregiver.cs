@@ -18,6 +18,8 @@ namespace ClearCare.Models.Entities
         protected void SetAssignedPatientName(string patientName) => AssignedPatientName = patientName;
         protected void SetAssignedPatientID(string patientID) => AssignedPatientID = patientID;
 
+        public Caregiver() {}
+
         public Caregiver(string userID, string email, string password, string name, long mobileNumber, string address, string role,
                          string assignedPatientName, string assignedPatientID)
             : base(userID, email, password, name, mobileNumber, address, role)  // Call base constructor

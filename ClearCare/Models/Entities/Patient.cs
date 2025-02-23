@@ -26,6 +26,8 @@ namespace ClearCare.Models.Entities
         protected void SetAssignedCaregiverID(string caregiverID) => AssignedCaregiverID = caregiverID;
         protected void SetDateOfBirth(Timestamp  dob) => DateOfBirth = dob;
 
+        public Patient() {}
+
         // Object Creation
         public Patient(string userID, string email, string password, string name, long mobileNumber, string address, string role,
                        string assignedCaregiverName, string assignedCaregiverID, Timestamp  dateOfBirth)

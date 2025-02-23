@@ -31,7 +31,8 @@ namespace ClearCare.Models.Entities
 
         public void setMedicalRecordID(string medicalrecordID) => MedicalRecordID = medicalrecordID;
 
-        
+        public MedicalRecord() {}
+
         // Object Creation
         public MedicalRecord(string doctorNote, Timestamp date, string patientID, string medicalrecordID)
         {

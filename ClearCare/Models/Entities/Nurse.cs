@@ -13,6 +13,8 @@ namespace ClearCare.Models.Entities
         protected string GetDepartment() => Department;
         protected void SetDepartment(string department) => Department = department;
 
+        public Nurse() {}
+
         // Object Creation
         public Nurse(string userID, string email, string password, string name, long mobileNumber, string address, string role, string department)
             : base(userID, email, password, name, mobileNumber, address, role)  // Call base constructor

@@ -65,7 +65,7 @@ namespace ClearCare.DataSource
                 Timestamp currentTimestamp = Timestamp.FromDateTime(DateTime.UtcNow);
 
                 // Create a new medical record
-                MedicalRecord record = new MedicalRecord(doctorNote, currentTimestamp, patientID);
+                MedicalRecord record = new MedicalRecord(doctorNote, currentTimestamp, patientID, newRecordID);
 
                 // Add record to Firestore with unique document ID
                 DocumentReference docRef = medicalRecordsRef.Document(newRecordID);

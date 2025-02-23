@@ -38,6 +38,8 @@ namespace ClearCare.Models.Entities
         protected void SetAddress(string address) => Address = address;
         protected void SetRole(string role) => Role = role;
 
+        public User() {}
+
         // Object Creation
         public User(string userID, string email, string password, string name, long mobileNumber, string address, string role)
         {
