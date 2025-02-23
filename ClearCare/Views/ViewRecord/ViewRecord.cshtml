@@ -1,20 +1,55 @@
 @{
-    ViewData["Title"] = "Medical Record page";
-    var userRole = Context.Session.GetString("Role"); // Retrieve user role from session
+    ViewData["Title"] = "Medical Records";
+    var userRole = Context.Session.GetString("Role");
+    var medicalRecords = ViewData["MedicalRecords"] as List<ClearCare.Models.Entities.MedicalRecord>;
 }
 
 <h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
-
-
-@if (userRole == "Doctor")  //if user is Nurse, this button will not be displayed
-{   
+@if (userRole == "Doctor")
+{
     <a class="btn btn-primary" asp-controller="ManageRecord" asp-action="DisplayCreateRecord">
         <i class="bi bi-plus-circle"></i> Create Medical Record
     </a>
 
     <a class="btn btn-primary" asp-controller="ManageRecord" asp-action="DisplayUpdateRecord">
-        <i class="bi bi-plus-circle"></i> Update Medical Record
+        <i class="bi bi-pencil-square"></i> Update Medical Record
     </a>
 }
+
+@model List<ClearCare.Models.Entities.MedicalRecord>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Medical Record ID</th>
+            <th>Doctor Note</th>
+            <th>Patient ID</th>
+            <th>Attachment</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var record in medicalRecords)
+        {
+            <tr>
+                <td>@record.MedicalRecordID</td>
+                <td>@record.DoctorNote</td>
+                <td>@record.PatientID</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(record.AttachmentName))
+                    {
+                        <a asp-controller="ViewRecord" asp-action="ViewAttachment" asp-route-recordID="@record.MedicalRecordID" target="_blank">
+                            @record.AttachmentName
+                        </a>
+                    }
+                    else
+                    {
+                        <span>No attachment</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

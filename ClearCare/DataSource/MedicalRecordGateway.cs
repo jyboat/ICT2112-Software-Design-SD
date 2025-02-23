@@ -16,6 +16,35 @@ namespace ClearCare.DataSource
             db = FirebaseService.Initialize();
         }
         
+        // retrieve all med records
+        public async Task<List<MedicalRecord>> RetrieveAllMedicalRecords()
+        {
+            CollectionReference medicalRecordsRef = db.Collection("MedicalRecords");
+            QuerySnapshot snapshot = await medicalRecordsRef.GetSnapshotAsync();
+
+            List<MedicalRecord> records = new List<MedicalRecord>();
+            foreach (var doc in snapshot.Documents)
+            {
+                MedicalRecord record = doc.ConvertTo<MedicalRecord>();
+                records.Add(record);
+            }
+            return records;
+        }
+
+        // retrieve one med record
+        public async Task<MedicalRecord> RetrieveMedicalRecordById(string recordID)
+        {
+            DocumentReference docRef = db.Collection("MedicalRecords").Document(recordID);
+            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+            if (!snapshot.Exists)
+            {
+                return null;
+            }
+
+            return snapshot.ConvertTo<MedicalRecord>();
+        }
+
         // insert a medical record
         public async Task<MedicalRecord> InsertMedicalRecord(string doctorNote, string patientID,  byte[] fileBytes, string fileName)
         {
