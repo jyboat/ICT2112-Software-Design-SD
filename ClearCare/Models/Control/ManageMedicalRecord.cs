@@ -9,7 +9,7 @@ namespace ClearCare.Models.Control
     {
         private MedicalRecordGateway MedicalRecordGateway;
         private readonly EncryptionManagement encryptionManagement;
-        string encryptedText;
+        string encryptedText = string.Empty;
 
         public ManageMedicalRecord()
         {
