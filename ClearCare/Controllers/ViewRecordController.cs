@@ -23,17 +23,17 @@ namespace ClearCare.Controllers
             var userRole = HttpContext.Session.GetString("Role");
 
             // Restrict access to only Doctor or Nurse
-            if (userRole != "Doctor" && userRole != "Nurse") 
+            if (userRole != "Doctor" && userRole != "Nurse")
             {
                 Console.WriteLine("You do not have permission to access this page.");
-                return RedirectToAction("DisplayLogin", "Login"); 
+                return RedirectToAction("DisplayLogin", "Login");
             }
 
             // Fetch medical records
             var medicalRecords = await viewMedicalRecord.GetAllMedicalRecords();
 
             // Sort records numerically based on MedicalRecordID
-            var sortedRecords = medicalRecords.OrderBy(record => int.Parse(Regex.Replace(record.MedicalRecordID,@"\D", ""))).ToList();
+            var sortedRecords = medicalRecords.OrderBy(record => int.Parse(Regex.Replace(record.MedicalRecordID, @"\D", ""))).ToList();
             ViewData["MedicalRecords"] = sortedRecords;
 
             return View("ViewRecord");
@@ -49,7 +49,14 @@ namespace ClearCare.Controllers
                 return NotFound("Medical Record Not Found.");
             }
 
+            // Fetch erratums for the specific medical record
+            var erratumManagement = new ErratumManagement();
+            var erratums = await erratumManagement.GetAllErratum();
+            var filteredErratums = erratums.Where(e => e.MedicalRecordID == recordID).ToList();
+
             ViewData["RecordDetails"] = recordDetails;
+            ViewData["Erratums"] = filteredErratums;
+
             return View("ViewMedicalRecordDetails");
         }
 

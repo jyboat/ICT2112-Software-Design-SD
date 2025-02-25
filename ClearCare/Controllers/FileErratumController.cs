@@ -56,7 +56,7 @@ namespace ClearCare.Controllers
                 return NotFound("Failed to create erratum.");
             }
 
-            return RedirectToAction("DisplayViewRecord", "ViewRecord");
+            return RedirectToAction("ViewMedicalRecord", "ViewRecord", new { recordID = recordID });
         }
     }
 }

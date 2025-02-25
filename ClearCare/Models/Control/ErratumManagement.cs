@@ -29,12 +29,16 @@ namespace ClearCare.Models.Control
                 var erratumDetails = erratum.GetErratumDetails();
                 string doctorName = await UserGateway.FindUserNameByID((string)erratumDetails["DoctorID"]);
 
+                // Decrypt the erratum details before returning it
+                string decryptedErratumDetails = encryptionManagement.DecryptMedicalData((string)erratumDetails["ErratumDetails"]);
+
                 processedErratum.Add(new
                 {
                     ErratumID = erratumDetails["ErratumID"],
                     MedicalRecordID = erratumDetails["MedicalRecordID"],
+                    Date = erratumDetails["Date"],
                     CreatedBy = doctorName,
-                    ErratumDetails = erratumDetails["ErratumDetails"]
+                    ErratumDetails = decryptedErratumDetails
                 });
             }
             return processedErratum;
@@ -45,7 +49,7 @@ namespace ClearCare.Models.Control
             encryptedErratumDetails = encryptionManagement.EncryptMedicalData(erratumDetails);
 
             var result = await ErratumGateway.InsertErratum(medicalRecordID, encryptedErratumDetails, doctorID);
-            
+
             if (result == null)
             {
                 throw new InvalidOperationException("Failed to create erratum.");

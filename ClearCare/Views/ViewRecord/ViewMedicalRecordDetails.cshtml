@@ -18,7 +18,7 @@
     </tr>
     <tr>
         <th>Date</th>
-        <td>@record?.Date</td>
+        <td>@(((Google.Cloud.Firestore.Timestamp)record?.Date).ToDateTime().ToLocalTime().ToString("dd MMMM yyyy, hh:mm tt"))</td>
     </tr>
     <tr>
         <th>Doctor Note</th>
@@ -38,5 +38,43 @@
         </td>
     </tr>
 </table>
+
+<h2 class="mt-5">Filed Erratums</h2>
+
+@if (ViewData["Erratums"] is List<dynamic> erratums && erratums?.Count > 0)
+{
+    <table class="table table-bordered mt-3">
+        <thead class="table-light">
+            <tr>
+                <th>Erratum ID</th>
+                <th>Filed By</th>
+                <th>Date Filed</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (ViewData["Erratums"] is List<dynamic> erratumsList)
+            {
+                @foreach (var erratum in erratumsList)
+                {
+                    <tr>
+                        <td>@erratum.ErratumID</td>
+                        <td>@erratum.CreatedBy</td>
+                        <td>@(((Google.Cloud.Firestore.Timestamp)erratum.Date).ToDateTime().ToLocalTime().ToString("dd MMMM yyyy, hh:mm tt"))</td>
+                        <td>@erratum.ErratumDetails</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info mt-3">
+        No erratums have been filed for this medical record.
+    </div>
+}
+
+
 
 <a href="/ViewRecord" class="btn btn-secondary">Back to Records</a>
