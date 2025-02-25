@@ -26,14 +26,14 @@ namespace ClearCare.Models.Entities
         private string AttachmentName { get; set; }
 
         [FirestoreProperty]
-        private string UserID { get; set; }
+        private string DoctorID { get; set; }
 
 
         // Getter and Setters
         private string getDoctorNote() => DoctorNote;
         private Timestamp getDate() => Date;
         private string getPatientID() => PatientID;
-        private string getUserID() => UserID;
+        private string getDoctorID() => DoctorID;
         private string getMedicalRecordID() => MedicalRecordID;
         private byte[] getAttachment() => Attachment;
         private string getAttachmentName() => AttachmentName;
@@ -41,7 +41,7 @@ namespace ClearCare.Models.Entities
         private void setDoctorNote(string doctorNote) => DoctorNote = doctorNote;
         private void setDate(Timestamp date) => Date = date;
         private void setPatientID(string patientID) => PatientID = patientID;
-        private void setUserID(string userID) => UserID = userID;
+        private void setDoctorID(string doctorID) => DoctorID = doctorID;
         private void setAttachment(byte[] attachment) => Attachment = attachment;
         private void setAttachmentName(string attachmentName) => AttachmentName = attachmentName;
         private void setMedicalRecordID(string medicalrecordID) => MedicalRecordID = medicalrecordID;
@@ -49,7 +49,7 @@ namespace ClearCare.Models.Entities
         public MedicalRecord() {}
 
         // Object Creation
-        public MedicalRecord(string doctorNote, Timestamp date, string patientID, string medicalrecordID, byte[] attachment, string attachmentName, string userID)
+        public MedicalRecord(string doctorNote, Timestamp date, string patientID, string medicalrecordID, byte[] attachment, string attachmentName, string doctorID)
         {
             DoctorNote = doctorNote;
             Date = date;
@@ -57,7 +57,7 @@ namespace ClearCare.Models.Entities
             MedicalRecordID = medicalrecordID;
             Attachment = attachment;
             AttachmentName = attachmentName;
-            UserID = userID;
+            DoctorID = doctorID;
         }
 
         // Method to check if an attachment exists
@@ -77,7 +77,7 @@ namespace ClearCare.Models.Entities
             {
                 { "MedicalRecordID", MedicalRecordID },
                 { "PatientID", PatientID },
-                { "CreatedByUserID", UserID },
+                { "DoctorID", DoctorID },
                 { "Date", Date },
                 { "DoctorNote", DoctorNote },
                 { "AttachmentName", AttachmentName },

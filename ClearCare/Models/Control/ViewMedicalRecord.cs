@@ -27,13 +27,14 @@ namespace ClearCare.Models.Control
             foreach (var record in medicalRecords)
             {
                 var recordDetails = record.GetRecordDetails();
-                string userName = await UserGateway.FindUserNameByID((string)recordDetails["CreatedByUserID"]);
+                string patientName = await UserGateway.FindUserNameByID((string)recordDetails["PatientID"]);
+                string doctorName = await UserGateway.FindUserNameByID((string)recordDetails["DoctorID"]);
 
                 processedRecords.Add(new
                 {
                     MedicalRecordID = recordDetails["MedicalRecordID"],
-                    PatientID = recordDetails["PatientID"],
-                    CreatedBy = userName,
+                    PatientID = patientName,
+                    CreatedBy = doctorName,
                     RecordID = recordDetails["MedicalRecordID"]
                 });
             }
@@ -50,7 +51,8 @@ namespace ClearCare.Models.Control
             }
 
             var recordDetails = medicalRecord.GetRecordDetails();
-            string userName = await UserGateway.FindUserNameByID((string)recordDetails["CreatedByUserID"]);
+            string patientName = await UserGateway.FindUserNameByID((string)recordDetails["PatientID"]);
+            string doctorName = await UserGateway.FindUserNameByID((string)recordDetails["DoctorID"]);
 
             // Decrypt the doctor note before returning it
             string decryptedDoctorNote = encryptionManagement.DecryptMedicalData((string)recordDetails["DoctorNote"]);
@@ -58,8 +60,8 @@ namespace ClearCare.Models.Control
             return new
             {
                 MedicalRecordID = recordDetails["MedicalRecordID"],
-                PatientID = recordDetails["PatientID"],
-                CreatedBy = userName,
+                PatientID = patientName,
+                CreatedBy = doctorName,
                 Date = recordDetails["Date"],
                 DoctorNote = decryptedDoctorNote,
                 AttachmentName = recordDetails["AttachmentName"],

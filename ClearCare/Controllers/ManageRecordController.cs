@@ -54,7 +54,7 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> CreateMedicalRecord(IFormFile attachment, string doctorNote, string patientID)
         {
             var userRole = HttpContext.Session.GetString("Role");
-            var userID = HttpContext.Session.GetString("UserID");
+            var doctorID = HttpContext.Session.GetString("UserID");
 
             if (userRole != "Doctor") // Only allow doctors to submit records
             {
@@ -85,7 +85,7 @@ namespace ClearCare.Controllers
             }
 
             // Create the medical record and store the file in Firestore
-            var result = await ManageMedicalRecord.AddMedicalRecord(doctorNote, patientID, fileBytes, fileName, userID);
+            var result = await ManageMedicalRecord.AddMedicalRecord(doctorNote, patientID, fileBytes, fileName, doctorID);
 
             if (result != null)
             {
