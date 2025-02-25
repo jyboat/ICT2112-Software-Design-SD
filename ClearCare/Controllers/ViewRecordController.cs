@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models.Entities;
 using ClearCare.Models.Control;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace ClearCare.Controllers
 {
@@ -19,8 +20,22 @@ namespace ClearCare.Controllers
         [Route("")]
         public async Task<IActionResult> DisplayViewRecord()
         {
-            var medicalRecords = await viewMedicalRecord.GetAllProcessedMedicalRecords();
-            ViewData["MedicalRecords"] = medicalRecords;
+            var userRole = HttpContext.Session.GetString("Role");
+
+            // Restrict access to only Doctor or Nurse
+            if (userRole != "Doctor" && userRole != "Nurse") 
+            {
+                Console.WriteLine("You do not have permission to access this page.");
+                return RedirectToAction("DisplayLogin", "Login"); 
+            }
+
+            // Fetch medical records
+            var medicalRecords = await viewMedicalRecord.GetAllMedicalRecords();
+
+            // Sort records numerically based on MedicalRecordID
+            var sortedRecords = medicalRecords.OrderBy(record => int.Parse(Regex.Replace(record.MedicalRecordID,@"\D", ""))).ToList();
+            ViewData["MedicalRecords"] = sortedRecords;
+
             return View("ViewRecord");
         }
 
@@ -28,7 +43,7 @@ namespace ClearCare.Controllers
         [Route("{recordID}")]
         public async Task<IActionResult> ViewMedicalRecord(string recordID)
         {
-            var recordDetails = await viewMedicalRecord.GetMedicalRecordWithDetails(recordID);
+            var recordDetails = await viewMedicalRecord.GetMedicalRecordByID(recordID);
             if (recordDetails == null)
             {
                 return NotFound("Medical Record Not Found.");

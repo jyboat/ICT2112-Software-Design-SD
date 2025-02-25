@@ -46,8 +46,6 @@ namespace ClearCare.Controllers
             return View("UpdateRecord");
         }
 
-
-
         // Form action to insert medical record with optional file upload
         [HttpPost]
         [Route("CreateMedicalRecord")]

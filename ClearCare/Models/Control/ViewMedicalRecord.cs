@@ -2,10 +2,11 @@ using System.Threading.Tasks;
 using ClearCare.Models.Entities;
 using ClearCare.DataSource;
 using Google.Cloud.Firestore;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
-    public class ViewMedicalRecord
+    public class ViewMedicalRecord : IMedicalRecord
     {
         private MedicalRecordGateway MedicalRecordGateway;
         private readonly UserGateway UserGateway;
@@ -19,7 +20,7 @@ namespace ClearCare.Models.Control
         }
 
         // Retrieve all medical records and process them for display
-        public async Task<List<dynamic>> GetAllProcessedMedicalRecords()
+        public async Task<List<dynamic>> GetAllMedicalRecords()
         {
             var medicalRecords = await MedicalRecordGateway.RetrieveAllMedicalRecords();
             var processedRecords = new List<dynamic>();
@@ -41,8 +42,8 @@ namespace ClearCare.Models.Control
             return processedRecords;
         }
 
-        // Retrieve a single medical record with full details
-        public async Task<dynamic> GetMedicalRecordWithDetails(string recordID)
+        // Retrieve medical record by ID
+        public async Task<dynamic> GetMedicalRecordByID(string recordID)
         {
             var medicalRecord = await MedicalRecordGateway.RetrieveMedicalRecordById(recordID);
             if (medicalRecord == null)
