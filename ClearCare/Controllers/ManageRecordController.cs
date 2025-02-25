@@ -32,20 +32,6 @@ namespace ClearCare.Controllers
             return View("CreateRecord");
         }
 
-        [Route("Update")]
-        public IActionResult DisplayUpdateRecord()
-        {
-            var userRole = HttpContext.Session.GetString("Role");
-
-            if (userRole != "Doctor") // Restrict access to doctors only
-            {
-                Console.WriteLine("You do not have permission to access this page.");
-                return RedirectToAction("DisplayViewRecord", "ViewRecord");
-            }
-
-            return View("UpdateRecord");
-        }
-
         // Form action to insert medical record with optional file upload
         [HttpPost]
         [Route("CreateMedicalRecord")]
