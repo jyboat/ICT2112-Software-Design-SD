@@ -27,24 +27,24 @@ namespace ClearCare.Models.Control
             foreach (var erratum in errata)
             {
                 var erratumDetails = erratum.GetErratumDetails();
-                string userName = await UserGateway.FindUserNameByID((string)erratumDetails["CreatedByUserID"]);
+                string doctorName = await UserGateway.FindUserNameByID((string)erratumDetails["DoctorID"]);
 
                 processedErratum.Add(new
                 {
                     ErratumID = erratumDetails["ErratumID"],
                     MedicalRecordID = erratumDetails["MedicalRecordID"],
-                    CreatedBy = userName,
+                    CreatedBy = doctorName,
                     ErratumDetails = erratumDetails["ErratumDetails"]
                 });
             }
             return processedErratum;
         }
 
-        public async Task<Erratum> CreateErratum(string medicalRecordID, string erratumDetails, string userID)
+        public async Task<Erratum> CreateErratum(string medicalRecordID, string erratumDetails, string doctorID)
         {
             encryptedErratumDetails = encryptionManagement.EncryptMedicalData(erratumDetails);
 
-            var result = await ErratumGateway.InsertErratum(medicalRecordID, encryptedErratumDetails, userID);
+            var result = await ErratumGateway.InsertErratum(medicalRecordID, encryptedErratumDetails, doctorID);
             
             if (result == null)
             {
