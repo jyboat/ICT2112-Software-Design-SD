@@ -3,48 +3,67 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Google.Cloud.Location;
 using Newtonsoft.Json;
+using Google.Cloud.Firestore;
 
-namespace ClearCare.Models
+namespace ClearCare.Models.Entities
 {
+    [FirestoreData]
     public class ServiceAppointment
     {
-        [Key]
-        [JsonProperty("AppointmentId")]
-        private string AppointmentId { get; set; }
+        // string.Empty = set empty default or else it will throw error FCK U ASP.NET
+        [FirestoreProperty]
+        private string AppointmentId { get; set; } = string.Empty;
 
-        [JsonProperty("PatientId")]
-        private string PatientId { get; set; }
+        [FirestoreProperty]
+        private string PatientId { get; set; } = string.Empty;
 
-        [JsonProperty("NurseId")]
-        private string NurseId { get; set; }
+        [FirestoreProperty]
+        private string NurseId { get; set; } = string.Empty;
 
-        [JsonProperty("DoctorId")]
-        private string DoctorId { get; set; }
+        [FirestoreProperty]
+        private string DoctorId { get; set; } = string.Empty;
 
-        [JsonProperty("ServiceTypeId")]
-        private string ServiceTypeId { get; set; }
+        [FirestoreProperty]
+        private string ServiceTypeId { get; set; } = string.Empty;
 
-        [JsonProperty("Status")]
-        private string Status { get; set; }
+        [FirestoreProperty]
+        private string Status { get; set; } = string.Empty;
 
-        [JsonProperty("DateTime")]
+        [FirestoreProperty]
         private DateTime DateTime { get; set; }
 
-        [JsonProperty("Slot")]
-        private int Slot { get; set; }
+        [FirestoreProperty]
+        private int Slot { get; set; } = 0; 
 
-        [JsonProperty("Location")]
-        private string Location { get; set; }
+        [FirestoreProperty]
+        private string Location { get; set; } = string.Empty;
+
+        // Getter and Setter
+        private string GetAppointmentID() => AppointmentId;
+        private string GetPatientID() => PatientId;
+        private string GetNurseID() => NurseId;
+        private string GetDoctorID() => DoctorId;
+        private string GetServiceType() => ServiceTypeId;
+        private string GetStatus() => Status;
+        private DateTime GetDateTime() => DateTime; 
+        private int GetSlot() => Slot;
+        private string GetLocation() => Location;
+
+        private void SetAppointmentID(string appointmentId) => AppointmentId = appointmentId;
+        private void SetPatientID(string patientId) => PatientId = patientId;
+        private void SetNurseID(string nurseId) => NurseId = nurseId;
+        private void SetDoctorID(string doctorId) => DoctorId = doctorId;
+        private void SetServiceId(string serviceTypeId) => ServiceTypeId = serviceTypeId;
+        private void SetStatus(string status) => Status = status;
+        private void SetDateTime(DateTime dateTime) => DateTime = dateTime;
+        private void SetSlot(int slot) => Slot = slot;
+        private void SetLocation(string location) => Location = location;
 
         public void SetAppointmentId(string appointmentId)
         {
-            this.AppointmentId = appointmentId;
+            SetAppointmentID(appointmentId);
         }
-
-        // Private constructor
-        private ServiceAppointment() { }
-
-        // Constructor
+        
         public static ServiceAppointment setApptDetails(string appointmentId, string patientId, string nurseId,
             string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
         {
@@ -59,6 +78,22 @@ namespace ClearCare.Models
                 DateTime = dateTime,
                 Slot = slot,
                 Location = location
+            };
+        }
+
+        public Dictionary<string, object> GetApptDetails()
+        {
+            return new Dictionary<string, object>
+            {
+                { "PatientID", GetPatientID() },
+                { "AppointmentID", GetAppointmentID() },
+                { "NurseID", GetNurseID() },
+                { "DoctorID", GetDoctorID() },
+                { "ServiceType", GetServiceType() },
+                { "Status", GetStatus() },
+                { "DateTime", GetDateTime() },
+                { "Slot", GetSlot() },
+                { "Location", GetLocation() }
             };
         }
 
@@ -104,4 +139,6 @@ namespace ClearCare.Models
         }
 
     }
+
+
 }

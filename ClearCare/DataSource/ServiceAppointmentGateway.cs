@@ -1,5 +1,5 @@
 using Google.Cloud.Firestore;
-using ClearCare.Models;
+using ClearCare.Models.Entities;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
