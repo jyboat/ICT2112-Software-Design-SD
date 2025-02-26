@@ -16,7 +16,7 @@ namespace ClearCare.Controllers
             emailService = new EmailService();
         }
 
-        public IActionResult DisplayLogin()
+        public IActionResult Login()
         {
             return View("Login");
         }
@@ -40,7 +40,7 @@ namespace ClearCare.Controllers
         // Display page to let users choose which email to send OTP to
         public IActionResult ChooseEmail()
         {
-            return View();
+            return View("ChooseEmail");
         }
 
         // Send OTP to the chosen email
@@ -76,7 +76,7 @@ namespace ClearCare.Controllers
         // Display OTP Verification Page
         public IActionResult VerifyOTP()
         {
-            return View();
+            return View("VerifyOTP");
         }
 
         // Verify OTP and Email input
@@ -84,7 +84,6 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> VerifyOTP(string email, string otp)
         {
             var storedOtp = HttpContext.Session.GetString("OTP");
-            var storedEmail = HttpContext.Session.GetString("ChosenEmail");
             var otpExpiry = HttpContext.Session.GetString("OTP_Expiry");
 
             // Check if OTP expired
@@ -95,7 +94,7 @@ namespace ClearCare.Controllers
                 return View();
             }
 
-            if (storedOtp == otp && storedEmail == email)
+            if (storedOtp == otp)
             {
                 // OTP is correct, clear all OTP session data and log user in
                 HttpContext.Session.Remove("OTP");
