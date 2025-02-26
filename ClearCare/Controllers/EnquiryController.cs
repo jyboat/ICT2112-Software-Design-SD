@@ -16,7 +16,7 @@ public class EnquiryController : Controller
     public EnquiryController(ILogger<EnquiryController> logger)
     {
         _logger = logger;
-        _enquiryGateway = new EnquiryGateway(); 
+        _enquiryGateway = new EnquiryGateway();
     }
 
     public IActionResult Index()
@@ -47,24 +47,22 @@ public class EnquiryController : Controller
         enquiry.Id = Enquiries.Count + 1; // Simple ID assignment
         Enquiries.Add(enquiry);
 
-
-
         ViewData["Name"] = enquiry.Name;
         ViewData["Email"] = enquiry.Email;
         ViewData["Message"] = enquiry.Message;
 
-                await _enquiryGateway.SaveEnquiryAsync(enquiry);
+        await _enquiryGateway.SaveEnquiryAsync(enquiry);
 
 
         return View("EnquiryResult");
     }
 
-  [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel 
-        { 
-            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier 
+        return View(new ErrorViewModel
+        {
+            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
         });
     }
 }
