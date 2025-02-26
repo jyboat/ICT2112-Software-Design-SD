@@ -1,0 +1,13 @@
+@{
+    ViewData["Title"] = "Enquiry Submitted";
+}
+
+<h2>Enquiry Submitted Successfully</h2>
+
+<div>
+    <strong>Name:</strong> @ViewData["Name"]<br>
+    <strong>Email:</strong> @ViewData["Email"]<br>
+    <strong>Message:</strong> @ViewData["Message"]
+</div>
+
+<a href="@Url.Action("Index", "Enquiry")">Back to Enquiry Form</a>

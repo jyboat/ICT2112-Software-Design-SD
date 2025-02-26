@@ -7,6 +7,7 @@ namespace ClearCare.Controllers; // Make sure this namespace matches your projec
 public class EnquiryController : Controller
 {
     private readonly ILogger<EnquiryController> _logger;
+public static List<Enquiry> Enquiries = new List<Enquiry>();
 
     public EnquiryController(ILogger<EnquiryController> logger)
     {
@@ -24,6 +25,29 @@ public class EnquiryController : Controller
         // Assuming you have a Privacy view for enquiries as well.
         return View();
     }
+
+    public IActionResult ListEnquiries()
+{
+    return View(Enquiries);
+}
+
+
+
+   [HttpPost]
+public IActionResult SubmitEnquiry(Enquiry enquiry)
+{
+    _logger.LogInformation($"Received enquiry from {enquiry.Name} with email {enquiry.Email}: {enquiry.Message}");
+
+    enquiry.Id = Enquiries.Count + 1; // Simple ID assignment
+    Enquiries.Add(enquiry);
+
+    ViewData["Name"] = enquiry.Name;
+    ViewData["Email"] = enquiry.Email;
+    ViewData["Message"] = enquiry.Message;
+
+    return View("EnquiryResult");
+}
+
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

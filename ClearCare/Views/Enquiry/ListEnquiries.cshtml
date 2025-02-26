@@ -1,0 +1,29 @@
+@model List<ClearCare.Models.Enquiry>
+
+@{
+    ViewData["Title"] = "List of Enquiries";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Message</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var enquiry in Model)
+        {
+            <tr>
+                <td>@enquiry.Id</td>
+                <td>@enquiry.Name</td>
+                <td>@enquiry.Email</td>
+                <td>@enquiry.Message</td>
+            </tr>
+        }
+    </tbody>
+</table>
