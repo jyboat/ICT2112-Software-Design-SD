@@ -2,79 +2,85 @@
     var record = ViewData["RecordDetails"] as dynamic;
 }
 
-<h2>Medical Record Details</h2>
-<table class="table">
-    <tr>
-        <th>Medical Record ID</th>
-        <td>@record?.MedicalRecordID</td>
-    </tr>
-    <tr>
-        <th>Patient ID</th>
-        <td>@record?.PatientID</td>
-    </tr>
-    <tr>
-        <th>Created By</th>
-        <td>@record?.CreatedBy</td>
-    </tr>
-    <tr>
-        <th>Date</th>
-        <td>@(((Google.Cloud.Firestore.Timestamp)record?.Date).ToDateTime().ToLocalTime().ToString("dd MMMM yyyy, hh:mm tt"))</td>
-    </tr>
-    <tr>
-        <th>Doctor Note</th>
-        <td>@record?.DoctorNote</td>
-    </tr>
-    <tr>
-        <th>Attachment</th>
-        <td>
-            @if (record?.HasAttachment)
-            {
-                <a href="/ViewRecord/ViewAttachment/@record?.MedicalRecordID">@record?.AttachmentName</a>
-            }
-            else
-            {
-                <span>No Attachment</span>
-            }
-        </td>
-    </tr>
-</table>
+<h2 class="text-center my-4">Medical Record Details</h2>
 
-<h2 class="mt-5">Filed Erratums</h2>
-
-@if (ViewData["Erratums"] is List<dynamic> erratums && erratums?.Count > 0)
-{
-    <table class="table table-bordered mt-3">
-        <thead class="table-light">
-            <tr>
-                <th>Erratum ID</th>
-                <th>Filed By</th>
-                <th>Date Filed</th>
-                <th>Details</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (ViewData["Erratums"] is List<dynamic> erratumsList)
-            {
-                @foreach (var erratum in erratumsList)
-                {
-                    <tr>
-                        <td>@erratum.ErratumID</td>
-                        <td>@erratum.CreatedBy</td>
-                        <td>@(((Google.Cloud.Firestore.Timestamp)erratum.Date).ToDateTime().ToLocalTime().ToString("dd MMMM yyyy, hh:mm tt"))</td>
-                        <td>@erratum.ErratumDetails</td>
-                    </tr>
-                }
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <div class="alert alert-info mt-3">
-        No erratums have been filed for this medical record.
+<div class="container">
+    <div class="card shadow-lg p-4">
+        <table class="table table-bordered table-striped">
+            <tbody>
+                <tr>
+                    <th class="table-light">Medical Record ID</th>
+                    <td>@record?.MedicalRecordID</td>
+                </tr>
+                <tr>
+                    <th class="table-light">Patient ID</th>
+                    <td>@record?.PatientID</td>
+                </tr>
+                <tr>
+                    <th class="table-light">Created By</th>
+                    <td>@record?.CreatedBy</td>
+                </tr>
+                <tr>
+                    <th class="table-light">Date</th>
+                    <td>@(((Google.Cloud.Firestore.Timestamp)record?.Date).ToDateTime().ToLocalTime().ToString("yyyy-MM-dd HH:mm"))</td>
+                </tr>
+                <tr>
+                    <th class="table-light">Doctor Note</th>
+                    <td>@record?.DoctorNote</td>
+                </tr>
+                <tr>
+                    <th class="table-light">Attachment</th>
+                    <td>
+                        @if (record?.HasAttachment)
+                        {
+                            <a href="/ViewRecord/ViewAttachment/@record?.MedicalRecordID">@record?.AttachmentName</a>
+                        }
+                        else
+                        {
+                            <span>No Attachment</span>
+                        }
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-}
-
-
-
-<a href="/ViewRecord" class="btn btn-secondary">Back to Records</a>
+    <h2 class="text-center my-4">Filed Erratums</h2>
+    @if (ViewData["Erratums"] is List<dynamic> erratums && erratums?.Count > 0)
+    {
+    <div class="card shadow-lg p-4">
+        <table class="table table-bordered mt-3">
+            <thead class="table-light">
+                <tr>
+                    <th>Erratum ID</th>
+                    <th>Filed By</th>
+                    <th>Date Filed</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewData["Erratums"] is List<dynamic> erratumsList)
+                {
+                    @foreach (var erratum in erratumsList)
+                    {
+                        <tr>
+                            <td>@erratum.ErratumID</td>
+                            <td>@erratum.CreatedBy</td>
+                            <td>@(((Google.Cloud.Firestore.Timestamp)erratum.Date).ToDateTime().ToLocalTime().ToString("dd MMMM yyyy, hh:mm tt"))</td>
+                            <td>@erratum.ErratumDetails</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+    else
+    {
+        <div class="alert alert-info mt-3">
+            No erratums have been filed for this medical record.
+        </div>
+    }
+    <div class="pt-4">
+        <a href="/ViewRecord" class="btn btn-secondary">Back to Records</a>
+    </div>
+</div>
