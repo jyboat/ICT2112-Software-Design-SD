@@ -1,7 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
 /// where to put this - > // Set Google Application Credentials globally
-string credentialPath = Path.Combine(Directory.GetCurrentDirectory(), "firebase_credentials.json");
+string credentialPath = Path.Combine(Directory.GetCurrentDirectory(), "ict2112-firebase-adminsdk-fbsvc-75dd74a153.json");
 System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credentialPath);
 
 // Add services to the container.

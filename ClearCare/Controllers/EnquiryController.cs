@@ -38,6 +38,12 @@ public class EnquiryController : Controller
     }
 
 
+    [HttpGet]
+    public async Task<IActionResult> ListEnquiriesAsync()
+    {
+        var allEnquiries = await _enquiryGateway.GetAllEnquiriesAsync();
+        return View("ListEnquiries", allEnquiries);
+    }
 
     [HttpPost]
     public async Task<IActionResult> SubmitEnquiry(Enquiry enquiry)

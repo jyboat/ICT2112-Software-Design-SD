@@ -1,3 +1,4 @@
+using ClearCare.Models;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
@@ -27,6 +28,30 @@ namespace ClearCare.Gateways
         {
             // Save to the "Enquiry" collection with an auto-generated document ID
             await _db.Collection("Enquiry").AddAsync(enquiry);
+        }
+
+
+        public async Task<List<Enquiry>> GetAllEnquiriesAsync()
+        {
+            // 1) Grab all docs in "Enquiry" collection
+            QuerySnapshot snapshot = await _db.Collection("Enquiry").GetSnapshotAsync();
+
+            // 2) Convert each document to an Enquiry
+            var enquiries = new List<Enquiry>();
+            foreach (DocumentSnapshot doc in snapshot.Documents)
+            {
+                if (doc.Exists)
+                {
+                    // If you have [FirestoreData] attributes on Enquiry, you can do:
+                    Enquiry e = doc.ConvertTo<Enquiry>();
+
+                    // Or, if you want the Firestore auto-ID:
+                    // e.FirestoreId = doc.Id;  // Only if you have a FirestoreId property
+
+                    enquiries.Add(e);
+                }
+            }
+            return enquiries;
         }
     }
 }

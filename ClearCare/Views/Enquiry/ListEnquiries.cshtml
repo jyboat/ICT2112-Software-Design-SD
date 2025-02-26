@@ -16,14 +16,14 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var enquiry in Model)
-        {
-            <tr>
-                <td>@enquiry.Id</td>
-                <td>@enquiry.Name</td>
-                <td>@enquiry.Email</td>
-                <td>@enquiry.Message</td>
-            </tr>
-        }
-    </tbody>
+    @foreach(var e in Model)
+    {
+      <tr>
+        <td>@e.Id</td>
+        <td>@e.Name</td>
+        <td>@e.Email</td>
+        <td>@e.Message</td>
+      </tr>
+    }
+  </tbody>
 </table>
