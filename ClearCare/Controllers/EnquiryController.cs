@@ -20,10 +20,11 @@ public class EnquiryController : Controller
     }
 
     public IActionResult Index()
-    {
-        // This method returns the main view associated with the enquiry.
-        return View();
-    }
+{
+    // If you're using the static in-memory list:
+    var allEnquiries = Enquiries; // or wherever you get your list
+    return View(allEnquiries);
+}
 
 
     public IActionResult Privacy()
@@ -39,10 +40,13 @@ public class EnquiryController : Controller
 
 
     [HttpGet]
-    public async Task<IActionResult> ListEnquiriesAsync()
+    public async Task<IActionResult> ListEnquiriesByUser(string userUUID)
     {
-        var allEnquiries = await _enquiryGateway.GetAllEnquiriesAsync();
-        return View("ListEnquiries", allEnquiries);
+        // If using the Firestore query approach:
+        var userEnquiries = await _enquiryGateway.GetEnquiriesForUserAsync(userUUID);
+
+        // Then pass them to a view
+        return View("ListEnquiries", userEnquiries);
     }
 
     [HttpPost]
@@ -56,6 +60,8 @@ public class EnquiryController : Controller
         ViewData["Name"] = enquiry.Name;
         ViewData["Email"] = enquiry.Email;
         ViewData["Message"] = enquiry.Message;
+        ViewData["UserUUID"] = HardcodedUUIDs.UserUUID;
+
 
         await _enquiryGateway.SaveEnquiryAsync(enquiry);
 

@@ -31,27 +31,26 @@ namespace ClearCare.Gateways
         }
 
 
-        public async Task<List<Enquiry>> GetAllEnquiriesAsync()
+        public async Task<List<Enquiry>> GetEnquiriesForUserAsync(string userUuid)
         {
-            // 1) Grab all docs in "Enquiry" collection
-            QuerySnapshot snapshot = await _db.Collection("Enquiry").GetSnapshotAsync();
+            // 1) Build a query that looks for documents where UserUUID == userUuid
+            Query query = _db.Collection("Enquiry").WhereEqualTo("UserUUID", userUuid);
 
-            // 2) Convert each document to an Enquiry
+            // 2) Execute the query
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+            // 3) Convert each matching document into an Enquiry
             var enquiries = new List<Enquiry>();
             foreach (DocumentSnapshot doc in snapshot.Documents)
             {
                 if (doc.Exists)
                 {
-                    // If you have [FirestoreData] attributes on Enquiry, you can do:
                     Enquiry e = doc.ConvertTo<Enquiry>();
-
-                    // Or, if you want the Firestore auto-ID:
-                    // e.FirestoreId = doc.Id;  // Only if you have a FirestoreId property
-
                     enquiries.Add(e);
                 }
             }
             return enquiries;
         }
+
     }
 }

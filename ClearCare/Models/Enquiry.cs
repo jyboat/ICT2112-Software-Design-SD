@@ -20,5 +20,9 @@ namespace ClearCare.Models
 
         [FirestoreProperty]
         public string Message { get; set; }
+
+
+         [FirestoreProperty]
+        public string UserUUID { get; set; }
     }
 }
