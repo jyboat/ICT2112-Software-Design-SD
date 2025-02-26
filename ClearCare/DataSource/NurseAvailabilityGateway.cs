@@ -1,5 +1,5 @@
 using Google.Cloud.Firestore;
-using ClearCare.Models;
+using ClearCare.Models.Entities;
 using ClearCare.Interfaces;
 using System;
 using System.Threading.Tasks;
@@ -28,8 +28,8 @@ namespace ClearCare.DataSource
                 .WhereEqualTo("nurseID", staffId)
                 .OrderByDescending("availabilityId");
             // Small delay to allow Firestore sync
-            await Task.Delay(1000); 
-            QuerySnapshot snapshot = await query.GetSnapshotAsync(); 
+            await Task.Delay(1000);
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
 
             List<NurseAvailability> availabilityList = new List<NurseAvailability>();
 
@@ -88,7 +88,6 @@ namespace ClearCare.DataSource
         public async Task AddAvailabilityAsync(NurseAvailability availability)
         {
             DocumentReference docRef = _db.Collection("NurseAvailability").Document();
-
             await docRef.SetAsync(availability.GetAvailabilityDetails());
         }
 
@@ -103,7 +102,7 @@ namespace ClearCare.DataSource
             if (snapshot.Documents.Count == 0)
             {
                 // Console.WriteLine($"No document found with availabilityId: {availability.GetAvailabilityDetails()["availabilityId"]}");
-                return; 
+                return;
             }
 
             foreach (DocumentSnapshot document in snapshot.Documents)
@@ -113,7 +112,7 @@ namespace ClearCare.DataSource
                 Dictionary<string, object> availabilityData = new Dictionary<string, object>
         {
             { "availabilityId", availability.GetAvailabilityDetails()["availabilityId"] },
-            { "nurseID", availability.GetAvailabilityDetails()["nurseID"] }, 
+            { "nurseID", availability.GetAvailabilityDetails()["nurseID"] },
             { "date", availability.GetAvailabilityDetails()["date"] },
             { "startTime", availability.GetAvailabilityDetails()["startTime"] },
             { "endTime", availability.GetAvailabilityDetails()["endTime"] }

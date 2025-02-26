@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
-namespace ClearCare.Models
+namespace ClearCare.Models.Entities
 {
     public class NurseAvailability
     {
