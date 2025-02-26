@@ -44,14 +44,14 @@ namespace ClearCare.Models.Entities
         // Public function to set availability details
         public static NurseAvailability SetAvailabilityDetails(int availabilityId, string nurseID, string date, string startTime, string endTime)
         {
-            return new NurseAvailability
-            {
-                AvailabilityId = availabilityId,
-                NurseID = nurseID,
-                Date = date,
-                StartTime = startTime,
-                EndTime = endTime
-            };
+            NurseAvailability availability = new NurseAvailability();
+            availability.SetAvailabilityId(availabilityId);
+            availability.SetNurseId(nurseID);
+            availability.SetDate(date);
+            availability.SetStartTime(startTime);
+            availability.SetEndTime(endTime);
+
+            return availability;
         }
 
         // Public function to retrieve details
@@ -59,11 +59,11 @@ namespace ClearCare.Models.Entities
         {
             return new Dictionary<string, object>
             {
-                { "availabilityId", AvailabilityId },
-                { "nurseID", NurseID },
-                { "date", Date },
-                { "startTime", StartTime },
-                { "endTime", EndTime }
+                { "availabilityId", GetAvailabilityId() },
+                { "nurseID", GetNurseId() },
+                { "date", GetDate() },
+                { "startTime", GetStartTime() },
+                { "endTime", GetEndTime() }
             };
         }
 
