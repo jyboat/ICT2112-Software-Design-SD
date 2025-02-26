@@ -16,7 +16,7 @@ namespace ClearCare.Controllers
             emailService = new EmailService();
         }
 
-        public IActionResult Login()
+        public IActionResult displayLogin()
         {
             return View("Login");
         }
@@ -31,14 +31,14 @@ namespace ClearCare.Controllers
                 var (userID, _) = tempUser.GetSessionData();
                 HttpContext.Session.SetString("TempUserID", userID);
 
-                return RedirectToAction("ChooseEmail");
+                return RedirectToAction("displayChooseEmail");
             }
             ViewBag.Error = "Invalid login credentials";
             return View("Login");
         }
 
         // Display page to let users choose which email to send OTP to
-        public IActionResult ChooseEmail()
+        public IActionResult displayChooseEmail()
         {
             return View("ChooseEmail");
         }
@@ -66,7 +66,7 @@ namespace ClearCare.Controllers
 
             if (isSent)
             {
-                return RedirectToAction("VerifyOTP");
+                return RedirectToAction("displayVerifyOTP");
             }
 
             ViewBag.Error = "Failed to send OTP. Please try again.";
@@ -74,7 +74,7 @@ namespace ClearCare.Controllers
         }
 
         // Display OTP Verification Page
-        public IActionResult VerifyOTP()
+        public IActionResult displayVerifyOTP()
         {
             return View("VerifyOTP");
         }
