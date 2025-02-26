@@ -6,4 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="FirebaseAdmin" Version="2.2.0" />
+    <PackageReference Include="Google.Cloud.Firestore" Version="3.9.0" />
+  </ItemGroup>
+
 </Project>

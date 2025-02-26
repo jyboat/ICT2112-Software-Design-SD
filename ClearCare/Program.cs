@@ -1,7 +1,12 @@
 var builder = WebApplication.CreateBuilder(args);
 
+/// where to put this - > // Set Google Application Credentials globally
+string credentialPath = Path.Combine(Directory.GetCurrentDirectory(), "firebase_credentials.json");
+System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credentialPath);
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
 
 var app = builder.Build();
 
@@ -25,3 +30,5 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+

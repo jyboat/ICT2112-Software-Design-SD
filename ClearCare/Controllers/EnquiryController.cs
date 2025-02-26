@@ -1,17 +1,22 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models;
+using ClearCare.Gateways;  // Make sure to import your Gateway namespace
 
 namespace ClearCare.Controllers; // Make sure this namespace matches your project's namespace
 
 public class EnquiryController : Controller
 {
     private readonly ILogger<EnquiryController> _logger;
-public static List<Enquiry> Enquiries = new List<Enquiry>();
+    public static List<Enquiry> Enquiries = new List<Enquiry>();
+    private readonly EnquiryGateway _enquiryGateway;
+
+
 
     public EnquiryController(ILogger<EnquiryController> logger)
     {
         _logger = logger;
+        _enquiryGateway = new EnquiryGateway(); 
     }
 
     public IActionResult Index()
@@ -20,6 +25,7 @@ public static List<Enquiry> Enquiries = new List<Enquiry>();
         return View();
     }
 
+
     public IActionResult Privacy()
     {
         // Assuming you have a Privacy view for enquiries as well.
@@ -27,32 +33,38 @@ public static List<Enquiry> Enquiries = new List<Enquiry>();
     }
 
     public IActionResult ListEnquiries()
-{
-    return View(Enquiries);
-}
+    {
+        return View(Enquiries);
+    }
 
 
 
-   [HttpPost]
-public IActionResult SubmitEnquiry(Enquiry enquiry)
-{
-    _logger.LogInformation($"Received enquiry from {enquiry.Name} with email {enquiry.Email}: {enquiry.Message}");
+    [HttpPost]
+    public async Task<IActionResult> SubmitEnquiry(Enquiry enquiry)
+    {
+        _logger.LogInformation($"Received enquiry from {enquiry.Name} with email {enquiry.Email}: {enquiry.Message}");
 
-    enquiry.Id = Enquiries.Count + 1; // Simple ID assignment
-    Enquiries.Add(enquiry);
-
-    ViewData["Name"] = enquiry.Name;
-    ViewData["Email"] = enquiry.Email;
-    ViewData["Message"] = enquiry.Message;
-
-    return View("EnquiryResult");
-}
+        enquiry.Id = Enquiries.Count + 1; // Simple ID assignment
+        Enquiries.Add(enquiry);
 
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+
+        ViewData["Name"] = enquiry.Name;
+        ViewData["Email"] = enquiry.Email;
+        ViewData["Message"] = enquiry.Message;
+
+                await _enquiryGateway.SaveEnquiryAsync(enquiry);
+
+
+        return View("EnquiryResult");
+    }
+
+  [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        // Error view handling
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        return View(new ErrorViewModel 
+        { 
+            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier 
+        });
     }
 }
