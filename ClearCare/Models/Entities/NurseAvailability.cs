@@ -6,7 +6,7 @@ using Google.Cloud.Firestore;
 
 namespace ClearCare.Models.Entities
 {
-    [FirestoreData] 
+    [FirestoreData]
     public class NurseAvailability
     {
         [Key]
@@ -22,10 +22,10 @@ namespace ClearCare.Models.Entities
         [FirestoreProperty]
         private string StartTime { get; set; } = "08:00:00";
 
-       [FirestoreProperty]
+        [FirestoreProperty]
         private string EndTime { get; set; } = "16:00:00";
 
-    
+
         // 🔹 Private Getter Methods (Encapsulation)
         private int GetAvailabilityId() => AvailabilityId;
         private string GetNurseId() => NurseID;
@@ -65,6 +65,19 @@ namespace ClearCare.Models.Entities
                 { "startTime", StartTime },
                 { "endTime", EndTime }
             };
+        }
+
+        public static NurseAvailability FromFirestoreData(Dictionary<string, object> data)
+        {
+            NurseAvailability availability = new NurseAvailability();
+
+            availability.AvailabilityId = data.ContainsKey("availabilityId") ? Convert.ToInt32(data["availabilityId"]) : 0;
+            availability.NurseID = data.ContainsKey("nurseID") ? data["nurseID"].ToString() : "";
+            availability.Date = data.ContainsKey("date") ? data["date"].ToString() : "";
+            availability.StartTime = data.ContainsKey("startTime") ? data["startTime"].ToString() : "08:00:00";
+            availability.EndTime = data.ContainsKey("endTime") ? data["endTime"].ToString() : "16:00:00";
+
+            return availability;
         }
     }
 }

@@ -18,6 +18,28 @@ namespace ClearCare.DataSource
             _db = FirebaseService.Initialize();
         }
 
+        //  Retrieve ALL Nurse Availabilities 
+        public async Task<List<NurseAvailability>> GetAllStaffAvailabilityAsync()
+        {
+            CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
+            QuerySnapshot snapshot = await availabilitiesRef.GetSnapshotAsync(); 
+
+            List<NurseAvailability> availabilityList = new List<NurseAvailability>();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                if (document.Exists)
+                {
+                    var data = document.ToDictionary();
+
+                    NurseAvailability availability = NurseAvailability.FromFirestoreData(data);
+                    availabilityList.Add(availability);
+                }
+            }
+
+            return availabilityList;
+        }
+
         // Retrieve Nurse Availability
         public async Task<List<NurseAvailability>> GetAvailabilityByStaffAsync(string staffId)
         {

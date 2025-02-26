@@ -10,6 +10,12 @@ namespace ClearCare.Models.Control
     {
         private readonly NurseAvailabilityGateway _gateway;
 
+         //  Get all availabilities for ALL nurses
+        public async Task<List<NurseAvailability>> RetrieveAllStaffAvailability()
+        {
+            return await _gateway.GetAllStaffAvailabilityAsync();
+        }
+
         public NurseAvailabilityManager()
         {
             _gateway = new NurseAvailabilityGateway();
