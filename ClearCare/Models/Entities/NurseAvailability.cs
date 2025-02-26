@@ -2,32 +2,44 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using Google.Cloud.Firestore;
 
 namespace ClearCare.Models.Entities
 {
+    [FirestoreData] 
     public class NurseAvailability
     {
         [Key]
-        [JsonProperty("availabilityId")]
+        [FirestoreProperty]
         private int AvailabilityId { get; set; }
 
-        [JsonProperty("nurseID")]
-        private string NurseID { get; set; }
+        [FirestoreProperty]
+        private string NurseID { get; set; } = "USR003"; // Dummy NurseID for testing
 
-        [JsonProperty("date")]
-        private string Date { get; set; }
+        [FirestoreProperty]
+        private string Date { get; set; } = string.Empty;
 
-        [JsonProperty("startTime")]
-        private string StartTime { get; set; }
+        [FirestoreProperty]
+        private string StartTime { get; set; } = "08:00:00";
 
-        [JsonProperty("endTime")]
-        private string EndTime { get; set; }
+       [FirestoreProperty]
+        private string EndTime { get; set; } = "16:00:00";
 
-        // Constructor
-        public NurseAvailability() 
-        { 
-            NurseID = "USR003"; 
-        }
+    
+        // 🔹 Private Getter Methods (Encapsulation)
+        private int GetAvailabilityId() => AvailabilityId;
+        private string GetNurseId() => NurseID;
+        private string GetDate() => Date;
+        private string GetStartTime() => StartTime;
+        private string GetEndTime() => EndTime;
+
+        // 🔹 Private Setter Methods
+        private void SetAvailabilityId(int availabilityId) => AvailabilityId = availabilityId;
+        private void SetNurseId(string nurseId) => NurseID = nurseId;
+        private void SetDate(string date) => Date = date;
+        private void SetStartTime(string startTime) => StartTime = startTime;
+        private void SetEndTime(string endTime) => EndTime = endTime;
+
 
         // Public function to set availability details
         public static NurseAvailability SetAvailabilityDetails(int availabilityId, string nurseID, string date, string startTime, string endTime)
