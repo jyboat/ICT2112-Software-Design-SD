@@ -21,29 +21,37 @@ namespace ClearCare.DataSource
         {
             Query query = db.Collection("User").WhereEqualTo("Email", email);
             QuerySnapshot snapshot = await query.GetSnapshotAsync();
-            if (snapshot.Documents.Count > 0)
+
+            if (snapshot.Documents.Count == 0)
             {
-                var doc = snapshot.Documents[0];
-                Console.WriteLine($"User found: {doc.Id} - {doc.GetValue<string>("Email")}");
-
-                // Fetched parameters for User base class
-                string userID = doc.GetValue<string>("UserID");
-                string role = doc.GetValue<string>("Role");
-                string emailAddress = doc.GetValue<string>("Email");
-                string password = doc.GetValue<string>("Password");
-                string name = doc.GetValue<string>("Name");
-                int mobileNumber = (int)doc.GetValue<long>("MobileNumber");
-                string address = doc.GetValue<string>("Address");
-
-                // Default to generic User if no matching role found
-                return new User(userID, emailAddress, password, name, mobileNumber, address, role);
+                Console.WriteLine($"User with email {email} not found in Firestore.");
+                return null;
             }
-            return null;
+
+            var doc = snapshot.Documents[0];
+
+            if (!doc.Exists)
+            {
+                Console.WriteLine($"Document for email {email} exists in query, but Firestore returned empty data.");
+                return null;
+            }
+
+            // Assign UserID from document ID
+            string userID = doc.Id;
+            string emailAddress = doc.GetValue<string>("Email");
+            string password = doc.GetValue<string>("Password");
+            string name = doc.GetValue<string>("Name");
+            long mobileNumber = doc.GetValue<long>("MobileNumber");
+            string address = doc.GetValue<string>("Address");
+            string role = doc.GetValue<string>("Role");
+
+            // Default to generic User if no matching role found
+            return new User(userID, emailAddress, password, name, mobileNumber, address, role);
         }
 
+        // Function to find user by ID
         public async Task<User> FindUserByID(string userID)
         {
-            // 🔹 Directly access Firestore document using UserID as key
             DocumentReference docRef = db.Collection("User").Document(userID);
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
@@ -53,7 +61,7 @@ namespace ClearCare.DataSource
                 return null;
             }
 
-            // Fetch parameters for User base class
+            // Assign UserID from document ID
             string role = snapshot.GetValue<string>("Role");
             string emailAddress = snapshot.GetValue<string>("Email");
             string password = snapshot.GetValue<string>("Password");
@@ -120,24 +128,35 @@ namespace ClearCare.DataSource
         // Method to retrieve the user's name based on their ID
         public async Task<string> FindUserNameByID(string userID)
         {
+            // Check for null or empty userID
             if (string.IsNullOrEmpty(userID))
             {
                 Console.WriteLine("Error: UserID is null or empty.");
                 return "Unknown User";
             }
 
+            // Fetch user document from Firestore
             DocumentReference docRef = db.Collection("User").Document(userID);
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
+            // Check if document exists
             if (!snapshot.Exists)
             {
                 Console.WriteLine($"User with ID {userID} not found in Firestore.");
                 return "Unknown User";
             }
 
-            return snapshot.ContainsField("Name") ? snapshot.GetValue<string>("Name") : "Unknown User";
+            // Check if "Name" field exists
+            if (snapshot.ContainsField("Name"))
+            {
+                string userName = snapshot.GetValue<string>("Name");
+                return string.IsNullOrEmpty(userName) ? "Unknown User" : userName;
+            }
+            else
+            {
+                Console.WriteLine($"User {userID} exists but has no 'Name' field.");
+                return "Unknown User";
+            }
         }
-
-
     }
 }

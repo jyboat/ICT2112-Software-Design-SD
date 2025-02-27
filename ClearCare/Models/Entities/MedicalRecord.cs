@@ -5,6 +5,9 @@ namespace ClearCare.Models.Entities
     [FirestoreData]
     public class MedicalRecord
     {
+        // MedicalRecordID is assigned from Firestore document ID
+        private string MedicalRecordID { get; set; }
+
         [FirestoreProperty]
         private string DoctorNote { get; set; }
 
@@ -13,9 +16,6 @@ namespace ClearCare.Models.Entities
 
         [FirestoreProperty]
         private string PatientID { get; set; }
-
-        [FirestoreProperty]
-        private string MedicalRecordID { get; set; }
 
         // Stores the file as a byte array, easier retrieval
         [FirestoreProperty]
@@ -48,13 +48,13 @@ namespace ClearCare.Models.Entities
 
         public MedicalRecord() {}
 
-        // Object Creation
-        public MedicalRecord(string doctorNote, Timestamp date, string patientID, string medicalrecordID, byte[] attachment, string attachmentName, string doctorID)
+        // Constructor for creating new medical records
+        public MedicalRecord(string medicalrecordID, string doctorNote, Timestamp date, string patientID, byte[] attachment, string attachmentName, string doctorID)
         {
+            MedicalRecordID = medicalrecordID;
             DoctorNote = doctorNote;
             Date = date;
             PatientID = patientID;
-            MedicalRecordID = medicalrecordID;
             Attachment = attachment;
             AttachmentName = attachmentName;
             DoctorID = doctorID;
@@ -66,13 +66,12 @@ namespace ClearCare.Models.Entities
         // Method to retrieve attachment safely
         public (byte[], string) RetrieveAttachment()
         {
-            if (!HasAttachment()) return (null, null);
-            return (getAttachment(), getAttachmentName());
+            return HasAttachment() ? (getAttachment(), getAttachmentName()) : (null, null);
         }
 
         // Exposed method to return all necessary details
         public Dictionary<string, object> GetRecordDetails()
-        {
+        { 
             return new Dictionary<string, object>
             {
                 { "MedicalRecordID", MedicalRecordID },
@@ -81,7 +80,7 @@ namespace ClearCare.Models.Entities
                 { "Date", Date },
                 { "DoctorNote", DoctorNote },
                 { "AttachmentName", AttachmentName },
-                { "HasAttachment", Attachment != null && Attachment.Length > 0 }
+                { "HasAttachment", HasAttachment() }
             };
         }
 
