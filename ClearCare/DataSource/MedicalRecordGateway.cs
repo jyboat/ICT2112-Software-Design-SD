@@ -114,11 +114,11 @@ namespace ClearCare.DataSource
                     }
                 }
 
-                int newMedicalRecordID = highestID + 1;
-                string newRecordID = $"MD{newMedicalRecordID}";
+                // Generate Medical Record ID
+                string MedicalRecordID = $"MD{highestID + 1}";
 
-                // Add record to Firestore with unique document ID
-                DocumentReference docRef = medicalRecordsRef.Document(newRecordID);
+                // Create MedRecord Document in Firestore with unique MedRecord ID
+                DocumentReference docRef = medicalRecordsRef.Document(MedicalRecordID);
 
                 // Prepare the data to insert into Firestore
                 var medicalRecordData = new Dictionary<string, object>
@@ -133,10 +133,10 @@ namespace ClearCare.DataSource
 
                 await docRef.SetAsync(medicalRecordData);
 
-                Console.WriteLine($"Medical record inserted successfully with Firestore ID: {newRecordID}");
+                Console.WriteLine($"Medical record inserted successfully with Firestore ID: {MedicalRecordID}");
 
                 // Return the record with the correct MedicalRecordID (Firestore document ID)
-                return new MedicalRecord(newRecordID, doctorNote, currentTimestamp, patientID, fileBytes, fileName, doctorID);
+                return new MedicalRecord(MedicalRecordID, doctorNote, currentTimestamp, patientID, fileBytes, fileName, doctorID);
             }
             catch (Exception ex)
             {

@@ -21,7 +21,7 @@ namespace ClearCare.Models.Control
 
         public async Task<List<dynamic>> GetAllErratum()
         {
-            var errata = await ErratumGateway.FindErratum();
+            var errata = await ErratumGateway.RetrieveAllErratums();
             var processedErratum = new List<dynamic>();
 
             foreach (var erratum in errata)
