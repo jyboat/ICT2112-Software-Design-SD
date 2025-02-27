@@ -428,5 +428,6 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-# Firebase Secrets
-ClearCare/Firebase/*.json
+# Ignore Firebase Credentials
+firebase-adminsdk.json
+ClearCare/Firebase/firebase-adminsdk.json

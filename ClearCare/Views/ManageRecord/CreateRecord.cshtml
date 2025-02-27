@@ -1,0 +1,57 @@
+@{
+    ViewData["Title"] = "Create Medical Record";
+    var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"); // System timestamp
+}
+
+<div class="container py-5">
+    <div class="mx-auto bg-white rounded-3 shadow p-4" style="max-width: 600px;">
+        <h1 class="text-center mb-3 text-primary fw-bold">@ViewData["Title"]</h1>
+
+        <div class="alert alert-warning text-center rounded-pill">
+            <strong>Disclaimer:</strong><br>Ensure all fields are filled correctly.
+        </div>
+
+        <form method="post" asp-controller="ManageRecord" asp-action="CreateMedicalRecord"
+            enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="patientID" class="form-label fw-semibold">Patient ID</label>
+                <input type="text" class="form-control rounded-pill shadow-sm" id="patientID" name="patientID"
+                    placeholder="Enter Patient ID" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="doctorNote" class="form-label fw-semibold">Doctor Note</label>
+                <textarea class="form-control rounded-3 shadow-sm" id="doctorNote" name="doctorNote" rows="4"
+                    placeholder="Enter doctor's notes..." required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="attachment" class="form-label fw-semibold">CT Scan / Print (Optional)</label>
+                <input type="file" class="form-control rounded-pill shadow-sm" id="attachment" name="attachment"
+                    accept="image/*,application/pdf">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill shadow">Create Record</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .container {
+        display: block;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+    }
+
+    textarea::placeholder,
+    input::placeholder {
+        color: #adb5bd;
+    }
+</style>

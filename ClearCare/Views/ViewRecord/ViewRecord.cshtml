@@ -1,0 +1,71 @@
+@{
+    ViewData["Title"] = "Medical Records";
+    var userRole = Context.Session.GetString("Role");
+    var medicalRecords = ViewData["MedicalRecords"] as List<dynamic>;
+}
+
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">@ViewData["Title"]</h1>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold">Medical Records Overview</h5>
+    </div>
+
+    <!-- Search and Create Button Section -->
+    <div class="d-flex justify-content-between mb-3">
+        <input type="text" id="searchInput" class="form-control w-25" placeholder="Search records...">
+        
+        @if (userRole == "Doctor")
+        {
+            <a class="btn btn-success" asp-controller="ManageRecord" asp-action="DisplayCreateRecord">
+                <i class="bi bi-plus-circle"></i> Create Medical Record
+            </a>
+        }
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered" id="recordsTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>Medical Record ID</th>
+                    <th>Patient ID</th>
+                    <th>Created By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var record in medicalRecords)
+                {
+                    <tr>
+                        <td>@record.MedicalRecordID</td>
+                        <td>@record.PatientID</td>
+                        <td>@record.CreatedBy</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="/ViewRecord/@record.RecordID" class="btn btn-outline-info">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                @if (userRole == "Doctor")
+                                {
+                                    <a href="/FileErratum/@record.RecordID" class="btn btn-outline-warning">
+                                        <i class="bi bi-pencil-square"></i> Update
+                                    </a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="d-flex justify-content-center mt-3">
+        <nav>
+            <ul class="pagination" id="pagination"></ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Link to External JS File -->
+<script src="~/js/medicalRecords.js"></script>
