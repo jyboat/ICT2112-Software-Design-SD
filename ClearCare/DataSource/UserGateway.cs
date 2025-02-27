@@ -75,10 +75,26 @@ namespace ClearCare.DataSource
                 string specialization = snapshot.GetValue<string>("Specialization");
                 return new Doctor(userID, emailAddress, password, name, mobileNumber, address, role, specialization);
             }
+
             if (role == "Nurse")
             {
                 string department = snapshot.GetValue<string>("Department");
                 return new Nurse(userID, emailAddress, password, name, mobileNumber, address, role, department);
+            }
+
+            if (role == "Patient")
+            {
+                string assignedCaregiverName = snapshot.GetValue<string>("AssignedCaregiverName");
+                string assignedCaregiverID = snapshot.GetValue<string>("AssignedCaregiverID");
+                Timestamp dateOfBirth = snapshot.GetValue<Timestamp>("DateOfBirth");
+                return new Patient(userID, emailAddress, password, name, mobileNumber, address, role, assignedCaregiverName, assignedCaregiverID, dateOfBirth);
+            }
+            
+            if (role == "Caregiver")
+            {
+                string assignedPatientName = snapshot.GetValue<string>("AssignedPatientName");
+                string assignedPatientID = snapshot.GetValue<string>("AssignedPatientID");
+                return new Caregiver(userID, emailAddress, password, name, mobileNumber, address, role, assignedPatientName, assignedPatientID);
             }
 
             // Default to generic User if no matching role found
