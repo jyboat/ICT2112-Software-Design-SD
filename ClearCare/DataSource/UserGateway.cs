@@ -67,6 +67,11 @@ namespace ClearCare.DataSource
                 string specialization = snapshot.GetValue<string>("Specialization");
                 return new Doctor(userID, emailAddress, password, name, mobileNumber, address, role, specialization);
             }
+            if (role == "Nurse")
+            {
+                string department = snapshot.GetValue<string>("Department");
+                return new Nurse(userID, emailAddress, password, name, mobileNumber, address, role, department);
+            }
 
             // Default to generic User if no matching role found
             return new User(userID, emailAddress, password, name, mobileNumber, address, role);
