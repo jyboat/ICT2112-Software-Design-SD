@@ -1,7 +1,11 @@
+using System;
 using System.IO;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Google.Cloud.Firestore;
+using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 
 namespace ClearCare.DataSource
@@ -9,11 +13,14 @@ namespace ClearCare.DataSource
     public class UserGateway
     {
         private FirestoreDb db;
+        private readonly EncryptionManagement encryptionManagement;
 
         public UserGateway()
         {
             // Initialize Firebase
             db = FirebaseService.Initialize();
+            // Initialize Encryption Management
+            encryptionManagement = new EncryptionManagement();
         }
 
         // Query Firebase Firestore for a user where Email matches for Login Page.
@@ -133,6 +140,62 @@ namespace ClearCare.DataSource
             return snapshot.ContainsField("Name") ? snapshot.GetValue<string>("Name") : "Unknown User";
         }
 
+        // Method to insert user into Firestore with encrypted and hashed data
+        public async Task InsertUser(User user)
+        {
+            // Get the user's profile data as a dictionary
+            Dictionary<string, object> profileData = user.GetProfileData();
 
+            // Safely get the password
+            profileData.TryGetValue("Password", out var passwordObj);
+            string password = passwordObj?.ToString() ?? string.Empty;
+            string hashedPassword = encryptionManagement.HashPassword(password);
+
+            // Safely get other fields
+            profileData.TryGetValue("Email", out var emailObj);
+            string email = emailObj?.ToString() ?? string.Empty;
+
+            profileData.TryGetValue("Name", out var nameObj);
+            string name = nameObj?.ToString() ?? string.Empty;
+
+            profileData.TryGetValue("Address", out var addressObj);
+            string address = addressObj?.ToString() ?? string.Empty;
+
+            // Construct the new user dictionary
+            var newUser = new Dictionary<string, object>
+            {
+                { "UserID", profileData["UserID"] },
+                { "Email", email },
+                { "Password", hashedPassword },
+                { "Name", name },
+                { "MobileNumber", profileData["MobileNumber"] },
+                { "Address", address },
+                { "Role", profileData["Role"] }
+            };
+
+            // Add the new user to Firestore
+            DocumentReference docRef = await db.Collection("User").AddAsync(newUser);
+            Console.WriteLine($"User added with ID: {docRef.Id}");
+        }
+
+        // Method to get the next available user ID
+        public async Task<string> GetNextUserId()
+        {
+            Query query = db.Collection("User").OrderByDescending("UserID").Limit(1);
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+            if (snapshot.Count == 0)
+            {
+                return "USR001";  // Start from here if no users are found
+            }
+
+            var lastUser = snapshot.Documents[0];
+            string lastUserId = lastUser.GetValue<string>("UserID");
+
+            int numericId = int.Parse(lastUserId.Substring(3)); // Assumes "USR" prefix and numeric suffix
+            numericId++; // Increment to get the next user ID
+
+            return $"USR{numericId:D3}"; // Pad with zeros to maintain the format
+        }
     }
 }

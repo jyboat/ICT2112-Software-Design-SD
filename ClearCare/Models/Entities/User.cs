@@ -79,5 +79,23 @@ namespace ClearCare.Models.Entities
             };
         }
 
+        // Setter for profile data
+        public void SetProfileData(Dictionary<string, object> profileData)
+        {
+            if (profileData == null)
+            {
+                throw new ArgumentNullException(nameof(profileData), "Profile data cannot be null.");
+            }
+
+            // Use null-conditional and null-coalescing operators to handle potential null values
+            if (profileData.ContainsKey("UserID")) SetUserID(profileData["UserID"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("Email")) SetEmail(profileData["Email"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("Password")) SetPassword(profileData["Password"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("Name")) SetName(profileData["Name"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("MobileNumber")) SetMobileNumber(profileData["MobileNumber"] as long? ?? 0);
+            if (profileData.ContainsKey("Address")) SetAddress(profileData["Address"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("Role")) SetRole(profileData["Role"]?.ToString() ?? string.Empty);
+        }
+
     }
 }
