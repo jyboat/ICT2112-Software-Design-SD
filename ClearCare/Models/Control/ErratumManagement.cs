@@ -21,31 +21,35 @@ namespace ClearCare.Models.Control
 
         public async Task<List<dynamic>> GetAllErratum()
         {
-            var errata = await ErratumGateway.FindErratum();
+            var errata = await ErratumGateway.RetrieveAllErratums();
             var processedErratum = new List<dynamic>();
 
             foreach (var erratum in errata)
             {
                 var erratumDetails = erratum.GetErratumDetails();
-                string userName = await UserGateway.FindUserNameByID((string)erratumDetails["CreatedByUserID"]);
+                string doctorName = await UserGateway.FindUserNameByID((string)erratumDetails["DoctorID"]);
+
+                // Decrypt the erratum details before returning it
+                string decryptedErratumDetails = encryptionManagement.DecryptMedicalData((string)erratumDetails["ErratumDetails"]);
 
                 processedErratum.Add(new
                 {
                     ErratumID = erratumDetails["ErratumID"],
                     MedicalRecordID = erratumDetails["MedicalRecordID"],
-                    CreatedBy = userName,
-                    ErratumDetails = erratumDetails["ErratumDetails"]
+                    Date = erratumDetails["Date"],
+                    CreatedBy = doctorName,
+                    ErratumDetails = decryptedErratumDetails
                 });
             }
             return processedErratum;
         }
 
-        public async Task<Erratum> CreateErratum(string medicalRecordID, string erratumDetails, string userID)
+        public async Task<Erratum> CreateErratum(string medicalRecordID, string erratumDetails, string doctorID)
         {
             encryptedErratumDetails = encryptionManagement.EncryptMedicalData(erratumDetails);
 
-            var result = await ErratumGateway.InsertErratum(medicalRecordID, encryptedErratumDetails, userID);
-            
+            var result = await ErratumGateway.InsertErratum(medicalRecordID, encryptedErratumDetails, doctorID);
+
             if (result == null)
             {
                 throw new InvalidOperationException("Failed to create erratum.");

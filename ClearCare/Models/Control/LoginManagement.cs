@@ -33,5 +33,13 @@ namespace ClearCare.Models.Control
             }
             return null;
         }
+
+        public async Task<User> GetUserByID(string userID)
+        {
+            // Find user account from firestore
+            var user = await UserGateway.FindUserByID(userID);
+
+            return user;
+        }
     }
 }

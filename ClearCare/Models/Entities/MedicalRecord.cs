@@ -5,6 +5,9 @@ namespace ClearCare.Models.Entities
     [FirestoreData]
     public class MedicalRecord
     {
+        // MedicalRecordID is assigned from Firestore document ID
+        private string MedicalRecordID { get; set; }
+
         [FirestoreProperty]
         private string DoctorNote { get; set; }
 
@@ -13,9 +16,6 @@ namespace ClearCare.Models.Entities
 
         [FirestoreProperty]
         private string PatientID { get; set; }
-
-        [FirestoreProperty]
-        private string MedicalRecordID { get; set; }
 
         // Stores the file as a byte array, easier retrieval
         [FirestoreProperty]
@@ -26,14 +26,14 @@ namespace ClearCare.Models.Entities
         private string AttachmentName { get; set; }
 
         [FirestoreProperty]
-        private string UserID { get; set; }
+        private string DoctorID { get; set; }
 
 
         // Getter and Setters
         private string getDoctorNote() => DoctorNote;
         private Timestamp getDate() => Date;
         private string getPatientID() => PatientID;
-        private string getUserID() => UserID;
+        private string getDoctorID() => DoctorID;
         private string getMedicalRecordID() => MedicalRecordID;
         private byte[] getAttachment() => Attachment;
         private string getAttachmentName() => AttachmentName;
@@ -41,23 +41,23 @@ namespace ClearCare.Models.Entities
         private void setDoctorNote(string doctorNote) => DoctorNote = doctorNote;
         private void setDate(Timestamp date) => Date = date;
         private void setPatientID(string patientID) => PatientID = patientID;
-        private void setUserID(string userID) => UserID = userID;
+        private void setDoctorID(string doctorID) => DoctorID = doctorID;
         private void setAttachment(byte[] attachment) => Attachment = attachment;
         private void setAttachmentName(string attachmentName) => AttachmentName = attachmentName;
         private void setMedicalRecordID(string medicalrecordID) => MedicalRecordID = medicalrecordID;
 
         public MedicalRecord() {}
 
-        // Object Creation
-        public MedicalRecord(string doctorNote, Timestamp date, string patientID, string medicalrecordID, byte[] attachment, string attachmentName, string userID)
+        // Constructor for creating new medical records
+        public MedicalRecord(string medicalrecordID, string doctorNote, Timestamp date, string patientID, byte[] attachment, string attachmentName, string doctorID)
         {
+            MedicalRecordID = medicalrecordID;
             DoctorNote = doctorNote;
             Date = date;
             PatientID = patientID;
-            MedicalRecordID = medicalrecordID;
             Attachment = attachment;
             AttachmentName = attachmentName;
-            UserID = userID;
+            DoctorID = doctorID;
         }
 
         // Method to check if an attachment exists
@@ -66,22 +66,21 @@ namespace ClearCare.Models.Entities
         // Method to retrieve attachment safely
         public (byte[], string) RetrieveAttachment()
         {
-            if (!HasAttachment()) return (null, null);
-            return (getAttachment(), getAttachmentName());
+            return HasAttachment() ? (getAttachment(), getAttachmentName()) : (null, null);
         }
 
         // Exposed method to return all necessary details
         public Dictionary<string, object> GetRecordDetails()
-        {
+        { 
             return new Dictionary<string, object>
             {
                 { "MedicalRecordID", MedicalRecordID },
                 { "PatientID", PatientID },
-                { "CreatedByUserID", UserID },
+                { "DoctorID", DoctorID },
                 { "Date", Date },
                 { "DoctorNote", DoctorNote },
                 { "AttachmentName", AttachmentName },
-                { "HasAttachment", Attachment != null && Attachment.Length > 0 }
+                { "HasAttachment", HasAttachment() }
             };
         }
 

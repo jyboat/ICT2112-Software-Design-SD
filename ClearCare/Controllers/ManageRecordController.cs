@@ -32,29 +32,13 @@ namespace ClearCare.Controllers
             return View("CreateRecord");
         }
 
-        [Route("Update")]
-        public IActionResult DisplayUpdateRecord()
-        {
-            var userRole = HttpContext.Session.GetString("Role");
-
-            if (userRole != "Doctor") // Restrict access to doctors only
-            {
-                Console.WriteLine("You do not have permission to access this page.");
-                return RedirectToAction("DisplayViewRecord", "ViewRecord");
-            }
-
-            return View("UpdateRecord");
-        }
-
-
-
         // Form action to insert medical record with optional file upload
         [HttpPost]
         [Route("CreateMedicalRecord")]
         public async Task<IActionResult> CreateMedicalRecord(IFormFile attachment, string doctorNote, string patientID)
         {
             var userRole = HttpContext.Session.GetString("Role");
-            var userID = HttpContext.Session.GetString("UserID");
+            var doctorID = HttpContext.Session.GetString("UserID");
 
             if (userRole != "Doctor") // Only allow doctors to submit records
             {
@@ -85,7 +69,7 @@ namespace ClearCare.Controllers
             }
 
             // Create the medical record and store the file in Firestore
-            var result = await ManageMedicalRecord.AddMedicalRecord(doctorNote, patientID, fileBytes, fileName, userID);
+            var result = await ManageMedicalRecord.AddMedicalRecord(doctorNote, patientID, fileBytes, fileName, doctorID);
 
             if (result != null)
             {

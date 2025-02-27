@@ -16,22 +16,39 @@ namespace ClearCare.DataSource
             db = FirebaseService.Initialize();
         }
         
-        // retrieve all med records
+        // Retrieve all medical records
         public async Task<List<MedicalRecord>> RetrieveAllMedicalRecords()
         {
-            CollectionReference medicalRecordsRef = db.Collection("MedicalRecords");
-            QuerySnapshot snapshot = await medicalRecordsRef.GetSnapshotAsync();
+            List<MedicalRecord> recordsList = new List<MedicalRecord>();
+            QuerySnapshot snapshot = await db.Collection("MedicalRecords").GetSnapshotAsync();
 
-            List<MedicalRecord> records = new List<MedicalRecord>();
+            if (snapshot.Documents.Count == 0)
+            {
+                Console.WriteLine("No medical records found in Firestore.");
+                return recordsList;
+            }
+
             foreach (var doc in snapshot.Documents)
             {
-                MedicalRecord record = doc.ConvertTo<MedicalRecord>();
-                records.Add(record);
+                // Retrieve data from Firestore document
+                string recordID = doc.Id;
+                string doctorNote = doc.GetValue<string>("DoctorNote");
+                Timestamp date = doc.GetValue<Timestamp>("Date");
+                string patientID = doc.GetValue<string>("PatientID");
+                byte[] attachment = doc.GetValue<byte[]>("Attachment");
+                string attachmentName = doc.GetValue<string>("AttachmentName");
+                string doctorID = doc.GetValue<string>("DoctorID");
+
+                // Create a new MedicalRecord object with the Firestore data
+                MedicalRecord record = new MedicalRecord(recordID, doctorNote, date, patientID, attachment, attachmentName, doctorID);
+
+                // Add the newly created record to the list
+                recordsList.Add(record);
             }
-            return records;
+            return recordsList;
         }
 
-        // retrieve one med record
+        // Retrieve a medical record by ID
         public async Task<MedicalRecord> RetrieveMedicalRecordById(string recordID)
         {
             DocumentReference docRef = db.Collection("MedicalRecords").Document(recordID);
@@ -39,41 +56,50 @@ namespace ClearCare.DataSource
 
             if (!snapshot.Exists)
             {
+                Console.WriteLine($"Medical record {recordID} not found in Firestore.");
                 return null;
             }
 
-            return snapshot.ConvertTo<MedicalRecord>();
+            // Assign values from Firestore document
+            string doctorNote = snapshot.GetValue<string>("DoctorNote");
+            Timestamp date = snapshot.GetValue<Timestamp>("Date");
+            string patientID = snapshot.GetValue<string>("PatientID");
+            byte[] attachment = snapshot.GetValue<byte[]>("Attachment");
+            string attachmentName = snapshot.GetValue<string>("AttachmentName");
+            string doctorID = snapshot.GetValue<string>("DoctorID");
+
+            // Return record
+            return new MedicalRecord(recordID, doctorNote, date, patientID, attachment, attachmentName, doctorID);
         }
 
         // insert a medical record
-        public async Task<MedicalRecord> InsertMedicalRecord(string doctorNote, string patientID,  byte[] fileBytes, string fileName, string userID)
+        public async Task<MedicalRecord> InsertMedicalRecord(string doctorNote, string patientID,  byte[] fileBytes, string fileName, string doctorID)
         {
             try
             {
                 CollectionReference medicalRecordsRef = db.Collection("MedicalRecords");
 
-                // Check if patientID exists in User collection
-                CollectionReference usersRef = db.Collection("User");
-                QuerySnapshot userSnapshot = await usersRef
-                    .WhereEqualTo("UserID", patientID)
-                    .Limit(1)
-                    .GetSnapshotAsync();
+                // Fetch user document from Firestore
+                DocumentReference userDocRef = db.Collection("User").Document(patientID);
+                DocumentSnapshot userSnapshot = await userDocRef.GetSnapshotAsync();
 
-                if (userSnapshot.Documents.Count == 0)
+                if (!userSnapshot.Exists)
                 {
                     Console.WriteLine($"Error: No user found with UserID: {patientID}");
                     return null;
                 }
 
                 // Check if the role of the found user is "Patient"
-                DocumentSnapshot userDoc = userSnapshot.Documents[0];
-                string role = userDoc.GetValue<string>("Role");
+                string role = userSnapshot.GetValue<string>("Role");
 
                 if (!role.Equals("Patient", StringComparison.OrdinalIgnoreCase))
                 {
                     Console.WriteLine($"Error: The user with UserID: {patientID} is not a Patient.");
                     return null;
                 }
+
+                // Generate current timestamp
+                Timestamp currentTimestamp = Timestamp.FromDateTime(DateTime.UtcNow);
 
                 // Find the highest existing MDx number
                 QuerySnapshot allRecordsSnapshot = await medicalRecordsRef.GetSnapshotAsync();
@@ -88,22 +114,29 @@ namespace ClearCare.DataSource
                     }
                 }
 
-                int newMedicalRecordID = highestID + 1;
-                string newRecordID = $"MD{newMedicalRecordID}";
+                // Generate Medical Record ID
+                string MedicalRecordID = $"MD{highestID + 1}";
 
-                // Generate current timestamp
-                Timestamp currentTimestamp = Timestamp.FromDateTime(DateTime.UtcNow);
+                // Create MedRecord Document in Firestore with unique MedRecord ID
+                DocumentReference docRef = medicalRecordsRef.Document(MedicalRecordID);
 
-                // Create a new medical record
-                MedicalRecord record = new MedicalRecord(doctorNote, currentTimestamp, patientID, newRecordID, fileBytes, fileName, userID);
+                // Prepare the data to insert into Firestore
+                var medicalRecordData = new Dictionary<string, object>
+                {
+                    { "DoctorNote", doctorNote },
+                    { "Date", currentTimestamp },
+                    { "PatientID", patientID },
+                    { "Attachment", fileBytes },
+                    { "AttachmentName", fileName },
+                    { "DoctorID", doctorID }
+                };
 
-                // Add record to Firestore with unique document ID
-                DocumentReference docRef = medicalRecordsRef.Document(newRecordID);
-                await docRef.SetAsync(record);
+                await docRef.SetAsync(medicalRecordData);
 
-                Console.WriteLine($"Medical record inserted successfully with Firestore ID: {newRecordID}");
+                Console.WriteLine($"Medical record inserted successfully with Firestore ID: {MedicalRecordID}");
 
-                return record;
+                // Return the record with the correct MedicalRecordID (Firestore document ID)
+                return new MedicalRecord(MedicalRecordID, doctorNote, currentTimestamp, patientID, fileBytes, fileName, doctorID);
             }
             catch (Exception ex)
             {

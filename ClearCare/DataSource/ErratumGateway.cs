@@ -16,39 +16,55 @@ namespace ClearCare.DataSource
             db = FirebaseService.Initialize();
         }
 
-        // Retrieve all erratums
-        public async Task<List<Erratum>> FindErratum()
+        public async Task<List<Erratum>> RetrieveAllErratums()
         {
+            List<Erratum> errata = new List<Erratum>();
             CollectionReference erratumRef = db.Collection("Erratum");
             QuerySnapshot snapshot = await erratumRef.GetSnapshotAsync();
 
-            List<Erratum> errata = new List<Erratum>();
+            if (snapshot.Documents.Count == 0)
+            {
+                Console.WriteLine("No erratums found in Firestore.");
+                return errata;
+            }
+
             foreach (var doc in snapshot.Documents)
             {
-                Erratum erratum = doc.ConvertTo<Erratum>();
+                // Retrieve data from Firestore document
+                string erratumID = doc.Id;  // Firestore document ID as the ErratumID
+                string medicalRecordID = doc.GetValue<string>("MedicalRecordID");
+                Timestamp date = doc.GetValue<Timestamp>("Date");
+                string erratumDetails = doc.GetValue<string>("ErratumDetails");
+                string doctorID = doc.GetValue<string>("DoctorID");
+
+                // Create a new Erratum object with the Firestore data
+                Erratum erratum = new Erratum(erratumID, medicalRecordID, date, erratumDetails, doctorID);
+
+                // Add the newly created erratum to the list
                 errata.Add(erratum);
             }
+
             return errata;
         }
 
-        public async Task<Erratum?> InsertErratum(string medicalRecordID, string erratumDetails, string userID)
+        public async Task<Erratum?> InsertErratum(string medicalRecordID, string erratumDetails, string doctorID)
         {
             try
             {
                 CollectionReference erratumRef = db.Collection("Erratum");
 
-                // Check if medicalRecordID exists in MedicalRecord collection
-                CollectionReference medicalRecordsRef = db.Collection("MedicalRecords");
-                QuerySnapshot medicalRecordSnapshot = await medicalRecordsRef
-                    .WhereEqualTo("MedicalRecordID", medicalRecordID)
-                    .Limit(1)
-                    .GetSnapshotAsync();
+                // Fetch medical record document from Firestore
+                DocumentReference medDocRef = db.Collection("MedicalRecords").Document(medicalRecordID);
+                DocumentSnapshot medSnapshot = await medDocRef.GetSnapshotAsync();
 
-                if (medicalRecordSnapshot.Documents.Count == 0)
+                if (!medSnapshot.Exists)
                 {
                     Console.WriteLine($"Error: No Medical Record found with MedicalRecordID: {medicalRecordID}");
                     return null;
                 }
+
+                // Generate current timestamp
+                Timestamp currentTimestamp = Timestamp.FromDateTime(DateTime.UtcNow);
 
                 // Find the highest existing ERx number
                 QuerySnapshot allErratumSnapshot = await erratumRef.GetSnapshotAsync();
@@ -66,19 +82,25 @@ namespace ClearCare.DataSource
                 // Generate Erratum ID
                 string erratumID = $"ER{highestID + 1}";
 
-                // Generate current date
-                Timestamp date = Timestamp.FromDateTime(DateTime.UtcNow);
-
-                // Create new Erratum record
-                Erratum erratum = new Erratum(erratumID, medicalRecordID, date, erratumDetails, userID);
-
-                // Insert new Erratum record into Firestore with unique erratum ID
+                // Create Erratum Document in Firestore with unique erratum ID
                 DocumentReference docRef = erratumRef.Document(erratumID);
-                await docRef.SetAsync(erratum);
+
+                // Prepare the data to insert into Firestore
+                var erratumData = new Dictionary<string, object>
+                {
+                    { "MedicalRecordID", medicalRecordID },
+                    { "Date", currentTimestamp },
+                    { "ErratumDetails", erratumDetails },
+                    { "DoctorID", doctorID }
+                };
+
+                // Insert new Erratum record into Firestore 
+                await docRef.SetAsync(erratumData);
 
                 Console.WriteLine($"Erratum ID: {erratumID} inserted successfully.");
 
-                return erratum;
+                // Return the record with the correct MedicalRecordID (Firestore document ID)
+                return new Erratum(erratumID, medicalRecordID, currentTimestamp, erratumDetails, doctorID);
             }
             catch (Exception e)
             {

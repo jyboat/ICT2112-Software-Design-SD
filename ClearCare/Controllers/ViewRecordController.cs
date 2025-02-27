@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models.Entities;
 using ClearCare.Models.Control;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace ClearCare.Controllers
 {
@@ -19,8 +20,22 @@ namespace ClearCare.Controllers
         [Route("")]
         public async Task<IActionResult> DisplayViewRecord()
         {
-            var medicalRecords = await viewMedicalRecord.GetAllProcessedMedicalRecords();
-            ViewData["MedicalRecords"] = medicalRecords;
+            var userRole = HttpContext.Session.GetString("Role");
+
+            // Restrict access to only Doctor or Nurse
+            if (userRole != "Doctor" && userRole != "Nurse")
+            {
+                Console.WriteLine("You do not have permission to access this page.");
+                return RedirectToAction("DisplayLogin", "Login");
+            }
+
+            // Fetch medical records
+            var medicalRecords = await viewMedicalRecord.GetAllMedicalRecords();
+
+            // Sort records numerically based on MedicalRecordID
+            var sortedRecords = medicalRecords.OrderBy(record => int.Parse(Regex.Replace(record.MedicalRecordID, @"\D", ""))).ToList();
+            ViewData["MedicalRecords"] = sortedRecords;
+
             return View("ViewRecord");
         }
 
@@ -28,13 +43,20 @@ namespace ClearCare.Controllers
         [Route("{recordID}")]
         public async Task<IActionResult> ViewMedicalRecord(string recordID)
         {
-            var recordDetails = await viewMedicalRecord.GetMedicalRecordWithDetails(recordID);
+            var recordDetails = await viewMedicalRecord.GetMedicalRecordByID(recordID);
             if (recordDetails == null)
             {
                 return NotFound("Medical Record Not Found.");
             }
 
+            // Fetch erratums for the specific medical record
+            var erratumManagement = new ErratumManagement();
+            var erratums = await erratumManagement.GetAllErratum();
+            var filteredErratums = erratums.Where(e => e.MedicalRecordID == recordID).ToList();
+
             ViewData["RecordDetails"] = recordDetails;
+            ViewData["Erratums"] = filteredErratums;
+
             return View("ViewMedicalRecordDetails");
         }
 
@@ -49,6 +71,34 @@ namespace ClearCare.Controllers
 
             var (fileBytes, fileName) = medicalRecord.RetrieveAttachment();
             return File(fileBytes, "application/octet-stream", fileName);
+        }
+
+        //exportRecord(): void
+        [Route("Export/{recordID}")]
+        public async Task<IActionResult> ExportRecord(string recordID)
+        {
+            // Call the ExportMedicalRecord method from ViewMedicalRecord to export the medical record
+            string exportResult = await viewMedicalRecord.ExportMedicalRecord(recordID);
+
+            // Check if the export was successful or if there was an error
+            if (exportResult.Contains("exported"))
+            {
+                // Assuming that the file path returned is accessible, we can return the file as a download
+                string filePath = exportResult.Replace("Medical record exported to ", "");
+
+                // Read the file from the path
+                var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+                var fileName = $"{recordID}_MedicalRecord.csv"; // Use the recordID in the file name
+
+                // Delete the file after sending it to the user (optional, to keep the server clean)
+                System.IO.File.Delete(filePath);
+
+                // Return the file as a downloadable response
+                return File(fileBytes, "text/csv", fileName);
+            }
+
+            // If the export failed, return an error message
+            return Content(exportResult);
         }
     }
 }
