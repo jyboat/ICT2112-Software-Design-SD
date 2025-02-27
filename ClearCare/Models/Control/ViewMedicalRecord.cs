@@ -1,3 +1,4 @@
+using System.Text;
 using System.Threading.Tasks;
 using ClearCare.Models.Entities;
 using ClearCare.DataSource;
@@ -73,6 +74,33 @@ namespace ClearCare.Models.Control
         public async Task<MedicalRecord> GetMedicalRecordById(string recordID)
         {
             return await MedicalRecordGateway.RetrieveMedicalRecordById(recordID);
+        }
+
+        // Export medical record to CSV
+        public async Task<string> ExportMedicalRecord(string recordID)
+        {
+            // Retrieve the medical record
+            var medicalRecord = await GetMedicalRecordByID(recordID);
+            if (medicalRecord == null)
+            {
+                return "Medical record not found.";
+            }
+
+            // Prepare the CSV file content
+            StringBuilder csvContent = new StringBuilder();
+            csvContent.AppendLine("MedicalRecordID,PatientID,CreatedBy,Date,DoctorNote,AttachmentName,HasAttachment");
+
+            // Add medical record details to the CSV content
+            csvContent.AppendLine($"{medicalRecord.MedicalRecordID},{medicalRecord.PatientID},{medicalRecord.CreatedBy},{medicalRecord.Date},{medicalRecord.DoctorNote},{medicalRecord.AttachmentName},{medicalRecord.HasAttachment}");
+
+            // Specify the file path where the CSV will be saved
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), $"{recordID}_MedicalRecord.csv");
+
+            // Write the content to the file
+            await File.WriteAllTextAsync(filePath, csvContent.ToString());
+
+            // Return the file path to indicate success
+            return $"Medical record exported to {filePath}.";
         }
 
     }
