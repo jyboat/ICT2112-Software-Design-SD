@@ -180,7 +180,6 @@ namespace ClearCare.DataSource
                 Console.WriteLine($"User {userID} exists but has no 'Name' field.");
                 return "Unknown User";
             }
-        }
             return snapshot.ContainsField("Name") ? snapshot.GetValue<string>("Name") : "Unknown User";
         }
 
