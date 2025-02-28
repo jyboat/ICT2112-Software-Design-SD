@@ -2,8 +2,9 @@ using System;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
+using ClearCare.Models.Interface;
 
-public class EmailService
+public class EmailService : IEmail
 {
     private const string GmailSmtpHost = "smtp.gmail.com";
     private const int GmailSmtpPort = 587;

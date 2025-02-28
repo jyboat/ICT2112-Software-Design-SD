@@ -1,3 +1,6 @@
+using ClearCare.Models.Interface; 
+using ClearCare.Models.Control;   
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add session support
@@ -11,6 +14,10 @@ builder.Services.AddSession(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IEmail, EmailService>(); // Ensure EmailService implements IEmail
+builder.Services.AddScoped<IPassword, EncryptionManagement>(); // Ensure EncryptionManagement implements IPassword
+builder.Services.AddScoped<IEncryption, EncryptionManagement>(); // Ensure EncryptionManagement implements IEncryption
 
 var app = builder.Build();
 

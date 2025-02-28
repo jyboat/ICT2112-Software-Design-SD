@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models.Control;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.Controllers
 {
@@ -8,9 +9,9 @@ namespace ClearCare.Controllers
     {
         private ErratumManagement ErratumManagement;
 
-        public FileErratumController()
+        public FileErratumController(IEncryption encryptionService)
         {
-            ErratumManagement = new ErratumManagement();
+            ErratumManagement = new ErratumManagement(encryptionService);
         }
 
         [Route("{recordID}")]

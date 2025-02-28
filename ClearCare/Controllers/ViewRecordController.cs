@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models.Entities;
 using ClearCare.Models.Control;
+using ClearCare.Models.Interface;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
@@ -10,10 +11,12 @@ namespace ClearCare.Controllers
     public class ViewRecordController : Controller
     {
         private readonly ViewMedicalRecord viewMedicalRecord;
+        private readonly ErratumManagement erratumManagement;
 
-        public ViewRecordController()
+        public ViewRecordController(IEncryption encryptionService)
         {
-            viewMedicalRecord = new ViewMedicalRecord();
+            viewMedicalRecord = new ViewMedicalRecord(encryptionService);
+            erratumManagement = new ErratumManagement(encryptionService);
         }
 
         // View all medical record on 1 page
@@ -50,7 +53,6 @@ namespace ClearCare.Controllers
             }
 
             // Fetch erratums for the specific medical record
-            var erratumManagement = new ErratumManagement();
             var erratums = await erratumManagement.GetAllErratum();
             var filteredErratums = erratums.Where(e => e.MedicalRecordID == recordID).ToList();
 

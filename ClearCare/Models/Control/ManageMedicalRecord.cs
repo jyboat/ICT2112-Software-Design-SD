@@ -2,24 +2,25 @@ using System.Threading.Tasks;
 using ClearCare.Models.Entities;
 using ClearCare.DataSource;
 using Google.Cloud.Firestore;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
     public class ManageMedicalRecord
     {
         private MedicalRecordGateway MedicalRecordGateway;
-        private readonly EncryptionManagement encryptionManagement;
+        private readonly IEncryption encryptionService;
         string encryptedText = string.Empty;
 
-        public ManageMedicalRecord()
+        public ManageMedicalRecord(IEncryption encryptionService)
         {
             MedicalRecordGateway = new MedicalRecordGateway();
-            encryptionManagement = new EncryptionManagement();
+            this.encryptionService = encryptionService;
         }
 
         public async Task<MedicalRecord> AddMedicalRecord(string doctorNote, string patientID, byte[] fileBytes, string fileName, string doctorID)
         {
-            encryptedText = encryptionManagement.EncryptMedicalData(doctorNote);
+            encryptedText = encryptionService.EncryptMedicalData(doctorNote);
 
             return await MedicalRecordGateway.InsertMedicalRecord(encryptedText, patientID, fileBytes, fileName, doctorID);
         }

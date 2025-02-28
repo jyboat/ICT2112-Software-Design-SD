@@ -11,13 +11,13 @@ namespace ClearCare.Models.Control
     {
         private MedicalRecordGateway MedicalRecordGateway;
         private readonly UserGateway UserGateway;
-        private readonly EncryptionManagement encryptionManagement;
+        private readonly IEncryption encryptionService;
 
-        public ViewMedicalRecord()
+        public ViewMedicalRecord(IEncryption encryptionService)
         {
             MedicalRecordGateway = new MedicalRecordGateway();
             UserGateway = new UserGateway();
-            encryptionManagement = new EncryptionManagement();
+            this.encryptionService = encryptionService;
         }
 
         // Retrieve all medical records and process them for display
@@ -57,7 +57,7 @@ namespace ClearCare.Models.Control
             string doctorName = await UserGateway.FindUserNameByID((string)recordDetails["DoctorID"]);
 
             // Decrypt the doctor note before returning it
-            string decryptedDoctorNote = encryptionManagement.DecryptMedicalData((string)recordDetails["DoctorNote"]);
+            string decryptedDoctorNote = encryptionService.DecryptMedicalData((string)recordDetails["DoctorNote"]);
 
             return new
             {
