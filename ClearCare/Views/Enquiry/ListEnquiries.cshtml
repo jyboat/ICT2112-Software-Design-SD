@@ -9,18 +9,19 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Document ID</th>
             <th>ID</th>
             <th>Name</th>
             <th>Email</th>
             <th>Message</th>
-            <th>Message</th>
-
+            <th>User UUID</th>
         </tr>
     </thead>
     <tbody>
     @foreach(var e in Model)
     {
       <tr>
+        <td>@e.FirestoreId</td>
         <td>@e.Id</td>
         <td>@e.Name</td>
         <td>@e.Email</td>

@@ -5,12 +5,11 @@ namespace ClearCare.Models
     [FirestoreData]  // Tells Firestore this class is serializable
     public class Enquiry
     {
-
-        [FirestoreDocumentId] // Optional — if you want Firestore to fill in the doc ID
+        [FirestoreDocumentId] // This attribute tells Firestore to map the document ID to this property
         public string FirestoreId { get; set; }
 
         [FirestoreProperty]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [FirestoreProperty]
         public string Name { get; set; }
@@ -21,8 +20,7 @@ namespace ClearCare.Models
         [FirestoreProperty]
         public string Message { get; set; }
 
-
-         [FirestoreProperty]
+        [FirestoreProperty]
         public string UserUUID { get; set; }
     }
 }

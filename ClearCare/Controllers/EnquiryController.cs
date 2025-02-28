@@ -54,7 +54,7 @@ public class EnquiryController : Controller
     {
         _logger.LogInformation($"Received enquiry from {enquiry.Name} with email {enquiry.Email}: {enquiry.Message}");
 
-        enquiry.Id = Enquiries.Count + 1; // Simple ID assignment
+        enquiry.Id = Guid.NewGuid().ToString();
         Enquiries.Add(enquiry);
 
         ViewData["Name"] = enquiry.Name;
