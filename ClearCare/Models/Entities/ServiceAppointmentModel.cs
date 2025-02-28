@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using Google.Cloud.Location;
 using Newtonsoft.Json;
 
-namespace ClearCare.Models
+namespace ClearCare.Models.Entities
 {
     public class ServiceAppointment
     {

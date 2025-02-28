@@ -2,10 +2,10 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using ClearCare.DataSource;
-using ClearCare.Models;
+using ClearCare.Models.Entities;
 
 
-namespace ClearCare.Controls
+namespace ClearCare.Models.Controls
 {
     public class DischargeSummaryManager
     {
@@ -16,14 +16,14 @@ namespace ClearCare.Controls
             _gateway = new SummaryGateway();
         }
 
-        public async Task<bool> updateSummary(string id, DischargeSummary updated)
+        public async Task<bool> updateSummary(string id, string details, string instructions, string createdAt, string patientId)
         {
-            return await _gateway.updateSummary(id, updated);
+            return await _gateway.updateSummary(id, details, instructions, createdAt, patientId);
         }
 
-        public async Task<string> generateSummary(DischargeSummary summary)
+        public async Task<string> generateSummary(string details, string instructions, string createdAt, string patientId)
         {
-            return await _gateway.insertSummary(summary);
+            return await _gateway.insertSummary(details, instructions, createdAt, patientId);
         }
 
         public async Task<List<DischargeSummary>> getSummaries()

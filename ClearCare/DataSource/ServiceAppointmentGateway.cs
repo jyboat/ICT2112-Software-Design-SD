@@ -1,9 +1,9 @@
 using Google.Cloud.Firestore;
-using ClearCare.Models;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using ClearCare.Models.Entities;
 
 namespace ClearCare.DataSource
 {

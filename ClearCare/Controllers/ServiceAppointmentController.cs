@@ -1,8 +1,8 @@
 using ClearCare.DataSource;
-using ClearCare.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using ClearCare.Models.Entities;
 
 // Request Handling
 [Route("api/[controller]")]

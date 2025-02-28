@@ -1,9 +1,9 @@
 using Google.Cloud.Firestore;
-using ClearCare.Models;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using ClearCare.Models.Entities;
 
 namespace ClearCare.DataSource
 {
@@ -17,24 +17,34 @@ namespace ClearCare.DataSource
             _db = FirebaseService.Initialize();
         }
 
-        public async Task<string> insertSummary(DischargeSummary summary)
+        public async Task<string> insertSummary(string details, string instructions, string createdAt, string patientId)
         {
             DocumentReference docRef = _db.Collection("DischargeSummaries").Document();
 
-            summary.setId(docRef.Id);
+            var summary = new Dictionary<string, object>
+            {
+                { "Details", details },
+                { "Instructions", instructions },
+                { "CreatedAt", createdAt },
+                { "PatientId", patientId }
+            };
 
-            Dictionary<string, object> data = summary.getDetails();
-
-            await docRef.SetAsync(data);
+            await docRef.SetAsync(summary);
 
             return docRef.Id;
         }
 
-        public async Task<bool> updateSummary(string id, DischargeSummary updatedSummary)
+        public async Task<bool> updateSummary(string id, string details, string instructions, string createdAt, string patientId)
         {
             DocumentReference docRef = _db.Collection("DischargeSummaries").Document(id);
 
-            Dictionary<string, object> updatedData = updatedSummary.getDetails();
+            var updatedData = new Dictionary<string, object>
+            {
+                { "Details", details },
+                { "Instructions", instructions },
+                { "CreatedAt", createdAt },
+                { "PatientId", patientId }
+            };
 
             // Check if document exists before updating
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
@@ -58,9 +68,21 @@ namespace ClearCare.DataSource
             foreach (DocumentSnapshot doc in snapshot.Documents)
             {
                 if (doc.Exists) {
-                    var data = doc.ToDictionary();
-                    DischargeSummary summary = DischargeSummary.FromFirestoreData(doc.Id, data);   
-                    summaries.Add(summary);
+                    try
+                    {
+                        string id = doc.ContainsField("Id") ? doc.GetValue<string>("Id") : doc.Id;
+                        string details = doc.ContainsField("Details") ? doc.GetValue<string>("Details") : "";
+                        string instructions = doc.ContainsField("Instructions") ? doc.GetValue<string>("Instructions") : "";
+                        string createdAt = doc.ContainsField("CreatedAt") ? doc.GetValue<string>("CreatedAt") : "";
+                        string patientId = doc.ContainsField("PatientId") ? doc.GetValue<string>("PatientId") : "";
+
+                        DischargeSummary summary = new DischargeSummary(id, details, instructions, createdAt, patientId);
+                        summaries.Add(summary);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error converting summary {doc.Id}: {ex.Message}");
+                    }
                 }
             }
 
@@ -74,11 +96,17 @@ namespace ClearCare.DataSource
 
             if (!snapshot.Exists)
             {
+                Console.WriteLine($"No summary found {snapshot.Id}");
                 return null;
             }
 
-            var data = snapshot.ToDictionary();
-            return DischargeSummary.FromFirestoreData(id, data);
+            string details = snapshot.GetValue<string>("Details");
+            string instructions = snapshot.GetValue<string>("Instructions");
+            string createdAt = snapshot.GetValue<string>("CreatedAt");
+            string patientId = snapshot.GetValue<string>("PatientId");
+
+            DischargeSummary summary = new DischargeSummary(id, details, instructions, createdAt, patientId);
+            return summary;
         }
     }
 }

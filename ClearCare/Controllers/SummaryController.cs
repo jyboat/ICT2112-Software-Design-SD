@@ -1,14 +1,13 @@
 using ClearCare.DataSource;
-using ClearCare.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using ClearCare.Controls;
 using System.Text.Json;
+using ClearCare.Models.Controls;
+using ClearCare.Models.Entities;
 
 // Request Handling
-[Route("api/[controller]")]
-[ApiController]
+[Route("Summary")]
 public class SummaryController : Controller
 {
     private readonly DischargeSummaryManager _manager;
@@ -18,36 +17,35 @@ public class SummaryController : Controller
         _manager = new DischargeSummaryManager();
     }
 
+    [Route("")]
     [HttpGet]
     public async Task<IActionResult> List()
     {
         List<DischargeSummary> summaries = await _manager.getSummaries();
 
-        var summaryList = summaries.Select(s => s.getDetails()).ToList();  
+        var summaryList = summaries.Select(s => s.GetSummaryDetails()).ToList();  
 
         return View("List", summaryList); 
     }
 
-    [HttpGet]
     [Route("Add")]
+    [HttpGet]
     public IActionResult Add() { 
         return View("Add");
     }
 
-    [HttpPost]
     [Route("Add")]
-    public async Task<IActionResult> AddSummary([FromBody] Dictionary<string, JsonElement> data)
+    [HttpPost]
+    public async Task<IActionResult> AddSummary(string details, string instructions)
     {
-        var summary = DischargeSummary.setDetails(
-            data["id"].GetString() ?? "",
-            data["details"].GetString() ?? "",
-            data["instructions"].GetString() ?? "",
-            data["createdAt"].GetDateTime(),
-            data["patientId"].GetString() ?? ""
-            );
+        if (string.IsNullOrEmpty(details) || string.IsNullOrEmpty(instructions))
+        {
+            ViewBag.ErrorMessage = "Please fill in all required fields";
+        }
 
+        string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
         // Process the summary here
-        string id = await _manager.generateSummary(summary);
+        string id = await _manager.generateSummary(details, instructions, currentDate, "1");
 
         return RedirectToAction("List");
     }

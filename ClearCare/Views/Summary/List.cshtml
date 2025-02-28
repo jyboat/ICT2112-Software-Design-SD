@@ -4,17 +4,31 @@
     ViewData["Title"] = "View Patient Summaries";
 }
 
-<table class="table table-striped table-bordered">
-    <thead>
-        <tr>
-            <th>Patient ID</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var summary in Model){
+<section class="summaries container">
+    <h2>Patient Discharge Summaries</h2>
+    <div class="text-center mb-3">
+        <a role="button" href="/Summary/Add" class="btn btn-md btn-success">Add Summary<i class="bi bi-plus ms-1"></i></a>
+    </div>
+    <table class="table table-striped table-bordered">
+        <thead>
             <tr>
-                <td>@summary["patientId"]</td>
+                <th>Date Created</th>
+                <th>Patient ID</th>
+                <th>Details</th>
+                <th>Instructions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var summary in Model)
+            {
+                <tr>
+                    <td>@summary["CreatedAt"]</td>
+                    <td>@summary["PatientId"]</td>
+                    <td>@summary["Details"]</td>
+                    <td>@summary["Instructions"]</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+

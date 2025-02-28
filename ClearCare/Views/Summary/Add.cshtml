@@ -4,58 +4,25 @@
     ViewData["Title"] = "Add Summary";
 }
 
-<h2>Add New Summary</h2>
+<div class="container">
+    <div class="d-flex justify-content-center align-items-center bg-light">
+        <div class="card shadow p-4">
+            <h2 class="text-info">Add New Summary for {patient name}</h2>
+            <form action="/Summary/Add" method="post">
+                <div class="form-group mb-3">
+                    <label for="details" class="form-label">Details</label>
+                    <textarea name="details" class="form-control" required></textarea>
+                </div>
 
-<form asp-action="AddSummary" asp-controller="Summary" method="post">
-    <div class="form-group">
-        <label for="patientId">Patient ID</label>
-        <input type="text" name="patientId" class="form-control" required />
+                <div class="form-group mb-3">
+                    <label for="instructions" class="form-label">Follow-Up Instructions</label>
+                    <textarea name="instructions" class="form-control" required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Submit</button>
+            </form>
+        </div>
     </div>
+</div>
 
-    <div class="form-group">
-        <label for="dischargeDate">Discharge Date</label>
-        <input type="date" name="dischargeDate" class="form-control" required />
-    </div>
 
-    <div class="form-group">
-        <label for="details">Details</label>
-        <textarea name="details" class="form-control" required></textarea>
-    </div>
-
-    <div class="form-group">
-        <label for="instructions">Follow-Up Instructions</label>
-        <textarea name="instructions" class="form-control" required></textarea>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
-<script>
-    document.querySelector("form").addEventListener("submit", function (e) {
-        e.preventDefault(); // Prevent the default form submission
-
-        const data = {};
-        data.id = "1";
-        data.patientId = document.getElementsByName("patientId")[0].value;
-        data.createdAt = new Date(document.getElementsByName("dischargeDate")[0].value).toISOString(); // Convert to ISO format
-        data.details = document.getElementsByName("details")[0].value;
-        data.instructions = document.getElementsByName("instructions")[0].value;
-
-        fetch('/api/Summary/Add', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => {
-            if (response.ok) {
-                window.location.href = '/api/Summary/List'; // Redirect to the summary list
-            } else {
-                alert('Error: ' + response.statusText);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    });
-</script>
