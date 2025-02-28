@@ -9,23 +9,23 @@ using System.Threading.Tasks;
 
 namespace ClearCare.Gateways
 {
-    public class EnquiryGateway : IEnquiryGateway  // Add the interface implementation here
+    public class EnquiryGateway : IEnquiryGateway
     {
         private readonly FirestoreDb _db;
+        private readonly EnquirySubject _enquirySubject; // Add the EnquirySubject instance
 
-        public EnquiryGateway()
+
+        public EnquiryGateway(EnquirySubject enquirySubject)
         {
-            // If the default Firebase app is not initialized, initialize it:
-            if (FirebaseApp.DefaultInstance == null)
-            {
-                FirebaseApp.Create(new AppOptions
-                {
-                    Credential = GoogleCredential.GetApplicationDefault()
-                });
-            }
-
-            // Replace "my-project-id" with your actual Firebase / GCP project ID
-            _db = FirestoreDb.Create("ict2112");
+                       if (FirebaseApp.DefaultInstance == null)
+{
+    FirebaseApp.Create(new AppOptions
+    {
+        Credential = GoogleCredential.GetApplicationDefault()
+    });
+}
+_db = FirestoreDb.Create("ict2112");
+            _enquirySubject = enquirySubject; // Assign the injected EnquirySubject
         }
 
         // Add this new method to get all enquiries
@@ -47,10 +47,13 @@ namespace ClearCare.Gateways
             return enquiries;
         }
 
-        public async Task SaveEnquiryAsync(Models.Enquiry enquiry)
+        public async Task SaveEnquiryAsync(Enquiry enquiry)
         {
             // Save to the "Enquiry" collection with an auto-generated document ID
             await _db.Collection("Enquiry").AddAsync(enquiry);
+
+            // Notify observers about the new enquiry
+            _enquirySubject.Notify(enquiry, "Created");
         }
 
         public async Task<List<Enquiry>> GetEnquiriesForUserAsync(string userUuid)
@@ -110,7 +113,10 @@ namespace ClearCare.Gateways
             CollectionReference repliesRef = enquiryDocRef.Collection("Replies");
             DocumentReference docRef = await repliesRef.AddAsync(reply);
 
-            // Return the document ID of the newly created reply
+            // Notify observers about the new reply
+            var enquiry = await GetEnquiryByIdAsync(enquiryId);
+            _enquirySubject.Notify(enquiry, "Replied");
+
             return docRef.Id;
         }
 
@@ -142,31 +148,6 @@ namespace ClearCare.Gateways
             }
         }
 
-        public async Task<List<SideEffectModel>> GetSideEffectsAsync()
-        {
-            var sideEffects = new List<SideEffectModel>();
-
-            // Reference the "SideEffects" collection in Firestore
-            var collection = _db.Collection("SideEffects");
-            var snapshot = await collection.GetSnapshotAsync();
-
-            foreach (var document in snapshot.Documents)
-            {
-                if (document.Exists)
-                {
-                    // Convert Firestore document to SideEffectModel
-                    var sideEffect = document.ConvertTo<SideEffectModel>();
-                    sideEffects.Add(sideEffect);
-
-                    // Log the side effect details to the console
-                    Console.WriteLine($"Document ID: {document.Id}");
-                    Console.WriteLine($"Name: {sideEffect.Name}");
-                    Console.WriteLine($"Description: {sideEffect.Description}");
-                    Console.WriteLine($"Date: {sideEffect.Date}");
-                }
-            }
-
-            return sideEffects;
-        }
+      
     }
 }

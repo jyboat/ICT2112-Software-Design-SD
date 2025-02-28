@@ -11,7 +11,6 @@ namespace ClearCare.Gateways
         Task<Enquiry> GetEnquiryByIdAsync(string documentId);
         Task<string> SaveReplyAsync(string enquiryId, Reply reply);
         Task<List<Reply>> GetRepliesForEnquiryAsync(string enquiryId);
-        Task<List<SideEffectModel>> GetSideEffectsAsync();
-        Task<List<Enquiry>> GetAllEnquiriesAsync(); // New method we'll implement
+        Task<List<Enquiry>> GetAllEnquiriesAsync(); 
     }
 }

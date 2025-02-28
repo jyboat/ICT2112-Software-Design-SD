@@ -10,6 +10,11 @@ System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", cred
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IEnquiryGateway, EnquiryGateway>();
 
+builder.Services.AddSingleton<EnquirySubject>();
+
+// Register observers
+builder.Services.AddSingleton<IEnquiryObserver, LoggingObserver>();
+builder.Services.AddSingleton<IEnquiryObserver, NotificationObserver>();
 
 var app = builder.Build();
 
