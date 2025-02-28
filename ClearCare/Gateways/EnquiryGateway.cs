@@ -52,5 +52,33 @@ namespace ClearCare.Gateways
             return enquiries;
         }
 
+
+public async Task<Enquiry> GetEnquiryByIdAsync(string documentId)
+{
+    // Get a reference to the document
+    DocumentReference docRef = _db.Collection("Enquiry").Document(documentId);
+    
+    // Get the document snapshot
+    DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+    
+    // Check if the document exists
+    if (!snapshot.Exists)
+    {
+        return null;
+    }
+    
+    // Convert to Enquiry model
+    Enquiry enquiry = snapshot.ConvertTo<Enquiry>();
+    
+    // Set the FirestoreId property
+    enquiry.FirestoreId = documentId;
+    
+    return enquiry;
+}
+
+        
+
+        
+
     }
 }

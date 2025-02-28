@@ -20,11 +20,12 @@ public class EnquiryController : Controller
     }
 
     public IActionResult Index()
-{
-    // If you're using the static in-memory list:
-    var allEnquiries = Enquiries; // or wherever you get your list
-    return View(allEnquiries);
-}
+    {
+        // If you're using the static in-memory list:
+        var allEnquiries = Enquiries; // or wherever you get your list
+        return View(allEnquiries);
+    }
+
 
 
     public IActionResult Privacy()
@@ -77,4 +78,35 @@ public class EnquiryController : Controller
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
         });
     }
+
+
+    public async Task<IActionResult> Reply(string id)
+    {
+        try
+        {
+            // Fetch the enquiry from Firestore using your gateway
+            var enquiry = await _enquiryGateway.GetEnquiryByIdAsync(id);
+
+            if (enquiry == null)
+            {
+                return NotFound($"Enquiry with ID {id} not found.");
+            }
+
+            // Set the FirestoreId property
+            enquiry.FirestoreId = id;
+
+            // Return the view with the enquiry model
+            return View(enquiry);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error retrieving enquiry with ID {id}");
+            return View("Error", new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+            });
+        }
+    }
+
+
 }
