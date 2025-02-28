@@ -1,3 +1,5 @@
+using ClearCare.Gateways;
+
 var builder = WebApplication.CreateBuilder(args);
 
 /// where to put this - > // Set Google Application Credentials globally
@@ -6,6 +8,7 @@ System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", cred
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IEnquiryGateway, EnquiryGateway>();
 
 
 var app = builder.Build();

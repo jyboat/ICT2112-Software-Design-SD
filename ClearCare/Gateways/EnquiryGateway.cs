@@ -2,10 +2,14 @@ using ClearCare.Models;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ClearCare.Gateways
 {
-    public class EnquiryGateway
+    public class EnquiryGateway : IEnquiryGateway  // Add the interface implementation here
     {
         private readonly FirestoreDb _db;
 
@@ -24,12 +28,30 @@ namespace ClearCare.Gateways
             _db = FirestoreDb.Create("ict2112");
         }
 
+        // Add this new method to get all enquiries
+        public async Task<List<Enquiry>> GetAllEnquiriesAsync()
+        {
+            var enquiries = new List<Enquiry>();
+            var snapshot = await _db.Collection("Enquiry").GetSnapshotAsync();
+
+            foreach (var doc in snapshot.Documents)
+            {
+                if (doc.Exists)
+                {
+                    var enquiry = doc.ConvertTo<Enquiry>();
+                    enquiry.FirestoreId = doc.Id;  // Make sure to set the ID
+                    enquiries.Add(enquiry);
+                }
+            }
+
+            return enquiries;
+        }
+
         public async Task SaveEnquiryAsync(Models.Enquiry enquiry)
         {
             // Save to the "Enquiry" collection with an auto-generated document ID
             await _db.Collection("Enquiry").AddAsync(enquiry);
         }
-
 
         public async Task<List<Enquiry>> GetEnquiriesForUserAsync(string userUuid)
         {
@@ -46,12 +68,12 @@ namespace ClearCare.Gateways
                 if (doc.Exists)
                 {
                     Enquiry e = doc.ConvertTo<Enquiry>();
+                    e.FirestoreId = doc.Id;  // Make sure to set the ID
                     enquiries.Add(e);
                 }
             }
             return enquiries;
         }
-
 
         public async Task<Enquiry> GetEnquiryByIdAsync(string documentId)
         {
@@ -76,7 +98,6 @@ namespace ClearCare.Gateways
             return enquiry;
         }
 
-
         public async Task<string> SaveReplyAsync(string enquiryId, Reply reply)
         {
             // Set the creation timestamp
@@ -93,60 +114,59 @@ namespace ClearCare.Gateways
             return docRef.Id;
         }
 
-
-
-
-     public async Task<List<Reply>> GetRepliesForEnquiryAsync(string enquiryId)
-{
-    try
-    {
-        // Reference the Replies subcollection for the specific enquiry
-        var repliesRef = _db.Collection("Enquiry").Document(enquiryId).Collection("Replies");
-
-        // Fetch all documents in the Replies subcollection
-        var snapshot = await repliesRef.GetSnapshotAsync();
-
-        // Convert the documents to a list of Reply objects
-        var replies = snapshot.Documents
-            .Select(doc => doc.ConvertTo<Reply>())
-            .ToList();
-
-        return replies;
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error fetching replies for enquiry {enquiryId}: {ex.Message}");
-        return new List<Reply>();
-    }
-}
-public async Task<List<SideEffectModel>> GetSideEffectsAsync()
-{
-    var sideEffects = new List<SideEffectModel>();
-
-    // Reference the "SideEffects" collection in Firestore
-    var collection = _db.Collection("SideEffects");
-    var snapshot = await collection.GetSnapshotAsync();
-
-    foreach (var document in snapshot.Documents)
-    {
-        if (document.Exists)
+        public async Task<List<Reply>> GetRepliesForEnquiryAsync(string enquiryId)
         {
-            // Convert Firestore document to SideEffectModel
-            var sideEffect = document.ConvertTo<SideEffectModel>();
-            sideEffects.Add(sideEffect);
+            try
+            {
+                // Reference the Replies subcollection for the specific enquiry
+                var repliesRef = _db.Collection("Enquiry").Document(enquiryId).Collection("Replies");
 
-            // Log the side effect details to the console
-            Console.WriteLine($"Document ID: {document.Id}");
-            Console.WriteLine($"Name: {sideEffect.Name}");
-            Console.WriteLine($"Description: {sideEffect.Description}");
-            Console.WriteLine($"Date: {sideEffect.Date}");
+                // Fetch all documents in the Replies subcollection
+                var snapshot = await repliesRef.GetSnapshotAsync();
+
+                // Convert the documents to a list of Reply objects
+                var replies = snapshot.Documents
+                    .Select(doc => {
+                        var reply = doc.ConvertTo<Reply>();
+                        reply.FirestoreId = doc.Id;  // Make sure to set the ID
+                        return reply;
+                    })
+                    .ToList();
+
+                return replies;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching replies for enquiry {enquiryId}: {ex.Message}");
+                return new List<Reply>();
+            }
         }
-    }
 
-    return sideEffects;
-}
+        public async Task<List<SideEffectModel>> GetSideEffectsAsync()
+        {
+            var sideEffects = new List<SideEffectModel>();
 
+            // Reference the "SideEffects" collection in Firestore
+            var collection = _db.Collection("SideEffects");
+            var snapshot = await collection.GetSnapshotAsync();
 
+            foreach (var document in snapshot.Documents)
+            {
+                if (document.Exists)
+                {
+                    // Convert Firestore document to SideEffectModel
+                    var sideEffect = document.ConvertTo<SideEffectModel>();
+                    sideEffects.Add(sideEffect);
 
+                    // Log the side effect details to the console
+                    Console.WriteLine($"Document ID: {document.Id}");
+                    Console.WriteLine($"Name: {sideEffect.Name}");
+                    Console.WriteLine($"Description: {sideEffect.Description}");
+                    Console.WriteLine($"Date: {sideEffect.Date}");
+                }
+            }
+
+            return sideEffects;
+        }
     }
 }

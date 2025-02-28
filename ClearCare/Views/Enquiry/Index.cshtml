@@ -1,38 +1,111 @@
 @{
-    ViewData["Title"] = "Side Effects List";
-    var sideEffects = new List<dynamic>
-    {
-        new { Name = "John Doe", Description = "Headache and nausea", Date = "2023-10-01" },
-        new { Name = "Jane Smith", Description = "Dizziness and fatigue", Date = "2023-10-03" },
-        new { Name = "Alice Johnson", Description = "Skin rash and itching", Date = "2023-10-05" }
-    };
+    ViewData["Title"] = "Contact Us";
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Contact Card -->
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-body p-4 p-md-5">
+                    <!-- Form Status Alerts (will show after submission) -->
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    
+                    <!-- Form Title -->
+                    <h2 class="card-title text-center mb-4">Contact Us</h2>
+                    
+                    <!-- Enquiry Form -->
+                    <form asp-controller="Enquiry" asp-action="SubmitEnquiry" method="post" class="needs-validation" novalidate>
+                        <input type="hidden" name="UserUUID" value="@HardcodedUUIDs.UserUUID" />
+                        
+                        <div class="row g-4">
+                            <!-- Name Field -->
+                            <div class="col-md-6">
+                                <div class="form-floating mb-1">
+                                    <input type="text" class="form-control" id="name" name="Name" placeholder="Your name" required>
+                                    <label for="name">Your Name</label>
+                                </div>
+                                <div class="invalid-feedback">Please provide your name.</div>
+                            </div>
+                            
+                            <!-- Email Field -->
+                            <div class="col-md-6">
+                                <div class="form-floating mb-1">
+                                    <input type="email" class="form-control" id="email" name="Email" placeholder="name@example.com" required>
+                                    <label for="email">Email Address</label>
+                                </div>
+                                <div class="invalid-feedback">Please provide a valid email address.</div>
+                            </div>
+                            
+                            <!-- Message Field -->
+                            <div class="col-12">
+                                <div class="form-floating mb-1">
+                                    <textarea class="form-control" id="message" name="Message" placeholder="Your message" style="height: 150px" required></textarea>
+                                    <label for="message">Your Message</label>
+                                </div>
+                                <div class="invalid-feedback">Please enter your message.</div>
+                            </div>
+                            
+                            <!-- Form Actions -->
+                            <div class="col-12 d-flex justify-content-between align-items-center mt-4">
+                                <a asp-controller="Enquiry" asp-action="ListEnquiriesByUser" asp-route-userUuid="@HardcodedUUIDs.UserUUID" class="btn btn-outline-secondary">
+                                    <i class="bi bi-list-ul me-1"></i> View My Enquiries
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-lg px-4">
+                                    <i class="bi bi-send-fill me-2"></i>Submit Enquiry
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-@if (sideEffects.Count > 0)
-{
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var sideEffect in sideEffects)
-            {
-                <tr>
-                    <td>@sideEffect.Name</td>
-                    <td>@sideEffect.Description</td>
-                    <td>@sideEffect.Date</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No side effects reported yet.</p>
+<style>
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label {
+        opacity: .65;
+        transform: scale(.85) translateY(-0.5rem) translateX(0.15rem);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Form validation
+        (function () {
+            'use strict'
+            
+            // Fetch all forms that need validation
+            var forms = document.querySelectorAll('.needs-validation')
+            
+            // Loop over them and prevent submission
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
 }

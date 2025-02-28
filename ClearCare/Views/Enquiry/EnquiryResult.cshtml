@@ -2,12 +2,116 @@
     ViewData["Title"] = "Enquiry Submitted";
 }
 
-<h2>Enquiry Submitted Successfully</h2>
-
-<div>
-    <strong>Name:</strong> @ViewData["Name"]<br>
-    <strong>Email:</strong> @ViewData["Email"]<br>
-    <strong>Message:</strong> @ViewData["Message"]
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-3">
+                <!-- Success Header -->
+                <div class="card-header bg-success text-white text-center p-4">
+                    <div class="mb-3">
+                        <i class="bi bi-check-circle-fill display-1"></i>
+                    </div>
+                    <h1 class="card-title mb-0">Thank You!</h1>
+                    <p class="lead mb-0">Your enquiry has been submitted successfully</p>
+                </div>
+                
+                <!-- Confirmation Details -->
+                <div class="card-body p-4 p-md-5">
+                    <div class="alert alert-light border mb-4">
+                        <p class="mb-0">We've received your message and will get back to you as soon as possible. 
+                        Please keep a copy of the details below for your reference.</p>
+                    </div>
+                    
+                    <h4 class="border-bottom pb-2 mb-4">
+                        <i class="bi bi-envelope me-2 text-primary"></i>Enquiry Details
+                    </h4>
+                    
+                    <div class="row g-4">
+                        <!-- Name -->
+                        <div class="col-md-6">
+                            <div class="card h-100 bg-light border-0">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-1">Name</h6>
+                                    <p class="fs-5 fw-bold mb-0">@ViewData["Name"]</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Email -->
+                        <div class="col-md-6">
+                            <div class="card h-100 bg-light border-0">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-1">Email</h6>
+                                    <p class="fs-5 fw-bold mb-0">@ViewData["Email"]</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Message -->
+                        <div class="col-12">
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-1">Message</h6>
+                                    <p class="mb-0">@ViewData["Message"]</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                 
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="card-footer bg-white p-4 text-center">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a href="@Url.Action("Index", "Enquiry")" class="btn btn-primary px-4 py-2">
+                            <i class="bi bi-plus-circle me-2"></i>Submit Another Enquiry
+                        </a>
+                        <a href="@Url.Action("ListEnquiriesByUser", "Enquiry", new { userUUID = ViewData["UserUUID"] })" class="btn btn-outline-primary px-4 py-2">
+                            <i class="bi bi-list-ul me-2"></i>View My Enquiries
+                        </a>
+                    </div>
+                    
+                    <!-- Print Option -->
+                    <button onclick="window.print()" class="btn btn-link mt-3">
+                        <i class="bi bi-printer me-1"></i>Print this confirmation
+                    </button>
+                </div>
+            </div>
+            
+            <!-- What's Next Section -->
+            <div class="card mt-4 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="card-title">
+                        <i class="bi bi-arrow-right-circle me-2 text-primary"></i>What's Next?
+                    </h4>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item bg-transparent px-0">
+                            <i class="bi bi-envelope-check me-2 text-success"></i>
+                            You'll receive a confirmation email shortly.
+                        </li>
+                        <li class="list-group-item bg-transparent px-0">
+                            <i class="bi bi-person-check me-2 text-success"></i>
+                            Our team will review your enquiry.
+                        </li>
+                        <li class="list-group-item bg-transparent px-0">
+                            <i class="bi bi-chat-dots me-2 text-success"></i>
+                            We'll respond to your enquiry within 24-48 hours.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<a href="@Url.Action("Index", "Enquiry")">Back to Enquiry Form</a>
+
+
+@section Scripts {
+    <script>
+        // Optional: Auto-redirect after a certain time
+        // setTimeout(function() {
+        //     window.location.href = '@Url.Action("Index", "Home")';
+        // }, 60000); // Redirect after 60 seconds
+    </script>
+}
