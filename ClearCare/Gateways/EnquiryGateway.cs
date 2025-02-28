@@ -94,30 +94,31 @@ namespace ClearCare.Gateways
         }
 
 
-        public async Task<List<Reply>> GetRepliesForEnquiryAsync(string enquiryId)
-        {
-            // Query the Replies collection for documents where EnquiryId matches
-            Query query = _db.Collection("Replies")
-                                     .WhereEqualTo("EnquiryId", enquiryId)
-                                     .OrderByDescending("CreatedAt");
 
-            // Execute the query
-            QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
 
-            // Convert the results to Reply objects
-            List<Reply> replies = new List<Reply>();
-            foreach (DocumentSnapshot documentSnapshot in querySnapshot.Documents)
-            {
-                if (documentSnapshot.Exists)
-                {
-                    Reply reply = documentSnapshot.ConvertTo<Reply>();
-                    reply.FirestoreId = documentSnapshot.Id;
-                    replies.Add(reply);
-                }
-            }
+     public async Task<List<Reply>> GetRepliesForEnquiryAsync(string enquiryId)
+{
+    try
+    {
+        // Reference the Replies subcollection for the specific enquiry
+        var repliesRef = _db.Collection("Enquiry").Document(enquiryId).Collection("Replies");
 
-            return replies;
-        }
+        // Fetch all documents in the Replies subcollection
+        var snapshot = await repliesRef.GetSnapshotAsync();
+
+        // Convert the documents to a list of Reply objects
+        var replies = snapshot.Documents
+            .Select(doc => doc.ConvertTo<Reply>())
+            .ToList();
+
+        return replies;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error fetching replies for enquiry {enquiryId}: {ex.Message}");
+        return new List<Reply>();
+    }
+}
 
 
 

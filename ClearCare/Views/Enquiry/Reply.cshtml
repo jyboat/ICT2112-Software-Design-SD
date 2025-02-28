@@ -1,4 +1,4 @@
-@model ClearCare.Models.Enquiry
+@model ReplyToEnquiryViewModel
 
 @{
     ViewData["Title"] = "Reply to Enquiry";
@@ -15,22 +15,16 @@
             <div class="card-body">
                 <dl class="row">
                     <dt class="col-sm-4">Document ID:</dt>
-                    <dd class="col-sm-8">@Model.FirestoreId</dd>
-                    
-                    <dt class="col-sm-4">ID:</dt>
-                    <dd class="col-sm-8">@Model.Id</dd>
+                    <dd class="col-sm-8">@Model.Enquiry.FirestoreId</dd>
                     
                     <dt class="col-sm-4">Name:</dt>
-                    <dd class="col-sm-8">@Model.Name</dd>
+                    <dd class="col-sm-8">@Model.Enquiry.Name</dd>
                     
                     <dt class="col-sm-4">Email:</dt>
-                    <dd class="col-sm-8">@Model.Email</dd>
+                    <dd class="col-sm-8">@Model.Enquiry.Email</dd>
                     
                     <dt class="col-sm-4">Message:</dt>
-                    <dd class="col-sm-8">@Model.Message</dd>
-                    
-                    <dt class="col-sm-4">User UUID:</dt>
-                    <dd class="col-sm-8">@Model.UserUUID</dd>
+                    <dd class="col-sm-8">@Model.Enquiry.Message</dd>
                 </dl>
             </div>
         </div>
@@ -43,7 +37,11 @@
             </div>
             <div class="card-body">
                 <form asp-action="SendReply" method="post">
-                    <input type="hidden" name="enquiryId" value="@Model.FirestoreId" />
+                    <input type="hidden" name="enquiryId" value="@Model.Enquiry.FirestoreId" />
+                    <input type="hidden" name="recipientName" value="@Model.Enquiry.Name" />
+                    <input type="hidden" name="recipientEmail" value="@Model.Enquiry.Email" />
+                    <input type="hidden" name="originalMessage" value="@Model.Enquiry.Message" />
+                    <input type="hidden" name="userUUID" value="@Model.Enquiry.UserUUID" />
                     
                     <div class="form-group">
                         <label for="replySubject">Subject</label>
@@ -64,3 +62,32 @@
         </div>
     </div>
 </div>
+
+<hr />
+
+<h3>Previous Replies</h3>
+
+@if (Model.Replies != null && Model.Replies.Any())
+{
+    <div class="card">
+        <div class="card-header">
+            <h4>Replies</h4>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                @foreach (var reply in Model.Replies)
+                {
+                    <li class="list-group-item">
+                        <strong>Subject:</strong> @reply.Subject <br />
+                        <strong>Message:</strong> @reply.Message <br />
+                        <small class="text-muted">Sent on: @reply.CreatedAt.ToLocalTime()</small>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+else
+{
+    <p>No replies yet.</p>
+}

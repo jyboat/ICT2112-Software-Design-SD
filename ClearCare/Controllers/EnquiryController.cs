@@ -80,77 +80,109 @@ public class EnquiryController : Controller
     }
 
 
-    public async Task<IActionResult> Reply(string id)
+   public async Task<IActionResult> Reply(string id)
+{
+    try
     {
-        try
+        // Fetch the enquiry from Firestore using your gateway
+        var enquiry = await _enquiryGateway.GetEnquiryByIdAsync(id);
+
+        if (enquiry == null)
         {
-            // Fetch the enquiry from Firestore using your gateway
-            var enquiry = await _enquiryGateway.GetEnquiryByIdAsync(id);
-
-            if (enquiry == null)
-            {
-                return NotFound($"Enquiry with ID {id} not found.");
-            }
-
-            // Set the FirestoreId property
-            enquiry.FirestoreId = id;
-
-            // Return the view with the enquiry model
-            return View(enquiry);
+            return NotFound($"Enquiry with ID {id} not found.");
         }
-        catch (Exception ex)
+
+        // Set the FirestoreId property
+        enquiry.FirestoreId = id;
+
+        // Fetch all replies for this enquiry
+        var replies = await _enquiryGateway.GetRepliesForEnquiryAsync(id);
+
+        // Create a view model to pass both enquiry and replies to the view
+        var viewModel = new ReplyToEnquiryViewModel
         {
-            _logger.LogError(ex, $"Error retrieving enquiry with ID {id}");
-            return View("Error", new ErrorViewModel
-            {
-                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
-            });
-        }
+            Enquiry = enquiry,
+            Replies = replies
+        };
+
+        // Return the view with the view model
+        return View(viewModel);
     }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, $"Error retrieving enquiry with ID {id}");
+        return View("Error", new ErrorViewModel
+        {
+            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+        });
+    }
+}
 
-    [HttpPost]
-    public async Task<IActionResult> SendReply(string enquiryId, string recipientName,
+
+    
+
+   [HttpPost]
+public async Task<IActionResult> SendReply(string enquiryId, string recipientName,
     string recipientEmail, string originalMessage, string userUUID,
     string subject, string message)
+{
+    try
     {
-        try
+        // Create a new Reply object
+        var reply = new Reply
         {
-            // Create a new Reply object
-            var reply = new Reply
-            {
-                EnquiryId = enquiryId,
-                Subject = subject,
-                Message = message,
-                RecipientName = recipientName,
-                RecipientEmail = recipientEmail,
-                OriginalMessage = originalMessage,
-                UserUUID = userUUID,
-                CreatedAt = DateTime.UtcNow
-            };
+            EnquiryId = enquiryId,
+            Subject = subject,
+            Message = message,
+            RecipientName = recipientName,
+            RecipientEmail = recipientEmail,
+            OriginalMessage = originalMessage,
+            UserUUID = userUUID,
+            CreatedAt = DateTime.UtcNow
+        };
 
-            // Save the reply to Firestore
-            string replyId = await _enquiryGateway.SaveReplyAsync(enquiryId, reply);
+        // Save the reply to Firestore
+        string replyId = await _enquiryGateway.SaveReplyAsync(enquiryId, reply);
 
-            // You could also implement email sending here
-            // await _emailService.SendEmailAsync(recipientEmail, subject, message);
+        // Fetch the updated enquiry and replies
+        var enquiry = await _enquiryGateway.GetEnquiryByIdAsync(enquiryId);
+        var replies = await _enquiryGateway.GetRepliesForEnquiryAsync(enquiryId);
 
-            // Add a success message
-            TempData["SuccessMessage"] = "Your reply has been sent successfully!";
-
-            // Redirect to the enquiry list
-            return RedirectToAction("Index");
-        }
-        catch (Exception ex)
+        // Create a view model with the updated data
+        var viewModel = new ReplyToEnquiryViewModel
         {
-            _logger.LogError(ex, "Error sending reply");
+            Enquiry = enquiry,
+            Replies = replies
+        };
 
-            // Add an error message
-            TempData["ErrorMessage"] = "There was an error sending your reply. Please try again.";
+        // Add a success message (optional)
+        TempData["SuccessMessage"] = "Your reply has been sent successfully!";
 
-            // Redirect back to the reply form
-            return RedirectToAction("Reply", new { id = enquiryId });
-        }
+        // Return the same view with the updated data
+        return View("Reply", viewModel);
     }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error sending reply");
+
+        // Add an error message
+        TempData["ErrorMessage"] = "There was an error sending your reply. Please try again.";
+
+        // Fetch the enquiry and replies again to reload the page
+        var enquiry = await _enquiryGateway.GetEnquiryByIdAsync(enquiryId);
+        var replies = await _enquiryGateway.GetRepliesForEnquiryAsync(enquiryId);
+
+        var viewModel = new ReplyToEnquiryViewModel
+        {
+            Enquiry = enquiry,
+            Replies = replies
+        };
+
+        // Return the same view with the error message
+        return View("Reply", viewModel);
+    }
+}
+
 
 
 
