@@ -108,5 +108,50 @@ public class EnquiryController : Controller
         }
     }
 
+    [HttpPost]
+    public async Task<IActionResult> SendReply(string enquiryId, string recipientName,
+    string recipientEmail, string originalMessage, string userUUID,
+    string subject, string message)
+    {
+        try
+        {
+            // Create a new Reply object
+            var reply = new Reply
+            {
+                EnquiryId = enquiryId,
+                Subject = subject,
+                Message = message,
+                RecipientName = recipientName,
+                RecipientEmail = recipientEmail,
+                OriginalMessage = originalMessage,
+                UserUUID = userUUID,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            // Save the reply to Firestore
+            string replyId = await _enquiryGateway.SaveReplyAsync(enquiryId, reply);
+
+            // You could also implement email sending here
+            // await _emailService.SendEmailAsync(recipientEmail, subject, message);
+
+            // Add a success message
+            TempData["SuccessMessage"] = "Your reply has been sent successfully!";
+
+            // Redirect to the enquiry list
+            return RedirectToAction("Index");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending reply");
+
+            // Add an error message
+            TempData["ErrorMessage"] = "There was an error sending your reply. Please try again.";
+
+            // Redirect back to the reply form
+            return RedirectToAction("Reply", new { id = enquiryId });
+        }
+    }
+
+
 
 }
