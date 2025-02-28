@@ -1,16 +1,11 @@
 @{
     ViewData["Title"] = "Side Effects List";
-    var sideEffects = new List<dynamic>
-    {
-        new { Name = "John Doe", Description = "Headache and nausea", Date = "2023-10-01" },
-        new { Name = "Jane Smith", Description = "Dizziness and fatigue", Date = "2023-10-03" },
-        new { Name = "Alice Johnson", Description = "Skin rash and itching", Date = "2023-10-05" }
-    };
+    var sideEffects = ViewData["SideEffects"] as List<dynamic>;
 }
 
 <h2>@ViewData["Title"]</h2>
 
-@if (sideEffects.Count > 0)
+@if (sideEffects != null && sideEffects.Count > 0)
 {
     <table class="table table-bordered">
         <thead>
