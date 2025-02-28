@@ -19,5 +19,9 @@ namespace ClearCare.Domain
         {
             return await _sideEffectsMapper.GetAllSideEffectsAsync();
         }
+          public async Task AddSideEffectAsync(SideEffectModel sideEffect)
+        {
+            await _sideEffectsMapper.AddSideEffectAsync(sideEffect);
+        }
     }
 }

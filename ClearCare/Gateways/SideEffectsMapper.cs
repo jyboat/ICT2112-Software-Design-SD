@@ -1,10 +1,9 @@
 using ClearCare.Models;
-using Google.Cloud.Firestore;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Firestore;
+using System;
+using System.Threading.Tasks;
 
 namespace ClearCare.Gateways
 {
@@ -49,6 +48,20 @@ namespace ClearCare.Gateways
             }
 
             return sideEffects;
+        }
+
+        public async Task AddSideEffectAsync(SideEffectModel sideEffect)
+        {
+            try
+            {
+                var collection = _db.Collection("SideEffects");
+                await collection.AddAsync(sideEffect);
+                Console.WriteLine($"Side effect added: {sideEffect.DrugName}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error adding side effect: {ex.Message}");
+            }
         }
     }
 }
