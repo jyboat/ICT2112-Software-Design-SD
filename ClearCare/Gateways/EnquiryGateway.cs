@@ -119,7 +119,32 @@ namespace ClearCare.Gateways
         return new List<Reply>();
     }
 }
+public async Task<List<SideEffectModel>> GetSideEffectsAsync()
+{
+    var sideEffects = new List<SideEffectModel>();
 
+    // Reference the "SideEffects" collection in Firestore
+    var collection = _db.Collection("SideEffects");
+    var snapshot = await collection.GetSnapshotAsync();
+
+    foreach (var document in snapshot.Documents)
+    {
+        if (document.Exists)
+        {
+            // Convert Firestore document to SideEffectModel
+            var sideEffect = document.ConvertTo<SideEffectModel>();
+            sideEffects.Add(sideEffect);
+
+            // Log the side effect details to the console
+            Console.WriteLine($"Document ID: {document.Id}");
+            Console.WriteLine($"Name: {sideEffect.Name}");
+            Console.WriteLine($"Description: {sideEffect.Description}");
+            Console.WriteLine($"Date: {sideEffect.Date}");
+        }
+    }
+
+    return sideEffects;
+}
 
 
 

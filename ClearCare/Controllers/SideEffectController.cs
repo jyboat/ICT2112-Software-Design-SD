@@ -1,23 +1,42 @@
 using Microsoft.AspNetCore.Mvc;
+using ClearCare.Models;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using ClearCare.Gateways;  // Make sure to import your Gateway namespace
 
 namespace ClearCare.Controllers
 {
     public class SideEffectController : Controller
     {
-        // Action to render the Index view
-        public IActionResult Index()
+        private readonly ILogger<SideEffectController> _logger;
+    private readonly EnquiryGateway _enquiryGateway;
+
+        public SideEffectController(ILogger<SideEffectController> logger)
         {
-            // Hardcoded data for now (replace with dynamic data later)
-            var sideEffects = new List<dynamic>
-            {
-                new { Name = "John Doe", Description = "Headache and nausea", Date = "2023-10-01" },
-                new { Name = "Jane Smith", Description = "Dizziness and fatigue", Date = "2023-10-03" },
-                new { Name = "Alice Johnson", Description = "Skin rash and itching", Date = "2023-10-05" }
-            };
+            _logger = logger;
+        _enquiryGateway = new EnquiryGateway();
+        }
+
+        // Fetch and display side effects from Firebase
+        public async Task<IActionResult> Index()
+        {
+            // Fetch side effects from Firebase
+            List<SideEffectModel> sideEffects = await _enquiryGateway.GetSideEffectsAsync();
 
             // Pass the data to the view
-            ViewData["SideEffects"] = sideEffects;
+            return View(sideEffects);
+        }
 
+        // Privacy page (if needed)
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        // List enquiries (if needed)
+        public IActionResult ListEnquiries()
+        {
             return View();
         }
     }
