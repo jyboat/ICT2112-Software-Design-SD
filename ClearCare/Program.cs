@@ -1,3 +1,4 @@
+using ClearCare.Domain;
 using ClearCare.Gateways;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,9 @@ builder.Services.AddSingleton<EnquirySubject>();
 // Register observers
 builder.Services.AddSingleton<IEnquiryObserver, LoggingObserver>();
 builder.Services.AddSingleton<IEnquiryObserver, NotificationObserver>();
+
+builder.Services.AddSingleton<SideEffectsMapper>();
+builder.Services.AddScoped<SideEffectControl>();
 
 var app = builder.Build();
 
