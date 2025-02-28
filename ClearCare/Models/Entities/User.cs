@@ -96,6 +96,5 @@ namespace ClearCare.Models.Entities
             if (profileData.ContainsKey("Address")) SetAddress(profileData["Address"]?.ToString() ?? string.Empty);
             if (profileData.ContainsKey("Role")) SetRole(profileData["Role"]?.ToString() ?? string.Empty);
         }
-
     }
 }

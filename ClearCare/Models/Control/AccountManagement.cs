@@ -25,23 +25,10 @@ namespace ClearCare.Models.Control
                 return "Account already exists.";
             }
 
-            string newUserId = await _userGateway.GetNextUserId(); // Get the next available user ID
+            // Create a new User object with the necessary data
+            string newUserId = await _userGateway.InsertUser(email, password, name, mobileNumber, address, role);
 
-            // Create a new User object
-            var newUser = new User(
-                userID: newUserId,
-                email: email,
-                password: password,
-                name: name,
-                mobileNumber: mobileNumber,
-                address: address,
-                role: role
-            );
-
-            // Insert the new user into the database
-            await _userGateway.InsertUser(newUser);
-
-            return "Account created successfully.";
+            return newUserId != null ? "Account created successfully." : "Failed to create account.";
         }
 
         // Method to check if an account already exists

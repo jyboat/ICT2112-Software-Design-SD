@@ -183,62 +183,45 @@ namespace ClearCare.DataSource
             return snapshot.ContainsField("Name") ? snapshot.GetValue<string>("Name") : "Unknown User";
         }
 
-        // Method to insert user into Firestore with encrypted and hashed data
-        public async Task InsertUser(User user)
+        // Insert a new user with auto-incremented UserID
+        public async Task<string> InsertUser(string email, string password, string name, long mobileNumber, string address, string role)
         {
-            // Get the user's profile data as a dictionary
-            Dictionary<string, object> profileData = user.GetProfileData();
+            CollectionReference usersRef = db.Collection("User");
 
-            // Safely get the password
-            profileData.TryGetValue("Password", out var passwordObj);
-            string password = passwordObj?.ToString() ?? string.Empty;
-            string hashedPassword = encryptionManagement.HashPassword(password);
+            // Fetch all user documents to find the highest existing ID
+            QuerySnapshot allUsersSnapshot = await usersRef.GetSnapshotAsync();
+            int highestID = 0;
 
-            // Safely get other fields
-            profileData.TryGetValue("Email", out var emailObj);
-            string email = emailObj?.ToString() ?? string.Empty;
-
-            profileData.TryGetValue("Name", out var nameObj);
-            string name = nameObj?.ToString() ?? string.Empty;
-
-            profileData.TryGetValue("Address", out var addressObj);
-            string address = addressObj?.ToString() ?? string.Empty;
-
-            // Construct the new user dictionary
-            var newUser = new Dictionary<string, object>
+            foreach (var doc in allUsersSnapshot.Documents)
             {
-                { "UserID", profileData["UserID"] },
-                { "Email", email },
-                { "Password", hashedPassword },
-                { "Name", name },
-                { "MobileNumber", profileData["MobileNumber"] },
-                { "Address", address },
-                { "Role", profileData["Role"] }
-            };
-
-            // Add the new user to Firestore
-            DocumentReference docRef = await db.Collection("User").AddAsync(newUser);
-            Console.WriteLine($"User added with ID: {docRef.Id}");
-        }
-
-        // Method to get the next available user ID
-        public async Task<string> GetNextUserId()
-        {
-            Query query = db.Collection("User").OrderByDescending("UserID").Limit(1);
-            QuerySnapshot snapshot = await query.GetSnapshotAsync();
-
-            if (snapshot.Count == 0)
-            {
-                return "USR001";  // Start from here if no users are found
+                string docID = doc.Id; // Example: "USR3"
+                if (docID.StartsWith("USR") && int.TryParse(docID.Substring(3), out int id))
+                {
+                    highestID = Math.Max(highestID, id);
+                }
             }
 
-            var lastUser = snapshot.Documents[0];
-            string lastUserId = lastUser.GetValue<string>("UserID");
+            // Generate User ID
+            string nextUserID = $"USR{highestID + 1}";
 
-            int numericId = int.Parse(lastUserId.Substring(3)); // Assumes "USR" prefix and numeric suffix
-            numericId++; // Increment to get the next user ID
+            // Prepare user data for insertion
+            var userData = new Dictionary<string, object>
+            {
+                { "Email", email },
+                { "Password", encryptionManagement.HashPassword(password) },
+                { "Name", name },
+                { "MobileNumber", mobileNumber },
+                { "Address", address },
+                { "Role", role }
+            };
 
-            return $"USR{numericId:D3}"; // Pad with zeros to maintain the format
+            // Explicitly use the new User ID as the document ID
+            DocumentReference newUserRef = usersRef.Document(nextUserID);
+            await newUserRef.SetAsync(userData);
+
+            Console.WriteLine($"User inserted successfully with Firestore ID: {nextUserID}");
+
+            return nextUserID;
         }
     }
 }
