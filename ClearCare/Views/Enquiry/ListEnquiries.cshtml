@@ -15,6 +15,7 @@
             <th>Email</th>
             <th>Message</th>
             <th>User UUID</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -27,6 +28,9 @@
         <td>@e.Email</td>
         <td>@e.Message</td>
         <td>@e.UserUUID</td>
+        <td>
+            <a href="@Url.Action("Reply", "Enquiry", new { id = e.FirestoreId })" class="btn btn-primary">Reply</a>
+        </td>
       </tr>
     }
   </tbody>
