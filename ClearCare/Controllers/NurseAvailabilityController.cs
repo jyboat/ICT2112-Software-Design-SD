@@ -14,7 +14,7 @@ namespace ClearCare.Controllers
 
         public NurseAvailabilityController()
         {
-            _manager = new NurseAvailabilityManager();
+            _manager = new NurseAvailabilityManager(new NurseAvailabilityGateway());
         }
 
         // Displays Nurse Availability View
@@ -22,16 +22,8 @@ namespace ClearCare.Controllers
         [Route("")]
         public async Task<IActionResult> Index()
         {
-            var availabilityList = await _manager.RetrieveAll("USR003"); // Dummy ID for testing
+            var availabilityList = _manager.retrieveAvailabilityByStaff("USR003"); // Dummy ID for testing
             return View(availabilityList);
-        }
-
-        // Show AddAvailability View
-        [HttpGet]
-        [Route("AddAvailability")]
-        public IActionResult AddAvailability()
-        {
-            return View();
         }
 
         // Add Availability (Handles Form Submission)
@@ -39,7 +31,7 @@ namespace ClearCare.Controllers
         [Route("AddAvailability")]
         public async Task<IActionResult> AddAvailability([FromForm] string date)
         {
-            await _manager.CreateAvailability("USR003", date);
+            _manager.createAvailability("USR003", date);
             return RedirectToAction("Index");
         }
 
@@ -48,7 +40,7 @@ namespace ClearCare.Controllers
         [Route("Update")]
         public async Task<IActionResult> UpdateAvailability([FromForm] int availabilityId, [FromForm] string date)
         {
-            await _manager.UpdateAvailability(availabilityId, "USR003", date);
+            _manager.modifyAvailability(availabilityId, "USR003", date);
             return RedirectToAction("Index");
         }
 
@@ -58,7 +50,7 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> DeleteAvailability(int availabilityId)
         {
             // Console.WriteLine($"Attempting to delete availability with ID: {availabilityId}");
-            await _manager.DeleteAvailability(availabilityId);
+            _manager.removeAvailability(availabilityId);
             return RedirectToAction("Index");
         }
     }

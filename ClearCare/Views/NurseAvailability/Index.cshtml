@@ -1,13 +1,13 @@
 @model List<ClearCare.Models.Entities.NurseAvailability>
 
 @{
-    ViewData["Title"] = "Nurse Availability Calendar";
+    ViewData["Title"] = "My Calendar";
 }
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Nurse Availability Calendar</title>
+    <title>My Calendar</title>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
@@ -26,11 +26,11 @@
                 events: [
                     @foreach (var availability in Model)
                     {
-                        var details = availability.GetAvailabilityDetails();
+                        var details = availability.getAvailabilityDetails();
                         <text>
                         {
                             id: "@Html.Raw(details["availabilityId"])",
-                            title: "Available: @Html.Raw(details["nurseID"])",
+                            title: "Unavailable: @Html.Raw(details["nurseID"])",
                             start: "@Html.Raw(details["date"])",
                             extendedProps: {
                                 nurseId: "@Html.Raw(details["nurseID"])",
@@ -133,7 +133,7 @@
     </script>
 </head>
 <body>
-    <h2 style="text-align: center;">Nurse Availability Calendar</h2>
+    <h2 style="text-align: center;">My Calendar</h2>
 
     <div id="calendar"></div>
 
