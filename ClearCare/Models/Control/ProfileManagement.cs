@@ -19,5 +19,11 @@ namespace ClearCare.Models.Control
             return await _userGateway.FindUserByID(userID);
         }
 
+        // Update user profile with selected fields, called by ProfileController
+        public async Task<bool> UpdateUserProfile(string userID, Dictionary<string, object> updatedFields)
+        {
+            return await _userGateway.UpdateUserProfile(userID, updatedFields);
+        }
+
     }
 }

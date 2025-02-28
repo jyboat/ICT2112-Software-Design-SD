@@ -174,5 +174,75 @@ namespace ClearCare.DataSource
                 return "Unknown User";
             }
         }
+
+        public async Task<bool> UpdateUserProfile(string userId, Dictionary<string, object> updatedFields)
+        {
+            try
+            {
+                DocumentReference userDocRef = db.Collection("User").Document(userId);
+                DocumentSnapshot snapshot = await userDocRef.GetSnapshotAsync();
+                
+                if (!snapshot.Exists)
+                    throw new Exception("User not found. userID: " + userId);
+                
+                Dictionary<string, object> updates = new Dictionary<string, object>();
+                
+                // Ensure only selected base user fields are updated
+                if (updatedFields.ContainsKey("Email"))
+                    updates["Email"] = updatedFields["Email"].ToString();
+                if (updatedFields.ContainsKey("Name"))
+                    updates["Name"] = updatedFields["Name"].ToString();
+                if (updatedFields.ContainsKey("MobileNumber"))
+                    updates["MobileNumber"] = Convert.ToInt64(updatedFields["MobileNumber"]);
+                if (updatedFields.ContainsKey("Address"))
+                    updates["Address"] = updatedFields["Address"].ToString();
+                if (updatedFields.ContainsKey("Password"))
+                    updates["Password"] = updatedFields["Password"].ToString();
+                
+                string role = snapshot.GetValue<string>("Role");
+                
+                switch (role)
+                {
+                    case "Nurse":
+                        if (updatedFields.ContainsKey("Department"))
+                            updates["Department"] = updatedFields["Department"].ToString();
+                        break;
+                    
+                    case "Doctor":
+                        if (updatedFields.ContainsKey("Specialization"))
+                            updates["Specialization"] = updatedFields["Specialization"].ToString();
+                        break;
+                    
+                    case "Patient":
+                        if (updatedFields.ContainsKey("AssignedCaregiverName"))
+                            updates["AssignedCaregiverName"] = updatedFields["AssignedCaregiverName"].ToString();
+                        if (updatedFields.ContainsKey("AssignedCaregiverID"))
+                            updates["AssignedCaregiverID"] = updatedFields["AssignedCaregiverID"].ToString();
+                        if (updatedFields.ContainsKey("DateOfBirth"))
+                            updates["DateOfBirth"] = Timestamp.FromDateTime(DateTime.Parse(updatedFields["DateOfBirth"].ToString()).ToUniversalTime());
+                        break;
+                    
+                    case "Caregiver":
+                        if (updatedFields.ContainsKey("AssignedPatientName"))
+                            updates["AssignedPatientName"] = updatedFields["AssignedPatientName"].ToString();
+                        if (updatedFields.ContainsKey("AssignedPatientID"))
+                            updates["AssignedPatientID"] = updatedFields["AssignedPatientID"].ToString();
+                        break;
+                    
+                    default:
+                        throw new Exception("Invalid role detected.");
+                }
+                
+                if (updates.Count > 0)
+                    await userDocRef.UpdateAsync(updates);
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error updating user profile: " + ex.Message);
+                return false;
+            }
+        }
     }
 }
