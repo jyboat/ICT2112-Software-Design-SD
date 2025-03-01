@@ -18,6 +18,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IEmail, EmailService>(); // Ensure EmailService implements IEmail
 builder.Services.AddScoped<IPassword, EncryptionManagement>(); // Ensure EncryptionManagement implements IPassword
 builder.Services.AddScoped<IEncryption, EncryptionManagement>(); // Ensure EncryptionManagement implements IEncryption
+builder.Services.AddScoped<IMedicalRecord, ViewMedicalRecord>(); // Ensure ViewMedicalRecord implements IMedicalRecord
+builder.Services.AddScoped<IUserDetails, ProfileManagement>(); // Ensure ProfileManagement implements IUserDetails
 
 var app = builder.Build();
 

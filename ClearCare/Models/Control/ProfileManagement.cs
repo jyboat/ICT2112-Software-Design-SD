@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
 using ClearCare.DataSource;
 using ClearCare.Models.Entities;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
-    public class ProfileManagement
+    public class ProfileManagement : IUserDetails
     {
         private readonly UserGateway _userGateway;
 
