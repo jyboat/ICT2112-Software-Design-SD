@@ -13,40 +13,11 @@ namespace ClearCare.Models.Control
         private readonly UserGateway UserGateway;
         private readonly IEncryption encryptionService;
 
-        // List of observers
-        private static List<IMedicalRecordObserver> MedObserver = new List<IMedicalRecordObserver>();
-
         public ViewMedicalRecord(IEncryption encryptionService)
         {
             MedicalRecordGateway = new MedicalRecordGateway();
             UserGateway = new UserGateway();
             this.encryptionService = encryptionService;
-        }
-
-        // Add observer
-        public void AddObserver(IMedicalRecordObserver observer)
-        {
-            if (!MedObserver.Any(o => o.GetType() == observer.GetType()))
-            {
-                MedObserver.Add(observer);
-            }
-        }
-
-        // Remove observer
-        public void RemoveObserver(IMedicalRecordObserver observer)
-        {
-            if (MedObserver.Contains(observer))
-                MedObserver.Remove(observer);
-        }
-
-        public async Task NotifyObservers()
-        {
-            var updatedRecords = await MedicalRecordGateway.RetrieveAllMedicalRecords();
-
-            foreach (var observer in MedObserver)
-            {
-                observer.OnMedicalRecordUpdated(updatedRecords);
-            }
         }
 
         // Retrieve all medical records and process them for display

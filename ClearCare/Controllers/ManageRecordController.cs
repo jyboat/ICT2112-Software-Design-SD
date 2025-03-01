@@ -14,10 +14,11 @@ namespace ClearCare.Controllers
     {
         private ManageMedicalRecord ManageMedicalRecord;
 
-        public ManageRecordController(IEncryption encryptionService,  ViewMedicalRecord viewMedicalRecord)
+        public ManageRecordController(IEncryption encryptionService, ObserverManager observerManager)
         {
-            ManageMedicalRecord = new ManageMedicalRecord(encryptionService, viewMedicalRecord);
+            ManageMedicalRecord = new ManageMedicalRecord(encryptionService, observerManager);
         }
+
 
         [Route("Create")]
         public IActionResult DisplayCreateRecord()

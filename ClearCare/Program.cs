@@ -1,6 +1,8 @@
 using ClearCare.Models.Interface; 
 using ClearCare.Models.Control;   
 using ClearCare.Models.Hubs;   
+using ClearCare.Controllers;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,15 +21,22 @@ builder.Services.AddControllersWithViews();
 // Add SignalR to the DI container
 builder.Services.AddSignalR();  
 
+// Register ObserverManager
+builder.Services.AddSingleton<ObserverManager>(); 
+builder.Services.AddSingleton<UpdateViewObserver>();
+
 builder.Services.AddScoped<IEmail, EmailService>(); // Ensure EmailService implements IEmail
 builder.Services.AddScoped<IPassword, EncryptionManagement>(); // Ensure EncryptionManagement implements IPassword
 builder.Services.AddScoped<IEncryption, EncryptionManagement>(); // Ensure EncryptionManagement implements IEncryption
 builder.Services.AddScoped<IMedicalRecord, ViewMedicalRecord>(); // Ensure ViewMedicalRecord implements IMedicalRecord
 builder.Services.AddScoped<IUserDetails, ProfileManagement>(); // Ensure ProfileManagement implements IUserDetails
-builder.Services.AddScoped<ViewMedicalRecord>(); // Register ViewMedicalRecord
-builder.Services.AddScoped<ManageMedicalRecord>(); // Register ManageMedicalRecord
 
 var app = builder.Build();
+
+// Ensure UpdateViewObserver is created and added to the ObserverManager
+var observerManager = app.Services.GetRequiredService<ObserverManager>();
+var hubContext = app.Services.GetRequiredService<IHubContext<MedicalRecordHub>>();
+new UpdateViewObserver(hubContext, observerManager);  // Manually instantiate
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

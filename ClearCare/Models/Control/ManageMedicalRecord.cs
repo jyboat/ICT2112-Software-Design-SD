@@ -9,15 +9,14 @@ namespace ClearCare.Models.Control
     public class ManageMedicalRecord
     {
         private MedicalRecordGateway MedicalRecordGateway;
-
-        private readonly ViewMedicalRecord viewMedicalRecord;
+        private readonly ObserverManager _observerManager;
         private readonly IEncryption encryptionService;
         string encryptedText = string.Empty;
 
-        public ManageMedicalRecord(IEncryption encryptionService, ViewMedicalRecord viewMedicalRecord)
+        public ManageMedicalRecord(IEncryption encryptionService, ObserverManager observerManager)
         {
             MedicalRecordGateway = new MedicalRecordGateway();
-            this.viewMedicalRecord = viewMedicalRecord;
+            _observerManager = observerManager;
             this.encryptionService = encryptionService;
         }
 
@@ -32,7 +31,7 @@ namespace ClearCare.Models.Control
             {
                 Console.WriteLine("Calling NotifyObservers...");  // Debugging log
                 // Notify observers after adding a new record
-                await viewMedicalRecord.NotifyObservers(); 
+                await _observerManager.NotifyObservers(); 
             }
 
             return newRecord;

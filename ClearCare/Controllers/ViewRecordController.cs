@@ -10,23 +10,15 @@ using ClearCare.Models.Hubs;
 namespace ClearCare.Controllers
 {
     [Route("ViewRecord")]
-    public class ViewRecordController : Controller, IMedicalRecordObserver
+    public class ViewRecordController : Controller
     {
         private readonly ViewMedicalRecord viewMedicalRecord;
         private readonly ErratumManagement erratumManagement;
 
-        private readonly IHubContext<MedicalRecordHub> _hubContext;  // Inject SignalR hub context
-
-        public ViewRecordController(IEncryption encryptionService, IHubContext<MedicalRecordHub> hubContext)
+        public ViewRecordController(IEncryption encryptionService)
         {
             viewMedicalRecord = new ViewMedicalRecord(encryptionService);
             erratumManagement = new ErratumManagement(encryptionService);
-
-            // Initialize SignalR hub context
-            _hubContext = hubContext;  
-
-            // Register this controller as an observer
-            viewMedicalRecord.AddObserver(this);
         }
 
         // View all medical record on 1 page
@@ -111,14 +103,6 @@ namespace ClearCare.Controllers
 
             // If the export failed, return an error message
             return Content(exportResult);
-        }
-
-        [Route("UpdateRecords")]
-        public async void OnMedicalRecordUpdated(List<MedicalRecord> updatedRecords)
-        {
-            Console.WriteLine("🔄 OnMedicalRecordUpdated() triggered in ViewRecordController!");
-            // Send SignalR notification to all clients
-            await _hubContext.Clients.All.SendAsync("ReceiveMedicalRecordUpdate");
         }
     }
 }
