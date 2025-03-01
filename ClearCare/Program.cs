@@ -20,6 +20,8 @@ builder.Services.AddScoped<IPassword, EncryptionManagement>(); // Ensure Encrypt
 builder.Services.AddScoped<IEncryption, EncryptionManagement>(); // Ensure EncryptionManagement implements IEncryption
 builder.Services.AddScoped<IMedicalRecord, ViewMedicalRecord>(); // Ensure ViewMedicalRecord implements IMedicalRecord
 builder.Services.AddScoped<IUserDetails, ProfileManagement>(); // Ensure ProfileManagement implements IUserDetails
+builder.Services.AddScoped<ViewMedicalRecord>(); // Register ViewMedicalRecord
+builder.Services.AddScoped<ManageMedicalRecord>(); // Register ManageMedicalRecord
 
 var app = builder.Build();
 

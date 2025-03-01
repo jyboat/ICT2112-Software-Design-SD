@@ -8,15 +8,19 @@ using System.Text.RegularExpressions;
 namespace ClearCare.Controllers
 {
     [Route("ViewRecord")]
-    public class ViewRecordController : Controller
+    public class ViewRecordController : Controller, IMedicalRecordObserver
     {
         private readonly ViewMedicalRecord viewMedicalRecord;
         private readonly ErratumManagement erratumManagement;
 
         public ViewRecordController(IEncryption encryptionService)
         {
+            Console.WriteLine("ViewRecordController instantiated!"); // Debugging log
             viewMedicalRecord = new ViewMedicalRecord(encryptionService);
             erratumManagement = new ErratumManagement(encryptionService);
+
+             // Register this controller as an observer
+            viewMedicalRecord.AddObserver(this);
         }
 
         // View all medical record on 1 page
@@ -43,7 +47,7 @@ namespace ClearCare.Controllers
         }
 
         // View all medical record individually
-        [Route("{recordID}")]
+        [Route("Details/{recordID}")]
         public async Task<IActionResult> ViewMedicalRecord(string recordID)
         {
             var recordDetails = await viewMedicalRecord.GetMedicalRecordByID(recordID);
@@ -102,5 +106,32 @@ namespace ClearCare.Controllers
             // If the export failed, return an error message
             return Content(exportResult);
         }
+
+        [Route("UpdateRecords")]
+        public IActionResult OnMedicalRecordUpdated(List<MedicalRecord> updatedRecords)
+        {
+            Console.WriteLine("🔄 OnMedicalRecordUpdated() triggered in ViewRecordController!");
+            ViewData["MedicalRecords"] = updatedRecords;
+
+            // Store a flag in TempData to signal a refresh is needed
+            TempData["RefreshPage"] = true;
+
+            // Redirect the user back to the View Records page
+            return RedirectToAction("DisplayViewRecord", "ViewRecord");
+        }
+
+        [HttpGet]
+        [Route("CheckForMedicalRecordUpdates")]
+        public IActionResult CheckForMedicalRecordUpdates()
+        {
+            if (ClearCare.Models.Control.ViewMedicalRecord.HasNewMedicalRecords())
+            {
+                // Reset the flag after notifying clients
+                ClearCare.Models.Control.ViewMedicalRecord.ResetMedicalRecordFlag();
+                return Json(new { update = true });
+            }
+            return Json(new { update = false });
+        }
+
     }
 }

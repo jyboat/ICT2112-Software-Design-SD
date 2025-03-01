@@ -13,12 +13,68 @@ namespace ClearCare.Models.Control
         private readonly UserGateway UserGateway;
         private readonly IEncryption encryptionService;
 
+        private static bool newMedicalRecordAdded = false;
+
+        // List of observers
+        private static List<IMedicalRecordObserver> observers = new List<IMedicalRecordObserver>();
+
         public ViewMedicalRecord(IEncryption encryptionService)
         {
             MedicalRecordGateway = new MedicalRecordGateway();
             UserGateway = new UserGateway();
             this.encryptionService = encryptionService;
         }
+
+        // Add observer
+        public void AddObserver(IMedicalRecordObserver observer)
+        {
+            if (!observers.Any(o => o.GetType() == observer.GetType()))
+            {
+                Console.WriteLine($"✅ Observer added: {observer.GetType().Name}");
+                observers.Add(observer);
+            }
+            else
+            {
+                Console.WriteLine($"⚠️ Observer {observer.GetType().Name} already registered, skipping...");
+            }
+        }
+
+
+        // Remove observer
+        public void RemoveObserver(IMedicalRecordObserver observer)
+        {
+            if (observers.Contains(observer))
+                observers.Remove(observer);
+        }
+
+        public async Task NotifyObservers()
+        {
+            Console.WriteLine($" Notifying {observers.Count} observers..."); // Debugging log
+            var updatedRecords = await MedicalRecordGateway.RetrieveAllMedicalRecords();
+
+            // Set update flag to true
+            newMedicalRecordAdded = true;
+
+            foreach (var observer in observers)
+            {
+                Console.WriteLine($" Notifying observer: {observer.GetType().Name}"); // Debugging log
+                observer.OnMedicalRecordUpdated(updatedRecords);
+                Console.WriteLine($" Observer {observer.GetType().Name} updated successfully!");
+            }
+        }
+
+        // Expose an endpoint to check if an update happened
+        public static bool HasNewMedicalRecords()
+        {
+            return newMedicalRecordAdded;
+        }
+
+        // Reset the flag after a refresh request
+        public static void ResetMedicalRecordFlag()
+        {
+            newMedicalRecordAdded = false;
+        }
+
 
         // Retrieve all medical records and process them for display
         public async Task<List<dynamic>> GetAllMedicalRecords()

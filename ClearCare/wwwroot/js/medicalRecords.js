@@ -46,5 +46,20 @@ document.addEventListener("DOMContentLoaded", function () {
         renderTable();
     });
 
+    function checkForUpdates() {
+        fetch('/ViewRecord/CheckForMedicalRecordUpdates')
+            .then(response => response.json())
+            .then(data => {
+                if (data.update) {
+                    console.log("🔄 New medical record detected! Refreshing page...");
+                    location.reload();
+                }
+            })
+            .catch(error => console.error("❌ Error checking for updates:", error));
+    }
+    
+    // Run check every 5 seconds
+    setInterval(checkForUpdates, 5000);    
+
     renderTable();
 });

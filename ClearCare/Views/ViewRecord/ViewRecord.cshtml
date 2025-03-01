@@ -42,7 +42,7 @@
                         <td>@record.CreatedBy</td>
                         <td>
                             <div class="btn-group">
-                                <a href="/ViewRecord/@record.RecordID" class="btn btn-outline-info">
+                                <a href="/ViewRecord/Details/@record.RecordID" class="btn btn-outline-info">
                                     <i class="bi bi-eye"></i> View
                                 </a>
                                 @if (userRole == "Doctor")
@@ -69,3 +69,7 @@
 
 <!-- Link to External JS File -->
 <script src="~/js/medicalRecords.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
