@@ -30,12 +30,7 @@ namespace ClearCare.Models.Control
         {
             if (!observers.Any(o => o.GetType() == observer.GetType()))
             {
-                Console.WriteLine($"✅ Observer added: {observer.GetType().Name}");
                 observers.Add(observer);
-            }
-            else
-            {
-                Console.WriteLine($"⚠️ Observer {observer.GetType().Name} already registered, skipping...");
             }
         }
 
@@ -49,19 +44,19 @@ namespace ClearCare.Models.Control
 
         public async Task NotifyObservers()
         {
-            Console.WriteLine($" Notifying {observers.Count} observers..."); // Debugging log
             var updatedRecords = await MedicalRecordGateway.RetrieveAllMedicalRecords();
-
-            // Set update flag to true
-            newMedicalRecordAdded = true;
 
             foreach (var observer in observers)
             {
-                Console.WriteLine($" Notifying observer: {observer.GetType().Name}"); // Debugging log
                 observer.OnMedicalRecordUpdated(updatedRecords);
-                Console.WriteLine($" Observer {observer.GetType().Name} updated successfully!");
             }
         }
+
+        public static void SetMedicalRecordUpdated()
+        {
+            newMedicalRecordAdded = true;
+        }
+
 
         // Expose an endpoint to check if an update happened
         public static bool HasNewMedicalRecords()

@@ -6,6 +6,6 @@ namespace ClearCare.Models.Interface
 {
     public interface IMedicalRecordObserver
     {
-        IActionResult OnMedicalRecordUpdated(List<MedicalRecord> updatedRecords);
+        void OnMedicalRecordUpdated(List<MedicalRecord> updatedRecords);
     }
 }

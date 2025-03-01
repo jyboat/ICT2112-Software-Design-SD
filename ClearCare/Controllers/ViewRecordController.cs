@@ -15,11 +15,10 @@ namespace ClearCare.Controllers
 
         public ViewRecordController(IEncryption encryptionService)
         {
-            Console.WriteLine("ViewRecordController instantiated!"); // Debugging log
             viewMedicalRecord = new ViewMedicalRecord(encryptionService);
             erratumManagement = new ErratumManagement(encryptionService);
 
-             // Register this controller as an observer
+            // Register this controller as an observer
             viewMedicalRecord.AddObserver(this);
         }
 
@@ -108,16 +107,14 @@ namespace ClearCare.Controllers
         }
 
         [Route("UpdateRecords")]
-        public IActionResult OnMedicalRecordUpdated(List<MedicalRecord> updatedRecords)
+        public void OnMedicalRecordUpdated(List<MedicalRecord> updatedRecords)
         {
             Console.WriteLine("🔄 OnMedicalRecordUpdated() triggered in ViewRecordController!");
             ViewData["MedicalRecords"] = updatedRecords;
 
-            // Store a flag in TempData to signal a refresh is needed
-            TempData["RefreshPage"] = true;
-
-            // Redirect the user back to the View Records page
-            return RedirectToAction("DisplayViewRecord", "ViewRecord");
+            // Set flag to true such that when other users which periodically runs the 
+            // CheckForMedicalRecordUpdates == true, then their page auto refresh
+            ClearCare.Models.Control.ViewMedicalRecord.SetMedicalRecordUpdated();
         }
 
         [HttpGet]
