@@ -13,10 +13,8 @@ namespace ClearCare.Models.Control
         private readonly UserGateway UserGateway;
         private readonly IEncryption encryptionService;
 
-        private static bool newMedicalRecordAdded = false;
-
         // List of observers
-        private static List<IMedicalRecordObserver> observers = new List<IMedicalRecordObserver>();
+        private static List<IMedicalRecordObserver> MedObserver = new List<IMedicalRecordObserver>();
 
         public ViewMedicalRecord(IEncryption encryptionService)
         {
@@ -28,48 +26,28 @@ namespace ClearCare.Models.Control
         // Add observer
         public void AddObserver(IMedicalRecordObserver observer)
         {
-            if (!observers.Any(o => o.GetType() == observer.GetType()))
+            if (!MedObserver.Any(o => o.GetType() == observer.GetType()))
             {
-                observers.Add(observer);
+                MedObserver.Add(observer);
             }
         }
-
 
         // Remove observer
         public void RemoveObserver(IMedicalRecordObserver observer)
         {
-            if (observers.Contains(observer))
-                observers.Remove(observer);
+            if (MedObserver.Contains(observer))
+                MedObserver.Remove(observer);
         }
 
         public async Task NotifyObservers()
         {
             var updatedRecords = await MedicalRecordGateway.RetrieveAllMedicalRecords();
 
-            foreach (var observer in observers)
+            foreach (var observer in MedObserver)
             {
                 observer.OnMedicalRecordUpdated(updatedRecords);
             }
         }
-
-        public static void SetMedicalRecordUpdated()
-        {
-            newMedicalRecordAdded = true;
-        }
-
-
-        // Expose an endpoint to check if an update happened
-        public static bool HasNewMedicalRecords()
-        {
-            return newMedicalRecordAdded;
-        }
-
-        // Reset the flag after a refresh request
-        public static void ResetMedicalRecordFlag()
-        {
-            newMedicalRecordAdded = false;
-        }
-
 
         // Retrieve all medical records and process them for display
         public async Task<List<dynamic>> GetAllMedicalRecords()
