@@ -6,6 +6,23 @@ document.addEventListener("DOMContentLoaded", function () {
     let rowsPerPage = 10;
     let currentPage = 1;
 
+    // SignalR connection setup
+    const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/medicalRecordHub")  // The URL to your SignalR hub
+    .configureLogging(signalR.LogLevel.Information)
+    .build();
+
+    // Start the connection
+    connection.start().then(() => {
+        console.log("✅ Connected to SignalR hub");
+    }).catch(err => console.error("❌ SignalR Connection Error:", err));
+
+    // Listen for updates from the server
+    connection.on("ReceiveMedicalRecordUpdate", () => {
+        console.log("🔄 New medical record detected! Refreshing page...");
+        location.reload(); // Refresh the page when an update is detected
+    });
+
     function renderTable() {
         let filteredRows = rows.filter(row => {
             let searchText = searchInput.value.toLowerCase();

@@ -1,5 +1,6 @@
 using ClearCare.Models.Interface; 
 using ClearCare.Models.Control;   
+using ClearCare.Models.Hubs;   
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,9 @@ builder.Services.AddSession(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Add SignalR to the DI container
+builder.Services.AddSignalR();  
 
 builder.Services.AddScoped<IEmail, EmailService>(); // Ensure EmailService implements IEmail
 builder.Services.AddScoped<IPassword, EncryptionManagement>(); // Ensure EncryptionManagement implements IPassword
@@ -39,6 +43,9 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+// Map the SignalR Hub to the "/medicalRecordHub" URL
+app.MapHub<MedicalRecordHub>("/medicalRecordHub");
 
 // To allow app to use session
 app.UseSession();

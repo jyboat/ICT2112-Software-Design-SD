@@ -4,6 +4,8 @@ using ClearCare.Models.Control;
 using ClearCare.Models.Interface;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.SignalR;  // Add this namespace
+using ClearCare.Models.Hubs;
 
 namespace ClearCare.Controllers
 {
@@ -13,10 +15,15 @@ namespace ClearCare.Controllers
         private readonly ViewMedicalRecord viewMedicalRecord;
         private readonly ErratumManagement erratumManagement;
 
-        public ViewRecordController(IEncryption encryptionService)
+        private readonly IHubContext<MedicalRecordHub> _hubContext;  // Inject SignalR hub context
+
+        public ViewRecordController(IEncryption encryptionService, IHubContext<MedicalRecordHub> hubContext)
         {
             viewMedicalRecord = new ViewMedicalRecord(encryptionService);
             erratumManagement = new ErratumManagement(encryptionService);
+
+            // Initialize SignalR hub context
+            _hubContext = hubContext;  
 
             // Register this controller as an observer
             viewMedicalRecord.AddObserver(this);
@@ -107,28 +114,11 @@ namespace ClearCare.Controllers
         }
 
         [Route("UpdateRecords")]
-        public void OnMedicalRecordUpdated(List<MedicalRecord> updatedRecords)
+        public async void OnMedicalRecordUpdated(List<MedicalRecord> updatedRecords)
         {
             Console.WriteLine("🔄 OnMedicalRecordUpdated() triggered in ViewRecordController!");
-            ViewData["MedicalRecords"] = updatedRecords;
-
-            // Set flag to true such that when other users which periodically runs the 
-            // CheckForMedicalRecordUpdates == true, then their page auto refresh
-            ClearCare.Models.Control.ViewMedicalRecord.SetMedicalRecordUpdated();
+            // Send SignalR notification to all clients
+            await _hubContext.Clients.All.SendAsync("ReceiveMedicalRecordUpdate");
         }
-
-        [HttpGet]
-        [Route("CheckForMedicalRecordUpdates")]
-        public IActionResult CheckForMedicalRecordUpdates()
-        {
-            if (ClearCare.Models.Control.ViewMedicalRecord.HasNewMedicalRecords())
-            {
-                // Reset the flag after notifying clients
-                ClearCare.Models.Control.ViewMedicalRecord.ResetMedicalRecordFlag();
-                return Json(new { update = true });
-            }
-            return Json(new { update = false });
-        }
-
     }
 }
