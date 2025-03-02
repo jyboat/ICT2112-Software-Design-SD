@@ -11,14 +11,14 @@ namespace ClearCare.Models.Control
     public class UpdateViewObserver : IMedicalRecordObserver
     {
         private readonly IHubContext<MedicalRecordHub> _medhub;
-        public UpdateViewObserver(IHubContext<MedicalRecordHub> hubContext, ObserverManager observerManager)
+        public UpdateViewObserver(IHubContext<MedicalRecordHub> hubContext, IMedicalRecordSubject medRecordSubject)
         {
             _medhub = hubContext;
 
             Console.WriteLine("UpdateViewObserver created."); 
 
-            // Add this observer to the ObserverManager
-            observerManager.AddObserver(this);
+            // Add this observer to the MedRecordSubject when instantiated
+            medRecordSubject.AddObserver(this);
         }
 
         public async void OnMedicalRecordUpdated(List<MedicalRecord> updatedRecords)

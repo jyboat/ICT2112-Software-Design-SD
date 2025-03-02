@@ -6,13 +6,13 @@ using System.Linq;
 
 namespace ClearCare.Models.Control
 {
-    public class ObserverManager
+    public class MedRecordSubject : IMedicalRecordSubject
     {
         // List of observers
         private static List<IMedicalRecordObserver> MedObserver = new List<IMedicalRecordObserver>();
         private MedicalRecordGateway MedicalRecordGateway;
 
-        public ObserverManager()
+        public MedRecordSubject()
         {
             MedicalRecordGateway = new MedicalRecordGateway();
             Console.WriteLine("Observer Manager is created.");

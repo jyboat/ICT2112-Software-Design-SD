@@ -21,9 +21,12 @@ builder.Services.AddControllersWithViews();
 // Add SignalR to the DI container
 builder.Services.AddSignalR();  
 
-// Register ObserverManager
-builder.Services.AddSingleton<ObserverManager>(); 
+// Register MedRecordSubject as Singleton using its Interface
+builder.Services.AddSingleton<IMedicalRecordSubject, MedRecordSubject>();
+
+// Register UpdateViewObserver AFTER MedRecordSubject
 builder.Services.AddSingleton<UpdateViewObserver>();
+
 
 builder.Services.AddScoped<IEmail, EmailService>(); // Ensure EmailService implements IEmail
 builder.Services.AddScoped<IPassword, EncryptionManagement>(); // Ensure EncryptionManagement implements IPassword
@@ -33,10 +36,10 @@ builder.Services.AddScoped<IUserDetails, ProfileManagement>(); // Ensure Profile
 
 var app = builder.Build();
 
-// Ensure UpdateViewObserver is created and added to the ObserverManager
-var observerManager = app.Services.GetRequiredService<ObserverManager>();
-var hubContext = app.Services.GetRequiredService<IHubContext<MedicalRecordHub>>();
-new UpdateViewObserver(hubContext, observerManager);  // Manually instantiate
+// // Ensure UpdateViewObserver is created and added to the ObserverManager
+// var medRecordSubject = app.Services.GetRequiredService<MedRecordSubject>();
+// var hubContext = app.Services.GetRequiredService<IHubContext<MedicalRecordHub>>();
+// new UpdateViewObserver(hubContext, medRecordSubject);  // Manually instantiate
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -58,6 +61,10 @@ app.MapHub<MedicalRecordHub>("/medicalRecordHub");
 
 // To allow app to use session
 app.UseSession();
+
+// Required services
+// Start UpdateViewObserver automatically (ensures observer is created)
+app.Services.GetRequiredService<UpdateViewObserver>();
 
 app.MapControllerRoute(
     name: "default",
