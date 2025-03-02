@@ -44,6 +44,22 @@
                             <td>@profileData["Department"]</td>
                         </tr>
                     }
+                    @if (profileData.ContainsKey("DateOfBirth"))
+                    {
+                        <tr><td class="fw-bold text-primary">Date of Birth:</td><td>@profileData["DateOfBirth"]</td></tr>
+                    }
+                    @if (profileData.ContainsKey("AssignedPatientID"))
+                    {
+                        <tr><td class="fw-bold text-primary">Assigned Patient ID:</td><td>@profileData["AssignedPatientID"]</td></tr>
+
+                    }
+                    @if (profileData.ContainsKey("AssignedPatientName"))
+                    {
+                        <tr><td class="fw-bold text-primary">Assigned Patient Name:</td><td>@profileData["AssignedPatientName"]</td></tr>
+
+                    }
+                    
+                    
                 </tbody>
             </table>
 

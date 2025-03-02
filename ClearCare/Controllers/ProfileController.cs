@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Http;
 using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 using System.Threading.Tasks;
+using Google.Cloud.Firestore;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace ClearCare.Controllers
 {
@@ -10,10 +13,12 @@ namespace ClearCare.Controllers
     public class ProfileController : Controller
     {
         private readonly ProfileManagement _profileManagement; //readonly to prevent unintended changes in other methods
+        private readonly EncryptionManagement encryptionManagement;
 
         public ProfileController()
         {
             _profileManagement = new ProfileManagement();
+            encryptionManagement = new EncryptionManagement();
         }
 
         // Display user profile (Now accessible via /ViewProfile)
@@ -68,7 +73,7 @@ namespace ClearCare.Controllers
         // Update user profile (POST request)
         [HttpPost]
         [Route("UpdateProfile")]
-        public async Task<IActionResult> UpdateProfile([FromForm] string name, [FromForm] string email, [FromForm] long mobileNumber, [FromForm] string address, [FromForm] string password)
+        public async Task<IActionResult> updateProfile([FromForm] string name, [FromForm] string email, [FromForm] long mobileNumber, [FromForm] string address, [FromForm] string password, [FromForm] string dateOfBirth)
         {
             // Fetch logged-in user ID from session
             string userID = HttpContext.Session.GetString("UserID");
@@ -85,10 +90,39 @@ namespace ClearCare.Controllers
             if (!string.IsNullOrEmpty(email)) updatedFields["Email"] = email;
             if (mobileNumber > 0) updatedFields["MobileNumber"] = mobileNumber;
             if (!string.IsNullOrEmpty(address)) updatedFields["Address"] = address;
-            if (!string.IsNullOrEmpty(password)) updatedFields["Password"] = password;
+            if (!string.IsNullOrEmpty(password))
+            {
+                // Hash the password before updating it in Firestore
+                string hashedPassword = encryptionManagement.HashPassword(password);
+                updatedFields["Password"] = hashedPassword;
+            }
+            if (!string.IsNullOrEmpty(dateOfBirth))
+            {
+                try
+                {
+                    // Parse user input from "datetime-local" (which is in UTC+8)
+                    if (DateTime.TryParseExact(dateOfBirth, "yyyy-MM-ddTHH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDob))
+                    {
+                        // Convert from UTC+8 to UTC before storing in Firestore
+                        DateTime dobUtc = parsedDob.AddHours(-8); // Subtract 8 hours to store in UTC
+
+                        updatedFields["DateOfBirth"] = Timestamp.FromDateTime(DateTime.SpecifyKind(dobUtc, DateTimeKind.Utc));
+                    }
+                    else
+                    {
+                        TempData["ErrorMessage"] = "Invalid date format. Please enter a valid date and time.";
+                        return RedirectToAction("displayProfile");
+                    }
+                }
+                catch
+                {
+                    TempData["ErrorMessage"] = "Error processing date of birth.";
+                    return RedirectToAction("displayProfile");
+                }
+            }
 
             // Call the update function
-            bool result = await _profileManagement.UpdateUserProfile(userID, updatedFields);
+            bool result = await _profileManagement.editUserDetails(userID, updatedFields);
 
             if (result)
             {

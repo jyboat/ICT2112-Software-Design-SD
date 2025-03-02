@@ -21,9 +21,9 @@ namespace ClearCare.Models.Control
         }
 
         // Update user profile with selected fields, called by ProfileController
-        public async Task<bool> UpdateUserProfile(string userID, Dictionary<string, object> updatedFields)
+        public async Task<bool> editUserDetails(string userID, Dictionary<string, object> updatedFields)
         {
-            return await _userGateway.UpdateUserProfile(userID, updatedFields);
+            return await _userGateway.UpdateUser(userID, updatedFields);
         }
 
     }

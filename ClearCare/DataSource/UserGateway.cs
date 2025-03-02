@@ -148,7 +148,7 @@ namespace ClearCare.DataSource
             }
         }
 
-        public async Task<bool> UpdateUserProfile(string userId, Dictionary<string, object> updatedFields)
+        public async Task<bool> UpdateUser(string userId, Dictionary<string, object> updatedFields)
         {
             try
             {
@@ -187,23 +187,14 @@ namespace ClearCare.DataSource
                         break;
                     
                     case "Patient":
-                        if (updatedFields.ContainsKey("AssignedCaregiverName"))
-                            updates["AssignedCaregiverName"] = updatedFields["AssignedCaregiverName"].ToString();
-                        if (updatedFields.ContainsKey("AssignedCaregiverID"))
-                            updates["AssignedCaregiverID"] = updatedFields["AssignedCaregiverID"].ToString();
-                        if (updatedFields.ContainsKey("DateOfBirth"))
-                            updates["DateOfBirth"] = Timestamp.FromDateTime(DateTime.Parse(updatedFields["DateOfBirth"].ToString()).ToUniversalTime());
-                        break;
-                    
-                    case "Caregiver":
-                        if (updatedFields.ContainsKey("AssignedPatientName"))
-                            updates["AssignedPatientName"] = updatedFields["AssignedPatientName"].ToString();
-                        if (updatedFields.ContainsKey("AssignedPatientID"))
-                            updates["AssignedPatientID"] = updatedFields["AssignedPatientID"].ToString();
+                        if (updatedFields.ContainsKey("DateOfBirth") && updatedFields["DateOfBirth"] is Timestamp dobTimestamp)
+                            {
+                                updates["DateOfBirth"] = dobTimestamp; // Ensure correct type before storing
+                            }
                         break;
                     
                     default:
-                        throw new Exception("Invalid role detected.");
+                        break;
                 }
                 
                 if (updates.Count > 0)
