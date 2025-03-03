@@ -9,9 +9,7 @@ System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", cred
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<IEnquiryGateway, EnquiryGateway>();
 
-builder.Services.AddSingleton<EnquirySubject>();
 
 // Register observers
 builder.Services.AddSingleton<IEnquiryObserver, LoggingObserver>();
