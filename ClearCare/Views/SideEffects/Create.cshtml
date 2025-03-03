@@ -1,0 +1,27 @@
+@model ClearCare.Models.SideEffect
+
+@{
+    ViewData["Title"] = "Create Side Effect";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h2 class="mb-0">Create a New Side Effect</h2>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                <div class="mb-3">
+                    <label for="Name" class="form-label">Name</label>
+                    <input asp-for="Name" class="form-control" id="Name" required />
+                </div>
+                <div class="mb-3">
+                    <label for="Description" class="form-label">Description</label>
+                    <textarea asp-for="Description" class="form-control" id="Description" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>

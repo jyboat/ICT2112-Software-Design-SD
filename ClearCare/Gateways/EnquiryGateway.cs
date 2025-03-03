@@ -96,29 +96,29 @@ namespace ClearCare.Gateways
 
 
 
-     public async Task<List<Reply>> GetRepliesForEnquiryAsync(string enquiryId)
-{
-    try
-    {
-        // Reference the Replies subcollection for the specific enquiry
-        var repliesRef = _db.Collection("Enquiry").Document(enquiryId).Collection("Replies");
+        public async Task<List<Reply>> GetRepliesForEnquiryAsync(string enquiryId)
+        {
+            try
+            {
+                // Reference the Replies subcollection for the specific enquiry
+                var repliesRef = _db.Collection("Enquiry").Document(enquiryId).Collection("Replies");
 
-        // Fetch all documents in the Replies subcollection
-        var snapshot = await repliesRef.GetSnapshotAsync();
+                // Fetch all documents in the Replies subcollection
+                var snapshot = await repliesRef.GetSnapshotAsync();
 
-        // Convert the documents to a list of Reply objects
-        var replies = snapshot.Documents
-            .Select(doc => doc.ConvertTo<Reply>())
-            .ToList();
+                // Convert the documents to a list of Reply objects
+                var replies = snapshot.Documents
+                    .Select(doc => doc.ConvertTo<Reply>())
+                    .ToList();
 
-        return replies;
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error fetching replies for enquiry {enquiryId}: {ex.Message}");
-        return new List<Reply>();
-    }
-}
+                return replies;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching replies for enquiry {enquiryId}: {ex.Message}");
+                return new List<Reply>();
+            }
+        }
 
 
 

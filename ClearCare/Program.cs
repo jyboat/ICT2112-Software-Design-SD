@@ -16,6 +16,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<EnquiryGateway>(); 
 builder.Services.AddSingleton<EnquiryControl>(); 
 builder.Services.AddSingleton<EnquiryLoggingObserver>(); // hypothetical observer
+builder.Services.AddSingleton<SideEffectGateway>();
+builder.Services.AddSingleton<SideEffectControl>();
 
 var app = builder.Build();
 
