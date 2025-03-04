@@ -1,0 +1,34 @@
+@model ClearCare.Models.SideEffectModel
+
+@{
+    ViewData["Title"] = "Add Side Effect";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Add Side Effect</h1>
+
+    <form asp-action="Add" method="post">
+        <div class="mb-3">
+            <label for="PatientId" class="form-label">Patient ID</label>
+            <input type="text" class="form-control" id="PatientId" name="PatientId" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="DrugName" class="form-label">Drug Name</label>
+            <input type="text" class="form-control" id="DrugName" name="DrugName" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="DrugInformation" class="form-label">Drug Information</label>
+            <textarea class="form-control" id="DrugInformation" name="DrugInformation" rows="3" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="SideEffects" class="form-label">Side Effects</label>
+            <textarea class="form-control" id="SideEffects" name="SideEffects" rows="3" required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add Side Effect</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
