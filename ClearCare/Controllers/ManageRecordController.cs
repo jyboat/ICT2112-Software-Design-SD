@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models.Entities;
 using ClearCare.Models.Control;
+using ClearCare.Models.Interface;
 using System.Threading.Tasks;
 using System;
 using System.IO;
@@ -13,10 +14,11 @@ namespace ClearCare.Controllers
     {
         private ManageMedicalRecord ManageMedicalRecord;
 
-        public ManageRecordController()
+        public ManageRecordController(IEncryption encryptionService, IMedicalRecordSubject medRecordSubject)
         {
-            ManageMedicalRecord = new ManageMedicalRecord();
+            ManageMedicalRecord = new ManageMedicalRecord(encryptionService, medRecordSubject);
         }
+
 
         [Route("Create")]
         public IActionResult DisplayCreateRecord()
