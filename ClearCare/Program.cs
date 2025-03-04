@@ -22,6 +22,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();  
 
 // Register MedRecordSubject as Singleton using its Interface
+builder.Services.AddSingleton<MedRecordSubject>();
 builder.Services.AddSingleton<IMedicalRecordSubject, MedRecordSubject>();
 
 // Register UpdateViewObserver AFTER MedRecordSubject

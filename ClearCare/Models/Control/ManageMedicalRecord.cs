@@ -9,11 +9,11 @@ namespace ClearCare.Models.Control
     public class ManageMedicalRecord
     {
         private MedicalRecordGateway MedicalRecordGateway;
-        private readonly MedRecordSubject _medRecordSubject;
+        private readonly IMedicalRecordSubject _medRecordSubject;
         private readonly IEncryption encryptionService;
         string encryptedText = string.Empty;
 
-        public ManageMedicalRecord(IEncryption encryptionService, MedRecordSubject medRecordSubject)
+        public ManageMedicalRecord(IEncryption encryptionService, IMedicalRecordSubject medRecordSubject)
         {
             MedicalRecordGateway = new MedicalRecordGateway();
             _medRecordSubject = medRecordSubject;
