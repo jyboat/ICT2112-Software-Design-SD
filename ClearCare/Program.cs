@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseUrls("http://172.20.10.6:5007");
+// builder.WebHost.UseUrls("http://172.20.10.6:5007");
 
 // Add session support
 builder.Services.AddDistributedMemoryCache();
@@ -21,7 +21,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("http://localhost:5007", "http://172.20.10.2:5007", "http://172.20.10.6:5007")  // Add user A and B's IP
+        builder => builder.WithOrigins("http://localhost:5007", "http://172.20.10.6:5007")  // Add user A and B's IP
                           .AllowAnyHeader()
                           .AllowAnyMethod());
 });
