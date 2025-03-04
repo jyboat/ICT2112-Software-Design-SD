@@ -12,31 +12,31 @@ namespace ClearCare.Models.Entities
     {
         // string.Empty = set empty default or else it will throw error FCK U ASP.NET
         [FirestoreProperty]
-        private string AppointmentId { get; set; } = string.Empty;
+        private string AppointmentId { get; set; }
 
         [FirestoreProperty]
-        private string PatientId { get; set; } = string.Empty;
+        private string PatientId { get; set; }
 
         [FirestoreProperty]
-        private string NurseId { get; set; } = string.Empty;
+        private string NurseId { get; set; }
 
         [FirestoreProperty]
-        private string DoctorId { get; set; } = string.Empty;
+        private string DoctorId { get; set; }
 
         [FirestoreProperty]
-        private string ServiceTypeId { get; set; } = string.Empty;
+        private string ServiceTypeId { get; set; }
 
         [FirestoreProperty]
-        private string Status { get; set; } = string.Empty;
+        private string Status { get; set; }
 
         [FirestoreProperty]
         private DateTime DateTime { get; set; }
 
         [FirestoreProperty]
-        private int Slot { get; set; } = 0; 
+        private int Slot { get; set; }
 
         [FirestoreProperty]
-        private string Location { get; set; } = string.Empty;
+        private string Location { get; set; }
 
         // Getter and Setter
         private string GetAppointmentID() => AppointmentId;
@@ -45,7 +45,7 @@ namespace ClearCare.Models.Entities
         private string GetDoctorID() => DoctorId;
         private string GetServiceType() => ServiceTypeId;
         private string GetStatus() => Status;
-        private DateTime GetDateTime() => DateTime; 
+        private DateTime GetDateTime() => DateTime;
         private int GetSlot() => Slot;
         private string GetLocation() => Location;
 
@@ -59,11 +59,13 @@ namespace ClearCare.Models.Entities
         private void SetSlot(int slot) => Slot = slot;
         private void SetLocation(string location) => Location = location;
 
+        public ServiceAppointment() { }
+
         public void SetAppointmentId(string appointmentId)
         {
             SetAppointmentID(appointmentId);
         }
-        
+
         public static ServiceAppointment setApptDetails(string appointmentId, string patientId, string nurseId,
             string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
         {
@@ -110,13 +112,13 @@ namespace ClearCare.Models.Entities
             {
                 AppointmentId = appointmentId,
                 PatientId = data["PatientId"].ToString() ?? "",
-                NurseId = data.ContainsKey("NurseId") ? data["NurseId"].ToString() ?? "" : "" ,
+                NurseId = data.ContainsKey("NurseId") ? data["NurseId"].ToString() ?? "" : "",
                 DoctorId = data["DoctorId"].ToString() ?? "",
                 ServiceTypeId = data["ServiceTypeId"].ToString() ?? "",
                 Status = data["Status"].ToString() ?? "",
                 DateTime = ((Google.Cloud.Firestore.Timestamp)data["DateTime"]).ToDateTime(),
                 Slot = data.ContainsKey("Slot") ? Convert.ToInt32(data["Slot"]) : 0,
-                Location = data["Location"].ToString()  ?? ""
+                Location = data["Location"].ToString() ?? ""
             };
         }
 
