@@ -2,33 +2,17 @@
     ViewData["Title"] = "Create Service Appointment";
 }
 
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
 <h2>Create Service Appointment</h2>
 
 <form id="appointmentForm" method="post">
     <label for="appointmentId">Appointment ID:</label>
     <input type="text" id="appointmentId" name="AppointmentId" required><br><br>
 
-    <label for="patientId">Patient:</label>
-    <select id="patientId" name="PatientId" class="select2" required>
-        <option value="">Select Patient</option>
-        @foreach (var patient in ViewBag.Patients)
-        {
-            <option value="@patient["id"]">@patient["name"]</option>
-        }
-    </select><br><br>
+    <label for="patientId">Patient ID:</label>
+    <input type="text" id="patientId" name="PatientId" required><br><br>
 
-    <label for="nurseId">Nurse:</label>
-    <select id="nurseId" name="NurseId" class="select2">
-        <option value="">Select Nurse</option>
-        @foreach (var nurse in ViewBag.Nurses)
-        {
-            <option value="@nurse["id"]">@nurse["name"]</option>
-        }
-    </select><br><br>
+    <label for="nurseId">Nurse ID:</label>
+    <input type="text" id="nurseId" name="NurseId"><br><br>
 
     <label for="doctorId">Doctor ID:</label>
     <input type="text" id="doctorId" name="DoctorId"><br><br>
@@ -46,35 +30,18 @@
     <input type="number" id="slot" name="Slot" required><br><br>
 
     <label for="location">Location:</label>
-    <select id="location" name="Location" required>
-        <option value="">Select Location Type</option>
-        <option value="PHYSICAL">Physical</option>
-        <option value="VIRTUAL">Virtual</option>
-    </select><br><br>
-    
+    <input type="text" id="location" name="Location" required><br><br>
+
     <button type="submit">Submit</button>
 </form>
 
 <script>
-    $(document).ready(function() {
-        // Initialize Select2 on selects
-        $('#location').select2({
-            placeholder: "Select a location",
-            allowClear: true
-        });
-        
-        // Initialize Select2
-        $('.select2').select2({
-            placeholder: 'Search...',
-            allowClear: true
-        });
-    });
-
     document.getElementById("appointmentForm").addEventListener("submit", function(event) {
+       
         event.preventDefault(); // Prevent form from redirecting
         console.log("walao")
-        
-        // Convert input datetime to UTC format (YYYY-MM-DDTHH:mm:ssZ)
+        // let formattedDateTime = new Date(document.getElementById("dateTime").value).setUTCHours(10, 0, 0, 0), formattedDateTime = new Date(formattedDateTime).toISOString().split(".")[0] + "Z";
+         // Convert input datetime to UTC format (YYYY-MM-DDTHH:mm:ssZ)
         let selectedDateTime = new Date(document.getElementById("dateTime").value);
         let formattedDateTime = selectedDateTime.toISOString().split(".")[0] + "Z"; // Convert to UTC format
 
@@ -90,7 +57,7 @@
             Location: document.getElementById("location").value
         };
 
-        console.log(formData)
+         console.log(formData)
 
         fetch("/api/ServiceAppointments/Create", {
             method: "POST",

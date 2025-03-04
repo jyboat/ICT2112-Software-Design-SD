@@ -34,25 +34,6 @@ namespace ClearCare.Models.Control
             }
         }
 
-        // i hardcode the "retrieval" of nurse and patirents first, later once get from mod 1, will update
-        public List<Dictionary<string, string>> GetAllPatients()
-        {
-            return new List<Dictionary<string, string>>
-            {
-                new Dictionary<string, string> {{"id", "1"}, {"name", "John Doe"}},
-                new Dictionary<string, string> {{"id", "2"}, {"name", "Jane Doe"}},
-            };
-        }
-
-        public List<Dictionary<string, string>> GetAllNurses()
-        {
-            return new List<Dictionary<string, string>>
-            {
-                new Dictionary<string, string> {{"id", "1"}, {"name", "Mike Tyson"}},
-                new Dictionary<string, string> {{"id", "2"}, {"name", "Rocky Balboa"}},
-            };
-        }
-
         public async Task<string> CreateAppt(string appointmentId, string patientId, string nurseId,
             string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
         {
@@ -67,8 +48,7 @@ namespace ClearCare.Models.Control
             {
                 return appointmentID;
             }
-            else
-            {
+            else{
                 return "";
             }
         }
@@ -77,7 +57,7 @@ namespace ClearCare.Models.Control
         {
             // Pass the ID to the gateway
             // Appointment is data from firestore that is converted into Model instance
-            var appointment = await _serviceAppointmentGateway.GetAppointmentByIdAsync(appointmentId);
+                var appointment = await _serviceAppointmentGateway.GetAppointmentByIdAsync(appointmentId);
 
             if (appointment != null)
             {

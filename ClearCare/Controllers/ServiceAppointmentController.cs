@@ -25,7 +25,7 @@ public class ServiceAppointmentsController : Controller
         var appointment = await AppointmentManagement.RetrieveAll();
 
         // No record exists
-        if (appointment != null && appointment.Any())
+        if (appointment != null && appointment.Any()) 
         {
             return View("Index", appointment);
         }
@@ -40,8 +40,6 @@ public class ServiceAppointmentsController : Controller
     [Route("CreatePage")]
     public IActionResult Create()
     {
-        ViewBag.Patients = AppointmentManagement.GetAllPatients();
-        ViewBag.Nurses = AppointmentManagement.GetAllNurses();
         return View("CreateServiceAppt"); // Render the form
     }
 
@@ -64,7 +62,7 @@ public class ServiceAppointmentsController : Controller
             requestData["Location"].GetString() ?? "");
 
         // No record exists
-        if (appointment != "" && appointment.Any())
+        if (appointment != "" && appointment.Any()) 
         {
             return Ok(new { Message = "Appointment created successfully", AppointmentId = appointment });
         }
@@ -83,7 +81,7 @@ public class ServiceAppointmentsController : Controller
     {
         var appointmentDetail = await AppointmentManagement.GetAppt(appointmentId);
 
-        if (appointmentDetail != null && appointmentDetail.Any())
+        if (appointmentDetail != null && appointmentDetail.Any()) 
         {
             return View("AppointmentDetails", appointmentDetail);
         }
