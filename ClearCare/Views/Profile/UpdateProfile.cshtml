@@ -19,7 +19,7 @@
             <strong>Disclaimer:</strong><br>Ensure all fields are filled correctly.
         </div>
 
-        <form method="post" asp-controller="Profile" asp-action="UpdateProfile">
+        <form method="post" asp-controller="Profile" asp-action="updateProfile">
             <div class="mb-3">
                 <label class="form-label fw-bold">Email</label>
                 <input type="email" name="email" class="form-control rounded-pill shadow-sm" value="@profileData["Email"]" required />
@@ -32,7 +32,7 @@
 
             <div class="mb-3">
                 <label class="form-label fw-bold">Mobile Number</label>
-                <input type="text" name="mobileNumber" class="form-control rounded-pill shadow-sm" value="@profileData["MobileNumber"]" required />
+                <input type="number" name="mobileNumber" class="form-control rounded-pill shadow-sm" value="@profileData["MobileNumber"]" required />
             </div>
 
             <div class="mb-3">
@@ -58,6 +58,15 @@
                     <label class="form-label fw-bold">Department</label>
                     <input type="text" name="department" class="form-control rounded-pill shadow-sm" value="@profileData["Department"]" />
                 </div>
+            }
+            @if (profileData.ContainsKey("DateOfBirth"))
+            {
+                // Convert stored UTC timestamp to "yyyy-MM-ddTHH:mm" format for datetime-local input
+                DateTime dobUtc = DateTime.Parse(profileData["DateOfBirth"].ToString());
+                string dobLocal = dobUtc.ToString("yyyy-MM-ddTHH:mm"); // Convert to HTML5 datetime-local format
+
+                <label class="form-label fw-bold">Date of Birth</label>
+                <input type="datetime-local" name="dateOfBirth" class="form-control" value="@dobLocal" required />
             }
 
             <div class="text-center mt-4">

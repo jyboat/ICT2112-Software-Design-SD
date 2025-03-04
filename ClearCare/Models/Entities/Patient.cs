@@ -44,7 +44,12 @@ namespace ClearCare.Models.Entities
             var details = base.GetProfileData();
             details.Add("AssignedCaregiverName", GetAssignedCaregiverName());
             details.Add("AssignedCaregiverID", GetAssignedCaregiverID());
-            details.Add("DateOfBirth", GetDateOfBirth().ToDateTime().ToString("yyyy-MM-dd"));  // Convert to readable format
+            // details.Add("DateOfBirth", GetDateOfBirth().ToDateTime().ToString("yyyy-MM-dd"));  // Convert to readable format
+            // Convert UTC to UTC+8 manually
+            var dobUtc = DateTime.SpecifyKind(GetDateOfBirth().ToDateTime(), DateTimeKind.Utc);
+            var dobUtcPlus8 = dobUtc.AddHours(8); // Convert UTC to UTC+8
+
+            details.Add("DateOfBirth", dobUtcPlus8.ToString("dd MMMM yyyy HH:mm:ss"));
             return details;
         }
     }
