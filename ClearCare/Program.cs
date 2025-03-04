@@ -15,6 +15,15 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+// Enable CORS with specific policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder => builder.WithOrigins("http://localhost:5007", "http://172.20.10.2:5007", "http://172.20.10.6:5007")  // Add user A and B's IP
+                          .AllowAnyHeader()
+                          .AllowAnyMethod());
+});
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
@@ -49,6 +58,9 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+// Use the CORS policy
+app.UseCors("AllowSpecificOrigin");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
