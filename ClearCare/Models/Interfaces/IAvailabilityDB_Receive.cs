@@ -6,7 +6,7 @@ namespace ClearCare.Interfaces
     public interface IAvailabilityDB_Receive
     {
         // Receive the list of all nurse availabilities
-        void receiveAvailabilityList(List<NurseAvailability> allAvailability);
+        // void receiveAvailabilityList(List<NurseAvailability> allAvailability);
 
         // Receive the status of adding an availability
         // void receiveAddStatus(string status);

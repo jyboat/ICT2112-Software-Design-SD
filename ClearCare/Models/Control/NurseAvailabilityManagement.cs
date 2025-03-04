@@ -55,7 +55,7 @@ namespace ClearCare.Models.Control
 
             _dbGateway.createAvailability(availability);
             
-            receiveAddStatus("Success");
+            // receiveAddStatus("Success");
         }
 
         // Update existing availability
@@ -66,23 +66,23 @@ namespace ClearCare.Models.Control
             );
 
             _dbGateway.modifyAvailability(updatedAvailability);
-            receiveUpdateStatus("Success");
+            // receiveUpdateStatus("Success");
         }
 
         // Delete an availability
         public void deleteAvailability(int availabilityId)
         {
             _dbGateway.removeAvailability(availabilityId);
-            receiveDeleteStatus("Success");
+            // receiveDeleteStatus("Success");
         }
 
         // Implement IAvailabilityDB_Receive interface
-        public void receiveAvailabilityList(List<NurseAvailability> allAvailability)
-        {
+        // public void receiveAvailabilityList(List<NurseAvailability> allAvailability)
+        // {
             // Handle received data (right now use case is caching the availablity list for future use)
-            private List<NurseAvailability> _cachedAvailabilityList = new List<NurseAvailability>();
+            // private List<NurseAvailability> _cachedAvailabilityList = new List<NurseAvailability>();
 
-        }
+        // }
 
         // public void receiveAddStatus(string status)
         // {
