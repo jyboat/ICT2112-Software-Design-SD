@@ -1,19 +1,19 @@
 using System.Threading.Tasks;
 using ClearCare.Models.Entities;
 using ClearCare.DataSource;
-using ClearCare.Models.Control;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
     public class LoginManagement
     {
         private readonly UserGateway UserGateway;
-        private readonly EncryptionManagement encryptionManagement;
+        private readonly IPassword passwordService;
         
-        public LoginManagement()
+        public LoginManagement(IPassword passwordService)
         {
             UserGateway = new UserGateway();
-            encryptionManagement = new EncryptionManagement();
+            this.passwordService = passwordService;
         }
 
         public async Task<User> AuthenticateUser(string userEmail, string userPassword)
@@ -26,7 +26,7 @@ namespace ClearCare.Models.Control
             {
                 var storedPassword = user.GetHashedPassword();
                 // Compare the password
-                if (encryptionManagement.VerifyPassword(userPassword, storedPassword))
+                if (passwordService.VerifyPassword(userPassword, storedPassword))
                 {
                     return user;
                 }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models.Entities;
 using ClearCare.Models.Control;
+using ClearCare.Models.Interface;
 using System.Threading.Tasks;
 
 namespace ClearCare.Controllers
@@ -8,12 +9,12 @@ namespace ClearCare.Controllers
     public class LoginController : Controller
     {
         private readonly LoginManagement LoginManagement;
-        private readonly EmailService emailService;
+        private readonly IEmail emailService;
 
-        public LoginController()
+        public LoginController(IPassword passwordService, IEmail emailService)
         {
-            LoginManagement = new LoginManagement();
-            emailService = new EmailService();
+            LoginManagement = new LoginManagement(passwordService);
+            this.emailService = emailService;
         }
 
         public IActionResult displayLogin()

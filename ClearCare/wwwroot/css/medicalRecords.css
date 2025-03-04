@@ -1,0 +1,17 @@
+body {
+    background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+    display: block;
+}
+
+h1 {
+    font-size: 1.6rem;
+}
+
+textarea::placeholder,
+input::placeholder {
+    color: #adb5bd;
+}

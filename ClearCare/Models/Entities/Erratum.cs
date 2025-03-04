@@ -5,7 +5,6 @@ namespace ClearCare.Models.Entities
     [FirestoreData]
     public class Erratum
     {
-        [FirestoreProperty]
         private string ErratumID { get; set; } = string.Empty;
 
         [FirestoreProperty]

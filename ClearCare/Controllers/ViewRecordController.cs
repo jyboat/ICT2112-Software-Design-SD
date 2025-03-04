@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models.Entities;
 using ClearCare.Models.Control;
+using ClearCare.Models.Interface;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.SignalR;  // Add this namespace
+using ClearCare.Models.Hubs;
 
 namespace ClearCare.Controllers
 {
@@ -10,10 +13,12 @@ namespace ClearCare.Controllers
     public class ViewRecordController : Controller
     {
         private readonly ViewMedicalRecord viewMedicalRecord;
+        private readonly ErratumManagement erratumManagement;
 
-        public ViewRecordController()
+        public ViewRecordController(IEncryption encryptionService)
         {
-            viewMedicalRecord = new ViewMedicalRecord();
+            viewMedicalRecord = new ViewMedicalRecord(encryptionService);
+            erratumManagement = new ErratumManagement(encryptionService);
         }
 
         // View all medical record on 1 page
@@ -40,7 +45,7 @@ namespace ClearCare.Controllers
         }
 
         // View all medical record individually
-        [Route("{recordID}")]
+        [Route("Details/{recordID}")]
         public async Task<IActionResult> ViewMedicalRecord(string recordID)
         {
             var recordDetails = await viewMedicalRecord.GetMedicalRecordByID(recordID);
@@ -50,7 +55,6 @@ namespace ClearCare.Controllers
             }
 
             // Fetch erratums for the specific medical record
-            var erratumManagement = new ErratumManagement();
             var erratums = await erratumManagement.GetAllErratum();
             var filteredErratums = erratums.Where(e => e.MedicalRecordID == recordID).ToList();
 
@@ -71,6 +75,34 @@ namespace ClearCare.Controllers
 
             var (fileBytes, fileName) = medicalRecord.RetrieveAttachment();
             return File(fileBytes, "application/octet-stream", fileName);
+        }
+
+        //exportRecord(): void
+        [Route("Export/{recordID}")]
+        public async Task<IActionResult> ExportRecord(string recordID)
+        {
+            // Call the ExportMedicalRecord method from ViewMedicalRecord to export the medical record
+            string exportResult = await viewMedicalRecord.ExportMedicalRecord(recordID);
+
+            // Check if the export was successful or if there was an error
+            if (exportResult.Contains("exported"))
+            {
+                // Assuming that the file path returned is accessible, we can return the file as a download
+                string filePath = exportResult.Replace("Medical record exported to ", "");
+
+                // Read the file from the path
+                var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+                var fileName = $"{recordID}_MedicalRecord.csv"; // Use the recordID in the file name
+
+                // Delete the file after sending it to the user (optional, to keep the server clean)
+                System.IO.File.Delete(filePath);
+
+                // Return the file as a downloadable response
+                return File(fileBytes, "text/csv", fileName);
+            }
+
+            // If the export failed, return an error message
+            return Content(exportResult);
         }
     }
 }

@@ -21,29 +21,37 @@ namespace ClearCare.DataSource
         {
             Query query = db.Collection("User").WhereEqualTo("Email", email);
             QuerySnapshot snapshot = await query.GetSnapshotAsync();
-            if (snapshot.Documents.Count > 0)
+
+            if (snapshot.Documents.Count == 0)
             {
-                var doc = snapshot.Documents[0];
-                Console.WriteLine($"User found: {doc.Id} - {doc.GetValue<string>("Email")}");
-
-                // Fetched parameters for User base class
-                string userID = doc.GetValue<string>("UserID");
-                string role = doc.GetValue<string>("Role");
-                string emailAddress = doc.GetValue<string>("Email");
-                string password = doc.GetValue<string>("Password");
-                string name = doc.GetValue<string>("Name");
-                int mobileNumber = (int)doc.GetValue<long>("MobileNumber");
-                string address = doc.GetValue<string>("Address");
-
-                // Default to generic User if no matching role found
-                return new User(userID, emailAddress, password, name, mobileNumber, address, role);
+                Console.WriteLine($"User with email {email} not found in Firestore.");
+                return null;
             }
-            return null;
+
+            var doc = snapshot.Documents[0];
+
+            if (!doc.Exists)
+            {
+                Console.WriteLine($"Document for email {email} exists in query, but Firestore returned empty data.");
+                return null;
+            }
+
+            // Assign UserID from document ID
+            string userID = doc.Id;
+            string emailAddress = doc.GetValue<string>("Email");
+            string password = doc.GetValue<string>("Password");
+            string name = doc.GetValue<string>("Name");
+            long mobileNumber = doc.GetValue<long>("MobileNumber");
+            string address = doc.GetValue<string>("Address");
+            string role = doc.GetValue<string>("Role");
+
+            // Default to generic User if no matching role found
+            return new User(userID, emailAddress, password, name, mobileNumber, address, role);
         }
 
+        // Function to find user by ID
         public async Task<User> FindUserByID(string userID)
         {
-            // 🔹 Directly access Firestore document using UserID as key
             DocumentReference docRef = db.Collection("User").Document(userID);
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
@@ -53,7 +61,7 @@ namespace ClearCare.DataSource
                 return null;
             }
 
-            // Fetch parameters for User base class
+            // Assign UserID from document ID
             string role = snapshot.GetValue<string>("Role");
             string emailAddress = snapshot.GetValue<string>("Email");
             string password = snapshot.GetValue<string>("Password");
@@ -61,15 +69,9 @@ namespace ClearCare.DataSource
             int mobileNumber = (int)snapshot.GetValue<long>("MobileNumber");
             string address = snapshot.GetValue<string>("Address");
 
-            // Determine which object to return based on Role
-            if (role == "Doctor")
-            {
-                string specialization = snapshot.GetValue<string>("Specialization");
-                return new Doctor(userID, emailAddress, password, name, mobileNumber, address, role, specialization);
-            }
-
-            // Default to generic User if no matching role found
-            return new User(userID, emailAddress, password, name, mobileNumber, address, role);
+            // Use the UserFactory to create the appropriate user based on the role
+            return UserFactory.CreateUser(userID, emailAddress, password, name, mobileNumber, address, role, snapshot);
+            
         }
 
         // Function to get all User in a list
@@ -98,8 +100,8 @@ namespace ClearCare.DataSource
                         string address = document.ContainsField("Address") ? document.GetValue<string>("Address") : "Unknown";
                         string role = document.ContainsField("Role") ? document.GetValue<string>("Role") : "User";
 
-                        // Create new User object
-                        User user = new User(userID, email, password, name, (int)mobileNumber, address, role);
+                        // Use the UserFactory to create the appropriate user
+                        User user = UserFactory.CreateUser(userID, email, password, name, mobileNumber, address, role, document);
                         userList.Add(user);
                     }
                     catch (Exception ex)
@@ -115,24 +117,96 @@ namespace ClearCare.DataSource
         // Method to retrieve the user's name based on their ID
         public async Task<string> FindUserNameByID(string userID)
         {
+            // Check for null or empty userID
             if (string.IsNullOrEmpty(userID))
             {
                 Console.WriteLine("Error: UserID is null or empty.");
                 return "Unknown User";
             }
 
+            // Fetch user document from Firestore
             DocumentReference docRef = db.Collection("User").Document(userID);
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
+            // Check if document exists
             if (!snapshot.Exists)
             {
                 Console.WriteLine($"User with ID {userID} not found in Firestore.");
                 return "Unknown User";
             }
 
-            return snapshot.ContainsField("Name") ? snapshot.GetValue<string>("Name") : "Unknown User";
+            // Check if "Name" field exists
+            if (snapshot.ContainsField("Name"))
+            {
+                string userName = snapshot.GetValue<string>("Name");
+                return string.IsNullOrEmpty(userName) ? "Unknown User" : userName;
+            }
+            else
+            {
+                Console.WriteLine($"User {userID} exists but has no 'Name' field.");
+                return "Unknown User";
+            }
         }
 
-
+        public async Task<bool> UpdateUser(string userId, Dictionary<string, object> updatedFields)
+        {
+            try
+            {
+                DocumentReference userDocRef = db.Collection("User").Document(userId);
+                DocumentSnapshot snapshot = await userDocRef.GetSnapshotAsync();
+                
+                if (!snapshot.Exists)
+                    throw new Exception("User not found. userID: " + userId);
+                
+                Dictionary<string, object> updates = new Dictionary<string, object>();
+                
+                // Ensure only selected base user fields are updated
+                if (updatedFields.ContainsKey("Email"))
+                    updates["Email"] = updatedFields["Email"].ToString();
+                if (updatedFields.ContainsKey("Name"))
+                    updates["Name"] = updatedFields["Name"].ToString();
+                if (updatedFields.ContainsKey("MobileNumber"))
+                    updates["MobileNumber"] = Convert.ToInt64(updatedFields["MobileNumber"]);
+                if (updatedFields.ContainsKey("Address"))
+                    updates["Address"] = updatedFields["Address"].ToString();
+                if (updatedFields.ContainsKey("Password"))
+                    updates["Password"] = updatedFields["Password"].ToString();
+                
+                string role = snapshot.GetValue<string>("Role");
+                
+                switch (role)
+                {
+                    case "Nurse":
+                        if (updatedFields.ContainsKey("Department"))
+                            updates["Department"] = updatedFields["Department"].ToString();
+                        break;
+                    
+                    case "Doctor":
+                        if (updatedFields.ContainsKey("Specialization"))
+                            updates["Specialization"] = updatedFields["Specialization"].ToString();
+                        break;
+                    
+                    case "Patient":
+                        if (updatedFields.ContainsKey("DateOfBirth") && updatedFields["DateOfBirth"] is Timestamp dobTimestamp)
+                            {
+                                updates["DateOfBirth"] = dobTimestamp; // Ensure correct type before storing
+                            }
+                        break;
+                    
+                    default:
+                        break;
+                }
+                
+                if (updates.Count > 0)
+                    await userDocRef.UpdateAsync(updates);
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error updating user profile: " + ex.Message);
+                return false;
+            }
+        }
     }
 }

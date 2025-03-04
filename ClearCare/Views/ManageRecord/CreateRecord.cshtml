@@ -3,6 +3,12 @@
     var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"); // System timestamp
 }
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="~/css/medicalRecords.css">
+</head>
+
 <div class="container py-5">
     <div class="mx-auto bg-white rounded-3 shadow p-4" style="max-width: 600px;">
         <h1 class="text-center mb-3 text-primary fw-bold">@ViewData["Title"]</h1>
@@ -35,23 +41,3 @@
         </form>
     </div>
 </div>
-
-<style>
-    body {
-        background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    .container {
-        display: block;
-    }
-
-    h1 {
-        font-size: 1.6rem;
-    }
-
-    textarea::placeholder,
-    input::placeholder {
-        color: #adb5bd;
-    }
-</style>

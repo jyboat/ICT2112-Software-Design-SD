@@ -1,0 +1,73 @@
+@model ClearCare.Models.Entities.User
+
+@{
+    ViewData["Title"] = "User Profile";
+    var profileData = Model.GetProfileData();
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg p-4 border-0">
+        <div class="card-header bg-primary text-white text-center">
+            <h2 class="fw-bold">@profileData["Name"]'s Profile</h2>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered mt-3">
+                <tbody>
+                    <tr>
+                        <td class="fw-bold text-primary">Email:</td>
+                        <td>@profileData["Email"]</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-primary">Role:</td>
+                        <td>@profileData["Role"]</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-primary">Mobile Number:</td>
+                        <td>@profileData["MobileNumber"]</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-primary">Address:</td>
+                        <td>@profileData["Address"]</td>
+                    </tr>
+
+                    @if (profileData.ContainsKey("Specialization"))
+                    {
+                        <tr>
+                            <td class="fw-bold text-primary">Specialization:</td>
+                            <td>@profileData["Specialization"]</td>
+                        </tr>
+                    }
+                    @if (profileData.ContainsKey("Department"))
+                    {
+                        <tr>
+                            <td class="fw-bold text-primary">Department:</td>
+                            <td>@profileData["Department"]</td>
+                        </tr>
+                    }
+                    @if (profileData.ContainsKey("DateOfBirth"))
+                    {
+                        <tr><td class="fw-bold text-primary">Date of Birth:</td><td>@profileData["DateOfBirth"]</td></tr>
+                    }
+                    @if (profileData.ContainsKey("AssignedPatientID"))
+                    {
+                        <tr><td class="fw-bold text-primary">Assigned Patient ID:</td><td>@profileData["AssignedPatientID"]</td></tr>
+
+                    }
+                    @if (profileData.ContainsKey("AssignedPatientName"))
+                    {
+                        <tr><td class="fw-bold text-primary">Assigned Patient Name:</td><td>@profileData["AssignedPatientName"]</td></tr>
+
+                    }
+                    
+                    
+                </tbody>
+            </table>
+
+            <div class="text-center mt-4">
+                <a asp-controller="Profile" asp-action="displayUpdateProfile" class="btn btn-warning me-2">
+                    <i class="bi bi-pencil-square"></i> Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -6,8 +6,8 @@ namespace ClearCare.Models.Entities
     public class User
     {
         // Class properties
-        [FirestoreProperty]
-        protected string UserID { get; set; }
+        // UserID is assigned from Firestore document ID
+        protected string UserID { get; set; } 
         [FirestoreProperty]
         protected string Email { get; set; }
         [FirestoreProperty]
@@ -40,7 +40,7 @@ namespace ClearCare.Models.Entities
 
         public User() {}
 
-        // Object Creation
+        // Constructor for creating new user records
         public User(string userID, string email, string password, string name, long mobileNumber, string address, string role)
         {
             UserID = userID;
