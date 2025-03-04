@@ -22,7 +22,7 @@ namespace ClearCare.Controllers
         [Route("")]
         public async Task<IActionResult> Index()
         {
-            var availabilityList = _manager.retrieveAvailabilityByStaff("USR003"); // Dummy ID for testing
+            var availabilityList = _manager.getAvailabilityByStaff("USR003"); // Dummy ID for testing
             return View(availabilityList);
         }
 
@@ -31,7 +31,7 @@ namespace ClearCare.Controllers
         [Route("AddAvailability")]
         public async Task<IActionResult> AddAvailability([FromForm] string date)
         {
-            _manager.createAvailability("USR003", date);
+            _manager.addAvailability("USR003", date);
             return RedirectToAction("Index");
         }
 
@@ -40,7 +40,7 @@ namespace ClearCare.Controllers
         [Route("Update")]
         public async Task<IActionResult> UpdateAvailability([FromForm] int availabilityId, [FromForm] string date)
         {
-            _manager.modifyAvailability(availabilityId, "USR003", date);
+            _manager.updateAvailability(availabilityId, "USR003", date);
             return RedirectToAction("Index");
         }
 
@@ -50,7 +50,7 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> DeleteAvailability(int availabilityId)
         {
             // Console.WriteLine($"Attempting to delete availability with ID: {availabilityId}");
-            _manager.removeAvailability(availabilityId);
+            _manager.deleteAvailability(availabilityId);
             return RedirectToAction("Index");
         }
     }

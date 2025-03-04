@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace ClearCare.DataSource
 {
-    public class NurseAvailabilityGateway : INurseAvailability, IAvailabilityDB_Send
+    public class NurseAvailabilityGateway : IAvailabilityDB_Send
     {
         private readonly FirestoreDb _db;
 
@@ -17,7 +17,7 @@ namespace ClearCare.DataSource
         }
 
         // Retrieve ALL Nurse Availabilities
-        public List<NurseAvailability> getAllStaffAvailability()
+        public List<NurseAvailability> retrieveAllStaffAvailability()
         {
             List<NurseAvailability> availabilityList = new List<NurseAvailability>();
 
@@ -37,7 +37,7 @@ namespace ClearCare.DataSource
         }
 
         // Retrieve Availability by Staff ID
-        public List<NurseAvailability> getAvailabilityByStaff(string staffId)
+        public List<NurseAvailability> retrieveAvailabilityByStaff(string staffId)
         {
             List<NurseAvailability> availabilityList = new List<NurseAvailability>();
 
@@ -61,14 +61,14 @@ namespace ClearCare.DataSource
         }
 
         // Add Availability
-        public void addAvailability(NurseAvailability availability)
+        public void createAvailability(NurseAvailability availability)
         {
             DocumentReference docRef = _db.Collection("NurseAvailability").Document();
             docRef.SetAsync(availability.getAvailabilityDetails()).Wait(); 
         }
 
         // Update Availability
-        public void updateAvailability(NurseAvailability availability)
+        public void modifyAvailability(NurseAvailability availability)
         {
             CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
             Query query = availabilitiesRef.WhereEqualTo("availabilityId", availability.getAvailabilityDetails()["availabilityId"]);
@@ -88,7 +88,7 @@ namespace ClearCare.DataSource
         }
 
         // Delete Availability
-        public void deleteAvailability(int availabilityId)
+        public void removeAvailability(int availabilityId)
         {
             CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
             Query query = availabilitiesRef.WhereEqualTo("availabilityId", availabilityId);

@@ -5,10 +5,10 @@ namespace ClearCare.Interfaces
 {
     public interface IAvailabilityDB_Send
     {
-        List<NurseAvailability> getAllStaffAvailability();
-        List<NurseAvailability> getAvailabilityByStaff(string staffId);
-        void addAvailability(NurseAvailability availability);
-        void updateAvailability(NurseAvailability availability);
-        void deleteAvailability(int availabilityId);
+        List<NurseAvailability> retrieveAllStaffAvailability();
+        List<NurseAvailability> retrieveAvailabilityByStaff(string staffId);
+        void createAvailability(NurseAvailability availability);
+        void modifyAvailability(NurseAvailability availability);
+        void removeAvailability(int availabilityId);
     }
 }
