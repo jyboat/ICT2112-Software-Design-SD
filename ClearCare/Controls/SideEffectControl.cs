@@ -4,7 +4,7 @@ using ClearCare.Gateways;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-namespace ClearCare.Domain
+namespace ClearCare.Controls
 {
     public class SideEffectControl
     {

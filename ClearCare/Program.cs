@@ -1,7 +1,6 @@
 using ClearCare.Controls;
 using ClearCare.Gateways;
 using ClearCare.Observers;
-using ClearCare.Domain;
 
 var builder = WebApplication.CreateBuilder(args);
 
