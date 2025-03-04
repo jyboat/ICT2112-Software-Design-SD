@@ -1,0 +1,47 @@
+﻿@model List<Dictionary<string, object>>
+
+@{
+    ViewData["Title"] = "Feedback List";
+}
+
+<section class="container">
+    <h2>Submitted Feedback</h2>
+    <div class="text-center mb-3">
+        <a role="button" href="/Feedback/Submission" class="btn btn-md btn-success">Submit Feedback<i class="bi bi-plus ms-1"></i></a>
+    </div>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Patient ID</th>
+                <th>Content</th>
+                <th>Rating</th>
+                <th>Date Created</th>
+                <th>Response</th>
+                @if (ViewBag.UserRole == "Doctor")
+                {
+                    <th>Feedback ID</th>
+                    <th>Doctor ID</th>
+                    <th>Action</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var feedback in Model)
+            {
+                <tr>
+                    <td>@feedback["PatientId"]</td>
+                    <td>@feedback["Content"]</td>
+                    <td>@feedback["Rating"]</td>
+                    <td>@feedback["DateCreated"]</td>
+                    <td>@feedback["Response"]</td>
+                    @if (ViewBag.UserRole == "Doctor")
+                    {
+                        <td>@feedback["Id"]</td>
+                        <td>@feedback["DoctorId"]</td>
+                        <td><a href="/Feedback/Response/@feedback["Id"]" class="btn btn-primary">Respond</a></td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>

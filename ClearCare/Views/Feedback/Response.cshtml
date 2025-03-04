@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Respond to Feedback";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-center align-items-center bg-light">
+        <div class="card shadow p-4">
+            <h2 class="text-info">Respond to Feedback</h2>
+            @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+            }
+            <div class="mb-3">
+                <strong>Feedback Content:</strong> @ViewBag.FeedbackContent
+            </div>
+            <div class="mb-3">
+                <strong>Rating:</strong> @ViewBag.FeedbackRating
+            </div>
+            <form action="/Feedback/Response/@ViewBag.FeedbackId" method="post">
+                <div class="form-group mb-3">
+                    <label for="response" class="form-label">Response</label>
+                    <textarea name="response" class="form-control" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Response</button>
+            </form>
+
+        </div>
+    </div>
+</div>
