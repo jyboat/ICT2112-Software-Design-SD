@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseUrls("http://0.0.0.0:5007");
+
 // Add session support
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>

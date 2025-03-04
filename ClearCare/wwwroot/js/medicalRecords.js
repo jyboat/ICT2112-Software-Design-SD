@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // SignalR connection setup
     const connection = new signalR.HubConnectionBuilder()
-        .withUrl("/medicalRecordHub")  // The URL of the SignalR hub
+        .withUrl("http://10.132.18.96:5007/medicalRecordHub")  // The URL of the SignalR hub
         .configureLogging(signalR.LogLevel.Information)
         .build();
 
