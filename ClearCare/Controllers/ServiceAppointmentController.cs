@@ -4,17 +4,21 @@ using ClearCare.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
 // Request Handling
 [Route("api/[controller]")]
 [ApiController]
-public class ServiceAppointmentsController : Controller
+public class ServiceAppointmentsController : Controller, IRetrieveAllAppointmentsRaw
 {
     private readonly AppointmentManagement AppointmentManagement;
+    private readonly CalendarManagement _calendarManagement;
 
     public ServiceAppointmentsController()
     {
         AppointmentManagement = new AppointmentManagement();
+        _calendarManagement = new CalendarManagement(this); // Pass the controller to CalendarManagement
     }
 
     // GET All appointment
@@ -34,8 +38,7 @@ public class ServiceAppointmentsController : Controller
             return NotFound(new { Message = "Appointment not found" });
         }
     }
-
-
+    
     [HttpGet]
     [Route("CreatePage")]
     public IActionResult Create()
@@ -44,6 +47,7 @@ public class ServiceAppointmentsController : Controller
         ViewBag.Nurses = AppointmentManagement.GetAllNurses();
         return View("CreateServiceAppt"); // Render the form
     }
+
 
     // POST: Create a new appointment
     // Route: localhost:5007/api/ServiceAppointments/Create that retriggers POST
@@ -74,7 +78,6 @@ public class ServiceAppointmentsController : Controller
         }
     }
 
-
     // // GET: Retrieve an appointment
     // Route localhost:5007/api/ServiceAppointments/Retrieve/{Id} that retriggers GET
     [HttpGet]
@@ -92,7 +95,6 @@ public class ServiceAppointmentsController : Controller
             return NotFound(new { Message = "Error" });
         }
     }
-
 
     // [HttpPost]
     // [Route("Create")]
@@ -115,19 +117,24 @@ public class ServiceAppointmentsController : Controller
     //     return Ok(new { Message = "Appointment created successfully"});
     // }
 
+    // Implement IRetrieveAllAppointmentsRaw
+    public async Task<List<Dictionary<string, object>>> RetrieveAllAppointmentsRaw()
+    {
+        return await AppointmentManagement.RetrieveAll();
+    }
+
+    [HttpGet]
+    [Route("GetAppointmentsForCalendar")]
+    public async Task<JsonResult> GetAppointmentsForCalendar([FromQuery] string? doctorId, [FromQuery] string? patientId, [FromQuery] string? nurseId)
+    {
+        return await _calendarManagement.GetAppointmentsForCalendar(doctorId, patientId, nurseId);
+    }
+
+
     [HttpGet]
     [Route("Calendar")]
     public IActionResult Calendar()
     {
         return View("Calendar");
     }
-
-    [HttpGet]
-    [Route("GetAppointmentsForCalendar")]
-    public async Task<IActionResult> GetAppointmentsForCalendar([FromQuery] string? doctorId, [FromQuery] string? patientId, [FromQuery] string? nurseId)
-    {
-        var eventList = await AppointmentManagement.GetAppointmentsForCalendar(doctorId, patientId, nurseId);
-        return Json(eventList);
-    }
-
 }
