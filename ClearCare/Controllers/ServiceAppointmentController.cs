@@ -12,13 +12,15 @@ using System.Linq;
 [ApiController]
 public class ServiceAppointmentsController : Controller, IRetrieveAllAppointmentsRaw
 {
-    private readonly AppointmentManagement AppointmentManagement;
+    private readonly ServiceAppointmentManagement ServiceAppointmentManagement;
+    private readonly AutomaticAppointmentScheduler AutomaticAppointmentScheduler;
     private readonly CalendarManagement _calendarManagement;
 
     public ServiceAppointmentsController()
     {
-        AppointmentManagement = new AppointmentManagement();
+        ServiceAppointmentManagement = new ServiceAppointmentManagement();
         _calendarManagement = new CalendarManagement(this); // Pass the controller to CalendarManagement
+        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler();
     }
 
     // GET All appointment
@@ -26,7 +28,7 @@ public class ServiceAppointmentsController : Controller, IRetrieveAllAppointment
     public async Task<IActionResult> RetrieveAllAppointment()
     {
         // await to wait for task complete or data to retrieve before executing
-        var appointment = await AppointmentManagement.RetrieveAll();
+        var appointment = await ServiceAppointmentManagement.RetrieveAll();
 
         // No record exists
         if (appointment != null && appointment.Any())
@@ -43,8 +45,9 @@ public class ServiceAppointmentsController : Controller, IRetrieveAllAppointment
     [Route("CreatePage")]
     public IActionResult Create()
     {
-        ViewBag.Patients = AppointmentManagement.GetAllPatients();
-        ViewBag.Nurses = AppointmentManagement.GetAllNurses();
+        ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
+        ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
+        AutomaticAppointmentScheduler.TestAutoAssignment();
         return View("CreateServiceAppt"); // Render the form
     }
 
@@ -56,7 +59,7 @@ public class ServiceAppointmentsController : Controller, IRetrieveAllAppointment
     [Route("Create")]
     public async Task<IActionResult> CreateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
     {
-        var appointment = await AppointmentManagement.CreateAppt(
+        var appointment = await ServiceAppointmentManagement.CreateAppt(
             requestData["AppointmentId"].GetString() ?? "",
             requestData["PatientId"].GetString() ?? "",
             requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
@@ -84,7 +87,7 @@ public class ServiceAppointmentsController : Controller, IRetrieveAllAppointment
     [Route("Retrieve/{appointmentId}")]
     public async Task<IActionResult> GetAppointment(string appointmentId)
     {
-        var appointmentDetail = await AppointmentManagement.GetAppt(appointmentId);
+        var appointmentDetail = await ServiceAppointmentManagement.GetAppt(appointmentId);
 
         if (appointmentDetail != null && appointmentDetail.Any())
         {
@@ -120,7 +123,7 @@ public class ServiceAppointmentsController : Controller, IRetrieveAllAppointment
     // Implement IRetrieveAllAppointmentsRaw
     public async Task<List<Dictionary<string, object>>> RetrieveAllAppointmentsRaw()
     {
-        return await AppointmentManagement.RetrieveAll();
+        return await ServiceAppointmentManagement.RetrieveAll();
     }
 
     [HttpGet]

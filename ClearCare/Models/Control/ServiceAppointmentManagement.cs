@@ -7,13 +7,13 @@ using Google.Protobuf.WellKnownTypes;
 
 namespace ClearCare.Models.Control
 {
-    public class AppointmentManagement
+    public class ServiceAppointmentManagement
     {
         // Declare the field at the class level
         private readonly ServiceAppointmentGateway _serviceAppointmentGateway;
 
         // Constructor initializes the field
-        public AppointmentManagement()
+        public ServiceAppointmentManagement()
         {
             _serviceAppointmentGateway = new ServiceAppointmentGateway();
         }
