@@ -123,11 +123,11 @@ public class ServiceAppointmentsController : Controller, IRetrieveAllAppointment
 
     [HttpGet]
     [Route("GetAppointmentsForCalendar")]
-    public async Task<IActionResult> GetAppointmentsForCalendar([FromQuery] string? doctorId, [FromQuery] string? patientId, [FromQuery] string? nurseId)
+    public async Task<JsonResult> GetAppointmentsForCalendar([FromQuery] string? doctorId, [FromQuery] string? patientId, [FromQuery] string? nurseId)
     {
-        var eventList = await _calendarManagement.GetAppointmentsForCalendar(doctorId, patientId, nurseId);
-        return Json(eventList);
+        return await _calendarManagement.GetAppointmentsForCalendar(doctorId, patientId, nurseId);
     }
+
 
     [HttpGet]
     [Route("Calendar")]

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,14 +15,14 @@ namespace ClearCare.Models.Control
             _retrieveAllAppointmentRaw = retrieveAllAppointmentRaw;
         }
 
-        public async Task<List<object>> GetAppointmentsForCalendar(string? doctorId, string? patientId, string? nurseId)
+        public async Task<JsonResult> GetAppointmentsForCalendar(string? doctorId, string? patientId, string? nurseId)
         {
             // Get all appointments from IRetrieveAllAppointmentsRaw (implemented by ServiceAppointmentController)
             var appointments = await _retrieveAllAppointmentRaw.RetrieveAllAppointmentsRaw();
 
             if (appointments == null || !appointments.Any())
             {
-                return new List<object>(); // Return an empty list if no appointments exist
+                return new JsonResult(new List<object>()); // Return an empty JSON list if no appointments exist
             }
 
             // Apply filtering within CalendarManagement
@@ -52,9 +53,9 @@ namespace ClearCare.Models.Control
                     status = a["Status"],
                     location = a["Location"]
                 }
-            }).Cast<object>().ToList();
+            }).ToList();
 
-            return eventList;
+            return new JsonResult(eventList);
         }
     }
 }
