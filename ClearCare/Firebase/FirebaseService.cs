@@ -20,7 +20,7 @@ public class FirebaseService
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 // Path for Windows
-                path = @"C:\Firebase\firebase-adminsdk.json";
+                path = @"Firebase\firebase-adminsdk.json"; // not to make path absolute with "C: "
             }
             else
             {
