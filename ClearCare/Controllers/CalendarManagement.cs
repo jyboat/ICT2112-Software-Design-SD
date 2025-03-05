@@ -4,6 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+// TODO: 
+// +getAppointmentsByPatient(patientId: Int): <List> ServiceAppointment
+// +getAppointmentsByNurse(nurseId: Int): <List> ServiceAppointment
+// +getAppointmentsByType(serviceType: String): <List> ServiceAppointment
+// +getAppointmentsByDateRange(startDate: DateTime, endDate: DateTime): <List> ServiceAppointment
+
 namespace ClearCare.Models.Control
 {
     public class CalendarManagement
