@@ -4,25 +4,37 @@ using ClearCare.Interfaces;
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace ClearCare.DataSource
 {
     public class NurseAvailabilityGateway : IAvailabilityDB_Send
     {
         private readonly FirestoreDb _db;
+        private IAvailabilityDB_Receive _receiver;
 
         public NurseAvailabilityGateway()
         {
             _db = FirebaseService.Initialize();
         }
 
-        // Retrieve ALL Nurse Availabilities
-        public List<NurseAvailability> retrieveAllStaffAvailability()
+        // Property for setting the receiver after instantiation (Since gateway handle receiver callback - creates circular dependency. SO need break cycle by property injection)
+        public IAvailabilityDB_Receive Receiver
+        {
+            get { return _receiver; }
+            set { _receiver = value; }
+        }
+
+
+        // Implementing IAvailabilityDB_Send Interfaces
+
+        // Retrieve ALL Nurse Availabilities - implemented in IAvailabilityDB_Send; used in NurseAvailabilityManagement (getAllStaffAvailability)
+        public async Task<List<NurseAvailability>> fetchAllStaffAvailability()
         {
             List<NurseAvailability> availabilityList = new List<NurseAvailability>();
 
             CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
-            QuerySnapshot snapshot = availabilitiesRef.GetSnapshotAsync().Result; // Using .Result to keep it synchronous
+            QuerySnapshot snapshot = await availabilitiesRef.GetSnapshotAsync();
 
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
@@ -33,11 +45,12 @@ namespace ClearCare.DataSource
                     availabilityList.Add(availability);
                 }
             }
+            await _receiver.receiveAvailabilityList(availabilityList);
             return availabilityList;
         }
 
-        // Retrieve Availability by Staff ID
-        public List<NurseAvailability> retrieveAvailabilityByStaff(string staffId)
+        // Retrieve Availability by Staff ID - implemented in IAvailabilityDB_Send; used in NurseAvailabilityManagement (getAvailabilityByStaff)
+        public async Task<List<NurseAvailability>> fetchAvailabilityByStaff(string staffId)
         {
             List<NurseAvailability> availabilityList = new List<NurseAvailability>();
 
@@ -46,7 +59,8 @@ namespace ClearCare.DataSource
                 .WhereEqualTo("nurseID", staffId)
                 .OrderByDescending("availabilityId");
 
-            QuerySnapshot snapshot = query.GetSnapshotAsync().Result;
+            await Task.Delay(1000);
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
 
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
@@ -57,52 +71,60 @@ namespace ClearCare.DataSource
                     availabilityList.Add(availability);
                 }
             }
+            await _receiver.receiveAvailabilityList(availabilityList);
             return availabilityList;
         }
 
-        // Add Availability
-        public void createAvailability(NurseAvailability availability)
+        // Add Availability - implemented in IAvailabilityDB_Send; used in NurseAvailabilityManagement (addAvailability)
+        public async Task createAvailability(NurseAvailability availability)
         {
             DocumentReference docRef = _db.Collection("NurseAvailability").Document();
-            docRef.SetAsync(availability.getAvailabilityDetails()).Wait(); 
+            await docRef.SetAsync(availability.getAvailabilityDetails());
+            await _receiver.receiveAddStatus("Success");
         }
 
-        // Update Availability
-        public void modifyAvailability(NurseAvailability availability)
+        // Update Availability - implemented in IAvailabilityDB_Send; used in NurseAvailabilityManagement (updateAvailability)
+        public async Task modifyAvailability(NurseAvailability availability)
         {
             CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
             Query query = availabilitiesRef.WhereEqualTo("availabilityId", availability.getAvailabilityDetails()["availabilityId"]);
 
-            QuerySnapshot snapshot = query.GetSnapshotAsync().Result;
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
 
             if (snapshot.Documents.Count == 0)
             {
+                await _receiver.receiveUpdateStatus("Failed: availability not found");
                 return;
             }
 
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
                 Dictionary<string, object> availabilityData = availability.getAvailabilityDetails();
-                document.Reference.SetAsync(availabilityData, SetOptions.MergeAll).Wait(); // Making it synchronous
+                await document.Reference.SetAsync(availabilityData, SetOptions.MergeAll);
             }
+
+           await _receiver.receiveUpdateStatus("Success");
         }
 
-        // Delete Availability
-        public void removeAvailability(int availabilityId)
+        // Delete Availability - implemented in IAvailabilityDB_Send; used in NurseAvailabilityManagement (deleteAvailability)
+        public async Task removeAvailability(int availabilityId)
         {
             CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
             Query query = availabilitiesRef.WhereEqualTo("availabilityId", availabilityId);
-            QuerySnapshot snapshot = query.GetSnapshotAsync().Result;
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
 
             if (snapshot.Documents.Count == 0)
             {
+                await _receiver.receiveDeleteStatus("Failed: availability not found");
                 return;
             }
 
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
-                document.Reference.DeleteAsync().Wait(); 
+                await document.Reference.DeleteAsync();
             }
+
+            await _receiver.receiveDeleteStatus("Success");
         }
     }
 }

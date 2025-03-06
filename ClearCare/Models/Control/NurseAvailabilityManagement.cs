@@ -1,37 +1,102 @@
 using ClearCare.Interfaces;
 using ClearCare.Models.Entities;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ClearCare.Models.Control
 {
-    public class NurseAvailabilityManager : INurseAvailability, IAvailabilityDB_Receive
+    public class NurseAvailabilityManagement : INurseAvailability, IAvailabilityDB_Receive
     {
         private readonly IAvailabilityDB_Send _dbGateway;
 
-        public NurseAvailabilityManager(IAvailabilityDB_Send dbGateway)
+        public NurseAvailabilityManagement(IAvailabilityDB_Send dbGateway)
         {
             _dbGateway = dbGateway;
         }
 
-        // Get all availabilities for all nurses
-        public List<NurseAvailability> getAllStaffAvailability()
+        // Implementing INurseAvailability Interface - used by ServiceAppointments not the DB Interfaces!!
+
+        // Get all availabilities for all nurses - implemented in INurseAvailability 
+        public async Task<List<NurseAvailability>> getAllStaffAvailability()
         {
-            List<NurseAvailability> availabilities = _dbGateway.retrieveAllStaffAvailability();
+            List<NurseAvailability> availabilities = await _dbGateway.fetchAllStaffAvailability();
+
+            // returning availabilities as a List cuz ServiceAppointments need it
             return availabilities;
         }
 
-        // Get availability for a specific nurse
-        public List<NurseAvailability> getAvailabilityByStaff(string nurseId)
+        // Get availability for a specific nurse - implemented in INurseAvailability 
+        public async Task<List<NurseAvailability>> getAvailabilityByStaff(string nurseId)
         {
-            List<NurseAvailability> availabilities = _dbGateway.retrieveAvailabilityByStaff(nurseId);
+            List<NurseAvailability> availabilities = await _dbGateway.fetchAvailabilityByStaff(nurseId);
+
+            // returning availabilities as a List cuz ServiceAppointments need it
             return availabilities;
         }
 
-        // Add new availability
-        public void addAvailability(string nurseID, string date)
+        // Implementing IAvailabilityDB_Receive interface
+
+        // Handle retrieving operation - implemented in IAvailabilityDB_Receive; used in NurseAvailabilityGateway (fetchAvailabilityByStaff & fetchAllStaffAvailability)
+        public Task receiveAvailabilityList(List<NurseAvailability> allAvailability)
+        {
+            if (allAvailability.Count == 0)
+            {
+                Console.WriteLine("No nurse availabilities found.");
+            }
+            else
+            {
+                Console.WriteLine($"Received {allAvailability.Count} nurse availabilities.");
+            }
+            return Task.CompletedTask;
+        }
+
+        // Handle add operation success/failure - implemented in IAvailabilityDB_Receive; used in NurseAvailabilityGateway (createAvailability)
+        public Task receiveAddStatus(string status)
+        {
+            if (status == "Success")
+            {
+                Console.WriteLine("Availability added successfully.");
+            }
+            else
+            {
+                Console.WriteLine($"Failed to add availability: {status}");
+            }
+            return Task.CompletedTask;
+        }
+
+        // Handle update operation success/failure - implemented in IAvailabilityDB_Receive; used in NurseAvailabilityGateway (modifyAvailability)
+        public Task receiveUpdateStatus(string status)
+        {
+            if (status == "Success")
+            {
+                Console.WriteLine("Availability updated successfully.");
+            }
+            else
+            {
+                Console.WriteLine($"Failed to update availability: {status}");
+            }
+            return Task.CompletedTask;
+        }
+
+        // Handle delete operation success/failure - implemented in IAvailabilityDB_Receive; used in NurseAvailabilityGateway (removeAvailability)
+        public Task receiveDeleteStatus(string status)
+        {
+            if (status == "Success")
+            {
+                Console.WriteLine("Availability deleted successfully.");
+            }
+            else
+            {
+                Console.WriteLine($"Failed to delete availability: {status}");
+            }
+            return Task.CompletedTask;
+        }
+
+        // Add new availability - not implemented in any intefaces; used in NurseAvailabilityController (AddAvailability)
+        public async Task addAvailability(string nurseID, string date)
         {
             // Retrieve all existing availabilities to find the highest ID
-            List<NurseAvailability> allAvailabilities = _dbGateway.retrieveAllStaffAvailability();
+            List<NurseAvailability> allAvailabilities = await _dbGateway.fetchAllStaffAvailability();
 
             // Find the highest availability ID in the existing records
             int maxAvailabilityId = 0;
@@ -53,50 +118,24 @@ namespace ClearCare.Models.Control
                 newAvailabilityId, nurseID, date, "08:00:00", "16:00:00"
             );
 
-            _dbGateway.createAvailability(availability);
-            
-            // receiveAddStatus("Success");
+            await _dbGateway.createAvailability(availability);
         }
 
-        // Update existing availability
-        public void updateAvailability(int availabilityId, string nurseID, string date)
+        // Update existing availability - not implemented in any intefaces; used in NurseAvailabilityController (UpdateAvailability)
+        public async Task updateAvailability(int availabilityId, string nurseID, string date)
         {
             NurseAvailability updatedAvailability = NurseAvailability.setAvailabilityDetails(
                 availabilityId, nurseID, date, "08:00:00", "16:00:00"
             );
 
-            _dbGateway.modifyAvailability(updatedAvailability);
-            // receiveUpdateStatus("Success");
+            await _dbGateway.modifyAvailability(updatedAvailability);
         }
 
-        // Delete an availability
-        public void deleteAvailability(int availabilityId)
+        // Delete an availability - not implemented in any intefaces; used in NurseAvailabilityController (DeleteAvailability)
+        public async Task deleteAvailability(int availabilityId)
         {
-            _dbGateway.removeAvailability(availabilityId);
-            // receiveDeleteStatus("Success");
+             await _dbGateway.removeAvailability(availabilityId);
         }
-
-        // Implement IAvailabilityDB_Receive interface
-        // public void receiveAvailabilityList(List<NurseAvailability> allAvailability)
-        // {
-            // Handle received data (right now use case is caching the availablity list for future use)
-            // private List<NurseAvailability> _cachedAvailabilityList = new List<NurseAvailability>();
-
-        // }
-
-        // public void receiveAddStatus(string status)
-        // {
-        //     // Handle add operation status
-        // }
-
-        // public void receiveUpdateStatus(string status)
-        // {
-        //     // Handle update operation status
-        // }
-
-        // public void receiveDeleteStatus(string status)
-        // {
-        //     // Handle delete operation status
-        // }
     }
+    
 }

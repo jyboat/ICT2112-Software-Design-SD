@@ -10,11 +10,18 @@ namespace ClearCare.Controllers
     [ApiController]
     public class NurseAvailabilityController : Controller
     {
-        private readonly NurseAvailabilityManager _manager;
+        private readonly NurseAvailabilityManagement _manager;
 
         public NurseAvailabilityController()
         {
-            _manager = new NurseAvailabilityManager(new NurseAvailabilityGateway());
+            // did this so to resolve the circular dependency and fix the error by ensuring that the gateway has a receiver set before any callbacks are invoked otherwise this shit doesnt load lmao
+
+            // Create the gateway first using the parameterless constructor
+            var gateway = new NurseAvailabilityGateway();
+            // Create the manager and pass the gateway
+            _manager = new NurseAvailabilityManagement(gateway);
+            // Set the gateway's receiver to the manager (which implements IAvailabilityDB_Receive)
+            gateway.Receiver = _manager;
         }
 
         // Displays Nurse Availability View
@@ -22,7 +29,7 @@ namespace ClearCare.Controllers
         [Route("")]
         public async Task<IActionResult> Index()
         {
-            var availabilityList = _manager.getAvailabilityByStaff("USR003"); // Dummy ID for testing
+            var availabilityList = await _manager.getAvailabilityByStaff("USR003"); // Dummy ID for testing
             return View(availabilityList);
         }
 
@@ -31,7 +38,7 @@ namespace ClearCare.Controllers
         [Route("AddAvailability")]
         public async Task<IActionResult> AddAvailability([FromForm] string date)
         {
-            _manager.addAvailability("USR003", date);
+            await _manager.addAvailability("USR003", date);
             return RedirectToAction("Index");
         }
 
@@ -40,7 +47,7 @@ namespace ClearCare.Controllers
         [Route("Update")]
         public async Task<IActionResult> UpdateAvailability([FromForm] int availabilityId, [FromForm] string date)
         {
-            _manager.updateAvailability(availabilityId, "USR003", date);
+            await _manager.updateAvailability(availabilityId, "USR003", date);
             return RedirectToAction("Index");
         }
 
@@ -50,7 +57,7 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> DeleteAvailability(int availabilityId)
         {
             // Console.WriteLine($"Attempting to delete availability with ID: {availabilityId}");
-            _manager.deleteAvailability(availabilityId);
+            await _manager.deleteAvailability(availabilityId);
             return RedirectToAction("Index");
         }
     }
