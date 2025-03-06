@@ -7,7 +7,7 @@ namespace ClearCare.Models.Interface
     public interface IMedicalRecord
     {
         Task<List<dynamic>> GetAllMedicalRecords();
-        Task<dynamic> GetMedicalRecordByID(string recordID);
+        Task<dynamic> GetAdjustedRecordByID(string recordID);
     }
 }
 

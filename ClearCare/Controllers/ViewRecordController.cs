@@ -48,7 +48,7 @@ namespace ClearCare.Controllers
         [Route("Details/{recordID}")]
         public async Task<IActionResult> ViewMedicalRecord(string recordID)
         {
-            var recordDetails = await viewMedicalRecord.GetMedicalRecordByID(recordID);
+            var recordDetails = await viewMedicalRecord.GetAdjustedRecordByID(recordID);
             if (recordDetails == null)
             {
                 return NotFound("Medical Record Not Found.");
@@ -67,17 +67,13 @@ namespace ClearCare.Controllers
         [Route("ViewAttachment/{recordID}")]
         public async Task<IActionResult> ViewAttachment(string recordID)
         {
-            dynamic medicalRecord = await viewMedicalRecord.GetMedicalRecordByID(recordID);
+            var medicalRecord = await viewMedicalRecord.GetOriginalRecordByID(recordID);
             if (medicalRecord == null || !medicalRecord.HasAttachment())
             {
                 return NotFound("File not found.");
             }
 
-            // Extract attachment information
-            string fileName = medicalRecord.AttachmentName;
-            
-            // Assuming there is a method in MedicalRecordGateway to get the file bytes
-            byte[] fileBytes = await medicalRecord.RetrieveAttachmentById(recordID);
+            var (fileBytes, fileName) = medicalRecord.RetrieveAttachment();
 
             return File(fileBytes, "application/octet-stream", fileName);
         }

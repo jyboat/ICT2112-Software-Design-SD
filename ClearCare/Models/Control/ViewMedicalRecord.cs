@@ -44,7 +44,7 @@ namespace ClearCare.Models.Control
         }
 
         // Retrieve medical record by ID
-        public async Task<dynamic> GetMedicalRecordByID(string recordID)
+        public async Task<dynamic> GetAdjustedRecordByID(string recordID)
         {
             var medicalRecord = await MedicalRecordGateway.RetrieveMedicalRecordById(recordID);
             if (medicalRecord == null)
@@ -71,11 +71,16 @@ namespace ClearCare.Models.Control
             };
         }
 
+        public async Task<MedicalRecord> GetOriginalRecordByID(string recordID)
+        {
+            return await MedicalRecordGateway.RetrieveMedicalRecordById(recordID);
+        }
+
         // Export medical record to CSV
         public async Task<string> ExportMedicalRecord(string recordID)
         {
             // Retrieve the medical record
-            var medicalRecord = await GetMedicalRecordByID(recordID);
+            var medicalRecord = await GetAdjustedRecordByID(recordID);
             if (medicalRecord == null)
             {
                 return "Medical record not found.";
