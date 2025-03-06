@@ -71,11 +71,6 @@ namespace ClearCare.Models.Control
             };
         }
 
-        public async Task<MedicalRecord> GetMedicalRecordById(string recordID)
-        {
-            return await MedicalRecordGateway.RetrieveMedicalRecordById(recordID);
-        }
-
         // Export medical record to CSV
         public async Task<string> ExportMedicalRecord(string recordID)
         {
