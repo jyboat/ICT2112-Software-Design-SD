@@ -108,5 +108,20 @@ namespace ClearCare.DataSource
             DischargeSummary summary = new DischargeSummary(id, details, instructions, createdAt, patientId);
             return summary;
         }
+
+        public async Task<bool> deleteSummary(string id)
+        {
+            DocumentReference docRef = _db.Collection("DischargeSummaries").Document(id);
+            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+            if (!snapshot.Exists)
+            {
+                Console.WriteLine($"No summary found {snapshot.Id}");
+                return false;
+            }
+
+            await docRef.DeleteAsync();
+            return true;
+        }
     }
 }

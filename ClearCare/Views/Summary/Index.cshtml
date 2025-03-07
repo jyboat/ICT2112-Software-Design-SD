@@ -1,13 +1,13 @@
-﻿
+﻿@model ClearCare.Models.Entities.DischargeSummary
 
 @{
-    ViewData["Title"] = "Add Summary";
+    ViewData["Title"] = "View Summary";
+    var summary = Model.GetSummaryDetails();
 }
 
-<div class="container add-summary">
+<div class="container view-summary">
     <div class="card shadow p-4">
-        <h2 class="text-info mb-3">Adding New Summary for {patient name}</h2>
-        <form action="/Summary/Add" method="post">
+        <h2 class="text-info mb-3">Discharge Summary for {patient name}</h2>
             <div class="table-responsive">
                 <table class="table table-bordered summary-table">
                     <tbody>
@@ -21,29 +21,22 @@
                         </tr>
                         <tr>
                             <th>Date of Discharge:</th>
-                            <td><input name="date" type="date" class="form-control" required /></td>
+                            <td>@summary["CreatedAt"]</td>
                         </tr>
                         <tr>
                             <th>Procedures and Details</th>
                             <td>
-                                <textarea name="details" class="form-control" required></textarea>
+                            @summary["Details"]
                             </td>
                         </tr>
                         <tr>
                             <th>Follow-up instructions:</th>
                             <td>
-                                <textarea name="instructions" class="form-control" required></textarea>
+                            @summary["Instructions"]
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-
-            <div class="text-center>">
-                <button type="submit" class="btn btn-primary w-100">Submit</button>
-            </div>
-        </form>
     </div>
 </div>
-
-

@@ -35,5 +35,10 @@ namespace ClearCare.Models.Controls
         {
             return await _gateway.fetchSummaryById(id);
         }
+
+        public async Task<bool> deleteSummary(string id)
+        {
+            return await _gateway.deleteSummary(id);
+        }
     }
 }

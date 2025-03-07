@@ -28,26 +28,89 @@ public class SummaryController : Controller
         return View("List", summaryList); 
     }
 
+    [Route("View/{summaryId}")]
+    [HttpGet]
+    public async Task<IActionResult> ViewSummary(string summaryId)
+    {
+        var summary = await _manager.getSummary(summaryId);
+        if (summary == null)
+        {
+            return View("List");
+        }
+        return View("Index", summary);
+    }
+
     [Route("Add")]
     [HttpGet]
-    public IActionResult Add() { 
+    public IActionResult ViewAdd() { 
         return View("Add");
     }
 
     [Route("Add")]
     [HttpPost]
-    public async Task<IActionResult> AddSummary(string details, string instructions)
+    public async Task<IActionResult> AddSummary(string details, string instructions, string date)
+    {
+        if (string.IsNullOrEmpty(details) || string.IsNullOrEmpty(instructions) || string.IsNullOrEmpty(date))
+        {
+            ViewBag.ErrorMessage = "Please fill in all required fields";
+            return View("Add");
+        }
+
+        DateTime parsedDate;
+        if (!DateTime.TryParse(date, out parsedDate))
+        {
+            ViewBag.ErrorMessage = "Invalid date format";
+            return View("Add");
+        }
+
+        string formattedDate = parsedDate.ToString("yyyy-MM-dd");
+        // Process the summary here
+        string id = await _manager.generateSummary(details, instructions, formattedDate, "1");
+
+        return RedirectToAction("List");
+    }
+
+    [Route("Edit/{summaryId}")]
+    [HttpGet]
+    public async Task<IActionResult> ViewEdit(string summaryId)
+    {
+        var summary = await _manager.getSummary(summaryId);
+        if (summary == null)
+        {
+            return View("List");
+        }
+        return View("Edit", summary);
+    }
+
+    [Route("Edit/{summaryId}")]
+    [HttpPost]
+    public async Task<IActionResult> UpdateSummary(string summaryId, string details, string instructions, string date)
     {
         if (string.IsNullOrEmpty(details) || string.IsNullOrEmpty(instructions))
         {
             ViewBag.ErrorMessage = "Please fill in all required fields";
         }
 
-        string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
-        // Process the summary here
-        string id = await _manager.generateSummary(details, instructions, currentDate, "1");
+        DateTime parsedDate;
+        if (!DateTime.TryParse(date, out parsedDate))
+        {
+            ViewBag.ErrorMessage = "Invalid date format";
+            return View("Add");
+        }
+
+        string formattedDate = parsedDate.ToString("yyyy-MM-dd");
+
+        await _manager.updateSummary(summaryId, details, instructions, formattedDate, "1");
 
         return RedirectToAction("List");
     }
-   
+
+    [Route("Delete/{summaryId}")]
+    [HttpPost]
+   public async Task<IActionResult> DeleteSummary(string summaryId)
+    {
+        await _manager.deleteSummary(summaryId);
+
+        return RedirectToAction("List");
+    }
 }

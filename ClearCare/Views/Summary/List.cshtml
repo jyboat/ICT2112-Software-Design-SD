@@ -9,26 +9,67 @@
     <div class="text-center mb-3">
         <a role="button" href="/Summary/Add" class="btn btn-md btn-success">Add Summary<i class="bi bi-plus ms-1"></i></a>
     </div>
-    <table class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>Date Created</th>
-                <th>Patient ID</th>
-                <th>Details</th>
-                <th>Instructions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var summary in Model)
-            {
+    <div class=" table-responsive table-hover w-100">
+        <table class="table table-striped table-bordered text-center">
+            <thead class="thead-dark">
                 <tr>
-                    <td>@summary["CreatedAt"]</td>
-                    <td>@summary["PatientId"]</td>
-                    <td>@summary["Details"]</td>
-                    <td>@summary["Instructions"]</td>
+                    <th>Date Created</th>
+                    <th>Patient ID</th>
+                    <th>Details</th>
+                    <th>Instructions</th>
+                    <th>Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var summary in Model)
+                {
+                    <tr class="animated faster">
+                        <td class="align-middle">@summary["CreatedAt"]</td>
+                        <td class ="align-middle">@summary["PatientId"]</td>
+                        <td class="align-middle">@summary["Details"]</td>
+                        <td class="align-middle">@summary["Instructions"]</td>
+                        <td class="align-middle">
+                            <a href="/Summary/View/@summary["Id"]" class="btn btn-sm btn-primary"><i class="bi bi-eye me-2"></i>View</a>
+                            <a href="/Summary/Edit/@summary["Id"]" class="btn btn-sm btn-success"><i class="bi bi-pencil-square me-2"></i>Edit</a>
+                            <a href="#" class="btn btn-sm btn-danger btn-delete" data-id="@summary["Id"]" data-target="#deleteModal" data-toggle="modal"><i class="bi bi-trash me-2"></i>Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </section>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Summary</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                Are you sure you want to delete this summary?
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post">
+                    <input type="hidden" id="deleteId" name="id" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                    <button type="submit" class="btn btn-danger">Yes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $('.btn-delete').click(function(){
+            let summaryId = $(this).data('id')
+            $('#deleteId').val(summaryId)
+            $('#deleteForm').attr('action', '/Summary/Delete/' + summaryId)
+            $('#deleteModal').modal('show')
+        })
+    })
+</script>
 

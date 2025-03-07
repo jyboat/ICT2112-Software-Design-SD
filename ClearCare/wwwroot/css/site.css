@@ -21,3 +21,9 @@ main {
   padding-top: 70px;
   padding-bottom: 10px;
 }
+
+.summary-table th {
+    width: 30%;
+    text-align: left;
+    padding: 10px;
+}
