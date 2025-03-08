@@ -52,20 +52,22 @@ public class SummaryController : Controller
     {
         if (string.IsNullOrEmpty(details) || string.IsNullOrEmpty(instructions) || string.IsNullOrEmpty(date))
         {
-            ViewBag.ErrorMessage = "Please fill in all required fields";
+            TempData["ErrorMessage"] = "Please fill in all required fields";
             return View("Add");
         }
 
         DateTime parsedDate;
         if (!DateTime.TryParse(date, out parsedDate))
         {
-            ViewBag.ErrorMessage = "Invalid date format";
+            TempData["ErrorMessage"] = "Invalid date format";
             return View("Add");
         }
 
         string formattedDate = parsedDate.ToString("yyyy-MM-dd");
         // Process the summary here
         string id = await _manager.generateSummary(details, instructions, formattedDate, "1");
+
+        TempData["SuccessMessage"] = "Summary added successfully!";
 
         return RedirectToAction("List");
     }
@@ -88,19 +90,21 @@ public class SummaryController : Controller
     {
         if (string.IsNullOrEmpty(details) || string.IsNullOrEmpty(instructions))
         {
-            ViewBag.ErrorMessage = "Please fill in all required fields";
+            TempData["ErrorMessage"] = "Please fill in all required fields";
         }
 
         DateTime parsedDate;
         if (!DateTime.TryParse(date, out parsedDate))
         {
-            ViewBag.ErrorMessage = "Invalid date format";
+            TempData["ErrorMessage"] = "Invalid date format";
             return View("Add");
         }
 
         string formattedDate = parsedDate.ToString("yyyy-MM-dd");
 
         await _manager.updateSummary(summaryId, details, instructions, formattedDate, "1");
+
+        TempData["SuccessMessage"] = "Summary updated successfully!";
 
         return RedirectToAction("List");
     }
@@ -110,6 +114,8 @@ public class SummaryController : Controller
    public async Task<IActionResult> DeleteSummary(string summaryId)
     {
         await _manager.deleteSummary(summaryId);
+
+        TempData["SuccessMessage"] = "Summary deleted successfully!";
 
         return RedirectToAction("List");
     }
