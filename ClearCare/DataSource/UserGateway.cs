@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Google.Cloud.Firestore;
 using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
+using Newtonsoft.Json;
 
 namespace ClearCare.DataSource
 {
@@ -96,7 +97,7 @@ namespace ClearCare.DataSource
                 Timestamp dateOfBirth = snapshot.GetValue<Timestamp>("DateOfBirth");
                 return new Patient(userID, emailAddress, password, name, mobileNumber, address, role, assignedCaregiverName, assignedCaregiverID, dateOfBirth);
             }
-            
+
             if (role == "Caregiver")
             {
                 string assignedPatientName = snapshot.GetValue<string>("AssignedPatientName");
@@ -214,6 +215,41 @@ namespace ClearCare.DataSource
                 { "Address", address },
                 { "Role", role }
             };
+
+            // Explicitly use the new User ID as the document ID
+            DocumentReference newUserRef = usersRef.Document(nextUserID);
+            await newUserRef.SetAsync(userData);
+
+            Console.WriteLine($"User inserted successfully with Firestore ID: {nextUserID}");
+
+            return nextUserID;
+        }
+
+        // Insert a new staff user with auto-incremented UserID
+        public async Task<string> InsertStaffUser(User newUser, String password)
+        {
+            CollectionReference usersRef = db.Collection("User");
+
+            // Fetch all user documents to find the highest existing ID
+            QuerySnapshot allUsersSnapshot = await usersRef.GetSnapshotAsync();
+            int highestID = 0;
+
+            foreach (var doc in allUsersSnapshot.Documents)
+            {
+                string docID = doc.Id; // Example: "USR3"
+                if (docID.StartsWith("USR") && int.TryParse(docID.Substring(3), out int id))
+                {
+                    highestID = Math.Max(highestID, id);
+                }
+            }
+
+            // Generate User ID
+            string nextUserID = $"USR{highestID + 1}";
+
+            // Prepare user data for insertion
+            var userData = newUser.GetProfileData();
+            userData.Remove("UserID");
+            userData.Add("Password", encryptionManagement.HashPassword(password));
 
             // Explicitly use the new User ID as the document ID
             DocumentReference newUserRef = usersRef.Document(nextUserID);

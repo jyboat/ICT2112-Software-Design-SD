@@ -3,6 +3,8 @@ using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 using ClearCare.DataSource;
 using System.Threading.Tasks;
+using System.Data;
+using Newtonsoft.Json;
 
 namespace ClearCare.Controllers
 {
@@ -30,19 +32,56 @@ namespace ClearCare.Controllers
                return View("~/Views/Admin/CreateDoctorAccount.cshtml");
           }
 
+          public IActionResult LoadRoleForm(string role)
+          {
+               if (role == "Nurse")
+               {
+                    return View("~/Views/Admin/CreateNurseAccount.cshtml");
+               }
+               if (role == "Doctor")
+               {
+                    return View("~/Views/Admin/CreateDoctorAccount.cshtml");
+               }
+               else
+               {
+                    // Handle unexpected roles
+                    return NotFound("Invalid role specified.");
+               }
+          }
+
           // POST: /Admin/CreateAccount
           [HttpPost]
-          public async Task<IActionResult> CreateAccount(string email, string password, string name, string department, string specialization, long mobileNumber, string address, string role)
+          public async Task<IActionResult> CreateAccount(string email, string password, string name, string role, string address, long? mobileNumber, string? department, string? specialization)
           {
-               if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(name))
+               if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || mobileNumber == null || (string.IsNullOrEmpty(department) && string.IsNullOrEmpty(specialization)))
                {
                     ViewBag.ErrorMessage = "Please fill in all required fields.";
-                    return View("~/Views/Admin/CreateAccount.cshtml");
+                    return RedirectToAction("LoadRoleForm", new { role = role });
                }
 
-               Console.WriteLine(department);
+               User newUser = null;
 
-               return View("~/Views/Admin/CreateAccount.cshtml");
+               if (role == "Nurse" && !string.IsNullOrEmpty(department))
+               {
+                    newUser = new Nurse("", email, password, name, (long)mobileNumber, address, role, department);
+               }
+               else if (role == "Doctor" && !string.IsNullOrEmpty(specialization))
+               {
+                    newUser = new Doctor("", email, password, name, (long)mobileNumber, address, role, specialization);
+               }
+
+               string result = await _adminAccountManagement.CreateStaffAccount(newUser, password);
+
+               if (result == "Account created successfully.")
+               {
+                    ViewBag.SuccessMessage = result;
+                    return RedirectToAction("Index", "Home");
+               }
+               else
+               {
+                    ViewBag.ErrorMessage = result;
+                    return RedirectToAction("LoadRoleForm", new { role = role });
+               }
           }
      }
 }
