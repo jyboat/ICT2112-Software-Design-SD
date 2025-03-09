@@ -16,12 +16,12 @@ namespace ClearCare.Models.Control
     public class CalendarManagement
     {
         private readonly IRetrieveAllAppointments _retrieveAllAppointments;
-        private readonly INurseAvailability _getCurrentStaffAvailability;
+        private readonly INurseAvailability _getAvailabilityByStaff;
 
-        public CalendarManagement(IRetrieveAllAppointments retrieveAllAppointments, INurseAvailability getCurrentStaffAvailability)
+        public CalendarManagement(IRetrieveAllAppointments retrieveAllAppointments, INurseAvailability getAvailabilityByStaff)
         {
             _retrieveAllAppointments = retrieveAllAppointments;
-            _getCurrentStaffAvailability = getCurrentStaffAvailability;
+            _getAvailabilityByStaff = getAvailabilityByStaff;
         }
 
         public async Task<JsonResult> GetAppointmentsForCalendar(string? doctorId, string? patientId, string? nurseId)
@@ -67,9 +67,9 @@ namespace ClearCare.Models.Control
             return new JsonResult(eventList);
         }
 
-        public async Task<JsonResult> GetCurrentStaffAvailability(string? currentNurseId)
+        public async Task<JsonResult> GetAvailabilityByNurseIdForCalender(string? currentNurseId)
         {
-            var nurseAvailabilityList = await _getCurrentStaffAvailability.getAvailabilityByStaff(currentNurseId);
+            var nurseAvailabilityList = await _getAvailabilityByStaff.getAvailabilityByStaff(currentNurseId);
 
             if (nurseAvailabilityList == null || !nurseAvailabilityList.Any())
             {

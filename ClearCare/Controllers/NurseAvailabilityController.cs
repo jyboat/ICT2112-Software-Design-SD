@@ -31,13 +31,22 @@ namespace ClearCare.Controllers
             _calendarManagement = new CalendarManagement(_serviceAppointmentManagement, _manager);
         }
 
+        // Displays Nurse Availability for Calendar
+        [HttpGet]
+        [Route("GetAvailabilityByNurseIdForCalender")]
+        public async Task<JsonResult> GetAvailabilityByNurseIdForCalender([FromQuery] string? nurseId)
+        {
+            return await _calendarManagement.GetAvailabilityByNurseIdForCalender("USR003"); // Dummy ID for testing
+        }
+
         // Displays Nurse Availability View
         [HttpGet]
         [Route("")]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var availabilityList = await _manager.getAvailabilityByStaff("USR003"); // Dummy ID for testing
-            return View(availabilityList);
+            // var availabilityList = await _manager.getAvailabilityByStaff("USR003"); // Dummy ID for testing
+            // return View(availabilityList);
+             return View("Index");
         }
 
         // Add Availability (Handles Form Submission)
@@ -67,5 +76,7 @@ namespace ClearCare.Controllers
             await _manager.deleteAvailability(availabilityId);
             return RedirectToAction("Index");
         }
+
+        
     }
 }
