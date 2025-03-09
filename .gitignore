@@ -5,7 +5,6 @@
 
 # Firebase Hosting
 /firebase.json
-/FirebaseService.cs
 *.cache
 hosting/.cache
 
@@ -428,7 +427,3 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-
-# Firebase Secrets
-ClearCare/Firebase/*.json
-ClearCare/Firebase/*.cs
