@@ -23,7 +23,7 @@ namespace ClearCare.Models.Control
 
         public async Task<JsonResult> GetAppointmentsForCalendar(string? doctorId, string? patientId, string? nurseId)
         {
-            // Get all appointments from IRetrieveAll (implemented by ServiceAppointmentController, should be ServiceAppointmentManagement)
+            // Get all appointments from IRetrieveAll (implemented by ServiceAppointmentManagement)
             var appointments = await _retrieveAll.RetrieveAll();
 
             if (appointments == null || !appointments.Any())
