@@ -7,7 +7,7 @@ using Google.Protobuf.WellKnownTypes;
 
 namespace ClearCare.Models.Control
 {
-    public class ServiceAppointmentManagement : IRetrieveAll
+    public class ServiceAppointmentManagement : IRetrieveAllAppointments
     {
         // Declare the field at the class level
         private readonly ServiceAppointmentGateway _serviceAppointmentGateway;
@@ -18,7 +18,7 @@ namespace ClearCare.Models.Control
             _serviceAppointmentGateway = new ServiceAppointmentGateway();
         }
 
-        public async Task<List<Dictionary<string, object>>> RetrieveAll()
+        public async Task<List<Dictionary<string, object>>> RetrieveAllAppointments()
         {
             var appointment = await _serviceAppointmentGateway.GetAllAppointmentsAsync();
             var appointmentList = appointment.Select(a => a.ToFirestoreDictionary()).ToList();
