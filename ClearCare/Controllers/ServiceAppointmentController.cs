@@ -10,7 +10,7 @@ using System.Linq;
 // Request Handling
 [Route("api/[controller]")]
 [ApiController]
-public class ServiceAppointmentsController : Controller, IRetrieveAllAppointmentsRaw
+public class ServiceAppointmentsController : Controller
 {
     private readonly ServiceAppointmentManagement ServiceAppointmentManagement;
     private readonly AutomaticAppointmentScheduler AutomaticAppointmentScheduler;
@@ -19,7 +19,7 @@ public class ServiceAppointmentsController : Controller, IRetrieveAllAppointment
     public ServiceAppointmentsController()
     {
         ServiceAppointmentManagement = new ServiceAppointmentManagement();
-        _calendarManagement = new CalendarManagement(this); // Pass the controller to CalendarManagement
+        _calendarManagement = new CalendarManagement(ServiceAppointmentManagement); 
         AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler();
     }
 
@@ -120,8 +120,8 @@ public class ServiceAppointmentsController : Controller, IRetrieveAllAppointment
     //     return Ok(new { Message = "Appointment created successfully"});
     // }
 
-    // Implement IRetrieveAllAppointmentsRaw
-    public async Task<List<Dictionary<string, object>>> RetrieveAllAppointmentsRaw()
+    // Implement IRetrieveAll
+    public async Task<List<Dictionary<string, object>>> RetrieveAll()
     {
         return await ServiceAppointmentManagement.RetrieveAll();
     }
