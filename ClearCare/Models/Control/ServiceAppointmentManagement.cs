@@ -7,7 +7,7 @@ using Google.Protobuf.WellKnownTypes;
 
 namespace ClearCare.Models.Control
 {
-    public class ServiceAppointmentManagement
+    public class ServiceAppointmentManagement : IRetrieveAll
     {
         // Declare the field at the class level
         private readonly ServiceAppointmentGateway _serviceAppointmentGateway;

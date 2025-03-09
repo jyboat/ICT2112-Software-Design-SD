@@ -10,7 +10,7 @@ using System.Linq;
 // Request Handling
 [Route("api/[controller]")]
 [ApiController]
-public class ServiceAppointmentsController : Controller, IRetrieveAll
+public class ServiceAppointmentsController : Controller
 {
     private readonly ServiceAppointmentManagement ServiceAppointmentManagement;
     private readonly AutomaticAppointmentScheduler AutomaticAppointmentScheduler;
@@ -19,7 +19,7 @@ public class ServiceAppointmentsController : Controller, IRetrieveAll
     public ServiceAppointmentsController()
     {
         ServiceAppointmentManagement = new ServiceAppointmentManagement();
-        _calendarManagement = new CalendarManagement(this); // Pass the controller to CalendarManagement
+        _calendarManagement = new CalendarManagement(ServiceAppointmentManagement); 
         AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler();
     }
 

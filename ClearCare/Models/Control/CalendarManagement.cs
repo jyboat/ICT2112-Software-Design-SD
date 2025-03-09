@@ -14,17 +14,17 @@ namespace ClearCare.Models.Control
 {
     public class CalendarManagement
     {
-        private readonly IRetrieveAll _RetrieveAll;
+        private readonly IRetrieveAll _retrieveAll;
 
-        public CalendarManagement(IRetrieveAll RetrieveAll)
+        public CalendarManagement(IRetrieveAll retrieveAll)
         {
-            _RetrieveAll = RetrieveAll;
+            _retrieveAll = retrieveAll;
         }
 
         public async Task<JsonResult> GetAppointmentsForCalendar(string? doctorId, string? patientId, string? nurseId)
         {
             // Get all appointments from IRetrieveAll (implemented by ServiceAppointmentController, should be ServiceAppointmentManagement)
-            var appointments = await _RetrieveAll.RetrieveAll();
+            var appointments = await _retrieveAll.RetrieveAll();
 
             if (appointments == null || !appointments.Any())
             {
