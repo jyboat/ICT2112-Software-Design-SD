@@ -34,9 +34,9 @@ namespace ClearCare.Controllers
         // Displays Nurse Availability for Calendar
         [HttpGet]
         [Route("GetAvailabilityByNurseIdForCalender")]
-        public async Task<JsonResult> GetAvailabilityByNurseIdForCalender([FromQuery] string? nurseId)
+        public async Task<JsonResult> GetAvailabilityByNurseIdForCalendar([FromQuery] string? nurseId)
         {
-            return await _calendarManagement.GetAvailabilityByNurseIdForCalender("USR003"); // Dummy ID for testing
+            return await _calendarManagement.GetAvailabilityByNurseIdForCalendar("USR003"); // Dummy ID for testing
         }
 
         // Displays Nurse Availability View

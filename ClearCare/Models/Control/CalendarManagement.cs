@@ -67,7 +67,7 @@ namespace ClearCare.Models.Control
             return new JsonResult(eventList);
         }
 
-        public async Task<JsonResult> GetAvailabilityByNurseIdForCalender(string? currentNurseId)
+        public async Task<JsonResult> GetAvailabilityByNurseIdForCalendar(string? currentNurseId)
         {
             var nurseAvailabilityList = await _getAvailabilityByStaff.getAvailabilityByStaff(currentNurseId);
 
@@ -85,7 +85,7 @@ namespace ClearCare.Models.Control
                 {
                     id = details["availabilityId"],  
                     title = "Available",
-                    start = ((string)details["date"]), 
+                    start = (string)details["date"], 
                     extendedProps = new
                     {
                         nurseId = details["nurseID"],
