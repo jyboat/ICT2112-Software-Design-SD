@@ -1,3 +1,4 @@
+using ClearCare.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -14,17 +15,19 @@ namespace ClearCare.Models.Control
 {
     public class CalendarManagement
     {
-        private readonly IRetrieveAll _retrieveAll;
+        private readonly IRetrieveAllAppointments _retrieveAllAppointments;
+        private readonly INurseAvailability _getAvailabilityByStaff;
 
-        public CalendarManagement(IRetrieveAll retrieveAll)
+        public CalendarManagement(IRetrieveAllAppointments retrieveAllAppointments, INurseAvailability getAvailabilityByStaff)
         {
-            _retrieveAll = retrieveAll;
+            _retrieveAllAppointments = retrieveAllAppointments;
+            _getAvailabilityByStaff = getAvailabilityByStaff;
         }
 
         public async Task<JsonResult> GetAppointmentsForCalendar(string? doctorId, string? patientId, string? nurseId)
         {
-            // Get all appointments from IRetrieveAll (implemented by ServiceAppointmentManagement)
-            var appointments = await _retrieveAll.RetrieveAll();
+            // Get all appointments from IRetrieveAllAppointments (implemented by ServiceAppointmentManagement)
+            var appointments = await _retrieveAllAppointments.RetrieveAllAppointments();
 
             if (appointments == null || !appointments.Any())
             {
@@ -59,6 +62,37 @@ namespace ClearCare.Models.Control
                     status = a["Status"],
                     location = a["Location"]
                 }
+            }).ToList();
+
+            return new JsonResult(eventList);
+        }
+
+        public async Task<JsonResult> GetAvailabilityByNurseIdForCalender(string? currentNurseId)
+        {
+            var nurseAvailabilityList = await _getAvailabilityByStaff.getAvailabilityByStaff(currentNurseId);
+
+            if (nurseAvailabilityList == null || !nurseAvailabilityList.Any())
+            {
+                return new JsonResult(new List<object>()); // Return an empty list if no availability exists
+            }
+
+            // Convert availability data to JSON format required by FullCalendar
+            var eventList = nurseAvailabilityList.Select(a =>
+            {
+                var details = a.getAvailabilityDetails(); 
+
+                return new
+                {
+                    id = details["availabilityId"],  
+                    title = "Available",
+                    start = ((string)details["date"]), 
+                    extendedProps = new
+                    {
+                        nurseId = details["nurseID"],
+                        startTime = details["startTime"],
+                        endTime = details["endTime"]
+                    }
+                };
             }).ToList();
 
             return new JsonResult(eventList);

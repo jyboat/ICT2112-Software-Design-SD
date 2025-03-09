@@ -15,11 +15,12 @@ public class ServiceAppointmentsController : Controller
     private readonly ServiceAppointmentManagement ServiceAppointmentManagement;
     private readonly AutomaticAppointmentScheduler AutomaticAppointmentScheduler;
     private readonly CalendarManagement _calendarManagement;
+    private readonly NurseAvailabilityManagement _nurseAvailabilityManagement;
 
     public ServiceAppointmentsController()
     {
         ServiceAppointmentManagement = new ServiceAppointmentManagement();
-        _calendarManagement = new CalendarManagement(ServiceAppointmentManagement); 
+        _calendarManagement = new CalendarManagement(ServiceAppointmentManagement, _nurseAvailabilityManagement);
         AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler();
     }
 
@@ -28,7 +29,7 @@ public class ServiceAppointmentsController : Controller
     public async Task<IActionResult> RetrieveAllAppointment()
     {
         // await to wait for task complete or data to retrieve before executing
-        var appointment = await ServiceAppointmentManagement.RetrieveAll();
+        var appointment = await ServiceAppointmentManagement.RetrieveAllAppointments();
 
         // No record exists
         if (appointment != null && appointment.Any())
@@ -40,7 +41,28 @@ public class ServiceAppointmentsController : Controller
             return NotFound(new { Message = "Appointment not found" });
         }
     }
-    
+
+    [HttpGet]
+    [Route("GetAppointmentsForCalendar")]
+    public async Task<JsonResult> GetAppointmentsForCalendar([FromQuery] string? doctorId, [FromQuery] string? patientId, [FromQuery] string? nurseId)
+    {
+        return await _calendarManagement.GetAppointmentsForCalendar(doctorId, patientId, nurseId);
+    }
+
+
+    [HttpGet]
+    [Route("Calendar")]
+    public IActionResult Calendar()
+    {
+        return View("Calendar");
+    }
+
+    // Implement IRetrieveAll
+    public async Task<List<Dictionary<string, object>>> RetrieveAll()
+    {
+        return await ServiceAppointmentManagement.RetrieveAllAppointments();
+    }
+
     [HttpGet]
     [Route("CreatePage")]
     public IActionResult Create()
@@ -119,25 +141,4 @@ public class ServiceAppointmentsController : Controller
     //     string appointmentId = await _gateway.CreateAppointmentAsync(appointment);
     //     return Ok(new { Message = "Appointment created successfully"});
     // }
-
-    // Implement IRetrieveAll
-    public async Task<List<Dictionary<string, object>>> RetrieveAll()
-    {
-        return await ServiceAppointmentManagement.RetrieveAll();
-    }
-
-    [HttpGet]
-    [Route("GetAppointmentsForCalendar")]
-    public async Task<JsonResult> GetAppointmentsForCalendar([FromQuery] string? doctorId, [FromQuery] string? patientId, [FromQuery] string? nurseId)
-    {
-        return await _calendarManagement.GetAppointmentsForCalendar(doctorId, patientId, nurseId);
-    }
-
-
-    [HttpGet]
-    [Route("Calendar")]
-    public IActionResult Calendar()
-    {
-        return View("Calendar");
-    }
 }
