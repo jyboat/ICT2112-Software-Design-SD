@@ -12,6 +12,11 @@ namespace ClearCare.Controllers
     {
         private readonly NurseAvailabilityManagement _manager;
 
+        private readonly CalendarManagement _calendarManagement;
+        private readonly ServiceAppointmentManagement _serviceAppointmentManagement;
+
+
+
         public NurseAvailabilityController()
         {
             // did this so to resolve the circular dependency and fix the error by ensuring that the gateway has a receiver set before any callbacks are invoked otherwise this shit doesnt load lmao
@@ -22,6 +27,8 @@ namespace ClearCare.Controllers
             _manager = new NurseAvailabilityManagement(gateway);
             // Set the gateway's receiver to the manager (which implements IAvailabilityDB_Receive)
             gateway.Receiver = _manager;
+
+            _calendarManagement = new CalendarManagement(_serviceAppointmentManagement, _manager);
         }
 
         // Displays Nurse Availability View

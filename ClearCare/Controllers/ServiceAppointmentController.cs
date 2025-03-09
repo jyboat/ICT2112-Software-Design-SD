@@ -15,11 +15,12 @@ public class ServiceAppointmentsController : Controller
     private readonly ServiceAppointmentManagement ServiceAppointmentManagement;
     private readonly AutomaticAppointmentScheduler AutomaticAppointmentScheduler;
     private readonly CalendarManagement _calendarManagement;
+    private readonly NurseAvailabilityManagement _nurseAvailabilityManagement;
 
     public ServiceAppointmentsController()
     {
         ServiceAppointmentManagement = new ServiceAppointmentManagement();
-        _calendarManagement = new CalendarManagement(ServiceAppointmentManagement);
+        _calendarManagement = new CalendarManagement(ServiceAppointmentManagement, _nurseAvailabilityManagement);
         AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler();
     }
 
