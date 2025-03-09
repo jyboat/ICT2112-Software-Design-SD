@@ -24,16 +24,16 @@
                 initialView: 'dayGridMonth',
                 selectable: true, // Allows clicking empty dates
                 events: function (fetchInfo, successCallback, failureCallback) {
-                    $.getJSON('/api/NurseAvailability/GetNurseAvailabilities', function (data) {
+                    $.getJSON('/NurseAvailability/GetAvailabilityByNurseIdForCalendar', function (data) {
                         var events = data.map(function (availability) {
                             return {
-                                id: availability.availabilityId,
-                                title: "Unavailable: " + availability.nurseID,
-                                start: availability.date,
+                                id: availability.id,
+                                title: "Unavailable: " + availability.id,
+                                start: availability.start,
                                 extendedProps: {
-                                    nurseId: availability.nurseID,
-                                    startTime: availability.startTime,
-                                    endTime: availability.endTime
+                                    nurseId: availability.extendedProps.nurseID,
+                                    startTime: availability.extendedProps.startTime,
+                                    endTime: availability.extendedProps.endTime
                                 }
                             };
                         });
