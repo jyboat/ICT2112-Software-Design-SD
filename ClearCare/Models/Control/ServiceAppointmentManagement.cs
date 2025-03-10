@@ -72,6 +72,8 @@ namespace ClearCare.Models.Control
                 return "";
             }
         }
+        
+        // update appointment here
 
         public async Task<Dictionary<string, object>> GetAppt(string appointmentId)
         {
@@ -130,6 +132,34 @@ namespace ClearCare.Models.Control
 
             return eventList;
         }
+        
+        // update existing appointment
+        public async Task<bool> UpdateAppt(string appointmentId, string patientId, string nurseId,
+            string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
+        {
+            try
+            {
+                // retrieve existing appt
+                var existingAppointment = await _serviceAppointmentGateway.GetAppointmentByIdAsync(appointmentId);
 
+                if (existingAppointment == null)
+                {
+                    return false;
+                }
+                
+                // create updated appt
+                var updatedAppointment = ServiceAppointment.setApptDetails(
+                    appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
+                );
+                
+                // call gateway to update
+                return await _serviceAppointmentGateway.UpdateAppointmentAsync(updatedAppointment);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"error updating appointment: {e.Message}");
+                return false;
+            }
+        }
     }
 }

@@ -71,5 +71,32 @@ namespace ClearCare.DataSource
             var data = snapshot.ToDictionary();
             return ServiceAppointment.FromFirestoreData(appointmentId, data);
         }
+        
+        // update an existing appointment
+        public async Task<bool> UpdateAppointmentAsync(ServiceAppointment appointment)
+        {
+            try
+            {
+                DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointment.GetAttribute("AppointmentId"));
+        
+                // check if document exists
+                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+                if (!snapshot.Exists)
+                {
+                    return false;
+                }
+        
+                // update with the new data
+                Dictionary<string, object> appointmentData = appointment.ToFirestoreDictionary();
+                await docRef.SetAsync(appointmentData);
+        
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"error updating appointment in firestore: {ex.Message}");
+                return false;
+            }
+        }
     }
 }

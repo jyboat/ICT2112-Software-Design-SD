@@ -141,4 +141,38 @@ public class ServiceAppointmentsController : Controller
     //     string appointmentId = await _gateway.CreateAppointmentAsync(appointment);
     //     return Ok(new { Message = "Appointment created successfully"});
     // }
+    
+    // update appointment
+    [HttpPut]
+    [Route("Update")]
+    public async Task<IActionResult> UpdateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
+    {
+        try
+        {
+            var result = await ServiceAppointmentManagement.UpdateAppt(
+                requestData["AppointmentId"].GetString() ?? "",
+                requestData["PatientId"].GetString() ?? "",
+                requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
+                requestData["DoctorId"].GetString() ?? "",
+                requestData["ServiceTypeId"].GetString() ?? "",
+                requestData["Status"].GetString() ?? "",
+                requestData["DateTime"].GetDateTime(),
+                requestData["Slot"].GetInt32(),
+                requestData["Location"].GetString() ?? "");
+            
+            // TODO - Should we strictly return a view or can we return a JSON response? - dinie
+            if (result)
+            {
+                return Ok(new { Success = true, Message = "Appointment updated successfully" });
+            }
+            else
+            {
+                return BadRequest(new { Success = false, Message = "Failed to update appointment" });
+            }
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { Success = false, Message = "An error occurred", Error = ex.Message });
+        }
+    }
 }

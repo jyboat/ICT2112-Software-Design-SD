@@ -55,7 +55,7 @@ namespace ClearCare.Models.Control
                 foreach (var appointment in patientAppointments)
                 {
                     // Start from slot 1
-                    int assignedSlot = 1; 
+                    int assignedSlot = 1;
 
                     // Check that other patient dont have same service in the same slot
                     while ((patientSlotTracker.ContainsKey(appointment.GetAttribute("PatientId")) && patientSlotTracker[appointment.GetAttribute("PatientId")].Contains(assignedSlot)) ||
