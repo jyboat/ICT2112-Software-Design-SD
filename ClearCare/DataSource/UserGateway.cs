@@ -8,10 +8,11 @@ using Google.Cloud.Firestore;
 using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 using Newtonsoft.Json;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.DataSource
 {
-    public class UserGateway
+    public class UserGateway: IAdminDatabase //, IUserDatabase
     {
         private FirestoreDb db;
         private readonly EncryptionManagement encryptionManagement;

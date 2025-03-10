@@ -1,0 +1,170 @@
+@using ClearCare.Models.Entities
+
+@{
+    ViewData["Title"] = "Manage User Accounts";
+    var userList = ViewData["Users"] as List<User>;
+    var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"); // System timestamp
+}
+
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">@ViewData["Title"]</h1>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h5 class="fw-bold mb-1">User Accounts Overview</h5>
+            <small class="text-muted">Total Users: @(userList?.Count ?? 0)</small>
+        </div>
+    </div>
+
+    <!-- Search and Create Button Section -->
+    <div class="d-flex flex-column flex-md-row gap-2 gap-md-0 justify-content-between mb-3">
+        <div class="d-flex gap-2 flex-grow-1 me-md-3">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text" id="searchInput" class="form-control border-start-0 ps-0" 
+                       placeholder="Search by name, role, or ID..." aria-label="Search users">
+            </div>
+            <button type="button" class="btn btn-outline-secondary d-none" id="clearSearch">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <a class="btn btn-success" asp-controller="ManageUsers" asp-action="DisplayCreateUser">
+            <i class="bi bi-plus-circle me-1"></i> Create New User
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered shadow-sm" id="recordsTable">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col" class="text-nowrap">User ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Created By</th>
+                    <th scope="col" class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (userList != null && userList.Any())
+                {
+                    @foreach (var user in userList)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@(user?.GetUserID() ?? "N/A")</td>
+                            <td>@(user?.GetName() ?? "N/A")</td>
+                            <td class="text-nowrap"><span class="badge bg-secondary">@(user?.GetRole() ?? "N/A")</span></td>
+                            <td>System</td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    @if (!string.IsNullOrEmpty(user?.GetUserID()))
+                                    {
+                                        <a href="/ViewUser/@user.GetUserID()" class="btn btn-sm btn-outline-info" title="View Details">
+                                            <i class="bi bi-eye"></i><span class="d-none d-md-inline"> View</span>
+                                        </a>
+                                        <a href="/ManageUsers/@user.GetUserID()" class="btn btn-sm btn-outline-warning" title="Update Account">
+                                            <i class="bi bi-pencil-square"></i><span class="d-none d-md-inline"> Edit</span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No actions available</span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <div class="text-muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                No users found in the system
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="d-flex justify-content-center mt-3">
+        <nav>
+            <ul class="pagination" id="pagination"></ul>
+        </nav>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const clearSearchBtn = document.getElementById('clearSearch');
+            const table = document.getElementById('recordsTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+            function filterTable(searchTerm) {
+                searchTerm = searchTerm.toLowerCase();
+                let hasVisibleRows = false;
+
+                Array.from(rows).forEach(row => {
+                    const cells = row.getElementsByTagName('td');
+                    let rowText = '';
+                    Array.from(cells).forEach(cell => {
+                        rowText += cell.textContent + ' ';
+                    });
+                    rowText = rowText.toLowerCase();
+
+                    if (rowText.includes(searchTerm)) {
+                        row.style.display = '';
+                        hasVisibleRows = true;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Show/hide clear button based on search input
+                clearSearchBtn.classList.toggle('d-none', !searchTerm);
+
+                // Show no results message if needed
+                const noResultsRow = table.querySelector('tr.no-results');
+                if (!hasVisibleRows) {
+                    if (!noResultsRow) {
+                        const tbody = table.getElementsByTagName('tbody')[0];
+                        const newRow = document.createElement('tr');
+                        newRow.className = 'no-results';
+                        newRow.innerHTML = `
+                            <td colspan="5" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="bi bi-search fs-2 d-block mb-2"></i>
+                                    No users found matching "${searchTerm}"
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(newRow);
+                    }
+                } else if (noResultsRow) {
+                    noResultsRow.remove();
+                }
+            }
+
+            // Search input event handler
+            searchInput.addEventListener('input', function() {
+                filterTable(this.value.trim());
+            });
+
+            // Clear search button click handler
+            clearSearchBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                filterTable('');
+                this.classList.add('d-none');
+                searchInput.focus();
+            });
+        });
+    </script>
+}

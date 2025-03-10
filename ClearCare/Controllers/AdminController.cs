@@ -18,6 +18,22 @@ namespace ClearCare.Controllers
                _adminAccountManagement = new AdminAccountManagement(userGateway);
           }
 
+          // GET: /Admin/Dashboard
+          [HttpGet]
+          public async Task<IActionResult> Dashboard()
+          {
+               var users = await _adminAccountManagement.RetrieveAllUsers();
+
+               if (users != null)
+               {
+                    var sortedUsers = users.OrderBy(u => u.GetUserID()).ToList();
+                    ViewData["Users"] = sortedUsers;
+               }
+
+               return View("~/Views/Admin/Dashboard.cshtml");
+          }
+
+
           // GET: /Admin/LoadCreateNurseAccount
           [HttpGet]
           public IActionResult LoadCreateNurseAccount()
