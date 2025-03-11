@@ -3,10 +3,11 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using BCrypt.Net;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
-    public class EncryptionManagement
+    public class EncryptionManagement : IEncryption, IPassword
     {
         private readonly byte[] Key;
         private readonly byte[] IV;

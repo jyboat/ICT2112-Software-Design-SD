@@ -11,13 +11,13 @@ namespace ClearCare.Models.Control
     {
         private MedicalRecordGateway MedicalRecordGateway;
         private readonly UserGateway UserGateway;
-        private readonly EncryptionManagement encryptionManagement;
+        private readonly IEncryption encryptionService;
 
-        public ViewMedicalRecord()
+        public ViewMedicalRecord(IEncryption encryptionService)
         {
             MedicalRecordGateway = new MedicalRecordGateway();
             UserGateway = new UserGateway();
-            encryptionManagement = new EncryptionManagement();
+            this.encryptionService = encryptionService;
         }
 
         // Retrieve all medical records and process them for display
@@ -44,7 +44,7 @@ namespace ClearCare.Models.Control
         }
 
         // Retrieve medical record by ID
-        public async Task<dynamic> GetMedicalRecordByID(string recordID)
+        public async Task<dynamic> GetAdjustedRecordByID(string recordID)
         {
             var medicalRecord = await MedicalRecordGateway.RetrieveMedicalRecordById(recordID);
             if (medicalRecord == null)
@@ -57,7 +57,7 @@ namespace ClearCare.Models.Control
             string doctorName = await UserGateway.FindUserNameByID((string)recordDetails["DoctorID"]);
 
             // Decrypt the doctor note before returning it
-            string decryptedDoctorNote = encryptionManagement.DecryptMedicalData((string)recordDetails["DoctorNote"]);
+            string decryptedDoctorNote = encryptionService.DecryptMedicalData((string)recordDetails["DoctorNote"]);
 
             return new
             {
@@ -71,7 +71,7 @@ namespace ClearCare.Models.Control
             };
         }
 
-        public async Task<MedicalRecord> GetMedicalRecordById(string recordID)
+        public async Task<MedicalRecord> GetOriginalRecordByID(string recordID)
         {
             return await MedicalRecordGateway.RetrieveMedicalRecordById(recordID);
         }
@@ -80,7 +80,7 @@ namespace ClearCare.Models.Control
         public async Task<string> ExportMedicalRecord(string recordID)
         {
             // Retrieve the medical record
-            var medicalRecord = await GetMedicalRecordByID(recordID);
+            var medicalRecord = await GetAdjustedRecordByID(recordID);
             if (medicalRecord == null)
             {
                 return "Medical record not found.";

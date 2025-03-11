@@ -6,6 +6,24 @@ document.addEventListener("DOMContentLoaded", function () {
     let rowsPerPage = 10;
     let currentPage = 1;
 
+    // SignalR connection setup
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/medicalRecordHub")  // The URL of the SignalR hub
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    // Start the SignalR connection
+    connection.start().then(() => {
+        console.log("✅ Connected to SignalR hub");
+    }).catch(err => console.error("❌ SignalR Connection Error:", err));
+
+    // Listen for updates from the server
+    connection.on("ReceiveMedicalRecordUpdate", () => {
+        console.log("🔄 New medical record detected! Refreshing table...");
+        location.reload(); 
+    });
+
+    // Function to render the table
     function renderTable() {
         let filteredRows = rows.filter(row => {
             let searchText = searchInput.value.toLowerCase();
@@ -16,12 +34,13 @@ document.addEventListener("DOMContentLoaded", function () {
         let start = (currentPage - 1) * rowsPerPage;
         let end = start + rowsPerPage;
 
-        table.innerHTML = "";
-        filteredRows.slice(start, end).forEach(row => table.appendChild(row));
+        table.innerHTML = ""; // Clear current rows
+        filteredRows.slice(start, end).forEach(row => table.appendChild(row)); // Append filtered rows
 
-        renderPagination(totalPages);
+        renderPagination(totalPages); // Render pagination controls
     }
 
+    // Function to render pagination
     function renderPagination(totalPages) {
         pagination.innerHTML = "";
         for (let i = 1; i <= totalPages; i++) {
@@ -34,17 +53,19 @@ document.addEventListener("DOMContentLoaded", function () {
             a.addEventListener("click", function (e) {
                 e.preventDefault();
                 currentPage = i;
-                renderTable();
+                renderTable(); // Re-render table when page is clicked
             });
             li.appendChild(a);
             pagination.appendChild(li);
         }
     }
 
+    // Search input event listener
     searchInput.addEventListener("input", function () {
-        currentPage = 1;
+        currentPage = 1; // Reset to first page on search
         renderTable();
     });
 
+    // Initial render of the table
     renderTable();
 });

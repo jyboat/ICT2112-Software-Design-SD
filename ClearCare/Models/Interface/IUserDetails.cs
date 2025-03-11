@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ClearCare.Models.Control;
+using ClearCare.Models.Entities;
 
 namespace ClearCare.Models.Interface
 {
-    public interface IMedicalRecord
+    public interface IUserDetails
     {
-        Task<List<dynamic>> GetAllMedicalRecords();
-        Task<dynamic> GetAdjustedRecordByID(string recordID);
+        Task<User> getUserDetails(string userID);
     }
 }
 

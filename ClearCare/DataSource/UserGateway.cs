@@ -108,6 +108,9 @@ namespace ClearCare.DataSource
 
             // Default to generic User if no matching role found
             return new User(userID, emailAddress, password, name, mobileNumber, address, role);
+            // Use the UserFactory to create the appropriate user based on the role
+            return UserFactory.CreateUser(userID, emailAddress, password, name, mobileNumber, address, role, snapshot);
+            
         }
 
         // Function to get all User in a list
@@ -259,6 +262,67 @@ namespace ClearCare.DataSource
             Console.WriteLine($"User inserted successfully with Firestore ID: {nextUserID}");
 
             return nextUserID;
+        }
+
+        public async Task<bool> UpdateUser(string userId, Dictionary<string, object> updatedFields)
+        {
+            try
+            {
+                DocumentReference userDocRef = db.Collection("User").Document(userId);
+                DocumentSnapshot snapshot = await userDocRef.GetSnapshotAsync();
+                
+                if (!snapshot.Exists)
+                    throw new Exception("User not found. userID: " + userId);
+                
+                Dictionary<string, object> updates = new Dictionary<string, object>();
+                
+                // Ensure only selected base user fields are updated
+                if (updatedFields.ContainsKey("Email"))
+                    updates["Email"] = updatedFields["Email"].ToString();
+                if (updatedFields.ContainsKey("Name"))
+                    updates["Name"] = updatedFields["Name"].ToString();
+                if (updatedFields.ContainsKey("MobileNumber"))
+                    updates["MobileNumber"] = Convert.ToInt64(updatedFields["MobileNumber"]);
+                if (updatedFields.ContainsKey("Address"))
+                    updates["Address"] = updatedFields["Address"].ToString();
+                if (updatedFields.ContainsKey("Password"))
+                    updates["Password"] = updatedFields["Password"].ToString();
+                
+                string role = snapshot.GetValue<string>("Role");
+                
+                switch (role)
+                {
+                    case "Nurse":
+                        if (updatedFields.ContainsKey("Department"))
+                            updates["Department"] = updatedFields["Department"].ToString();
+                        break;
+                    
+                    case "Doctor":
+                        if (updatedFields.ContainsKey("Specialization"))
+                            updates["Specialization"] = updatedFields["Specialization"].ToString();
+                        break;
+                    
+                    case "Patient":
+                        if (updatedFields.ContainsKey("DateOfBirth") && updatedFields["DateOfBirth"] is Timestamp dobTimestamp)
+                            {
+                                updates["DateOfBirth"] = dobTimestamp; // Ensure correct type before storing
+                            }
+                        break;
+                    
+                    default:
+                        break;
+                }
+                
+                if (updates.Count > 0)
+                    await userDocRef.UpdateAsync(updates);
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error updating user profile: " + ex.Message);
+                return false;
+            }
         }
     }
 }

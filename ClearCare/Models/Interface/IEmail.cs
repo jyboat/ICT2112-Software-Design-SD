@@ -4,10 +4,9 @@ using ClearCare.Models.Control;
 
 namespace ClearCare.Models.Interface
 {
-    public interface IMedicalRecord
+    public interface IEmail
     {
-        Task<List<dynamic>> GetAllMedicalRecords();
-        Task<dynamic> GetAdjustedRecordByID(string recordID);
+        Task<bool> SendOtpEmail(string toEmail, string otpCode);
     }
 }
 

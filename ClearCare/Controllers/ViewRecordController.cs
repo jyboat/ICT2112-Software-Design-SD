@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models.Entities;
 using ClearCare.Models.Control;
+using ClearCare.Models.Interface;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.SignalR;  // Add this namespace
+using ClearCare.Models.Hubs;
 
 namespace ClearCare.Controllers
 {
@@ -10,10 +13,12 @@ namespace ClearCare.Controllers
     public class ViewRecordController : Controller
     {
         private readonly ViewMedicalRecord viewMedicalRecord;
+        private readonly ErratumManagement erratumManagement;
 
-        public ViewRecordController()
+        public ViewRecordController(IEncryption encryptionService)
         {
-            viewMedicalRecord = new ViewMedicalRecord();
+            viewMedicalRecord = new ViewMedicalRecord(encryptionService);
+            erratumManagement = new ErratumManagement(encryptionService);
         }
 
         // View all medical record on 1 page
@@ -40,17 +45,16 @@ namespace ClearCare.Controllers
         }
 
         // View all medical record individually
-        [Route("{recordID}")]
+        [Route("Details/{recordID}")]
         public async Task<IActionResult> ViewMedicalRecord(string recordID)
         {
-            var recordDetails = await viewMedicalRecord.GetMedicalRecordByID(recordID);
+            var recordDetails = await viewMedicalRecord.GetAdjustedRecordByID(recordID);
             if (recordDetails == null)
             {
                 return NotFound("Medical Record Not Found.");
             }
 
             // Fetch erratums for the specific medical record
-            var erratumManagement = new ErratumManagement();
             var erratums = await erratumManagement.GetAllErratum();
             var filteredErratums = erratums.Where(e => e.MedicalRecordID == recordID).ToList();
 
@@ -63,13 +67,14 @@ namespace ClearCare.Controllers
         [Route("ViewAttachment/{recordID}")]
         public async Task<IActionResult> ViewAttachment(string recordID)
         {
-            var medicalRecord = await viewMedicalRecord.GetMedicalRecordById(recordID);
+            var medicalRecord = await viewMedicalRecord.GetOriginalRecordByID(recordID);
             if (medicalRecord == null || !medicalRecord.HasAttachment())
             {
                 return NotFound("File not found.");
             }
 
             var (fileBytes, fileName) = medicalRecord.RetrieveAttachment();
+
             return File(fileBytes, "application/octet-stream", fileName);
         }
 

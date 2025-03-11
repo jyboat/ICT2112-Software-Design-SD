@@ -4,10 +4,10 @@ using ClearCare.Models.Control;
 
 namespace ClearCare.Models.Interface
 {
-    public interface IMedicalRecord
+    public interface IEncryption
     {
-        Task<List<dynamic>> GetAllMedicalRecords();
-        Task<dynamic> GetAdjustedRecordByID(string recordID);
+        string EncryptMedicalData(string plainText);
+        string DecryptMedicalData(string encryptedText);
     }
 }
 
