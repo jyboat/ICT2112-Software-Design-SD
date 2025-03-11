@@ -10,19 +10,19 @@ namespace ClearCare.Controllers
 {
      public class AdminController : Controller
      {
-          private readonly AdminAccountManagement _adminAccountManagement;
+          private readonly AdminManagement _adminManagement;
 
           public AdminController()
           {
                var userGateway = new UserGateway();
-               _adminAccountManagement = new AdminAccountManagement(userGateway);
+               _adminManagement = new AdminManagement(userGateway);
           }
 
           // GET: /Admin/Dashboard
           [HttpGet]
           public async Task<IActionResult> Dashboard()
           {
-               var users = await _adminAccountManagement.RetrieveAllUsers();
+               var users = await _adminManagement.RetrieveAllUsers();
 
                if (users != null)
                {
@@ -86,7 +86,7 @@ namespace ClearCare.Controllers
                     newUser = new Doctor("", email, password, name, (long)mobileNumber, address, role, specialization);
                }
 
-               string result = await _adminAccountManagement.CreateStaffAccount(newUser, password);
+               string result = await _adminManagement.CreateStaffAccount(newUser, password);
 
                if (result == "Account created successfully.")
                {

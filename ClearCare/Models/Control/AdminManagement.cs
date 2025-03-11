@@ -6,12 +6,12 @@ using Newtonsoft.Json;
 
 namespace ClearCare.Models.Control
 {
-     public class AdminAccountManagement
+     public class AdminManagement
      {
           private readonly UserGateway _userGateway;
 
           // Constructor with dependency injection
-          public AdminAccountManagement(UserGateway userGateway)
+          public AdminManagement(UserGateway userGateway)
           {
                _userGateway = userGateway ?? throw new ArgumentNullException(nameof(userGateway));
           }
