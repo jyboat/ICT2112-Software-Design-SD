@@ -3,17 +3,83 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using ClearCare.DataSource;
 using ClearCare.Models.Entities;
+using ClearCare.Models.Interfaces;
 
 
 namespace ClearCare.Models.Controls
 {
-    public class DischargeSummaryManager
+    public class DischargeSummaryManager : ISummaryReceive
     {
-        private readonly SummaryGateway _gateway;
+        private readonly ISummarySend _gateway;
 
-        public DischargeSummaryManager()
+        public DischargeSummaryManager(ISummarySend gateway)
         {
-            _gateway = new SummaryGateway();
+            _gateway = gateway;
+        }
+
+        public Task receiveSummaries(List<DischargeSummary> summaries)
+        {
+            if (summaries.Count > 0)
+            {
+                Console.WriteLine($"Received {summaries.Count} summaries");
+            }
+            else
+            {
+                Console.WriteLine("No summaries received");
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task receiveSummary(DischargeSummary summary)
+        {
+            if (summary != null)
+            {
+                Console.WriteLine($"Received summary");
+            }
+            else
+            {
+                Console.WriteLine("No summary received)");
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task receiveAddStatus(bool success)
+        {
+            if (success)
+            {
+                Console.WriteLine("Inserted summary successfully");
+            }
+            else
+            {
+                Console.WriteLine("Failed to insert summary");
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task receiveUpdateStatus(bool success)
+        {
+            if (success)
+            {
+                Console.WriteLine("Updated summary successfully");
+            }
+            else
+            {
+                Console.WriteLine("Failed to update summary");
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task receiveDeleteStatus(bool success)
+        {
+            if (success)
+            {
+                Console.WriteLine("Deleted summary successfully");
+            }
+            else
+            {
+                Console.WriteLine("Failed to delete summary");
+            }
+            return Task.CompletedTask;
         }
 
         public async Task<bool> updateSummary(string id, string details, string instructions, string createdAt, string patientId)

@@ -4,17 +4,25 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using ClearCare.Models.Entities;
+using ClearCare.Models.Interfaces;
 
 namespace ClearCare.DataSource
 {
-    public class SummaryGateway
+    public class SummaryGateway : ISummarySend
     {
         private readonly FirestoreDb _db;
+        private ISummaryReceive _receiver;
 
         public SummaryGateway()
         {
             // Initialize Firebase
             _db = FirebaseService.Initialize();
+        }
+
+        public ISummaryReceive receiver
+        {
+            get { return _receiver; }
+            set { _receiver = value; }
         }
 
         public async Task<string> insertSummary(string details, string instructions, string createdAt, string patientId)
@@ -30,6 +38,7 @@ namespace ClearCare.DataSource
             };
 
             await docRef.SetAsync(summary);
+            await _receiver.receiveAddStatus(true);
 
             return docRef.Id;
         }
@@ -55,6 +64,8 @@ namespace ClearCare.DataSource
             }
 
             await docRef.UpdateAsync(updatedData);
+            await _receiver.receiveUpdateStatus(true);
+
             return true;
         }
 
@@ -86,6 +97,8 @@ namespace ClearCare.DataSource
                 }
             }
 
+            await _receiver.receiveSummaries(summaries);
+
             return summaries;
         }
 
@@ -106,6 +119,8 @@ namespace ClearCare.DataSource
             string patientId = snapshot.GetValue<string>("PatientId");
 
             DischargeSummary summary = new DischargeSummary(id, details, instructions, createdAt, patientId);
+            await _receiver.receiveSummary(summary);
+
             return summary;
         }
 
@@ -121,6 +136,8 @@ namespace ClearCare.DataSource
             }
 
             await docRef.DeleteAsync();
+            await _receiver.receiveDeleteStatus(true);
+
             return true;
         }
     }

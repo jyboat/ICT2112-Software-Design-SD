@@ -14,7 +14,9 @@ public class SummaryController : Controller
 
     public SummaryController()
     {
-        _manager = new DischargeSummaryManager();
+        var gateway = new SummaryGateway();
+        _manager = new DischargeSummaryManager(gateway);
+        gateway.receiver = _manager;
     }
 
     [Route("")]
