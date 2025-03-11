@@ -46,7 +46,7 @@
     <input type="number" id="slot" name="Slot" required><br><br>
 
     <label for="location">Location:</label>
-    <select id="location" name="Location" required>
+    <select id="location" name="Location" class="form-control" required>
         <option value="">Select Location Type</option>
         <option value="PHYSICAL">Physical</option>
         <option value="VIRTUAL">Virtual</option>
@@ -57,19 +57,13 @@
 
 <script>
     $(document).ready(function() {
-        // Initialize Select2 on selects
-        $('#location').select2({
-            placeholder: "Select a location",
-            allowClear: true
-        });
-        
-        // Initialize Select2
+        // If you still want Select2 for the other dropdowns, keep this
         $('.select2').select2({
             placeholder: 'Search...',
             allowClear: true
         });
     });
-
+    
     document.getElementById("appointmentForm").addEventListener("submit", function(event) {
         event.preventDefault(); // Prevent form from redirecting
         console.log("walao")
@@ -106,4 +100,5 @@
         })
         .catch(error => console.error("Error:", error));
     });
+
 </script>

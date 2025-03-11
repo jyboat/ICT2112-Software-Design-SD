@@ -44,7 +44,8 @@ public class ServiceAppointmentsController : Controller
 
     [HttpGet]
     [Route("GetAppointmentsForCalendar")]
-    public async Task<JsonResult> GetAppointmentsForCalendar([FromQuery] string? doctorId, [FromQuery] string? patientId, [FromQuery] string? nurseId)
+    public async Task<JsonResult> GetAppointmentsForCalendar([FromQuery] string? doctorId,
+        [FromQuery] string? patientId, [FromQuery] string? nurseId)
     {
         return await _calendarManagement.GetAppointmentsForCalendar(doctorId, patientId, nurseId);
     }
@@ -141,7 +142,7 @@ public class ServiceAppointmentsController : Controller
     //     string appointmentId = await _gateway.CreateAppointmentAsync(appointment);
     //     return Ok(new { Message = "Appointment created successfully"});
     // }
-    
+
     // update appointment
     [HttpPut]
     [Route("Update")]
@@ -159,7 +160,7 @@ public class ServiceAppointmentsController : Controller
                 requestData["DateTime"].GetDateTime(),
                 requestData["Slot"].GetInt32(),
                 requestData["Location"].GetString() ?? "");
-            
+
             // TODO - Should we strictly return a view or can we return a JSON response? - dinie
             if (result)
             {
@@ -168,6 +169,31 @@ public class ServiceAppointmentsController : Controller
             else
             {
                 return BadRequest(new { Success = false, Message = "Failed to update appointment" });
+            }
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { Success = false, Message = "An error occurred", Error = ex.Message });
+        }
+    }
+
+    // delete appointment
+    [HttpDelete]
+    [Route("Delete/{appointmentId}")]
+    public async Task<IActionResult> DeleteAppointment(string appointmentId)
+    {
+        try
+        {
+            var result = await ServiceAppointmentManagement.DeleteAppt(appointmentId);
+
+            // TODO - Should we strictly return a view or can we return a JSON response? - dinie
+            if (result)
+            {
+                return Ok(new { Success = true, Message = "Appointment deleted successfully" });
+            }
+            else
+            {
+                return BadRequest(new { Success = false, Message = "Failed to delete appointment" });
             }
         }
         catch (Exception ex)

@@ -161,5 +161,19 @@ namespace ClearCare.Models.Control
                 return false;
             }
         }
+        
+        // delete appointment
+        public async Task<bool> DeleteAppt(string appointmentId)
+        {
+            try
+            {
+                return await _serviceAppointmentGateway.DeleteAppointmentAsync(appointmentId);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"error deleting appointment: {e.Message}");
+                return false;
+            }
+        }
     }
 }

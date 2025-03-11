@@ -98,5 +98,31 @@ namespace ClearCare.DataSource
                 return false;
             }
         }
+        
+        // delete an existing appointment
+        public async Task<bool> DeleteAppointmentAsync(string appointmentId)
+        {
+            try
+            {
+                DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointmentId);
+                
+                // check if document exists
+                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+                if (!snapshot.Exists)
+                {
+                    return false;
+                }
+                
+                // delete doc
+                await docRef.DeleteAsync();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"error deleting appointment in firestore: {e.Message}");
+                throw;
+            }
+        }
     }
 }

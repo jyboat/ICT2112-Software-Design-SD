@@ -193,6 +193,29 @@
                     alert("An error occurred while updating the appointment.");
                 });
         }
+        
+        function deleteAppointment() {
+            const appointmentId = document.getElementById('appointmentId').value;
+
+            // send DELETE request to delete appt
+            fetch(`/api/ServiceAppointments/Delete/${appointmentId}`, {
+                method: "DELETE"
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+                        alert(data.message);
+                        window.location.href = "/api/ServiceAppointments";
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while deleting the appointment.");
+                });
+        }
     </script>
 </div>
 </body>
