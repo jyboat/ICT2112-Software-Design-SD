@@ -23,14 +23,14 @@
                 <span class="input-group-text bg-light border-end-0">
                     <i class="bi bi-search text-muted"></i>
                 </span>
-                <input type="text" id="searchInput" class="form-control border-start-0 ps-0" 
-                       placeholder="Search by name, role, or ID..." aria-label="Search users">
+                <input type="text" id="searchInput" class="form-control border-start-0 ps-0"
+                    placeholder="Search by name, role, or ID..." aria-label="Search users">
             </div>
             <button type="button" class="btn btn-outline-secondary d-none" id="clearSearch">
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>
-        <a class="btn btn-success" asp-controller="ManageUsers" asp-action="DisplayCreateUser">
+        <a class="btn btn-success" asp-controller="Admin" asp-action="LoadCreateNurseAccount">
             <i class="bi bi-plus-circle me-1"></i> Create New User
         </a>
     </div>
@@ -52,18 +52,20 @@
                     @foreach (var user in userList)
                     {
                         <tr>
-                            <td class="text-nowrap">@(user?.GetUserID() ?? "N/A")</td>
-                            <td>@(user?.GetName() ?? "N/A")</td>
-                            <td class="text-nowrap"><span class="badge bg-secondary">@(user?.GetRole() ?? "N/A")</span></td>
+                            <td class="text-nowrap">@(user?.GetProfileData()["UserID"] ?? "N/A")</td>
+                            <td>@(user?.GetProfileData()["Name"] ?? "N/A")</td>
+                            <td class="text-nowrap"><span class="badge bg-secondary">@(user?.GetProfileData()["Role"] ?? "N/A")</span></td>
                             <td>System</td>
                             <td class="text-center">
                                 <div class="btn-group">
-                                    @if (!string.IsNullOrEmpty(user?.GetUserID()))
+                                    @if (!string.IsNullOrEmpty(user?.GetProfileData()["UserID"] as String))
                                     {
-                                        <a href="/ViewUser/@user.GetUserID()" class="btn btn-sm btn-outline-info" title="View Details">
+                                        <a href="/ViewUser/@user?.GetProfileData()["UserID"]" class="btn btn-sm btn-outline-info"
+                                            title="View Details">
                                             <i class="bi bi-eye"></i><span class="d-none d-md-inline"> View</span>
                                         </a>
-                                        <a href="/ManageUsers/@user.GetUserID()" class="btn btn-sm btn-outline-warning" title="Update Account">
+                                        <a href="/ManageUsers/@user?.GetProfileData()["UserID"]" class="btn btn-sm btn-outline-warning"
+                                            title="Update Account">
                                             <i class="bi bi-pencil-square"></i><span class="d-none d-md-inline"> Edit</span>
                                         </a>
                                     }
@@ -139,13 +141,13 @@
                         const newRow = document.createElement('tr');
                         newRow.className = 'no-results';
                         newRow.innerHTML = `
-                            <td colspan="5" class="text-center py-4">
-                                <div class="text-muted">
-                                    <i class="bi bi-search fs-2 d-block mb-2"></i>
-                                    No users found matching "${searchTerm}"
-                                </div>
-                            </td>
-                        `;
+                                        <td colspan="5" class="text-center py-4">
+                                            <div class="text-muted">
+                                                <i class="bi bi-search fs-2 d-block mb-2"></i>
+                                                No users found matching "${searchTerm}"
+                                            </div>
+                                        </td>
+                                    `;
                         tbody.appendChild(newRow);
                     }
                 } else if (noResultsRow) {
@@ -154,12 +156,12 @@
             }
 
             // Search input event handler
-            searchInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function () {
                 filterTable(this.value.trim());
             });
 
             // Clear search button click handler
-            clearSearchBtn.addEventListener('click', function() {
+            clearSearchBtn.addEventListener('click', function () {
                 searchInput.value = '';
                 filterTable('');
                 this.classList.add('d-none');
