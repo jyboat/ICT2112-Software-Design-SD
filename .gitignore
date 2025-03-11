@@ -432,3 +432,6 @@ FodyWeavers.xsd
 # Firebase Secrets
 ClearCare/Firebase/*.json
 ClearCare/Firebase/*.cs
+.idea/.idea.Project/.idea/indexLayout.xml
+.idea/.idea.Project/.idea/projectSettingsUpdater.xml
+.idea/.idea.Project/.idea/workspace.xml
