@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using ClearCare.Interfaces;
 
 // Request Handling
 [Route("api/[controller]")]
@@ -16,12 +17,15 @@ public class ServiceAppointmentsController : Controller
     private readonly AutomaticAppointmentScheduler AutomaticAppointmentScheduler;
     private readonly CalendarManagement _calendarManagement;
     private readonly NurseAvailabilityManagement _nurseAvailabilityManagement;
+    private readonly ManualAppointmentScheduler _manualAppointmentScheduler;
 
     public ServiceAppointmentsController()
     {
         ServiceAppointmentManagement = new ServiceAppointmentManagement();
         _calendarManagement = new CalendarManagement(ServiceAppointmentManagement, _nurseAvailabilityManagement);
         AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler();
+        _manualAppointmentScheduler = new ManualAppointmentScheduler((ICreateAppointment)ServiceAppointmentManagement, _nurseAvailabilityManagement);
+
     }
 
     // GET All appointment
@@ -200,5 +204,23 @@ public class ServiceAppointmentsController : Controller
         {
             return StatusCode(500, new { Success = false, Message = "An error occurred", Error = ex.Message });
         }
+
+
     }
+
+     [HttpGet]
+        [Route("TestManualAppointment")]
+        public async Task<IActionResult> TestManualAppointment()
+        {
+            await _manualAppointmentScheduler.TestInterface();
+            return View("TestManualAppointment"); // Render the View
+        }
+
+        [HttpPost]
+        [Route("TestManualAppointment")]
+        public async Task<IActionResult> RunTestManualAppointment()
+        {
+            await _manualAppointmentScheduler.TestInterface();
+            return RedirectToAction("TestManualAppointment");
+        }
 }
