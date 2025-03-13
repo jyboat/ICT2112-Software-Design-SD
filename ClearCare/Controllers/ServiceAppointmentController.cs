@@ -27,10 +27,13 @@ public class ServiceAppointmentsController : Controller
         _nurseAvailabilityManagement = new NurseAvailabilityManagement(nurse_availability_gateway);
         // Set the gateway's receiver to the manager (which implements IAvailabilityDB_Receive)
         nurse_availability_gateway.Receiver = _nurseAvailabilityManagement;
-        
+
+
         ServiceAppointmentManagement = new ServiceAppointmentManagement();
+
         _calendarManagement = new CalendarManagement(ServiceAppointmentManagement, _nurseAvailabilityManagement);
-        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler();
+
+        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler((ICreateAppointment) ServiceAppointmentManagement, (INurseAvailability) _nurseAvailabilityManagement);
         _manualAppointmentScheduler = new ManualAppointmentScheduler((ICreateAppointment) ServiceAppointmentManagement, (INurseAvailability) _nurseAvailabilityManagement);
 
     }
@@ -215,6 +218,8 @@ public class ServiceAppointmentsController : Controller
 
     }
 
+    // Test Manual's Interface
+
      [HttpGet]
         [Route("TestManualAppointment")]
         public async Task<IActionResult> TestManualAppointment()
@@ -230,4 +235,14 @@ public class ServiceAppointmentsController : Controller
             await _manualAppointmentScheduler.TestInterface();
             return RedirectToAction("TestManualAppointment");
         }
+
+    // Test Auto Interface
+    [HttpGet]
+        [Route("TestAutoAppointment")]
+        public async Task<IActionResult> TestAutoAppointment()
+        {
+            await AutomaticAppointmentScheduler.TestInterface();
+            return View("Index"); // Render the View
+        }
+
 }
