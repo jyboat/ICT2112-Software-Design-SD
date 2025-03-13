@@ -20,7 +20,8 @@ namespace ClearCare.Models.Control
 
         public async Task TestInterface()
         {
-            await _iCreateAppointment.CreateAppointment();
+           //  await _iCreateAppointment.CreateAppointment();
+            var staffAvailability = await _iNurseAvailability.getAllStaffAvailability();
         }   
 
 
