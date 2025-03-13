@@ -4,18 +4,27 @@ using ClearCare.Models;
 using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 using Google.Protobuf.WellKnownTypes;
+using ClearCare.Interfaces;
 
 namespace ClearCare.Models.Control
 {
     public class AutomaticAppointmentScheduler
     {
-        // Declare the field at the class level
-        private readonly ServiceAppointmentGateway _serviceAppointmentGateway;
+        // Interfaces Automatic Requires
+        private readonly ICreateAppointment _iCreateAppointment;
+        private readonly INurseAvailability _iNurseAvailability;
+
+        // // Declare the field at the class level
+        // private readonly ServiceAppointmentGateway _serviceAppointmentGateway;
 
         // Constructor initializes the field
-        public AutomaticAppointmentScheduler()
+        public AutomaticAppointmentScheduler(ICreateAppointment ICreateAppointment, INurseAvailability INurseAvailability)
         {
-            _serviceAppointmentGateway = new ServiceAppointmentGateway();
+            _iCreateAppointment = ICreateAppointment;
+            _iNurseAvailability = INurseAvailability;
+
+            // _serviceAppointmentGateway = new ServiceAppointmentGateway();
+
         }
 
         // Dummy model for testing
@@ -150,7 +159,11 @@ namespace ClearCare.Models.Control
             AssignNursesAndSlots(nurses, appointments);
         }
 
-
+        public async Task TestInterface()
+        {
+           //  await _iCreateAppointment.CreateAppointment();
+            var staffAvailability = await _iNurseAvailability.getAllStaffAvailability();
+        }   
 
     }
 }
