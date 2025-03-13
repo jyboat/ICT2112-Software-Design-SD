@@ -7,7 +7,7 @@ namespace ClearCare.Models.Entities
     {
         // Class properties
         // UserID is assigned from Firestore document ID
-        protected string UserID { get; set; } 
+        protected string UserID { get; set; }
         [FirestoreProperty]
         protected string Email { get; set; }
         [FirestoreProperty]
@@ -38,7 +38,7 @@ namespace ClearCare.Models.Entities
         protected void setAddress(string address) => Address = address;
         protected void setRole(string role) => Role = role;
 
-        public User() {}
+        public User() { }
 
         // Constructor for creating new user records
         public User(string userID, string email, string password, string name, long mobileNumber, string address, string role)
@@ -55,14 +55,14 @@ namespace ClearCare.Models.Entities
         // Returns hashed password to compare when User logs in
         public string getHashedPassword()
         {
-            return getPassword(); 
+            return getPassword();
         }
 
 
         // Returns userID and Role to store in Session upon User login
         public (string userID, string role) getSessionData()
         {
-            return (getUserID(), getRole()); 
+            return (getUserID(), getRole());
         }
 
         // Returns all user data to be used in Profile
@@ -88,13 +88,13 @@ namespace ClearCare.Models.Entities
             }
 
             // Use null-conditional and null-coalescing operators to handle potential null values
-            if (profileData.ContainsKey("UserID")) SetUserID(profileData["UserID"]?.ToString() ?? string.Empty);
-            if (profileData.ContainsKey("Email")) SetEmail(profileData["Email"]?.ToString() ?? string.Empty);
-            if (profileData.ContainsKey("Password")) SetPassword(profileData["Password"]?.ToString() ?? string.Empty);
-            if (profileData.ContainsKey("Name")) SetName(profileData["Name"]?.ToString() ?? string.Empty);
-            if (profileData.ContainsKey("MobileNumber")) SetMobileNumber(profileData["MobileNumber"] as long? ?? 0);
-            if (profileData.ContainsKey("Address")) SetAddress(profileData["Address"]?.ToString() ?? string.Empty);
-            if (profileData.ContainsKey("Role")) SetRole(profileData["Role"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("UserID")) setUserID(profileData["UserID"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("Email")) setEmail(profileData["Email"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("Password")) setPassword(profileData["Password"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("Name")) setName(profileData["Name"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("MobileNumber")) setMobileNumber(profileData["MobileNumber"] as long? ?? 0);
+            if (profileData.ContainsKey("Address")) setAddress(profileData["Address"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("Role")) setRole(profileData["Role"]?.ToString() ?? string.Empty);
         }
     }
 }

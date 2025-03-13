@@ -16,7 +16,7 @@ namespace ClearCare.Models.Control
                _userGateway = userGateway ?? throw new ArgumentNullException(nameof(userGateway));
           }
 
-          public async Task<List<User>> RetrieveAllUsers() => await _userGateway.GetAllUsers();
+          public async Task<List<User>> RetrieveAllUsers() => await _userGateway.getAllUsers();
 
           // Method to create a new account
           public async Task<string> CreateStaffAccount(User newUser, String password)

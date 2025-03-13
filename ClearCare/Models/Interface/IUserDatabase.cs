@@ -7,10 +7,10 @@ namespace ClearCare.Models.Interface
 {
     public interface IAdminDatabase
     {
-        Task<User> FindUserByID(string userID);
-        Task<User> FindUserByEmail(string email);
-        Task<string> FindUserNameByID(string userID);
-        Task<List<User>> GetAllUsers();
+        Task<User> findUserByID(string userID);
+        Task<User> findUserByEmail(string email);
+        Task<string> findUserNameByID(string userID);
+        Task<List<User>> getAllUsers();
     }
 }
 

@@ -107,7 +107,7 @@ namespace ClearCare.DataSource
             }
 
             // Default to generic User if no matching role found
-            return new User(userID, emailAddress, password, name, mobileNumber, address, role);
+            // return new User(userID, emailAddress, password, name, mobileNumber, address, role);
             // Use the UserFactory to create the appropriate user based on the role
             return UserFactory.createUser(userID, emailAddress, password, name, mobileNumber, address, role, snapshot);
             
@@ -213,7 +213,7 @@ namespace ClearCare.DataSource
             var userData = new Dictionary<string, object>
             {
                 { "Email", email },
-                { "Password", encryptionManagement.HashPassword(password) },
+                { "Password", encryptionManagement.hashPassword(password) },
                 { "Name", name },
                 { "MobileNumber", mobileNumber },
                 { "Address", address },
@@ -251,9 +251,9 @@ namespace ClearCare.DataSource
             string nextUserID = $"USR{highestID + 1}";
 
             // Prepare user data for insertion
-            var userData = newUser.GetProfileData();
+            var userData = newUser.getProfileData();
             userData.Remove("UserID");
-            userData.Add("Password", encryptionManagement.HashPassword(password));
+            userData.Add("Password", encryptionManagement.hashPassword(password));
 
             // Explicitly use the new User ID as the document ID
             DocumentReference newUserRef = usersRef.Document(nextUserID);

@@ -19,7 +19,7 @@ namespace ClearCare.Models.Control
         public async Task<string> CreateAccount(string email, string password, string name, long mobileNumber, string address, string role)
         {
             // First, check if an account with the same email already exists
-            var existingUser = await _userGateway.FindUserByEmail(email);
+            var existingUser = await _userGateway.findUserByEmail(email);
             if (existingUser != null)
             {
                 return "Account already exists.";
@@ -35,7 +35,7 @@ namespace ClearCare.Models.Control
         public async Task<string> CheckExistingAccount(string email)
         {
             // Check the database for an existing user with the same email
-            var user = await _userGateway.FindUserByEmail(email);
+            var user = await _userGateway.findUserByEmail(email);
             return user != null ? "Account exists." : "Account does not exist.";
         }
     }

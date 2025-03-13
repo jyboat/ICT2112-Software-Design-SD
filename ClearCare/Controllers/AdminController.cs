@@ -26,7 +26,7 @@ namespace ClearCare.Controllers
 
                if (users != null)
                {
-                    var sortedUsers = users.OrderBy(u => u.GetProfileData()["UserID"]).ToList();
+                    var sortedUsers = users.OrderBy(u => u.getProfileData()["UserID"]).ToList();
                     ViewData["Users"] = sortedUsers;
                }
 

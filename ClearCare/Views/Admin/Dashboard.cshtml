@@ -52,19 +52,19 @@
                     @foreach (var user in userList)
                     {
                         <tr>
-                            <td class="text-nowrap">@(user?.GetProfileData()["UserID"] ?? "N/A")</td>
-                            <td>@(user?.GetProfileData()["Name"] ?? "N/A")</td>
-                            <td class="text-nowrap"><span class="badge bg-secondary">@(user?.GetProfileData()["Role"] ?? "N/A")</span></td>
+                            <td class="text-nowrap">@(user?.getProfileData()["UserID"] ?? "N/A")</td>
+                            <td>@(user?.getProfileData()["Name"] ?? "N/A")</td>
+                            <td class="text-nowrap"><span class="badge bg-secondary">@(user?.getProfileData()["Role"] ?? "N/A")</span></td>
                             <td>System</td>
                             <td class="text-center">
                                 <div class="btn-group">
-                                    @if (!string.IsNullOrEmpty(user?.GetProfileData()["UserID"] as String))
+                                    @if (!string.IsNullOrEmpty(user?.getProfileData()["UserID"] as String))
                                     {
-                                        <a href="/ViewUser/@user?.GetProfileData()["UserID"]" class="btn btn-sm btn-outline-info"
+                                        <a href="/ViewUser/@user?.getProfileData()["UserID"]" class="btn btn-sm btn-outline-info"
                                             title="View Details">
                                             <i class="bi bi-eye"></i><span class="d-none d-md-inline"> View</span>
                                         </a>
-                                        <a href="/ManageUsers/@user?.GetProfileData()["UserID"]" class="btn btn-sm btn-outline-warning"
+                                        <a href="/ManageUsers/@user?.getProfileData()["UserID"]" class="btn btn-sm btn-outline-warning"
                                             title="Update Account">
                                             <i class="bi bi-pencil-square"></i><span class="d-none d-md-inline"> Edit</span>
                                         </a>
