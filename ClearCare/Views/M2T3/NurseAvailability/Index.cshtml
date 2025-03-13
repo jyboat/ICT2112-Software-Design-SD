@@ -28,10 +28,10 @@
                         var events = data.map(function (availability) {
                             return {
                                 id: availability.id,
-                                title: "Unavailable: " + availability.id,
+                                title: "Unavailable: " + availability.extendedProps.nurseId,
                                 start: availability.start,
                                 extendedProps: {
-                                    nurseId: availability.extendedProps.nurseID,
+                                    nurseId: availability.extendedProps.nurseId,
                                     startTime: availability.extendedProps.startTime,
                                     endTime: availability.extendedProps.endTime
                                 }

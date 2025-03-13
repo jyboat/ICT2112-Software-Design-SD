@@ -58,6 +58,7 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> AddAvailability([FromForm] string date)
         {
             await _manager.addAvailability("USR003", date);
+            return Ok(new { message = "Availability added successfully!" });
             return RedirectToAction("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
 
@@ -67,6 +68,7 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> UpdateAvailability([FromForm] int availabilityId, [FromForm] string date)
         {
             await _manager.updateAvailability(availabilityId, "USR003", date);
+            return Ok(new { message = "Availability updated successfully!" });
             return RedirectToAction("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
 
@@ -77,6 +79,7 @@ namespace ClearCare.Controllers
         {
             // Console.WriteLine($"Attempting to delete availability with ID: {availabilityId}");
             await _manager.deleteAvailability(availabilityId);
+            return Ok(new { message = "Availability deleted successfully!" });
             return RedirectToAction("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
 
