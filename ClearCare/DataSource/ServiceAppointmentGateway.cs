@@ -71,5 +71,58 @@ namespace ClearCare.DataSource
             var data = snapshot.ToDictionary();
             return ServiceAppointment.FromFirestoreData(appointmentId, data);
         }
+        
+        // update an existing appointment
+        public async Task<bool> UpdateAppointmentAsync(ServiceAppointment appointment)
+        {
+            try
+            {
+                DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointment.GetAttribute("AppointmentId"));
+        
+                // check if document exists
+                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+                if (!snapshot.Exists)
+                {
+                    return false;
+                }
+        
+                // update with the new data
+                Dictionary<string, object> appointmentData = appointment.ToFirestoreDictionary();
+                await docRef.SetAsync(appointmentData);
+        
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"error updating appointment in firestore: {ex.Message}");
+                return false;
+            }
+        }
+        
+        // delete an existing appointment
+        public async Task<bool> DeleteAppointmentAsync(string appointmentId)
+        {
+            try
+            {
+                DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointmentId);
+                
+                // check if document exists
+                DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+                if (!snapshot.Exists)
+                {
+                    return false;
+                }
+                
+                // delete doc
+                await docRef.DeleteAsync();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"error deleting appointment in firestore: {e.Message}");
+                throw;
+            }
+        }
     }
 }

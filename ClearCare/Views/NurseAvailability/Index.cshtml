@@ -1,13 +1,14 @@
 @model List<ClearCare.Models.Entities.NurseAvailability>
 
 @{
-    ViewData["Title"] = "Nurse Availability Calendar";
+    ViewData["Title"] = "My Calendar";
 }
 
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Nurse Availability Calendar</title>
+    <title>My Calendar</title>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
@@ -22,34 +23,35 @@
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 selectable: true, // Allows clicking empty dates
+                events: function (fetchInfo, successCallback, failureCallback) {
+                    $.getJSON('/NurseAvailability/GetAvailabilityByNurseIdForCalendar', function (data) {
+                        var events = data.map(function (availability) {
+                            return {
+                                id: availability.id,
+                                title: "Unavailable: " + availability.id,
+                                start: availability.start,
+                                extendedProps: {
+                                    nurseId: availability.extendedProps.nurseID,
+                                    startTime: availability.extendedProps.startTime,
+                                    endTime: availability.extendedProps.endTime
+                                }
+                            };
+                        });
+                        successCallback(events);
+                    }).fail(function () {
+                        failureCallback();
+                    });
+                },
 
-                events: [
-                    @foreach (var availability in Model)
-                    {
-                        var details = availability.GetAvailabilityDetails();
-                        <text>
-                        {
-                            id: "@Html.Raw(details["availabilityId"])",
-                            title: "Available: @Html.Raw(details["nurseID"])",
-                            start: "@Html.Raw(details["date"])",
-                            extendedProps: {
-                                nurseId: "@Html.Raw(details["nurseID"])",
-                                startTime: "@Html.Raw(details["startTime"])",
-                                endTime: "@Html.Raw(details["endTime"])"
-                            }
-                        },
-                        </text>
-                    }
-                ],
-
-                eventClick: function(info) {
+                eventClick: function (info) {
                     openEditModal(info.event.id, info.event.extendedProps.nurseId, info.event.startStr);
                 },
 
-                dateClick: function(info) {
+                dateClick: function (info) {
                     openAddModal(info.dateStr);
                 }
             });
+
             calendar.render();
         });
 
@@ -79,7 +81,7 @@
             fetch("/NurseAvailability/Update", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams({ 
+                body: new URLSearchParams({
                     availabilityId: id, nurseID: nurseID, date: date, startTime: startTime, endTime: endTime
                 })
             }).then(response => {
@@ -117,7 +119,7 @@
             fetch("/NurseAvailability/AddAvailability", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams({ 
+                body: new URLSearchParams({
                     nurseID: nurseID, date: date, startTime: startTime, endTime: endTime
                 })
             }).then(response => {
@@ -131,9 +133,11 @@
             }).catch(error => console.error("Error:", error));
         }
     </script>
+
 </head>
+
 <body>
-    <h2 style="text-align: center;">Nurse Availability Calendar</h2>
+    <h2 style="text-align: center;">My Calendar</h2>
 
     <div id="calendar"></div>
 
@@ -162,8 +166,10 @@
                             <input type="date" class="form-control" id="editDate">
                         </div>
 
-                        <button type="button" class="btn btn-primary" onclick="updateAvailability()">Save Changes</button>
-                        <button type="button" class="btn btn-danger" onclick="deleteAvailability(document.getElementById('editAvailabilityId').value)">Delete</button>
+                        <button type="button" class="btn btn-primary" onclick="updateAvailability()">Save
+                            Changes</button>
+                        <button type="button" class="btn btn-danger"
+                            onclick="deleteAvailability(document.getElementById('editAvailabilityId').value)">Delete</button>
                     </form>
                 </div>
             </div>
@@ -194,7 +200,8 @@
                             <input type="date" class="form-control" id="addDate">
                         </div>
 
-                        <button type="button" class="btn btn-primary" onclick="addAvailability()">Add Availability</button>
+                        <button type="button" class="btn btn-primary" onclick="addAvailability()">Add
+                            Availability</button>
                         <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                     </form>
                 </div>
@@ -202,4 +209,5 @@
         </div>
     </div>
 </body>
+
 </html>

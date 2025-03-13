@@ -5,6 +5,7 @@
 
 # Firebase Hosting
 /firebase.json
+/FirebaseService.cs
 *.cache
 hosting/.cache
 
@@ -428,6 +429,9 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-# Ignore Firebase Credentials
-firebase-adminsdk.json
-ClearCare/Firebase/firebase-adminsdk.json
+# Firebase Secrets
+ClearCare/Firebase/*.json
+ClearCare/Firebase/*.cs
+.idea/.idea.Project/.idea/indexLayout.xml
+.idea/.idea.Project/.idea/projectSettingsUpdater.xml
+.idea/.idea.Project/.idea/workspace.xml

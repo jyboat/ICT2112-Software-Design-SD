@@ -64,6 +64,35 @@ namespace ClearCare.Models.Entities
             SetAppointmentID(appointmentId);
         }
         
+        public void appointNurseToPatient(string nurseId, int slot){
+            SetNurseID(nurseId);
+            SetSlot(slot);
+        }
+
+        public string GetAttribute(string attributeName)
+        {
+            return attributeName switch
+            {
+                "AppointmentId" => GetAppointmentID(),
+                "PatientId" => GetPatientID(),
+                "NurseId" => GetNurseID(),
+                "DoctorId" => GetDoctorID(),
+                "ServiceTypeId" => GetServiceType(),
+                "Status" => GetStatus(),
+                "Location" => GetLocation(),
+                _ => throw new ArgumentException("Invalid attribute name")
+            };
+        }
+
+        public int GetIntAttribute(string attributeName)
+        {
+            return attributeName switch
+            {
+                "Slot" => GetSlot(),
+                _ => throw new ArgumentException("Invalid integer attribute name")
+            };
+        }
+        
         public static ServiceAppointment setApptDetails(string appointmentId, string patientId, string nurseId,
             string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
         {

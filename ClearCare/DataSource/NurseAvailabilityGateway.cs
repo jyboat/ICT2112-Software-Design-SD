@@ -2,167 +2,129 @@ using Google.Cloud.Firestore;
 using ClearCare.Models.Entities;
 using ClearCare.Interfaces;
 using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace ClearCare.DataSource
 {
-    public class NurseAvailabilityGateway : INurseAvailability
+    public class NurseAvailabilityGateway : IAvailabilityDB_Send
     {
         private readonly FirestoreDb _db;
+        private IAvailabilityDB_Receive _receiver;
 
         public NurseAvailabilityGateway()
         {
-            // Initialize Firebase
             _db = FirebaseService.Initialize();
         }
 
-        //  Retrieve ALL Nurse Availabilities 
-        public async Task<List<NurseAvailability>> GetAllStaffAvailabilityAsync()
+        // Property for setting the receiver after instantiation (Since gateway handle receiver callback - creates circular dependency. SO need break cycle by property injection)
+        public IAvailabilityDB_Receive Receiver
         {
-            CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
-            QuerySnapshot snapshot = await availabilitiesRef.GetSnapshotAsync(); 
+            get { return _receiver; }
+            set { _receiver = value; }
+        }
 
+
+        // Implementing IAvailabilityDB_Send Interfaces
+
+        // Retrieve ALL Nurse Availabilities - implemented in IAvailabilityDB_Send; used in NurseAvailabilityManagement (getAllStaffAvailability)
+        public async Task<List<NurseAvailability>> fetchAllStaffAvailability()
+        {
             List<NurseAvailability> availabilityList = new List<NurseAvailability>();
+
+            CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
+            QuerySnapshot snapshot = await availabilitiesRef.GetSnapshotAsync();
 
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
                 if (document.Exists)
                 {
                     var data = document.ToDictionary();
-
                     NurseAvailability availability = NurseAvailability.FromFirestoreData(data);
                     availabilityList.Add(availability);
                 }
             }
-
+            await _receiver.receiveAvailabilityList(availabilityList);
             return availabilityList;
         }
 
-        // Retrieve Nurse Availability
-        public async Task<List<NurseAvailability>> GetAvailabilityByStaffAsync(string staffId)
+        // Retrieve Availability by Staff ID - implemented in IAvailabilityDB_Send; used in NurseAvailabilityManagement (getAvailabilityByStaff)
+        public async Task<List<NurseAvailability>> fetchAvailabilityByStaff(string staffId)
         {
-            // Console.WriteLine($"Fetching availability for Nurse ID: {staffId}");
+            List<NurseAvailability> availabilityList = new List<NurseAvailability>();
 
             CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
             Query query = availabilitiesRef
                 .WhereEqualTo("nurseID", staffId)
                 .OrderByDescending("availabilityId");
-            // Small delay to allow Firestore sync
+
             await Task.Delay(1000);
             QuerySnapshot snapshot = await query.GetSnapshotAsync();
-
-            List<NurseAvailability> availabilityList = new List<NurseAvailability>();
-
-            // Console.WriteLine($"Found {snapshot.Documents.Count} documents for Nurse ID: {staffId}");
 
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
                 if (document.Exists)
                 {
                     var data = document.ToDictionary();
-                    // Console.WriteLine($"Found document: {document.Id} → {JsonConvert.SerializeObject(data, Formatting.Indented)}");
-
-                    int availabilityId = Convert.ToInt32(data["availabilityId"]);
-                    string nurseID = data["nurseID"].ToString();
-                    string dateStr = data["date"].ToString();
-                    string startTimeStr = data["startTime"].ToString();
-                    string endTimeStr = data["endTime"].ToString();
-
-                    NurseAvailability availability = NurseAvailability.SetAvailabilityDetails(
-                        availabilityId,
-                        nurseID,
-                        dateStr,
-                        startTimeStr,
-                        endTimeStr
-                    );
-
+                    NurseAvailability availability = NurseAvailability.FromFirestoreData(data);
                     availabilityList.Add(availability);
                 }
             }
-
+            await _receiver.receiveAvailabilityList(availabilityList);
             return availabilityList;
         }
 
-        // Fetch Next Availability ID (Start from 10)
-        public async Task<int> GetNextAvailabilityIdAsync()
-        {
-            CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
-            QuerySnapshot snapshot = await availabilitiesRef.GetSnapshotAsync();
-
-            int maxId = 9;
-            foreach (DocumentSnapshot document in snapshot.Documents)
-            {
-                if (document.Exists && document.ContainsField("availabilityId"))
-                {
-                    int currentId = Convert.ToInt32(document.GetValue<int>("availabilityId"));
-                    if (currentId > maxId)
-                    {
-                        maxId = currentId;
-                    }
-                }
-            }
-            return maxId + 1;
-        }
-
-        // Add Availability
-        public async Task AddAvailabilityAsync(NurseAvailability availability)
+        // Add Availability - implemented in IAvailabilityDB_Send; used in NurseAvailabilityManagement (addAvailability)
+        public async Task createAvailability(NurseAvailability availability)
         {
             DocumentReference docRef = _db.Collection("NurseAvailability").Document();
-            await docRef.SetAsync(availability.GetAvailabilityDetails());
+            await docRef.SetAsync(availability.getAvailabilityDetails());
+            await _receiver.receiveAddStatus("Success");
         }
 
-        // Update Availability
-        public async Task UpdateAvailabilityAsync(NurseAvailability availability)
+        // Update Availability - implemented in IAvailabilityDB_Send; used in NurseAvailabilityManagement (updateAvailability)
+        public async Task modifyAvailability(NurseAvailability availability)
         {
             CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
+            Query query = availabilitiesRef.WhereEqualTo("availabilityId", availability.getAvailabilityDetails()["availabilityId"]);
 
-            Query query = availabilitiesRef.WhereEqualTo("availabilityId", availability.GetAvailabilityDetails()["availabilityId"]);
             QuerySnapshot snapshot = await query.GetSnapshotAsync();
 
             if (snapshot.Documents.Count == 0)
             {
-                // Console.WriteLine($"No document found with availabilityId: {availability.GetAvailabilityDetails()["availabilityId"]}");
+                await _receiver.receiveUpdateStatus("Failed: availability not found");
                 return;
             }
 
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
-                // Console.WriteLine($"Updating document {document.Id} with availabilityId: {availability.GetAvailabilityDetails()["availabilityId"]}");
-
-                Dictionary<string, object> availabilityData = new Dictionary<string, object>
-        {
-            { "availabilityId", availability.GetAvailabilityDetails()["availabilityId"] },
-            { "nurseID", availability.GetAvailabilityDetails()["nurseID"] },
-            { "date", availability.GetAvailabilityDetails()["date"] },
-            { "startTime", availability.GetAvailabilityDetails()["startTime"] },
-            { "endTime", availability.GetAvailabilityDetails()["endTime"] }
-        };
-
+                Dictionary<string, object> availabilityData = availability.getAvailabilityDetails();
                 await document.Reference.SetAsync(availabilityData, SetOptions.MergeAll);
             }
+
+           await _receiver.receiveUpdateStatus("Success");
         }
 
-        // Delete Availability
-        public async Task DeleteAvailabilityAsync(int availabilityId)
+        // Delete Availability - implemented in IAvailabilityDB_Send; used in NurseAvailabilityManagement (deleteAvailability)
+        public async Task removeAvailability(int availabilityId)
         {
             CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
-
             Query query = availabilitiesRef.WhereEqualTo("availabilityId", availabilityId);
             QuerySnapshot snapshot = await query.GetSnapshotAsync();
 
             if (snapshot.Documents.Count == 0)
             {
-                // Console.WriteLine($"No document found with availabilityId: {availabilityId}");
+                await _receiver.receiveDeleteStatus("Failed: availability not found");
                 return;
             }
 
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
-                // Console.WriteLine($"Deleting document {document.Id} with availabilityId: {availabilityId}");
                 await document.Reference.DeleteAsync();
             }
+
+            await _receiver.receiveDeleteStatus("Success");
         }
     }
 }
