@@ -3,6 +3,7 @@ using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using ClearCare.Interfaces;
 
 namespace ClearCare.Controllers
 {
@@ -28,7 +29,9 @@ namespace ClearCare.Controllers
             // Set the gateway's receiver to the manager (which implements IAvailabilityDB_Receive)
             gateway.Receiver = _manager;
 
-            _calendarManagement = new CalendarManagement(_serviceAppointmentManagement, _manager);
+            _serviceAppointmentManagement =  new ServiceAppointmentManagement();
+
+            _calendarManagement = new CalendarManagement((IRetrieveAllAppointments)_serviceAppointmentManagement, (INurseAvailability) _manager);
         }
 
         // Displays Nurse Availability for Calendar
