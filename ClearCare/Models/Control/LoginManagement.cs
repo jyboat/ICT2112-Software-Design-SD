@@ -9,11 +9,13 @@ namespace ClearCare.Models.Control
     {
         private readonly UserGateway UserGateway;
         private readonly IPassword passwordService;
+        private readonly IEmail emailService;
         
-        public LoginManagement(IPassword passwordService)
+        public LoginManagement(IPassword passwordService, IEmail emailService)
         {
             UserGateway = new UserGateway();
             this.passwordService = passwordService;
+            this.emailService = emailService;
         }
 
         public async Task<User> authenticateUser(string userEmail, string userPassword)
@@ -40,6 +42,11 @@ namespace ClearCare.Models.Control
             var user = await UserGateway.findUserByID(userID);
 
             return user;
+        }
+
+        public async Task<bool> sendOTP(string email, string otpCode)
+        {
+            return await emailService.sendOTPEmail(email, otpCode);
         }
     }
 }

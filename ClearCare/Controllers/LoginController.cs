@@ -13,8 +13,7 @@ namespace ClearCare.Controllers
 
         public LoginController(IPassword passwordService, IEmail emailService)
         {
-            LoginManagement = new LoginManagement(passwordService);
-            this.emailService = emailService;
+            LoginManagement = new LoginManagement(passwordService, emailService);
         }
 
         public IActionResult displayLogin()
@@ -63,7 +62,7 @@ namespace ClearCare.Controllers
             HttpContext.Session.SetString("OTP_Expiry", DateTime.UtcNow.AddMinutes(10).ToString()); // Expiry time
 
             // Send OTP via Gmail SMTP
-            bool isSent = await emailService.sendOTPEmail(email, otpCode);
+            bool isSent = await LoginManagement.sendOTP(email, otpCode);
 
             if (isSent)
             {
