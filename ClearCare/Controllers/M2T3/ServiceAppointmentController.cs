@@ -48,7 +48,7 @@ public class ServiceAppointmentsController : Controller
         // No record exists
         if (appointment != null && appointment.Any())
         {
-            return View("Index", appointment);
+            return View("~/Views/M2T3/ServiceAppointments/Index.cshtml", appointment);
         }
         else
         {
@@ -69,7 +69,7 @@ public class ServiceAppointmentsController : Controller
     [Route("Calendar")]
     public IActionResult Calendar()
     {
-        return View("Calendar");
+        return View("~/Views/M2T3/ServiceAppointments/Calendar.cshtml");
     }
 
     // Implement IRetrieveAll
@@ -85,7 +85,7 @@ public class ServiceAppointmentsController : Controller
         ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
         ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
         AutomaticAppointmentScheduler.TestAutoAssignment();
-        return View("CreateServiceAppt"); // Render the form
+        return View("~/Views/M2T3/ServiceAppointments/CreateServiceAppt.cshtml"); // Render the form
     }
 
 
@@ -128,7 +128,7 @@ public class ServiceAppointmentsController : Controller
 
         if (appointmentDetail != null && appointmentDetail.Any())
         {
-            return View("AppointmentDetails", appointmentDetail);
+            return View("~/Views/M2T3/ServiceAppointments/AppointmentDetails.cshtml", appointmentDetail);
         }
         else
         {
@@ -225,7 +225,7 @@ public class ServiceAppointmentsController : Controller
         public async Task<IActionResult> TestManualAppointment()
         {
             await _manualAppointmentScheduler.TestInterface();
-            return View("TestManualAppointment"); // Render the View
+            return View("~/Views/M2T3/ServiceAppointments/TestManualAppointment.cshtml"); // Render the View
         }
 
         [HttpPost]
@@ -233,7 +233,7 @@ public class ServiceAppointmentsController : Controller
         public async Task<IActionResult> RunTestManualAppointment()
         {
             await _manualAppointmentScheduler.TestInterface();
-            return RedirectToAction("TestManualAppointment");
+            return RedirectToAction("~/Views/M2T3/ServiceAppointments/TestManualAppointment.cshtml");
         }
 
     // Test Auto Interface
@@ -242,7 +242,7 @@ public class ServiceAppointmentsController : Controller
         public async Task<IActionResult> TestAutoAppointment()
         {
             await AutomaticAppointmentScheduler.TestInterface();
-            return View("Index"); // Render the View
+            return View("~/Views/M2T3/ServiceAppointments/Index.cshtml"); // Render the View
         }
 
 }
