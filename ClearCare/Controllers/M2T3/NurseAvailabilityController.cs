@@ -41,12 +41,12 @@ namespace ClearCare.Controllers
 
         // Displays Nurse Availability View
         [HttpGet]
-        [Route("")]
+        [Route("Index")]
         public IActionResult Index()
         {
             // var availabilityList = await _manager.getAvailabilityByStaff("USR003"); // Dummy ID for testing
             // return View(availabilityList);
-             return View("Index");
+            return View("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
 
         // Add Availability (Handles Form Submission)
@@ -55,7 +55,7 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> AddAvailability([FromForm] string date)
         {
             await _manager.addAvailability("USR003", date);
-            return RedirectToAction("Index");
+            return RedirectToAction("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
 
         // Handles Updating of Availability
@@ -64,7 +64,7 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> UpdateAvailability([FromForm] int availabilityId, [FromForm] string date)
         {
             await _manager.updateAvailability(availabilityId, "USR003", date);
-            return RedirectToAction("Index");
+            return RedirectToAction("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
 
         // Handles Deletion of Availability
@@ -74,7 +74,7 @@ namespace ClearCare.Controllers
         {
             // Console.WriteLine($"Attempting to delete availability with ID: {availabilityId}");
             await _manager.deleteAvailability(availabilityId);
-            return RedirectToAction("Index");
+            return RedirectToAction("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
 
         
