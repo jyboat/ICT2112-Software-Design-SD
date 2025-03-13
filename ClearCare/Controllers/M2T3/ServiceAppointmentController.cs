@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using ClearCare.Interfaces;
+using ClearCare.Control;
 
 // Request Handling
 [Route("api/[controller]")]
@@ -33,7 +34,7 @@ public class ServiceAppointmentsController : Controller
 
         _calendarManagement = new CalendarManagement(ServiceAppointmentManagement, _nurseAvailabilityManagement);
 
-        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler((ICreateAppointment) ServiceAppointmentManagement, (INurseAvailability) _nurseAvailabilityManagement);
+        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler((ICreateAppointment) ServiceAppointmentManagement, (INurseAvailability) _nurseAvailabilityManagement);       
         _manualAppointmentScheduler = new ManualAppointmentScheduler((ICreateAppointment) ServiceAppointmentManagement, (INurseAvailability) _nurseAvailabilityManagement);
 
     }
@@ -84,7 +85,6 @@ public class ServiceAppointmentsController : Controller
     {
         ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
         ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
-        AutomaticAppointmentScheduler.TestAutoAssignment();
         return View("~/Views/M2T3/ServiceAppointments/CreateServiceAppt.cshtml"); // Render the form
     }
 
@@ -220,7 +220,7 @@ public class ServiceAppointmentsController : Controller
 
     // Test Manual's Interface
 
-     [HttpGet]
+        [HttpGet]
         [Route("TestManualAppointment")]
         public async Task<IActionResult> TestManualAppointment()
         {
@@ -236,13 +236,13 @@ public class ServiceAppointmentsController : Controller
             return RedirectToAction("~/Views/M2T3/ServiceAppointments/TestManualAppointment.cshtml");
         }
 
-    // Test Auto Interface
-    [HttpGet]
+        // Test Auto Interface
+        [HttpGet]
         [Route("TestAutoAppointment")]
-        public async Task<IActionResult> TestAutoAppointment()
+        public void TestAutoAppointment()
         {
-            await AutomaticAppointmentScheduler.TestInterface();
-            return View("~/Views/M2T3/ServiceAppointments/Index.cshtml"); // Render the View
+            AutomaticAppointmentScheduler.SetAlgorithm(new PreferredNurseStrategy());
+            AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment();
         }
 
 }
