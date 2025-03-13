@@ -45,8 +45,8 @@ namespace ClearCare.DataSource
             string address = doc.GetValue<string>("Address");
             string role = doc.GetValue<string>("Role");
 
-            // Default to generic User if no matching role found
-            return new User(userID, emailAddress, password, name, mobileNumber, address, role);
+            // Use UserFactory to create the correct user object
+            return UserFactory.createUser(userID, emailAddress, password, name, mobileNumber, address, role, doc);
         }
 
         // Function to find user by ID

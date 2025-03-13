@@ -3,7 +3,7 @@ using Google.Cloud.Firestore;
 namespace ClearCare.Models.Entities
 {
     [FirestoreData]
-    public class User
+    public abstract class User
     {
         // Class properties
         // UserID is assigned from Firestore document ID

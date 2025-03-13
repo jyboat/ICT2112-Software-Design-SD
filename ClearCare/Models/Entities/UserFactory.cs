@@ -12,25 +12,24 @@ namespace ClearCare.DataSource
                 case "Doctor":
                     string specialization = snapshot.GetValue<string>("Specialization");
                     return new Doctor(userID, email, password, name, (int)mobileNumber, address, role, specialization);
-                
+
                 case "Nurse":
                     string department = snapshot.GetValue<string>("Department");
                     return new Nurse(userID, email, password, name, (int)mobileNumber, address, role, department);
-                
+
                 case "Patient":
                     string assignedCaregiverName = snapshot.GetValue<string>("AssignedCaregiverName");
                     string assignedCaregiverID = snapshot.GetValue<string>("AssignedCaregiverID");
-                    Timestamp dateOfBirth = snapshot.GetValue<Timestamp>("DateOfBirth");
+                    Timestamp dateOfBirth = snapshot.GetValue<Timestamp>("D`ateOfBirth");
                     return new Patient(userID, email, password, name, (int)mobileNumber, address, role, assignedCaregiverName, assignedCaregiverID, dateOfBirth);
-                
+
                 case "Caregiver":
                     string assignedPatientName = snapshot.GetValue<string>("AssignedPatientName");
                     string assignedPatientID = snapshot.GetValue<string>("AssignedPatientID");
                     return new Caregiver(userID, email, password, name, (int)mobileNumber, address, role, assignedPatientName, assignedPatientID);
-                
+
                 default:
-                    // Default to a generic user if no matching role found
-                    return new User(userID, email, password, name, (int)mobileNumber, address, role);
+                    throw new ArgumentException($"Invalid user role: {role}"); // Prevents creating abstract User
             }
         }
     }

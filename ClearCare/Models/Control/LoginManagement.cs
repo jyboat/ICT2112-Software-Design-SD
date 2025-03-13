@@ -38,10 +38,7 @@ namespace ClearCare.Models.Control
 
         public async Task<User> getUserByID(string userID)
         {
-            // Find user account from firestore
-            var user = await UserGateway.findUserByID(userID);
-
-            return user;
+            return await UserGateway.findUserByID(userID);
         }
 
         public async Task<bool> sendOTP(string email, string otpCode)
