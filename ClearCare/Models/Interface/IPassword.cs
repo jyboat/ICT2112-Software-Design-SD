@@ -6,8 +6,8 @@ namespace ClearCare.Models.Interface
 {
     public interface IPassword
     {
-        string HashPassword(string password);
-        bool VerifyPassword(string enteredPassword, string storedHashedPassword);
+        string hashPassword(string password);
+        bool verifyPassword(string enteredPassword, string storedHashedPassword);
     }
 }
 

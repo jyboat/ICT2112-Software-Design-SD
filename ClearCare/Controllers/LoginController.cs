@@ -23,13 +23,13 @@ namespace ClearCare.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Authenticate(string email, string password)
+        public async Task<IActionResult> authenticate(string email, string password)
         {
-            var tempUser = await LoginManagement.AuthenticateUser(email, password);
+            var tempUser = await LoginManagement.authenticateUser(email, password);
             if (tempUser != null)
             {
                 // Store only UserID temporarily for OTP verification
-                var (userID, _) = tempUser.GetSessionData();
+                var (userID, _) = tempUser.getSessionData();
                 HttpContext.Session.SetString("TempUserID", userID);
 
                 return RedirectToAction("displayChooseEmail");
@@ -46,7 +46,7 @@ namespace ClearCare.Controllers
 
         // Send OTP to the chosen email
         [HttpPost]
-        public async Task<IActionResult> SendOTPToEmail(string email)
+        public async Task<IActionResult> sendOTPToEmail(string email)
         {
             if (string.IsNullOrEmpty(email))
             {
@@ -63,7 +63,7 @@ namespace ClearCare.Controllers
             HttpContext.Session.SetString("OTP_Expiry", DateTime.UtcNow.AddMinutes(10).ToString()); // Expiry time
 
             // Send OTP via Gmail SMTP
-            bool isSent = await emailService.SendOtpEmail(email, otpCode);
+            bool isSent = await emailService.sendOTPEmail(email, otpCode);
 
             if (isSent)
             {
@@ -82,7 +82,7 @@ namespace ClearCare.Controllers
 
         // Verify OTP and Email input
         [HttpPost]
-        public async Task<IActionResult> VerifyOTP(string email, string otp)
+        public async Task<IActionResult> verifyOTP(string email, string otp)
         {
             var storedOtp = HttpContext.Session.GetString("OTP");
             var otpExpiry = HttpContext.Session.GetString("OTP_Expiry");
@@ -104,11 +104,11 @@ namespace ClearCare.Controllers
 
                 // Store UserID and Role in Session
                 var tempuserID = HttpContext.Session.GetString("TempUserID");
-                var authenticatedUser = await LoginManagement.GetUserByID(tempuserID);
+                var authenticatedUser = await LoginManagement.getUserByID(tempuserID);
 
                 if (authenticatedUser != null)
                 {
-                    var (userID, role) = authenticatedUser.GetSessionData();
+                    var (userID, role) = authenticatedUser.getSessionData();
                     HttpContext.Session.SetString("UserID", userID);
                     HttpContext.Session.SetString("Role", role);
                 }

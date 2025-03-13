@@ -17,13 +17,13 @@ namespace ClearCare.Models.Control
         // Fetch user details based on UserID, called by ProfileController
         public async Task<User> getUserDetails(string userID)
         {
-            return await _userGateway.FindUserByID(userID);
+            return await _userGateway.findUserByID(userID);
         }
 
         // Update user profile with selected fields, called by ProfileController
         public async Task<bool> editUserDetails(string userID, Dictionary<string, object> updatedFields)
         {
-            return await _userGateway.UpdateUser(userID, updatedFields);
+            return await _userGateway.updateUser(userID, updatedFields);
         }
 
     }

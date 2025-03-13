@@ -5,7 +5,7 @@ namespace ClearCare.DataSource
 {
     public class UserFactory
     {
-        public static User CreateUser(string userID, string email, string password, string name, long mobileNumber, string address, string role, DocumentSnapshot snapshot)
+        public static User createUser(string userID, string email, string password, string name, long mobileNumber, string address, string role, DocumentSnapshot snapshot)
         {
             switch (role)
             {

@@ -16,7 +16,7 @@ namespace ClearCare.DataSource
             db = FirebaseService.Initialize();
         }
 
-        public async Task<List<Erratum>> RetrieveAllErratums()
+        public async Task<List<Erratum>> retrieveAllErratums()
         {
             List<Erratum> errata = new List<Erratum>();
             CollectionReference erratumRef = db.Collection("Erratum");
@@ -47,7 +47,7 @@ namespace ClearCare.DataSource
             return errata;
         }
 
-        public async Task<Erratum?> InsertErratum(string medicalRecordID, string erratumDetails, string doctorID)
+        public async Task<Erratum?> insertErratum(string medicalRecordID, string erratumDetails, string doctorID)
         {
             try
             {

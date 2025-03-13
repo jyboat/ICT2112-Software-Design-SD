@@ -31,7 +31,7 @@ namespace ClearCare.Controllers
 
             if (string.IsNullOrEmpty(userID))
             {
-                return RedirectToAction("Login", "Auth");
+                return RedirectToAction("displayLogin", "Login");
             }
 
             // Fetch user details through ProfileManagement (Control Class)
@@ -80,7 +80,7 @@ namespace ClearCare.Controllers
 
             if (string.IsNullOrEmpty(userID))
             {
-                return RedirectToAction("Login", "Auth");
+                return RedirectToAction("displayLogin", "Login");
             }
 
             // Prepare updated fields dictionary
@@ -93,7 +93,7 @@ namespace ClearCare.Controllers
             if (!string.IsNullOrEmpty(password))
             {
                 // Hash the password before updating it in Firestore
-                string hashedPassword = encryptionManagement.HashPassword(password);
+                string hashedPassword = encryptionManagement.hashPassword(password);
                 updatedFields["Password"] = hashedPassword;
             }
             if (!string.IsNullOrEmpty(dateOfBirth))

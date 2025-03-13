@@ -10,8 +10,8 @@ namespace ClearCare.Models.Entities
         protected string Specialization { get; set; }
 
         // Getter & Setter
-        protected string GetSpecialization() => Specialization;
-        protected void SetSpecialization(string specialization) => Specialization = specialization;
+        protected string getSpecialization() => Specialization;
+        protected void setSpecialization(string specialization) => Specialization = specialization;
 
         public Doctor() {}
 
@@ -23,10 +23,10 @@ namespace ClearCare.Models.Entities
         }
 
         // Override GetProfileDetails() to include Doctor-specific fields
-        public override Dictionary<string, object> GetProfileData()
+        public override Dictionary<string, object> getProfileData()
         {
-            var details = base.GetProfileData();
-            details.Add("Specialization", GetSpecialization());
+            var details = base.getProfileData();
+            details.Add("Specialization", getSpecialization());
             return details;
         }
 

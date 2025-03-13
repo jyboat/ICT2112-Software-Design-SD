@@ -22,21 +22,21 @@ namespace ClearCare.Models.Entities
         protected string Role { get; set; }
 
         // Getter and Setter
-        protected string GetUserID() => UserID;
-        protected string GetEmail() => Email;
-        protected string GetPassword() => Password;
-        protected string GetName() => Name;
-        protected long GetMobileNumber() => MobileNumber;
-        protected string GetAddress() => Address;
-        protected string GetRole() => Role;
+        protected string getUserID() => UserID;
+        protected string getEmail() => Email;
+        protected string getPassword() => Password;
+        protected string getName() => Name;
+        protected long getMobileNumber() => MobileNumber;
+        protected string getAddress() => Address;
+        protected string getRole() => Role;
 
-        protected void SetUserID(string userID) => UserID = userID;
-        protected void SetEmail(string email) => Email = email;
-        protected void SetPassword(string password) => Password = password;
-        protected void SetName(string name) => Name = name;
-        protected void SetMobileNumber(long mobileNumber) => MobileNumber = mobileNumber;
-        protected void SetAddress(string address) => Address = address;
-        protected void SetRole(string role) => Role = role;
+        protected void setUserID(string userID) => UserID = userID;
+        protected void setEmail(string email) => Email = email;
+        protected void setPassword(string password) => Password = password;
+        protected void setName(string name) => Name = name;
+        protected void setMobileNumber(long mobileNumber) => MobileNumber = mobileNumber;
+        protected void setAddress(string address) => Address = address;
+        protected void setRole(string role) => Role = role;
 
         public User() {}
 
@@ -53,29 +53,29 @@ namespace ClearCare.Models.Entities
         }
 
         // Returns hashed password to compare when User logs in
-        public string GetHashedPassword()
+        public string getHashedPassword()
         {
-            return GetPassword(); 
+            return getPassword(); 
         }
 
 
         // Returns userID and Role to store in Session upon User login
-        public (string userID, string role) GetSessionData()
+        public (string userID, string role) getSessionData()
         {
-            return (GetUserID(), GetRole()); 
+            return (getUserID(), getRole()); 
         }
 
         // Returns all user data to be used in Profile
-        public virtual Dictionary<string, object> GetProfileData()
+        public virtual Dictionary<string, object> getProfileData()
         {
             return new Dictionary<string, object>
             {
-                { "UserID", GetUserID() },
-                { "Email", GetEmail() },
-                { "Name", GetName() },
-                { "MobileNumber", GetMobileNumber() },
-                { "Address", GetAddress() },
-                { "Role", GetRole() }
+                { "UserID", getUserID() },
+                { "Email", getEmail() },
+                { "Name", getName() },
+                { "MobileNumber", getMobileNumber() },
+                { "Address", getAddress() },
+                { "Role", getRole() }
             };
         }
 

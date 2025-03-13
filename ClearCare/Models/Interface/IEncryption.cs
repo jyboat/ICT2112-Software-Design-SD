@@ -6,8 +6,8 @@ namespace ClearCare.Models.Interface
 {
     public interface IEncryption
     {
-        string EncryptMedicalData(string plainText);
-        string DecryptMedicalData(string encryptedText);
+        string encryptMedicalData(string plainText);
+        string decryptMedicalData(string encryptedText);
     }
 }
 
