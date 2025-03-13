@@ -23,7 +23,7 @@ namespace ClearCare.Models.Control
         // AES ENCRYPTION FOR MEDICAL DATA
         // ==========================
 
-        public string EncryptMedicalData(string plainText)
+        public string encryptMedicalData(string plainText)
         {
             using (Aes aes = Aes.Create())
             {
@@ -41,7 +41,7 @@ namespace ClearCare.Models.Control
             }
         }
 
-        public string DecryptMedicalData(string encryptedText)
+        public string decryptMedicalData(string encryptedText)
         {
             using (Aes aes = Aes.Create())
             {
@@ -63,12 +63,12 @@ namespace ClearCare.Models.Control
         // BCRYPT HASHING FOR PASSWORDS
         // ==========================
 
-        public string HashPassword(string password)
+        public string hashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
-        public bool VerifyPassword(string enteredPassword, string storedHashedPassword)
+        public bool verifyPassword(string enteredPassword, string storedHashedPassword)
         {
             return BCrypt.Net.BCrypt.Verify(enteredPassword, storedHashedPassword);
         }

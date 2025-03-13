@@ -12,11 +12,11 @@ namespace ClearCare.Models.Entities
         [FirestoreProperty]
         protected string AssignedPatientID { get; set; }
 
-        protected string GetAssignedPatientName() => AssignedPatientName;
-        protected string GetAssignedPatientID() => AssignedPatientID;
+        protected string getAssignedPatientName() => AssignedPatientName;
+        protected string getAssignedPatientID() => AssignedPatientID;
 
-        protected void SetAssignedPatientName(string patientName) => AssignedPatientName = patientName;
-        protected void SetAssignedPatientID(string patientID) => AssignedPatientID = patientID;
+        protected void setAssignedPatientName(string patientName) => AssignedPatientName = patientName;
+        protected void setAssignedPatientID(string patientID) => AssignedPatientID = patientID;
 
         public Caregiver() {}
 
@@ -29,11 +29,11 @@ namespace ClearCare.Models.Entities
         }
 
         // Override GetProfileData() to include Caregiver-specific fields
-        public override Dictionary<string, object> GetProfileData()
+        public override Dictionary<string, object> getProfileData()
         {
-            var details = base.GetProfileData();
-            details.Add("AssignedPatientName", GetAssignedPatientName());
-            details.Add("AssignedPatientID", GetAssignedPatientID());
+            var details = base.getProfileData();
+            details.Add("AssignedPatientName", getAssignedPatientName());
+            details.Add("AssignedPatientID", getAssignedPatientID());
             return details;
         }
     }

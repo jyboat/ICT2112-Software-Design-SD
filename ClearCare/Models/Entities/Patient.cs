@@ -18,13 +18,13 @@ namespace ClearCare.Models.Entities
         protected Timestamp DateOfBirth { get; set; }  // Firestore Timestamp
 
         // Getter & Setter
-        protected string GetAssignedCaregiverName() => AssignedCaregiverName;
-        protected string GetAssignedCaregiverID() => AssignedCaregiverID;
-        protected Timestamp  GetDateOfBirth() => DateOfBirth;
+        protected string getAssignedCaregiverName() => AssignedCaregiverName;
+        protected string getAssignedCaregiverID() => AssignedCaregiverID;
+        protected Timestamp  getDateOfBirth() => DateOfBirth;
 
-        protected void SetAssignedCaregiverName(string caregiverName) => AssignedCaregiverName = caregiverName;
-        protected void SetAssignedCaregiverID(string caregiverID) => AssignedCaregiverID = caregiverID;
-        protected void SetDateOfBirth(Timestamp  dob) => DateOfBirth = dob;
+        protected void setAssignedCaregiverName(string caregiverName) => AssignedCaregiverName = caregiverName;
+        protected void setAssignedCaregiverID(string caregiverID) => AssignedCaregiverID = caregiverID;
+        protected void setDateOfBirth(Timestamp  dob) => DateOfBirth = dob;
 
         public Patient() {}
 
@@ -39,14 +39,14 @@ namespace ClearCare.Models.Entities
         }
 
         // Override GetProfileData() to include Patient-specific fields
-        public override Dictionary<string, object> GetProfileData()
+        public override Dictionary<string, object> getProfileData()
         {
-            var details = base.GetProfileData();
-            details.Add("AssignedCaregiverName", GetAssignedCaregiverName());
-            details.Add("AssignedCaregiverID", GetAssignedCaregiverID());
+            var details = base.getProfileData();
+            details.Add("AssignedCaregiverName", getAssignedCaregiverName());
+            details.Add("AssignedCaregiverID", getAssignedCaregiverID());
             // details.Add("DateOfBirth", GetDateOfBirth().ToDateTime().ToString("yyyy-MM-dd"));  // Convert to readable format
             // Convert UTC to UTC+8 manually
-            var dobUtc = DateTime.SpecifyKind(GetDateOfBirth().ToDateTime(), DateTimeKind.Utc);
+            var dobUtc = DateTime.SpecifyKind(getDateOfBirth().ToDateTime(), DateTimeKind.Utc);
             var dobUtcPlus8 = dobUtc.AddHours(8); // Convert UTC to UTC+8
 
             details.Add("DateOfBirth", dobUtcPlus8.ToString("dd MMMM yyyy HH:mm:ss"));

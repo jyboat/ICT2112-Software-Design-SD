@@ -61,16 +61,16 @@ namespace ClearCare.Models.Entities
         }
 
         // Method to check if an attachment exists
-        public bool HasAttachment() => getAttachment() != null && getAttachment().Length > 0;
+        public bool hasAttachment() => getAttachment() != null && getAttachment().Length > 0;
 
         // Method to retrieve attachment safely
-        public (byte[], string) RetrieveAttachment()
+        public (byte[], string) retrieveAttachment()
         {
-            return HasAttachment() ? (getAttachment(), getAttachmentName()) : (null, null);
+            return hasAttachment() ? (getAttachment(), getAttachmentName()) : (null, null);
         }
 
         // Exposed method to return all necessary details
-        public Dictionary<string, object> GetRecordDetails()
+        public Dictionary<string, object> getRecordDetails()
         { 
             return new Dictionary<string, object>
             {
@@ -80,7 +80,7 @@ namespace ClearCare.Models.Entities
                 { "Date", Date },
                 { "DoctorNote", DoctorNote },
                 { "AttachmentName", AttachmentName },
-                { "HasAttachment", HasAttachment() }
+                { "HasAttachment", hasAttachment() }
             };
         }
 

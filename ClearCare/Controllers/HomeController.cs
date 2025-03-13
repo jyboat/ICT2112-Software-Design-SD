@@ -24,7 +24,7 @@ public class HomeController : Controller
         if (userRole == null) 
         {
             Console.WriteLine("You do not have permission to access this page.");
-            return RedirectToAction("DisplayLogin", "Login"); 
+            return RedirectToAction("displayLogin", "Login"); 
         }
 
         return View();
@@ -38,7 +38,7 @@ public class HomeController : Controller
         if (userRole == null) 
         {
             Console.WriteLine("You do not have permission to access this page.");
-            return RedirectToAction("DisplayLogin", "Login"); 
+            return RedirectToAction("displayLogin", "Login"); 
         }
 
         return View();

@@ -45,7 +45,7 @@ namespace ClearCare.Models.Entities
         }
 
         // Method to get Erratum details
-        public Dictionary<string, object> GetErratumDetails()
+        public Dictionary<string, object> getErratumData()
         {
             var details = new Dictionary<string, object>
             {

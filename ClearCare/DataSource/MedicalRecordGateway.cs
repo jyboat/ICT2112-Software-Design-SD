@@ -17,7 +17,7 @@ namespace ClearCare.DataSource
         }
         
         // Retrieve all medical records
-        public async Task<List<MedicalRecord>> RetrieveAllMedicalRecords()
+        public async Task<List<MedicalRecord>> retrieveAllMedicalRecords()
         {
             List<MedicalRecord> recordsList = new List<MedicalRecord>();
             QuerySnapshot snapshot = await db.Collection("MedicalRecords").GetSnapshotAsync();
@@ -49,7 +49,7 @@ namespace ClearCare.DataSource
         }
 
         // Retrieve a medical record by ID
-        public async Task<MedicalRecord> RetrieveMedicalRecordById(string recordID)
+        public async Task<MedicalRecord> retrieveMedicalRecordById(string recordID)
         {
             DocumentReference docRef = db.Collection("MedicalRecords").Document(recordID);
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
@@ -73,7 +73,7 @@ namespace ClearCare.DataSource
         }
 
         // insert a medical record
-        public async Task<MedicalRecord> InsertMedicalRecord(string doctorNote, string patientID,  byte[] fileBytes, string fileName, string doctorID)
+        public async Task<MedicalRecord> insertMedicalRecord(string doctorNote, string patientID,  byte[] fileBytes, string fileName, string doctorID)
         {
             try
             {

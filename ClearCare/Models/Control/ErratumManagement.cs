@@ -20,18 +20,18 @@ namespace ClearCare.Models.Control
             this.encryptionService = encryptionService;
         }
 
-        public async Task<List<dynamic>> GetAllErratum()
+        public async Task<List<dynamic>> getAllErratum()
         {
-            var errata = await ErratumGateway.RetrieveAllErratums();
+            var errata = await ErratumGateway.retrieveAllErratums();
             var processedErratum = new List<dynamic>();
 
             foreach (var erratum in errata)
             {
-                var erratumDetails = erratum.GetErratumDetails();
-                string doctorName = await UserGateway.FindUserNameByID((string)erratumDetails["DoctorID"]);
+                var erratumDetails = erratum.getErratumData();
+                string doctorName = await UserGateway.findUserNameByID((string)erratumDetails["DoctorID"]);
 
                 // Decrypt the erratum details before returning it
-                string decryptedErratumDetails = encryptionService.DecryptMedicalData((string)erratumDetails["ErratumDetails"]);
+                string decryptedErratumDetails = encryptionService.decryptMedicalData((string)erratumDetails["ErratumDetails"]);
 
                 processedErratum.Add(new
                 {
@@ -45,11 +45,11 @@ namespace ClearCare.Models.Control
             return processedErratum;
         }
 
-        public async Task<Erratum> CreateErratum(string medicalRecordID, string erratumDetails, string doctorID)
+        public async Task<Erratum> createErratum(string medicalRecordID, string erratumDetails, string doctorID)
         {
-            encryptedErratumDetails = encryptionService.EncryptMedicalData(erratumDetails);
+            encryptedErratumDetails = encryptionService.encryptMedicalData(erratumDetails);
 
-            var result = await ErratumGateway.InsertErratum(medicalRecordID, encryptedErratumDetails, doctorID);
+            var result = await ErratumGateway.insertErratum(medicalRecordID, encryptedErratumDetails, doctorID);
 
             if (result == null)
             {

@@ -6,7 +6,7 @@ namespace ClearCare.Models.Interface
 {
     public interface IEmail
     {
-        Task<bool> SendOtpEmail(string toEmail, string otpCode);
+        Task<bool> sendOTPEmail(string toEmail, string otpCode);
     }
 }
 

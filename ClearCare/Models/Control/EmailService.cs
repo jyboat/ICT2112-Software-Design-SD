@@ -11,7 +11,7 @@ public class EmailService : IEmail
     private const string SenderEmail = "ICT2112Project@gmail.com"; // Replace with your Gmail
     private const string SenderPassword = "fqiy hzvg gzhz ftqv"; // Use the App Password from Google
 
-    public async Task<bool> SendOtpEmail(string toEmail, string otpCode)
+    public async Task<bool> sendOTPEmail(string toEmail, string otpCode)
     {
         try
         {

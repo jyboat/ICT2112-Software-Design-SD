@@ -26,7 +26,7 @@ namespace ClearCare.DataSource
         }
 
         // Query Firebase Firestore for a user where Email matches for Login Page.
-        public async Task<User> FindUserByEmail(string email)
+        public async Task<User> findUserByEmail(string email)
         {
             Query query = db.Collection("User").WhereEqualTo("Email", email);
             QuerySnapshot snapshot = await query.GetSnapshotAsync();
@@ -54,12 +54,12 @@ namespace ClearCare.DataSource
             string address = doc.GetValue<string>("Address");
             string role = doc.GetValue<string>("Role");
 
-            // Default to generic User if no matching role found
-            return new User(userID, emailAddress, password, name, mobileNumber, address, role);
+            // Use UserFactory to create the correct user object
+            return UserFactory.createUser(userID, emailAddress, password, name, mobileNumber, address, role, doc);
         }
 
         // Function to find user by ID
-        public async Task<User> FindUserByID(string userID)
+        public async Task<User> findUserByID(string userID)
         {
             DocumentReference docRef = db.Collection("User").Document(userID);
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
@@ -109,12 +109,12 @@ namespace ClearCare.DataSource
             // Default to generic User if no matching role found
             return new User(userID, emailAddress, password, name, mobileNumber, address, role);
             // Use the UserFactory to create the appropriate user based on the role
-            return UserFactory.CreateUser(userID, emailAddress, password, name, mobileNumber, address, role, snapshot);
+            return UserFactory.createUser(userID, emailAddress, password, name, mobileNumber, address, role, snapshot);
             
         }
 
         // Function to get all User in a list
-        public async Task<List<User>> GetAllUsers()
+        public async Task<List<User>> getAllUsers()
         {
             List<User> userList = new List<User>();
 
@@ -139,8 +139,8 @@ namespace ClearCare.DataSource
                         string address = document.ContainsField("Address") ? document.GetValue<string>("Address") : "Unknown";
                         string role = document.ContainsField("Role") ? document.GetValue<string>("Role") : "User";
 
-                        // Create new User object
-                        User user = new User(userID, email, password, name, (int)mobileNumber, address, role);
+                        // Use the UserFactory to create the appropriate user
+                        User user = UserFactory.createUser(userID, email, password, name, mobileNumber, address, role, document);
                         userList.Add(user);
                     }
                     catch (Exception ex)
@@ -154,7 +154,7 @@ namespace ClearCare.DataSource
         }
 
         // Method to retrieve the user's name based on their ID
-        public async Task<string> FindUserNameByID(string userID)
+        public async Task<string> findUserNameByID(string userID)
         {
             // Check for null or empty userID
             if (string.IsNullOrEmpty(userID))
@@ -264,7 +264,7 @@ namespace ClearCare.DataSource
             return nextUserID;
         }
 
-        public async Task<bool> UpdateUser(string userId, Dictionary<string, object> updatedFields)
+        public async Task<bool> updateUser(string userId, Dictionary<string, object> updatedFields)
         {
             try
             {

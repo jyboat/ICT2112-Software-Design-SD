@@ -21,16 +21,16 @@ namespace ClearCare.Models.Control
         }
 
         // Retrieve all medical records and process them for display
-        public async Task<List<dynamic>> GetAllMedicalRecords()
+        public async Task<List<dynamic>> getAllMedicalRecords()
         {
-            var medicalRecords = await MedicalRecordGateway.RetrieveAllMedicalRecords();
+            var medicalRecords = await MedicalRecordGateway.retrieveAllMedicalRecords();
             var processedRecords = new List<dynamic>();
 
             foreach (var record in medicalRecords)
             {
-                var recordDetails = record.GetRecordDetails();
-                string patientName = await UserGateway.FindUserNameByID((string)recordDetails["PatientID"]);
-                string doctorName = await UserGateway.FindUserNameByID((string)recordDetails["DoctorID"]);
+                var recordDetails = record.getRecordDetails();
+                string patientName = await UserGateway.findUserNameByID((string)recordDetails["PatientID"]);
+                string doctorName = await UserGateway.findUserNameByID((string)recordDetails["DoctorID"]);
 
                 processedRecords.Add(new
                 {
@@ -44,20 +44,20 @@ namespace ClearCare.Models.Control
         }
 
         // Retrieve medical record by ID
-        public async Task<dynamic> GetAdjustedRecordByID(string recordID)
+        public async Task<dynamic> getAdjustedRecordByID(string recordID)
         {
-            var medicalRecord = await MedicalRecordGateway.RetrieveMedicalRecordById(recordID);
+            var medicalRecord = await MedicalRecordGateway.retrieveMedicalRecordById(recordID);
             if (medicalRecord == null)
             {
                 return null;
             }
 
-            var recordDetails = medicalRecord.GetRecordDetails();
-            string patientName = await UserGateway.FindUserNameByID((string)recordDetails["PatientID"]);
-            string doctorName = await UserGateway.FindUserNameByID((string)recordDetails["DoctorID"]);
+            var recordDetails = medicalRecord.getRecordDetails();
+            string patientName = await UserGateway.findUserNameByID((string)recordDetails["PatientID"]);
+            string doctorName = await UserGateway.findUserNameByID((string)recordDetails["DoctorID"]);
 
             // Decrypt the doctor note before returning it
-            string decryptedDoctorNote = encryptionService.DecryptMedicalData((string)recordDetails["DoctorNote"]);
+            string decryptedDoctorNote = encryptionService.decryptMedicalData((string)recordDetails["DoctorNote"]);
 
             return new
             {
@@ -71,16 +71,16 @@ namespace ClearCare.Models.Control
             };
         }
 
-        public async Task<MedicalRecord> GetOriginalRecordByID(string recordID)
+        public async Task<MedicalRecord> getOriginalRecordByID(string recordID)
         {
-            return await MedicalRecordGateway.RetrieveMedicalRecordById(recordID);
+            return await MedicalRecordGateway.retrieveMedicalRecordById(recordID);
         }
 
         // Export medical record to CSV
-        public async Task<string> ExportMedicalRecord(string recordID)
+        public async Task<string> exportMedicalRecord(string recordID)
         {
             // Retrieve the medical record
-            var medicalRecord = await GetAdjustedRecordByID(recordID);
+            var medicalRecord = await getAdjustedRecordByID(recordID);
             if (medicalRecord == null)
             {
                 return "Medical record not found.";

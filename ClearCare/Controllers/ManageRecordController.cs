@@ -16,19 +16,19 @@ namespace ClearCare.Controllers
 
         public ManageRecordController(IEncryption encryptionService, IMedicalRecordSubject medRecordSubject)
         {
-            ManageMedicalRecord = new ManageMedicalRecord(encryptionService, medRecordSubject);
+            ManageMedicalRecord = new ManageMedicalRecord(encryptionService);
         }
 
 
         [Route("Create")]
-        public IActionResult DisplayCreateRecord()
+        public IActionResult displayCreateRecord()
         {
             var userRole = HttpContext.Session.GetString("Role");
 
             if (userRole != "Doctor") // Restrict access to doctors only
             {
                 Console.WriteLine("You do not have permission to access this page.");
-                return RedirectToAction("DisplayViewRecord", "ViewRecord"); 
+                return RedirectToAction("displayViewRecord", "ViewRecord"); 
             }
 
             return View("CreateRecord");
@@ -37,14 +37,14 @@ namespace ClearCare.Controllers
         // Form action to insert medical record with optional file upload
         [HttpPost]
         [Route("CreateMedicalRecord")]
-        public async Task<IActionResult> CreateMedicalRecord(IFormFile attachment, string doctorNote, string patientID)
+        public async Task<IActionResult> createMedicalRecord(IFormFile attachment, string doctorNote, string patientID)
         {
             var userRole = HttpContext.Session.GetString("Role");
             var doctorID = HttpContext.Session.GetString("UserID");
 
             if (userRole != "Doctor") // Only allow doctors to submit records
             {
-                return RedirectToAction("DisplayViewRecord", "ViewRecord");
+                return RedirectToAction("displayViewRecord", "ViewRecord");
             }
 
             byte[] fileBytes = null;
@@ -66,22 +66,22 @@ namespace ClearCare.Controllers
                 {
                     Console.WriteLine($"File processing failed: {ex.Message}");
                     TempData["Error"] = "Failed to process attachment.";
-                    return RedirectToAction("DisplayCreateRecord");
+                    return RedirectToAction("displayCreateRecord");
                 }
             }
 
             // Create the medical record and store the file in Firestore
-            var result = await ManageMedicalRecord.AddMedicalRecord(doctorNote, patientID, fileBytes, fileName, doctorID);
+            var result = await ManageMedicalRecord.addMedicalRecord(doctorNote, patientID, fileBytes, fileName, doctorID);
 
             if (result != null)
             {
                 TempData["Success"] = "Medical record added successfully!";
-                return RedirectToAction("DisplayViewRecord", "ViewRecord"); // Redirect back to the records page
+                return RedirectToAction("displayViewRecord", "ViewRecord"); // Redirect back to the records page
             }
             else
             {
                 TempData["Error"] = "Failed to add medical record.";
-                return RedirectToAction("DisplayCreateRecord");
+                return RedirectToAction("displayCreateRecord");
             }
         }
     }

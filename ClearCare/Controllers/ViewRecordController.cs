@@ -23,7 +23,7 @@ namespace ClearCare.Controllers
 
         // View all medical record on 1 page
         [Route("")]
-        public async Task<IActionResult> DisplayViewRecord()
+        public async Task<IActionResult> displayViewRecord()
         {
             var userRole = HttpContext.Session.GetString("Role");
 
@@ -31,11 +31,11 @@ namespace ClearCare.Controllers
             if (userRole != "Doctor" && userRole != "Nurse")
             {
                 Console.WriteLine("You do not have permission to access this page.");
-                return RedirectToAction("DisplayLogin", "Login");
+                return RedirectToAction("displayLogin", "Login");
             }
 
             // Fetch medical records
-            var medicalRecords = await viewMedicalRecord.GetAllMedicalRecords();
+            var medicalRecords = await viewMedicalRecord.getAllMedicalRecords();
 
             // Sort records numerically based on MedicalRecordID
             var sortedRecords = medicalRecords.OrderBy(record => int.Parse(Regex.Replace(record.MedicalRecordID, @"\D", ""))).ToList();
@@ -46,16 +46,16 @@ namespace ClearCare.Controllers
 
         // View all medical record individually
         [Route("Details/{recordID}")]
-        public async Task<IActionResult> ViewMedicalRecord(string recordID)
+        public async Task<IActionResult> viewRecord(string recordID)
         {
-            var recordDetails = await viewMedicalRecord.GetAdjustedRecordByID(recordID);
+            var recordDetails = await viewMedicalRecord.getAdjustedRecordByID(recordID);
             if (recordDetails == null)
             {
                 return NotFound("Medical Record Not Found.");
             }
 
             // Fetch erratums for the specific medical record
-            var erratums = await erratumManagement.GetAllErratum();
+            var erratums = await erratumManagement.getAllErratum();
             var filteredErratums = erratums.Where(e => e.MedicalRecordID == recordID).ToList();
 
             ViewData["RecordDetails"] = recordDetails;
@@ -65,25 +65,25 @@ namespace ClearCare.Controllers
         }
 
         [Route("ViewAttachment/{recordID}")]
-        public async Task<IActionResult> ViewAttachment(string recordID)
+        public async Task<IActionResult> viewAttachment(string recordID)
         {
-            var medicalRecord = await viewMedicalRecord.GetOriginalRecordByID(recordID);
-            if (medicalRecord == null || !medicalRecord.HasAttachment())
+            var medicalRecord = await viewMedicalRecord.getOriginalRecordByID(recordID);
+            if (medicalRecord == null || !medicalRecord.hasAttachment())
             {
                 return NotFound("File not found.");
             }
 
-            var (fileBytes, fileName) = medicalRecord.RetrieveAttachment();
+            var (fileBytes, fileName) = medicalRecord.retrieveAttachment();
 
             return File(fileBytes, "application/octet-stream", fileName);
         }
 
         //exportRecord(): void
         [Route("Export/{recordID}")]
-        public async Task<IActionResult> ExportRecord(string recordID)
+        public async Task<IActionResult> exportRecord(string recordID)
         {
             // Call the ExportMedicalRecord method from ViewMedicalRecord to export the medical record
-            string exportResult = await viewMedicalRecord.ExportMedicalRecord(recordID);
+            string exportResult = await viewMedicalRecord.exportMedicalRecord(recordID);
 
             // Check if the export was successful or if there was an error
             if (exportResult.Contains("exported"))
