@@ -17,7 +17,6 @@ namespace ClearCare.Models.Control
         {
             MedicalRecordGateway = new MedicalRecordGateway();
             this.encryptionService = encryptionService;
-            Console.WriteLine("ManageMedicalRecord initialized as Observer Subject.");
         }
 
         public async Task<MedicalRecord> addMedicalRecord(string doctorNote, string patientID, byte[] fileBytes, string fileName, string doctorID)
@@ -29,7 +28,6 @@ namespace ClearCare.Models.Control
             
             if (newRecord != null)
             {
-                Console.WriteLine("Calling NotifyObservers...");  // Debugging log
                 // Notify observers after adding a new record
                 await notifyObservers(); 
             }

@@ -14,7 +14,6 @@ namespace ClearCare.Models.Control
         public UpdateViewObserver(IHubContext<MedicalRecordHub> hubContext, IMedicalRecordSubject medicalRecordSubject)
         {
             _medhub = hubContext;
-            Console.WriteLine("UpdateViewObserver created."); 
 
             // Add this observer to ManageMedicalRecord when instantiated
             medicalRecordSubject.addObserver(this);
@@ -23,9 +22,6 @@ namespace ClearCare.Models.Control
 
         public async void onMedicalRecordUpdated(List<MedicalRecord> updatedRecords)
         {
-            // Debugging log to confirm the method is being called
-            Console.WriteLine("UpdateViewObserver received update!");
-
             // Notify clients via SignalR (update UI in real-time)
             await _medhub.Clients.All.SendAsync("ReceiveMedicalRecordUpdate", updatedRecords);
         }
