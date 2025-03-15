@@ -4,17 +4,25 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using ClearCare.Models.Entities;
+using ClearCare.Models.Interfaces;
 
 namespace ClearCare.DataSource
 {
-    public class FeedbackGateway
+    public class FeedbackGateway : IFeedbackSend
     {
         private readonly FirestoreDb _db;
+        private IFeedbackReceive _receiver;
 
         public FeedbackGateway()
         {
             // Initialize Firebase
             _db = FirebaseService.Initialize();
+        }
+
+        public IFeedbackReceive receiver
+        {
+            get { return _receiver; }
+            set { _receiver = value; }
         }
 
         public async Task<string> insertFeedback(string content, int rating, string patientId, string dateCreated)
@@ -30,11 +38,38 @@ namespace ClearCare.DataSource
             };
 
             await docRef.SetAsync(feedback);
+            await _receiver.receiveAddStatus(true);
 
             return docRef.Id;
         }
 
-        public async Task<bool> updateFeedback(string id, string response, string doctorId, string dateResponded)
+        // Feedback Update
+        public async Task<bool> updateFeedback(string id, string content, int rating, string dateCreated)
+        {
+            DocumentReference docRef = _db.Collection("Feedback").Document(id);
+
+            var updatedData = new Dictionary<string, object>
+            {
+                { "Content",  content},
+                { "Rating", rating },
+                { "DateCreated", dateCreated }
+            };
+
+            // Check if document exists before updating
+            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+            if (!snapshot.Exists)
+            {
+                return false; // Document not found
+            }
+
+            await docRef.UpdateAsync(updatedData);
+            await _receiver.receiveUpdateStatus(true);
+
+            return true;
+        }
+
+        public async Task<bool> insertResponse(string id, string response, string doctorId, string dateResponded)
         {
             DocumentReference docRef = _db.Collection("Feedback").Document(id);
 
@@ -54,6 +89,8 @@ namespace ClearCare.DataSource
             }
 
             await docRef.UpdateAsync(updatedData);
+            await _receiver.receiveResponseStatus(true);
+
             return true;
         }
 
@@ -88,6 +125,7 @@ namespace ClearCare.DataSource
                 }
             }
 
+            await _receiver.receiveFeedbacks(feedbacks);
             return feedbacks;
         }
 
@@ -122,6 +160,7 @@ namespace ClearCare.DataSource
                 }
             }
 
+            await _receiver.receiveFeedbacksByPatientId(feedbacks);
             return feedbacks;
         }
 
@@ -145,6 +184,8 @@ namespace ClearCare.DataSource
             string dateResponded = snapshot.ContainsField("DateResponded") ? snapshot.GetValue<string>("DateResponded") : "";
 
             Feedback feedback = new Feedback(id, content, rating, response, patientId, dateCreated, doctorId, dateResponded);
+            await _receiver.receiveFeedback(feedback);
+
             return feedback;
         }
 
@@ -159,6 +200,8 @@ namespace ClearCare.DataSource
             }
 
             await docRef.DeleteAsync();
+            await _receiver.receiveDeleteStatus(true);
+
             return true;
         }
     }

@@ -54,9 +54,10 @@ namespace ClearCare.Models.Entities
             PatientId = patientId;
             DateCreated = dateCreated;
             DoctorId = doctorId;
+            DateResponded = dateResponded;
         }
 
-        public Dictionary<string, object> GetDetails()
+        public Dictionary<string, object> GetFeedbackDetails()
         {
             return new Dictionary<string, object>
             {

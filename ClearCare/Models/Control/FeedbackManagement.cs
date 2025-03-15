@@ -3,17 +3,109 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using ClearCare.DataSource;
 using ClearCare.Models.Entities;
+using ClearCare.Models.Interfaces;
 
 
 namespace ClearCare.Models.Controls
 {
-    public class FeedbackManager
+    public class FeedbackManager : IFeedbackReceive
     {
-        private readonly FeedbackGateway _gateway;
+        private readonly IFeedbackSend _gateway;
 
-        public FeedbackManager()
+        public FeedbackManager(IFeedbackSend gateway)
         {
-            _gateway = new FeedbackGateway();
+            _gateway = gateway;
+        }
+
+        public Task receiveFeedbacks(List<Feedback> feedbacks)
+        {
+            if (feedbacks.Count > 0)
+            {
+                Console.WriteLine($"Received {feedbacks.Count} feedback");
+            }
+            else
+            {
+                Console.WriteLine("No feedback received");
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task receiveFeedbacksByPatientId(List<Feedback> feedbacks)
+        {
+            if (feedbacks.Count > 0)
+            {
+                Console.WriteLine($"Received {feedbacks.Count} feedback");
+            }
+            else
+            {
+                Console.WriteLine("No feedback received");
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task receiveFeedback(Feedback feedback)
+        {
+            if (feedback != null)
+            {
+                Console.WriteLine("Received feedback");
+            }
+            else
+            {
+                Console.WriteLine("No feedback received");
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task receiveAddStatus(bool success)
+        {
+            if (success)
+            {
+                Console.WriteLine("Inserted feedback successfully");
+            }
+            else
+            {
+                Console.WriteLine("Failed to insert feedback");
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task receiveUpdateStatus(bool success)
+        {
+            if (success)
+            {
+                Console.WriteLine("Updated feedback successfully");
+            }
+            else
+            {
+                Console.WriteLine("Failed to update feedback");
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task receiveResponseStatus(bool success)
+        {
+            if (success)
+            {
+                Console.WriteLine("Added response successfully");
+            }
+            else
+            {
+                Console.WriteLine("Failed to add response");
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task receiveDeleteStatus(bool success)
+        {
+            if (success)
+            {
+                Console.WriteLine("Deleted feedback successfully");
+            }
+            else
+            {
+                Console.WriteLine("Failed to delete feedback");
+            }
+            return Task.CompletedTask;
         }
 
         public async Task<string> submitFeedback(string content, int rating, string patientId, string dateCreated)
@@ -21,9 +113,14 @@ namespace ClearCare.Models.Controls
             return await _gateway.insertFeedback(content, rating, patientId, dateCreated);
         }
 
-        public async Task<bool> respondToFeedback(string id, string response, string doctorId, string dateResponded)
+        public async Task<bool> updateFeedback(string feedbackId, string content, int rating, string dateCreated)
         {
-            return await _gateway.updateFeedback(id, response, doctorId, dateResponded);
+            return await _gateway.updateFeedback(feedbackId, content, rating, dateCreated);
+        }
+
+        public async Task<bool> respondToFeedback(string feedbackId, string response, string doctorId, string dateResponded)
+        {
+            return await _gateway.insertResponse(feedbackId, response, doctorId, dateResponded);
         }
 
         public async Task<List<Feedback>> viewFeedback()
@@ -39,6 +136,11 @@ namespace ClearCare.Models.Controls
         public async Task<Feedback> getFeedback(string feedbackId)
         {
             return await _gateway.fetchFeedbackById(feedbackId);
+        }
+
+        public async Task<bool> deleteFeedback(string feedbackId)
+        {
+            return await _gateway.deleteFeedback(feedbackId);
         }
     }
 }
