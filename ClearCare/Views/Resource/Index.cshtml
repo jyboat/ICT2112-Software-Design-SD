@@ -1,0 +1,44 @@
+@model List<Dictionary<string, object>>
+
+@{
+    ViewData["Title"] = "Resources List";
+}
+
+<div class="container mt-4">
+    <div class="card shadow p-4">
+        <h2 class="text-info mb-3">Available Resources</h2>
+        
+        <div class="d-flex justify-content-end">
+            <a href="@Url.Action("Add", "Resource")" class="btn btn-primary">Add New Resource</a>
+        </div>
+
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Title</th>
+                        <th>Link</th>
+                        <th>Category</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var resource in Model)
+                    {
+                        <tr>
+                            <td>@resource["Title"]</td>
+                            <td><a href="@resource["Link"]" target="_blank">View</a></td>
+                            <td>@resource["Category"]</td>
+                            <td>
+                                <a href="@Url.Action("Edit", "Resource", new { resourceId = resource["ID"] })" class="btn btn-sm btn-warning">Edit</a>
+                                <form method="post" action="@Url.Action("Delete", "Resource", new { resourceId = resource["ID"] })" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this resource?');">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

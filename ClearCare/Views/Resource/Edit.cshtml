@@ -1,0 +1,55 @@
+@model ClearCare.Models.Entities.Resource
+
+@{
+    ViewData["Title"] = "Update Resource";
+}
+
+@if (Model == null)
+{
+    <div class="alert alert-danger">Error: Resource not found.</div>
+}
+else
+{
+    var resource = Model.GetDetails();
+    <div class="container update-resource">
+        <div class="card shadow p-4">
+            <h2 class="text-info mb-3">Updating Resource</h2>
+            <form action="/Resource/Edit/@resource["Id"]" method="post">
+                <div class="table-responsive">
+                    <table class="table table-bordered resource-table">
+                        <tbody>
+                            <tr>
+                                <th>Title:</th>
+                                <td>
+                                    <input name="title" type="text" class="form-control" value="@resource["Title"]" required />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Description:</th>
+                                <td>
+                                    <textarea name="description" class="form-control" required>@resource["Description"]</textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Uploaded By (User ID):</th>
+                                <td>
+                                    <input name="uploadedBy" type="number" class="form-control" value="@resource["UploadedBy"]" required />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Date Created:</th>
+                                <td>
+                                    <input name="dateCreated" type="date" class="form-control" value="@resource["DateCreated"]" required />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary w-100">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}

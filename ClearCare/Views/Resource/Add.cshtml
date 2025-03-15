@@ -1,0 +1,45 @@
+@{
+    ViewData["Title"] = "Add Resource";
+}
+
+<div class="container add-resource">
+    <div class="card shadow p-4">
+        <h2 class="text-info mb-3">Adding New Resource</h2>
+        <form action="/Resource/Add" method="post">
+            <div class="table-responsive">
+                <table class="table table-bordered resource-table">
+                    <tbody>
+                        <tr>
+                            <th>Title:</th>
+                            <td>
+                                <input name="title" type="text" class="form-control" required />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Description:</th>
+                            <td>
+                                <textarea name="description" class="form-control" required></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Uploaded By (User ID):</th>
+                            <td>
+                                <input name="uploadedBy" type="number" class="form-control" required />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Date Created:</th>
+                            <td>
+                                <input name="dateCreated" type="date" class="form-control" required />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary w-100">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>

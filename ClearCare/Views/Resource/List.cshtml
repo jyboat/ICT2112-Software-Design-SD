@@ -1,0 +1,41 @@
+@{
+    ViewData["Title"] = "Resource List";
+}
+
+<h2>Resource List</h2>
+
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Uploaded By</th>
+            <th>Date Created</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var resource in Model)
+        {
+            <tr>
+                <td>@resource["Title"]</td>
+                <td>@resource["Description"]</td>
+                <td>@resource["UploadedBy"]</td>
+                <td>@resource["DateCreated"]</td>
+                <td>
+                    <a href="@Url.Action("Edit", "Resource", new { resourceId = resource["Id"] })" class="btn btn-warning">Edit</a>
+                    <form method="post" action="@Url.Action("Delete", "Resource", new { resourceId = resource["Id"] })" style="display:inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("Add", "Resource")" class="btn btn-primary">Add New Resource</a>
