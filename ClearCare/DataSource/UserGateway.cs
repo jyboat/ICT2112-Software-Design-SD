@@ -287,7 +287,7 @@ namespace ClearCare.DataSource
                     updates["Address"] = updatedFields["Address"].ToString();
                 if (updatedFields.ContainsKey("Password"))
                     updates["Password"] = updatedFields["Password"].ToString();
-                
+
                 string role = snapshot.GetValue<string>("Role");
                 
                 switch (role)
@@ -321,6 +321,59 @@ namespace ClearCare.DataSource
             catch (Exception ex)
             {
                 Console.WriteLine("Error updating user profile: " + ex.Message);
+                return false;
+            }
+        }
+
+        public async Task<bool> resetPassword(String uid, String password) 
+        {
+            try
+            {
+                DocumentReference userDocRef = db.Collection("User").Document(uid);
+                DocumentSnapshot snapshot = await userDocRef.GetSnapshotAsync();
+                
+                if (!snapshot.Exists)
+                    throw new Exception("User not found. userID: " + uid);
+                
+                Dictionary<string, object> updates = new Dictionary<string, object>();
+                
+                // Ensure only selected base user fields are updated
+                if (password != null)
+                    updates["Password"] = encryptionManagement.hashPassword(password);
+                
+                if (updates.Count > 0)
+                    await userDocRef.UpdateAsync(updates);
+                
+                Console.WriteLine($"Successfully reset password for user {uid}, password is {password}");
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error updating user profile password: " + ex.Message);
+                return false;
+            }
+        }
+    
+        public async Task<bool> deleteUser(string uid)
+        {
+            try
+            {
+                DocumentReference userDocRef = db.Collection("User").Document(uid);
+                DocumentSnapshot snapshot = await userDocRef.GetSnapshotAsync();
+                
+                if (!snapshot.Exists)
+                    throw new Exception("User not found. userID: " + uid);
+                
+                await userDocRef.DeleteAsync();
+                
+                Console.WriteLine($"Successfully deleted user {uid}");
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error deleting user: " + ex.Message);
                 return false;
             }
         }
