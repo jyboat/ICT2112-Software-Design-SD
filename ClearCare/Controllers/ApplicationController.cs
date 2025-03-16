@@ -28,11 +28,5 @@ namespace ClearCare.Controllers
             // Redirects to the EnquiryController's Index action
             return RedirectToAction("Index", "SideEffects");
         }
-
-          public IActionResult GoToPrescription()
-        {
-            // Redirects to the EnquiryController's Index action
-            return RedirectToAction("Index", "Prescription");
-        }
     }
 }
