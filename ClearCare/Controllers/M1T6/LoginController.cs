@@ -9,7 +9,6 @@ namespace ClearCare.Controllers
     public class LoginController : Controller
     {
         private readonly LoginManagement LoginManagement;
-        private readonly IEmail emailService;
 
         public LoginController(IPassword passwordService, IEmail emailService)
         {
@@ -24,15 +23,28 @@ namespace ClearCare.Controllers
         [HttpPost]
         public async Task<IActionResult> authenticate(string email, string password)
         {
-            var tempUser = await LoginManagement.authenticateUser(email, password);
-            if (tempUser != null)
-            {
-                // Store only UserID temporarily for OTP verification
-                var (userID, _) = tempUser.getSessionData();
-                HttpContext.Session.SetString("TempUserID", userID);
+            // For OTP Flow
+            // var tempUser = await LoginManagement.authenticateUser(email, password);
+            // if (tempUser != null)
+            // {
+            //     // Store only UserID temporarily for OTP verification
+            //     var (userID, _) = tempUser.getSessionData();
+            //     HttpContext.Session.SetString("TempUserID", userID);
 
-                return RedirectToAction("displayChooseEmail");
+            //     return RedirectToAction("displayChooseEmail");
+            // }
+
+            // Dev purposes, straight login
+            var authenticatedUser = await LoginManagement.authenticateUser(email, password);
+            if (authenticatedUser != null)
+            {
+                var (userID, role) = authenticatedUser.getSessionData();
+                HttpContext.Session.SetString("UserID", userID);
+                HttpContext.Session.SetString("Role", role);
+
+                return RedirectToAction("Index", "Home");
             }
+                
             ViewBag.Error = "Invalid login credentials";
             return View("Login");
         }
