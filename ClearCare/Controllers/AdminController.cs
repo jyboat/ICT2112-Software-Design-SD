@@ -86,7 +86,7 @@ namespace ClearCare.Controllers
 
                User newUser = UserFactory.createUser("", email, password, name, (int)mobileNumber, address, role, infoDictionary);
 
-               string result = await _adminManagement.CreateAccount(newUser!, password);
+               string result = await _adminManagement.createAccount(newUser!, password);
 
                if (result == "Account created successfully.")
                {

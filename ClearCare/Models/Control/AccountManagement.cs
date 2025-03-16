@@ -2,17 +2,19 @@ using System;
 using System.Threading.Tasks;
 using ClearCare.Models.Entities;
 using ClearCare.DataSource;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
     public class AccountManagement
     {
         private readonly UserGateway _userGateway;
-
+        private readonly IPassword _passwordService;
         // Constructor with dependency injection
-        public AccountManagement(UserGateway userGateway)
+        public AccountManagement(UserGateway userGateway, IPassword passwordService)
         {
             _userGateway = userGateway ?? throw new ArgumentNullException(nameof(userGateway));
+            _passwordService = passwordService;
         }
 
         // Method to create a new account

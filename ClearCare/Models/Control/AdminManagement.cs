@@ -7,11 +7,11 @@ using System.Text;
 
 namespace ClearCare.Models.Control
 {
-     public class AdminManagement : AccountManagement
+     public class AdminManagement
      {
           private readonly UserGateway _userGateway;
 
-          public AdminManagement(UserGateway userGateway) : base(userGateway)
+          public AdminManagement(UserGateway userGateway)
           {
                _userGateway = userGateway;
           }

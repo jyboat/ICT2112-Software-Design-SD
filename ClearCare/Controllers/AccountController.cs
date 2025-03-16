@@ -4,6 +4,7 @@ using ClearCare.Models.Entities;
 using ClearCare.DataSource;
 using System.Threading.Tasks;
 using Google.Cloud.Firestore;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.Controllers
 {
@@ -11,12 +12,11 @@ namespace ClearCare.Controllers
     {
         private readonly AccountManagement _accountManagement;
 
-        public AccountController()
-        {
-            var userGateway = new UserGateway();
-            _accountManagement = new AccountManagement(userGateway);
-        }
-
+        public AccountController(IPassword passwordService)
+    {
+        var userGateway = new UserGateway(); // ✅ Declare userGateway
+        _accountManagement = new AccountManagement(userGateway, passwordService); // ✅ Pass passwordService
+    }
         // GET: /Account/Register
         [HttpGet]
         public IActionResult Register()
