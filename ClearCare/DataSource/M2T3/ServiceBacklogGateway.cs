@@ -29,7 +29,8 @@ namespace ClearCare.DataSource
             _dbCollection = _db.Collection("ServiceBacklogs");
             Receiver = receiver;
         }
-
+        
+        // CREATE BACKLOG
         public async Task createServiceBacklog(ServiceBacklog backlog)
         {
             try
@@ -55,7 +56,8 @@ namespace ClearCare.DataSource
         }
 
 
-        public async Task fetchServiceBacklogs()
+        // GET ALL BACKLOGS
+        public async Task<List<Dictionary<string,string>>> fetchServiceBacklogs()
         {
             QuerySnapshot snapshot = await _dbCollection.GetSnapshotAsync();
 
@@ -74,26 +76,34 @@ namespace ClearCare.DataSource
             }
 
             await _receiver.receiveBacklogList(backlogList);
+            return backlogList;
+        }
+        
+        // GET ONE SERVICE BACKLOG BASED ON ID
+        public async Task<Dictionary<string, string>> fetchServiceBacklogById(string backlogId)
+        {
+            DocumentReference docRef = _dbCollection.Document(backlogId);
+            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+            var data = snapshot.ToDictionary();
+            Dictionary<string, string> backlog = FirestoreToBacklogDictionary(snapshot.Id, data);
+
+            await _receiver.receiveBacklogDetails(backlog);
+            return backlog;
         }
 
-
-        public async Task deleteServiceBacklog(int backlogId)
+        public async Task deleteServiceBacklog(string backlogId)
         {
-            // TODO trycatch for failure
-            Query query = _dbCollection.WhereEqualTo("backlogId", backlogId);
-            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+            DocumentReference docRef = _dbCollection.Document(backlogId);
+            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
-            if (snapshot.Documents.Count == 0)
+            if (!snapshot.Exists)
             {
-                await _receiver.receiveDeleteStatus("Failed: availability not found");
+                await _receiver.receiveDeleteStatus("Failed: backlog not found");
                 return;
             }
 
-            foreach (DocumentSnapshot document in snapshot.Documents)
-            {
-                await document.Reference.DeleteAsync();
-            }
-
+            await docRef.DeleteAsync();
             await _receiver.receiveDeleteStatus("Success");
         }
 

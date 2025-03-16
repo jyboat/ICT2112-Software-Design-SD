@@ -9,9 +9,10 @@ namespace ClearCare.Interfaces
 {
     public interface IServiceBacklogDB_Send
     {
-        public Task createServiceBacklog(ServiceBacklog backlog);
+        Task<List<Dictionary<string,string>>> fetchServiceBacklogs();
+        Task<Dictionary<string,string>> fetchServiceBacklogById(string backlogId);
+        Task createServiceBacklog(ServiceBacklog backlog);
 
-        public Task fetchServiceBacklogs();
-        public Task deleteServiceBacklog(int backlogId);
+        Task deleteServiceBacklog(string backlogId);
     }
 }

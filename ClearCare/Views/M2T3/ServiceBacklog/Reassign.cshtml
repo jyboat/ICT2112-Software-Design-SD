@@ -1,0 +1,107 @@
+@model ClearCare.Models.Entities.ServiceBacklogViewModel
+
+@{
+    ViewData["Title"] = "Reassign Service Appointment";
+}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Reassign Backlog</title>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+<h1 class="my-4">@ViewData["Title"]</h1>
+
+<form id="appointmentForm" method="post">
+    <!-- Disabled or hidden fields for unchangeable data -->
+    <label for="appointmentId">Appointment ID:</label>
+    <input type="text" id="appointmentId" name="AppointmentId" value="@Model.AppointmentId" readonly style="background-color: #e9ecef;"><br><br>
+
+    <label for="patientId">Patient ID:</label>
+    <input type="text" id="patientId" name="PatientId" value="@Model.PatientId" readonly style="background-color: #e9ecef;"><br><br>
+
+    <label for="doctorId">Doctor ID:</label>
+    <input type="text" id="doctorId" name="DoctorId" value="@Model.DoctorId" readonly style="background-color: #e9ecef;"><br><br>
+
+    <label for="serviceTypeId">Service Type ID:</label>
+    <input type="text" id="serviceTypeId" name="ServiceTypeId" value="@Model.ServiceType" readonly style="background-color: #e9ecef;"><br><br>
+
+    <label for="nurseId">Nurse:</label>
+    <select id="nurseId" name="NurseId" class="select2" required>
+        <option value="">Select Nurse</option>
+        @foreach (var nurse in ViewBag.Nurses)
+        {
+            <option value="@nurse["id"]">@nurse["name"]</option>
+        }
+    </select><br><br>
+
+    <label for="dateTime">Date & Time:</label>
+    <input type="datetime-local" id="dateTime" name="DateTime" required><br><br>
+
+    <label for="slot">Slot:</label>
+    <input type="number" id="slot" name="Slot" required><br><br>
+
+    <label for="location">Location:</label>
+    <select id="location" name="Location" class="form-control" required>
+        <option value="">Select Location Type</option>
+        <option value="PHYSICAL">Physical</option>
+        <option value="VIRTUAL">Virtual</option>
+    </select><br><br>
+    <button type="submit">Reassign</button>
+</form>
+
+</body>
+</html>
+
+@* <script>
+    $(document).ready(function() {
+        // Initialize Select2 for dropdowns
+        $('.select2').select2({
+            placeholder: 'Search...',
+            allowClear: true
+        });
+    });
+
+    document.getElementById("appointmentForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent form from redirecting
+
+        // Convert input datetime to UTC format (YYYY-MM-DDTHH:mm:ssZ)
+        let selectedDateTime = new Date(document.getElementById("dateTime").value);
+        let formattedDateTime = selectedDateTime.toISOString().split(".")[0] + "Z"; // Convert to UTC format
+
+        let formData = {
+            AppointmentId: document.getElementById("appointmentId").value,
+            PatientId: document.getElementById("patientId").value,
+            NurseId: document.getElementById("nurseId").value,
+            DoctorId: document.getElementById("doctorId").value,
+            ServiceTypeId: document.getElementById("serviceTypeId").value,
+            Status: document.getElementById("status").value,
+            DateTime: formattedDateTime,
+            Slot: parseInt(document.getElementById("slot").value),
+            Location: document.getElementById("location").value
+        };
+
+        console.log(formData);
+
+        // Send a PUT request to update the appointment
+        fetch("/api/ServiceAppointments/Reassign", {
+            method: "PUT", // Use PUT or PATCH for updates
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("Response: " + JSON.stringify(data));
+            console.log("Response:", data);
+        })
+        .catch(error => console.error("Error:", error));
+    });
+</script> *@
+
+</html>

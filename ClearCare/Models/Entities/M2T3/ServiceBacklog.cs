@@ -6,24 +6,25 @@ using Google.Cloud.Firestore;
 
 namespace ClearCare.Models.Entities
 {
-    [FirestoreData]
     public class ServiceBacklog
     {
-        private string backlogId { get; set; }
+        private string BacklogId { get; set; }
 
-        private string appointmentId { get; set; }
+        private string AppointmentId { get; set; }
 
         // private getters and setters
-        private string getBacklogId() => backlogId;
-        private string getServiceAppointmentId() => appointmentId;
+        private string getBacklogId() => BacklogId;
+        private string getServiceAppointmentId() => AppointmentId;
 
-        private void setBacklogId(string backlogID) => backlogId = backlogID;
-        private void setServiceAppointmentId(string appointmentID) => appointmentId = appointmentID;
+        private void setBacklogId(string backlogID) => BacklogId = backlogID;
+        private void setServiceAppointmentId(string appointmentID) => AppointmentId = appointmentID;
 
         // public constructor
+        public ServiceBacklog() {}
+
         public ServiceBacklog(string appointmentID)
         {
-            appointmentId = appointmentID;
+            AppointmentId = appointmentID;
         }
 
         // public getters and setters
