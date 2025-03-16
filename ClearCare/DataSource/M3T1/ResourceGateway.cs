@@ -2,9 +2,9 @@ using Google.Cloud.Firestore;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using ClearCare.Models.Entities;
+using ClearCare.Models.Entities.M3T1;
 
-namespace ClearCare.DataSource
+namespace ClearCare.DataSource.M3T1
 {
     public class ResourceGateway
     {
@@ -53,29 +53,29 @@ namespace ClearCare.DataSource
             return resources;
         }
 
-      public async Task<Resource> fetchResourceById(string id)
-{
-    if (string.IsNullOrEmpty(id))
-    {
-        return null;
-    }
+        public async Task<Resource> fetchResourceById(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return null;
+            }
 
-    DocumentReference docRef = _db.Collection("Resource").Document(id);
-    DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+            DocumentReference docRef = _db.Collection("Resource").Document(id);
+            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
-    if (!snapshot.Exists)
-    {
-        return null; // Ensure null is returned instead of causing an error
-    }
+            if (!snapshot.Exists)
+            {
+                return null; // Ensure null is returned instead of causing an error
+            }
 
-    return new Resource(
-        id,
-        snapshot.GetValue<string>("Title"),
-        snapshot.GetValue<string>("Description"),
-        snapshot.GetValue<int>("UploadedBy"),
-        snapshot.GetValue<string>("DateCreated")
-    );
-}
+            return new Resource(
+                id,
+                snapshot.GetValue<string>("Title"),
+                snapshot.GetValue<string>("Description"),
+                snapshot.GetValue<int>("UploadedBy"),
+                snapshot.GetValue<string>("DateCreated")
+            );
+        }
 
 
 

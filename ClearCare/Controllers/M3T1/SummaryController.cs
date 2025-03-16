@@ -1,10 +1,10 @@
-using ClearCare.DataSource;
+using ClearCare.DataSource.M3T1;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Text.Json;
-using ClearCare.Models.Controls;
-using ClearCare.Models.Entities;
+using ClearCare.Models.Control.M3T1;
+using ClearCare.Models.Entities.M3T1;
 
 // Request Handling
 [Route("Summary")]
@@ -27,7 +27,7 @@ public class SummaryController : Controller
 
         var summaryList = summaries.Select(s => s.GetSummaryDetails()).ToList();  
 
-        return View("List", summaryList); 
+        return View("~/Views/M3T1/Summary/List.cshtml", summaryList); 
     }
 
     [Route("View/{summaryId}")]
@@ -39,7 +39,7 @@ public class SummaryController : Controller
         {
             return View("List");
         }
-        return View("Index", summary);
+        return View("~/Views/M3T1/Summary/Index.cshtml", summary);
     }
 
     [Route("Add")]
@@ -55,7 +55,7 @@ public class SummaryController : Controller
         if (string.IsNullOrEmpty(details) || string.IsNullOrEmpty(instructions) || string.IsNullOrEmpty(date))
         {
             TempData["ErrorMessage"] = "Please fill in all required fields";
-            return View("Add");
+            return View("~/Views/M3T1/Summary/Add.cshtml");
         }
 
         DateTime parsedDate;
@@ -81,9 +81,9 @@ public class SummaryController : Controller
         var summary = await _manager.getSummary(summaryId);
         if (summary == null)
         {
-            return View("List");
+            return RedirectToAction("List");
         }
-        return View("Edit", summary);
+        return View("~/Views/M3T1/Summary/Edit.cshtml", summary);
     }
 
     [Route("Edit/{summaryId}")]

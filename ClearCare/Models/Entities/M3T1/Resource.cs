@@ -1,7 +1,7 @@
 using Google.Cloud.Firestore;
 using System.Collections.Generic;
 
-namespace ClearCare.Models.Entities
+namespace ClearCare.Models.Entities.M3T1
 {
     public class Resource
     {

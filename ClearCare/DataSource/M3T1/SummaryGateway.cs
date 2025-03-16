@@ -3,10 +3,10 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using ClearCare.Models.Entities;
-using ClearCare.Models.Interfaces;
+using ClearCare.Models.Entities.M3T1;
+using ClearCare.Models.Interfaces.M3T1;
 
-namespace ClearCare.DataSource
+namespace ClearCare.DataSource.M3T1
 {
     public class SummaryGateway : ISummarySend
     {
@@ -78,7 +78,8 @@ namespace ClearCare.DataSource
 
             foreach (DocumentSnapshot doc in snapshot.Documents)
             {
-                if (doc.Exists) {
+                if (doc.Exists)
+                {
                     try
                     {
                         string id = doc.ContainsField("Id") ? doc.GetValue<string>("Id") : doc.Id;

@@ -1,9 +1,9 @@
-using ClearCare.DataSource;
+using ClearCare.DataSource.M3T1;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using ClearCare.Models.Controls;
-using ClearCare.Models.Entities;
+using ClearCare.Models.Control.M3T1;
+using ClearCare.Models.Entities.M3T1;
 
 [Route("Resource")] // Updated to singular "Resource"
 public class ResourceController : Controller
@@ -23,14 +23,14 @@ public class ResourceController : Controller
             .Select(r => r.GetDetails())
             .ToList();
 
-        return View("List", resourceList);
+        return View("~/Views/M3T1/Resource/List.cshtml", resourceList);
     }
 
     [Route("Add")]
     [HttpGet]
     public IActionResult Add()
     {
-        return View("Add");
+        return View("~/Views/M3T1/Resource/Add.cshtml");
     }
 
     [Route("Add")]
@@ -40,7 +40,7 @@ public class ResourceController : Controller
         if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(description) || uploadedBy < 1)
         {
             ViewBag.ErrorMessage = "Please fill in all required fields";
-            return View("Add");
+            return View("~/Views/M3T1/Resource/Add.cshtml");
         }
 
         string dateCreated = DateTime.Now.ToString("yyyy-MM-dd");
@@ -67,7 +67,7 @@ public async Task<IActionResult> Edit(string resourceId)
         return RedirectToAction("List");
     }
 
-    return View("Edit", resource); // Ensure the model is passed
+    return View("~/Views/M3T1/Resource/Edit.cshtml", resource); // Ensure the model is passed
 }
 
 

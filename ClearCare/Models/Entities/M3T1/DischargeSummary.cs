@@ -5,7 +5,7 @@ using Google.Cloud.Firestore;
 using Google.Cloud.Location;
 using Newtonsoft.Json;
 
-namespace ClearCare.Models.Entities
+namespace ClearCare.Models.Entities.M3T1
 {
     public class DischargeSummary
     {

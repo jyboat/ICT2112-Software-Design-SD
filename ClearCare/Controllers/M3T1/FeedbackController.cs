@@ -1,11 +1,11 @@
-﻿using ClearCare.DataSource;
+﻿using ClearCare.DataSource.M3T1;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Text.Json;
-using ClearCare.Models.Controls;
 using ClearCare.Models.Entities;
 using static Google.Rpc.Context.AttributeContext.Types;
+using ClearCare.Models.Control.M3T1;
 
 // Request Handling
 [Route("Feedback")]
@@ -44,14 +44,14 @@ public class FeedbackController : Controller
         {
             return RedirectToAction("DisplayAllFeedback");
         }
-        return View("List", feedbackList);
+        return View("~/Views/M3T1/Feedback/List.cshtml", feedbackList);
     }
 
     [Route("Submission")]
     [HttpGet]
     public IActionResult DisplayAddForm()
     {
-        return View("Submission");
+        return View("~/Views/M3T1/Feedback/Submission.cshtml");
     }
 
     [Route("Submission")]
@@ -84,7 +84,7 @@ public class FeedbackController : Controller
             return RedirectToAction("DisplayAllFeedback");
         }
 
-        return View("Response", feedback);
+        return View("~/Views/M3T1/Feedback/Response.cshtml", feedback);
     }
 
     [Route("Response/{feedbackId}")]
@@ -121,7 +121,7 @@ public class FeedbackController : Controller
         {
             return RedirectToAction("DisplayAllFeedback");
         }
-        return View("Index", feedback);
+        return View("~/Views/M3T1/Feedback/Index.cshtml", feedback);
     }
 
     [Route("Edit/{feedbackId}")]
@@ -133,7 +133,7 @@ public class FeedbackController : Controller
         {
             return RedirectToAction("DisplayAllFeedback");
         }
-        return View("Edit", feedback);
+        return View("~/Views/M3T1/Feedback/Edit.cshtml", feedback);
     }
 
     [Route("Edit/{feedbackId}")]

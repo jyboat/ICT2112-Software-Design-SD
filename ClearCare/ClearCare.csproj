@@ -11,11 +11,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Views\Feedback\Index.cshtml">
+    <Content Update="Views\M3T1\Feedback\Index.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <Content Update="Views\Feedback\Edit.cshtml">
+    <Content Update="Views\M3T1\Feedback\Edit.cshtml">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
