@@ -1,0 +1,93 @@
+@model ReplyToEnquiryViewModel
+
+@{
+    ViewData["Title"] = "Reply to Enquiry";
+}
+
+<h2>Reply to Enquiry</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Enquiry Details</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Document ID:</dt>
+                    <dd class="col-sm-8">@Model.Enquiry.FirestoreId</dd>
+                    
+                    <dt class="col-sm-4">Name:</dt>
+                    <dd class="col-sm-8">@Model.Enquiry.Name</dd>
+                    
+                    <dt class="col-sm-4">Email:</dt>
+                    <dd class="col-sm-8">@Model.Enquiry.Email</dd>
+                    
+                    <dt class="col-sm-4">Message:</dt>
+                    <dd class="col-sm-8">@Model.Enquiry.Message</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4>Your Reply</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="SendReply" method="post">
+                    <input type="hidden" name="enquiryId" value="@Model.Enquiry.FirestoreId" />
+                    <input type="hidden" name="recipientName" value="@Model.Enquiry.Name" />
+                    <input type="hidden" name="recipientEmail" value="@Model.Enquiry.Email" />
+                    <input type="hidden" name="originalMessage" value="@Model.Enquiry.Message" />
+                    <input type="hidden" name="userUUID" value="@Model.Enquiry.UserUUID" />
+                    
+                    <div class="form-group">
+                        <label for="replySubject">Subject</label>
+                        <input type="text" class="form-control" id="replySubject" name="subject" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="replyMessage">Reply Message</label>
+                        <textarea class="form-control" id="replyMessage" name="message" rows="6" required></textarea>
+                    </div>
+                    
+                    <div class="form-group mt-3">
+                        <button type="submit" class="btn btn-success">Send Reply</button>
+                        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr />
+
+<h3>Previous Replies</h3>
+
+@if (Model.Replies != null && Model.Replies.Any())
+{
+    <div class="card">
+        <div class="card-header">
+            <h4>Replies</h4>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                @foreach (var reply in Model.Replies)
+                {
+                    <li class="list-group-item">
+                        <strong>Subject:</strong> @reply.Subject <br />
+                        <strong>Message:</strong> @reply.Message <br />
+                        <small class="text-muted">Sent on: @reply.CreatedAt.ToLocalTime()</small>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+else
+{
+    <p>No replies yet.</p>
+}

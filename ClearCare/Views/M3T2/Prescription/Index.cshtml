@@ -1,0 +1,47 @@
+@model List<ClearCare.Models.Entities.M3T2.PrescriptionModel>
+@{
+    ViewData["Title"] = "Prescriptions";
+}
+
+<h1>Prescription List</h1>
+
+<!-- Table to display prescriptions -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>Patient ID</th>
+            <th>Doctor ID</th>
+            <th>Drug List</th>
+            <th>Date Issued</th>
+            <th>Dosage Info</th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (Model != null)
+    {
+        foreach (var prescription in Model)
+        {
+            <tr>
+                <td>@prescription.PatientId</td>
+                <td>@prescription.DoctorId</td>
+                <td>
+                    @if (prescription.DrugList != null)
+                    {
+                        foreach (var drug in prescription.DrugList)
+                        {
+                            @drug <br/>
+                        }
+                    }
+                </td>
+                <td>@prescription.DateIssued.ToShortDateString()</td>
+                <td>@prescription.DosageInfo</td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>
+
+<!-- Link to add a new prescription -->
+<a asp-controller="Prescription" asp-action="Create" class="btn btn-primary">
+    Add New Prescription
+</a>
