@@ -3,16 +3,21 @@ using ClearCare.Models.Entities;
 using ClearCare.Models.Control;
 using ClearCare.Models.Interface;
 using System.Threading.Tasks;
+using ClearCare.DataSource;
 
 namespace ClearCare.Controllers
 {
     public class LoginController : Controller
     {
         private readonly LoginManagement LoginManagement;
+        private readonly AccountManagement _accountManagement;
 
         public LoginController(IPassword passwordService, IEmail emailService)
         {
+            var userGateway = new UserGateway(); 
+
             LoginManagement = new LoginManagement(passwordService, emailService);
+            _accountManagement = new AccountManagement(userGateway, passwordService);    
         }
 
         public IActionResult displayLogin()
@@ -129,6 +134,113 @@ namespace ClearCare.Controllers
 
             ViewBag.Error = "Invalid OTP or email. Please try again.";
             return View();
+        }
+
+        // Display the reset password page
+        public IActionResult displayResetPassword()
+        {
+            return View("ResetPassword");
+        }
+
+        // Handle the reset password request
+        [HttpPost]
+        public async Task<IActionResult> requestResetPassword(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                ViewBag.Error = "Email cannot be empty.";
+                return View("ResetPassword");
+            }
+
+            // Generate OTP
+            var otpCode = new Random().Next(100000, 999999).ToString();
+
+            // Store OTP and email in session
+            HttpContext.Session.SetString("ResetOTP", otpCode);
+            HttpContext.Session.SetString("ResetEmail", email);
+            HttpContext.Session.SetString("ResetOTP_Expiry", DateTime.UtcNow.AddMinutes(10).ToString()); // Expiry time
+
+            // Send OTP via Gmail SMTP
+            bool isSent = await LoginManagement.sendOTP(email, otpCode);
+
+            if (isSent)
+            {
+                return RedirectToAction("displayVerifyResetOTP");
+            }
+
+            ViewBag.Error = "Failed to send OTP. Please try again.";
+            return View("ResetPassword");
+        }
+
+        // Display the OTP verification page for reset password
+        public IActionResult displayVerifyResetOTP()
+        {
+            return View("VerifyResetOTP");
+        }
+
+        // Verify the OTP for reset password
+        [HttpPost]
+        public async Task<IActionResult> verifyResetOTP(string email, string otp)
+        {
+            var storedOtp = HttpContext.Session.GetString("ResetOTP");
+            var otpExpiry = HttpContext.Session.GetString("ResetOTP_Expiry");
+
+            // Check if OTP expired
+            if (!string.IsNullOrEmpty(otpExpiry) && DateTime.UtcNow > DateTime.Parse(otpExpiry))
+            {
+                HttpContext.Session.Remove("ResetOTP");
+                ViewBag.Error = "OTP has expired. Please request a new one.";
+                return View("VerifyResetOTP");
+            }
+
+            if (storedOtp == otp)
+            {
+                // OTP is correct, clear all OTP session data and allow password reset
+                HttpContext.Session.Remove("ResetOTP");
+                HttpContext.Session.Remove("ResetOTP_Expiry");
+                HttpContext.Session.SetString("ResetConfirmed", "true");
+
+                return RedirectToAction("displayNewPassword");
+            }
+
+            ViewBag.Error = "Invalid OTP or email. Please try again.";
+            return View("VerifyResetOTP");
+        }
+
+        // Display the new password page
+        public IActionResult displayNewPassword()
+        {
+            return View("NewPassword");
+        }
+
+        // Handle the new password submission
+       [HttpPost]
+        public async Task<IActionResult> submitNewPassword(string newPassword, string confirmPassword)
+        {
+            // Server-side validation to ensure passwords match
+            if (newPassword != confirmPassword)
+            {
+                ViewBag.Error = "Passwords do not match. Please try again.";
+                return View("NewPassword");
+            }
+
+            var resetEmail = HttpContext.Session.GetString("ResetEmail");
+            if (string.IsNullOrEmpty(resetEmail))
+            {
+                ViewBag.Error = "Session expired. Please try again.";
+                return View("NewPassword");
+            }
+
+            bool isReset = await _accountManagement.ResetPassword(resetEmail, newPassword, HttpContext);
+            if (isReset)
+            {
+                HttpContext.Session.Remove("ResetEmail");
+                HttpContext.Session.Remove("ResetConfirmed");
+                return RedirectToAction("Index", "Home");
+            }
+
+            ViewBag.Error = "Failed to reset password. Please try again.";
+            return View("NewPassword");
         }
     }
 }

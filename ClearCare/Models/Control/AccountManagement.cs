@@ -38,5 +38,45 @@ namespace ClearCare.Models.Control
             var user = await _userGateway.findUserByEmail(email);
             return user != null ? "Account exists." : "Account does not exist.";
         }
+
+        public async Task<bool> ResetPassword(string email, string newPassword, HttpContext httpContext)
+        {
+            var resetConfirmed = httpContext.Session.GetString("ResetConfirmed");
+            if (resetConfirmed != "true")
+            {
+                return false;
+            }
+
+            var user = await _userGateway.findUserByEmail(email);
+            if (user == null)
+            {
+                return false;
+            }
+
+            // Use getProfileData() to get the UserID without making getUserID() public
+            var profileData = user.getProfileData();
+            if (!profileData.ContainsKey("UserID"))
+            {
+                return false; // UserID not found
+            }
+
+            string userId = profileData["UserID"].ToString();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return false; // Ensure it's not null or empty
+            }
+
+            // Hash the password
+            string hashedPassword = _passwordService.hashPassword(newPassword);
+            bool isUpdated = await _userGateway.resetPassword(userId, hashedPassword);
+
+            if (isUpdated)
+            {
+                httpContext.Session.Remove("ResetConfirmed");
+                return true;
+            }
+
+            return false;
+        }
     }
 }

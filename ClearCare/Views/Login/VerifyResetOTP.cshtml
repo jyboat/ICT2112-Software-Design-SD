@@ -1,7 +1,6 @@
-<!-- Updated VerifyOTP.cshtml with Bootstrap -->
 @{
     Layout = null;
-    ViewBag.Title = "Verify OTP";
+    ViewBag.Title = "Verify OTP for Reset Password";
 }
 
 <!DOCTYPE html>
@@ -17,7 +16,7 @@
 </head>
 
 <body class="d-flex justify-content-center align-items-center vh-100 bg-light">
-    <form method="post" asp-action="verifyOTP" class="otp-Form">
+    <form method="post" asp-action="verifyResetOTP" class="otp-Form">
         <span class="mainHeading">Verify OTP</span>
         <p class="otpSubheading">We have sent a verification code to your email address</p>
         <div class="inputContainer">
