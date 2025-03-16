@@ -1,0 +1,32 @@
+@model IEnumerable<ClearCare.Models.PrescriptionEntity_RDM> 
+<!-- adjust namespace as needed -->
+
+@{
+    ViewData["Title"] = "Prescription Index";
+}
+
+<h1>Prescription Index</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Patient ID</th>
+            <th>Doctor ID</th>
+            <th>Drugs</th>
+            <th>Dosage Info</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var prescription in Model)
+        {
+            <tr>
+                <td>@prescription.PatientId</td>
+                <td>@prescription.DoctorId</td>
+                <td>@string.Join(", ", prescription.DrugList ?? new List<string>())</td>
+                <td>@prescription.DosageInfo</td>
+                <td>@prescription.Date.ToShortDateString()</td>
+            </tr>
+        }
+    </tbody>
+</table>
