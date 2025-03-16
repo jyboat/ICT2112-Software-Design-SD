@@ -23,7 +23,21 @@
                     </li>
                 }
                 @* Check if user is doctor or nurse *@
-                @if (userRole == "Doctor" || userRole == "Nurse"){
+                @if (userRole == "Doctor"){
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="ViewRecord" asp-action="DisplayViewRecord"><i class="bi bi-file-earmark-medical me-1"></i>Patient Medical Records</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Assessment" asp-action="Privacy"><i class="bi bi-house-check me-1"></i>Home Assessment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="ServiceAppointments" asp-action="RetrieveAllAppointment">
+                            <i class="bi bi-calendar-week me-1"></i>Appointments
+                        </a>
+                    </li>
+                }
+                @* Check if user is nurse *@
+                @if (userRole == "Nurse"){
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="ViewRecord" asp-action="DisplayViewRecord"><i class="bi bi-file-earmark-medical me-1"></i>Patient Medical Records</a>
                     </li>
@@ -32,11 +46,6 @@
                     </li>
                     <li class="nav-item">
                     <a class="nav-link" asp-controller="NurseAvailability" asp-action="Index">Nurse Availability</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="ServiceAppointments" asp-action="RetrieveAllAppointment">
-                            <i class="bi bi-calendar-week me-1"></i>Appointments
-                        </a>
                     </li>
                 }
                 @* Check if user is patient *@
