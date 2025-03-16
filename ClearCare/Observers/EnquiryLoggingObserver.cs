@@ -11,12 +11,12 @@ namespace ClearCare.Observers
     {
         public void OnCreated(Enquiry enquiry)
         {
-            Console.WriteLine($"[EnquiryLoggingObserver] Created: {enquiry.Id} - {enquiry.Name}");
+            Console.WriteLine($"[EnquiryLoggingObserver] Created:{enquiry.Name}");
         }
 
         public void OnUpdated(Enquiry enquiry)
         {
-            Console.WriteLine($"[EnquiryLoggingObserver] Updated: {enquiry.Id} - {enquiry.Name}");
+            Console.WriteLine($"[EnquiryLoggingObserver] Updated: {enquiry.Name}");
         }
 
         public void OnDeleted(string enquiryId)

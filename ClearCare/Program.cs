@@ -13,8 +13,8 @@ builder.Services.AddControllersWithViews();
 
 
 // Register your gateway and control
-builder.Services.AddSingleton<EnquiryGateway>(); 
-builder.Services.AddSingleton<EnquiryControl>(); 
+builder.Services.AddSingleton<EnquiryGateway>();
+builder.Services.AddSingleton<EnquiryControl>();
 builder.Services.AddSingleton<EnquiryLoggingObserver>(); // hypothetical observer
 
 builder.Services.AddSingleton<SideEffectsMapper>();

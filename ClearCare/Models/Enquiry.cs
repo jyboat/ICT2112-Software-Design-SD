@@ -8,8 +8,8 @@ namespace ClearCare.Models
         [FirestoreDocumentId] // This attribute tells Firestore to map the document ID to this property
         public string FirestoreId { get; set; }
 
-        [FirestoreProperty]
-        public string Id { get; set; }
+        // [FirestoreProperty]
+        // public string Id { get; set; }
 
         [FirestoreProperty]
         public string Name { get; set; }

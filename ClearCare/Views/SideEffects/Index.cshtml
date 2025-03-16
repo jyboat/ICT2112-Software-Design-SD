@@ -7,10 +7,11 @@
 <div class="container py-4">
     <h1 class="mb-4">Side Effects</h1>
 
+    <!-- Always show the Add Side Effect button -->
+    <a asp-action="Add" class="btn btn-primary mb-3">Add Side Effect</a>
+
     @if (Model != null && Model.Any())
     {
-        <a asp-action="Add" class="btn btn-primary mb-3">Add Side Effect</a>
-
         <table class="table table-bordered">
             <thead class="table-light">
                 <tr>

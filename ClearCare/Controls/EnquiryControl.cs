@@ -83,8 +83,10 @@ namespace ClearCare.Controls
         {
             _logger.LogInformation($"Creating enquiry from {enquiry.Name} with email {enquiry.Email}.");
 
-            // Example: In-memory ID assignment
-            enquiry.Id = Guid.NewGuid().ToString();
+
+            // // this is where we would assigne the doctor id tot he enquiry 
+            // // + "this is random generate"
+            // enquiry.Id = Guid.NewGuid().ToString() ;
 
             // Add to local list
             Enquiries.Add(enquiry);

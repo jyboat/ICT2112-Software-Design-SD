@@ -1,4 +1,4 @@
-@model ClearCare.Models.SideEffectModel
+@using ClearCare  
 
 @{
     ViewData["Title"] = "Add Side Effect";
@@ -10,7 +10,13 @@
     <form asp-action="Add" method="post">
         <div class="mb-3">
             <label for="PatientId" class="form-label">Patient ID</label>
-            <input type="text" class="form-control" id="PatientId" name="PatientId" required>
+            <!-- Use your static class to populate the field -->
+            <input type="text"
+                   class="form-control"
+                   id="PatientId"
+                   name="PatientId"
+                   value="@HardcodedUUIDs.UserUUID"
+                   readonly />
         </div>
 
         <div class="mb-3">
