@@ -63,9 +63,9 @@ namespace ClearCare.Controllers
                }
           }
 
-          // POST: /Admin/CreateAccount
+          // POST: /Admin/createAccount
           [HttpPost]
-          public async Task<IActionResult> CreateAccount(string email, string password, string name, string role, string address, long? mobileNumber, string? department, string? specialization)
+          public async Task<IActionResult> createAccount(string email, string password, string name, string role, string address, long? mobileNumber, string? department, string? specialization)
           {
                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || mobileNumber == null || (string.IsNullOrEmpty(department) && string.IsNullOrEmpty(specialization)))
                {
@@ -73,36 +73,30 @@ namespace ClearCare.Controllers
                     return RedirectToAction("LoadRoleForm", new { role = role });
                }
 
-               User newUser = null;
+               Dictionary<string, object> infoDictionary = new Dictionary<string, object>();
 
                if (role == "Nurse" && !string.IsNullOrEmpty(department))
                {
-                    newUser = new Nurse("", email, password, name, (long)mobileNumber, address, role, department);
+                    infoDictionary.Add("Department", department);
                }
                else if (role == "Doctor" && !string.IsNullOrEmpty(specialization))
                {
-                    newUser = new Doctor("", email, password, name, (long)mobileNumber, address, role, specialization);
+                    infoDictionary.Add("Specialization", specialization);
                }
-               // else if (role == "Patient")
-               // {
-               //      newUser = new Patient("", email, password, name, (long)mobileNumber, address, role);
-               // }
-               // else if (role == "Caregiver")
-               // {
-               //      newUser = new Caregiver("", email, password, name, (long)mobileNumber, address, role);
-               // }
 
-               string result = await _adminManagement.CreateStaffAccount(newUser!, password);
+               User newUser = UserFactory.createUser("", email, password, name, (int)mobileNumber, address, role, infoDictionary);
+
+               string result = await _adminManagement.CreateAccount(newUser!, password);
 
                if (result == "Account created successfully.")
                {
                     ViewBag.SuccessMessage = result;
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Dashboard");
                }
                else
                {
                     ViewBag.ErrorMessage = result;
-                    return RedirectToAction("LoadRoleForm", new { role = role });
+                    return RedirectToAction("LoadRoleForm", new { role });
                }
           }
 
@@ -118,13 +112,13 @@ namespace ClearCare.Controllers
 
                // Get user details from Firestore
                var user = await _adminManagement.retrieveUserByID(uid);
-               
+
                // load the user data into the view
                ViewData["User"] = user;
 
                // load the correct view
                if (user.getProfileData()["Role"].ToString() == "Nurse")
-               {    
+               {
                     return View("~/Views/Admin/UpdateNurseAccount.cshtml");
                }
                else if (user.getProfileData()["Role"].ToString() == "Doctor")
@@ -159,7 +153,6 @@ namespace ClearCare.Controllers
                     ViewBag.ErrorMessage = "Specialization is required for Doctor accounts.";
                     return RedirectToAction("LoadRoleForm", new { role = role });
                }
-
 
                // Create dictionary for updated data
                Dictionary<string, object> updatedUserData = new Dictionary<string, object>

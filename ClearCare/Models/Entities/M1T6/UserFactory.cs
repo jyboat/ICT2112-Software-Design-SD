@@ -5,27 +5,32 @@ namespace ClearCare.DataSource
 {
     public class UserFactory
     {
-        public static User createUser(string userID, string email, string password, string name, long mobileNumber, string address, string role, DocumentSnapshot snapshot)
+        public static User createUser(string userID, string email, string password, string name, long mobileNumber, string address, string role, Dictionary<string, object> infoDictionary)
         {
             switch (role)
             {
                 case "Doctor":
-                    string specialization = snapshot.GetValue<string>("Specialization");
+                    string specialization = (string)infoDictionary["Specialization"];
                     return new Doctor(userID, email, password, name, (int)mobileNumber, address, role, specialization);
 
                 case "Nurse":
-                    string department = snapshot.GetValue<string>("Department");
+                    string department = (string)infoDictionary["Department"];
                     return new Nurse(userID, email, password, name, (int)mobileNumber, address, role, department);
 
+                case "Admin":
+                    string adminID = (string)infoDictionary["AdminID"];
+                    string assignedBackupAdmin = (string)infoDictionary["AssignedBackupAdmin"];
+                    return new Admin(userID, email, password, name, (int)mobileNumber, address, role, adminID, assignedBackupAdmin);
+
                 case "Patient":
-                    string assignedCaregiverName = snapshot.GetValue<string>("AssignedCaregiverName");
-                    string assignedCaregiverID = snapshot.GetValue<string>("AssignedCaregiverID");
-                    Timestamp dateOfBirth = snapshot.GetValue<Timestamp>("D`ateOfBirth");
+                    string assignedCaregiverName = (string)infoDictionary["AssignedCaregiverName"];
+                    string assignedCaregiverID = (string)infoDictionary["AssignedCaregiverID"];
+                    Timestamp dateOfBirth = (Timestamp)infoDictionary["DateOfBirth"];
                     return new Patient(userID, email, password, name, (int)mobileNumber, address, role, assignedCaregiverName, assignedCaregiverID, dateOfBirth);
 
                 case "Caregiver":
-                    string assignedPatientName = snapshot.GetValue<string>("AssignedPatientName");
-                    string assignedPatientID = snapshot.GetValue<string>("AssignedPatientID");
+                    string assignedPatientName = (string)infoDictionary["AssignedPatientName"];
+                    string assignedPatientID = (string)infoDictionary["AssignedPatientID"];
                     return new Caregiver(userID, email, password, name, (int)mobileNumber, address, role, assignedPatientName, assignedPatientID);
 
                 default:

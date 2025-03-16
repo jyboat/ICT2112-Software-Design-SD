@@ -12,7 +12,7 @@ using ClearCare.Models.Interface;
 
 namespace ClearCare.DataSource
 {
-    public class UserGateway: IAdminDatabase //, IUserDatabase
+    public class UserGateway : IAdminDatabase //, IUserDatabase
     {
         private FirestoreDb db;
         private readonly EncryptionManagement encryptionManagement;
@@ -54,8 +54,10 @@ namespace ClearCare.DataSource
             string address = doc.GetValue<string>("Address");
             string role = doc.GetValue<string>("Role");
 
+            var docDictionary = doc.ToDictionary();
+
             // Use UserFactory to create the correct user object
-            return UserFactory.createUser(userID, emailAddress, password, name, mobileNumber, address, role, doc);
+            return UserFactory.createUser(userID, emailAddress, password, name, mobileNumber, address, role, docDictionary);
         }
 
         // Function to find user by ID
@@ -106,11 +108,13 @@ namespace ClearCare.DataSource
                 return new Caregiver(userID, emailAddress, password, name, mobileNumber, address, role, assignedPatientName, assignedPatientID);
             }
 
+            var docDictionary = snapshot.ToDictionary();
+
             // Default to generic User if no matching role found
             // return new User(userID, emailAddress, password, name, mobileNumber, address, role);
             // Use the UserFactory to create the appropriate user based on the role
-            return UserFactory.createUser(userID, emailAddress, password, name, mobileNumber, address, role, snapshot);
-            
+            return UserFactory.createUser(userID, emailAddress, password, name, mobileNumber, address, role, docDictionary);
+
         }
 
         // Function to get all User in a list
@@ -139,8 +143,10 @@ namespace ClearCare.DataSource
                         string address = document.ContainsField("Address") ? document.GetValue<string>("Address") : "Unknown";
                         string role = document.ContainsField("Role") ? document.GetValue<string>("Role") : "User";
 
+                        var docDictionary = document.ToDictionary();
+
                         // Use the UserFactory to create the appropriate user
-                        User user = UserFactory.createUser(userID, email, password, name, mobileNumber, address, role, document);
+                        User user = UserFactory.createUser(userID, email, password, name, mobileNumber, address, role, docDictionary);
                         userList.Add(user);
                     }
                     catch (Exception ex)
@@ -189,48 +195,48 @@ namespace ClearCare.DataSource
         }
 
         // Insert a new user with auto-incremented UserID
-        public async Task<string> InsertUser(string email, string password, string name, long mobileNumber, string address, string role)
-        {
-            CollectionReference usersRef = db.Collection("User");
+        // public async Task<string> InsertUser(string email, string password, string name, long mobileNumber, string address, string role)
+        // {
+        //     CollectionReference usersRef = db.Collection("User");
 
-            // Fetch all user documents to find the highest existing ID
-            QuerySnapshot allUsersSnapshot = await usersRef.GetSnapshotAsync();
-            int highestID = 0;
+        //     // Fetch all user documents to find the highest existing ID
+        //     QuerySnapshot allUsersSnapshot = await usersRef.GetSnapshotAsync();
+        //     int highestID = 0;
 
-            foreach (var doc in allUsersSnapshot.Documents)
-            {
-                string docID = doc.Id; // Example: "USR3"
-                if (docID.StartsWith("USR") && int.TryParse(docID.Substring(3), out int id))
-                {
-                    highestID = Math.Max(highestID, id);
-                }
-            }
+        //     foreach (var doc in allUsersSnapshot.Documents)
+        //     {
+        //         string docID = doc.Id; // Example: "USR3"
+        //         if (docID.StartsWith("USR") && int.TryParse(docID.Substring(3), out int id))
+        //         {
+        //             highestID = Math.Max(highestID, id);
+        //         }
+        //     }
 
-            // Generate User ID
-            string nextUserID = $"USR{highestID + 1}";
+        //     // Generate User ID
+        //     string nextUserID = $"USR{highestID + 1}";
 
-            // Prepare user data for insertion
-            var userData = new Dictionary<string, object>
-            {
-                { "Email", email },
-                { "Password", encryptionManagement.hashPassword(password) },
-                { "Name", name },
-                { "MobileNumber", mobileNumber },
-                { "Address", address },
-                { "Role", role }
-            };
+        //     // Prepare user data for insertion
+        //     var userData = new Dictionary<string, object>
+        //     {
+        //         { "Email", email },
+        //         { "Password", encryptionManagement.hashPassword(password) },
+        //         { "Name", name },
+        //         { "MobileNumber", mobileNumber },
+        //         { "Address", address },
+        //         { "Role", role }
+        //     };
 
-            // Explicitly use the new User ID as the document ID
-            DocumentReference newUserRef = usersRef.Document(nextUserID);
-            await newUserRef.SetAsync(userData);
+        //     // Explicitly use the new User ID as the document ID
+        //     DocumentReference newUserRef = usersRef.Document(nextUserID);
+        //     await newUserRef.SetAsync(userData);
 
-            Console.WriteLine($"User inserted successfully with Firestore ID: {nextUserID}");
+        //     Console.WriteLine($"User inserted successfully with Firestore ID: {nextUserID}");
 
-            return nextUserID;
-        }
+        //     return nextUserID;
+        // }
 
         // Insert a new staff user with auto-incremented UserID
-        public async Task<string> InsertStaffUser(User newUser, String password)
+        public async Task<string> InsertUser(User newUser, String password)
         {
             CollectionReference usersRef = db.Collection("User");
 
@@ -255,6 +261,18 @@ namespace ClearCare.DataSource
             userData.Remove("UserID");
             userData.Add("Password", encryptionManagement.hashPassword(password));
 
+            if ((String)userData["Role"] == "Patient")
+            {
+                DateTime dobDateTime = DateTime.ParseExact((string)userData["DateOfBirth"], "dd MMMM yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+
+                // Step 2: Convert to UTC (assuming the input string is in UTC+8)
+                DateTime dobUtc = dobDateTime.AddHours(-8); // Subtract 8 hours to convert UTC+8 to UTC
+
+                // Step 3: Create a Firestore Timestamp
+                Timestamp dobTimestamp = Timestamp.FromDateTime(DateTime.SpecifyKind(dobUtc, DateTimeKind.Utc));
+                userData["DateOfBirth"] = dobTimestamp;
+            }
+
             // Explicitly use the new User ID as the document ID
             DocumentReference newUserRef = usersRef.Document(nextUserID);
             await newUserRef.SetAsync(userData);
@@ -270,12 +288,12 @@ namespace ClearCare.DataSource
             {
                 DocumentReference userDocRef = db.Collection("User").Document(userId);
                 DocumentSnapshot snapshot = await userDocRef.GetSnapshotAsync();
-                
+
                 if (!snapshot.Exists)
                     throw new Exception("User not found. userID: " + userId);
-                
+
                 Dictionary<string, object> updates = new Dictionary<string, object>();
-                
+
                 // Ensure only selected base user fields are updated
                 if (updatedFields.ContainsKey("Email"))
                     updates["Email"] = updatedFields["Email"].ToString();
@@ -289,33 +307,33 @@ namespace ClearCare.DataSource
                     updates["Password"] = updatedFields["Password"].ToString();
 
                 string role = snapshot.GetValue<string>("Role");
-                
+
                 switch (role)
                 {
                     case "Nurse":
                         if (updatedFields.ContainsKey("Department"))
                             updates["Department"] = updatedFields["Department"].ToString();
                         break;
-                    
+
                     case "Doctor":
                         if (updatedFields.ContainsKey("Specialization"))
                             updates["Specialization"] = updatedFields["Specialization"].ToString();
                         break;
-                    
+
                     case "Patient":
                         if (updatedFields.ContainsKey("DateOfBirth") && updatedFields["DateOfBirth"] is Timestamp dobTimestamp)
-                            {
-                                updates["DateOfBirth"] = dobTimestamp; // Ensure correct type before storing
-                            }
+                        {
+                            updates["DateOfBirth"] = dobTimestamp; // Ensure correct type before storing
+                        }
                         break;
-                    
+
                     default:
                         break;
                 }
-                
+
                 if (updates.Count > 0)
                     await userDocRef.UpdateAsync(updates);
-                
+
                 return true;
             }
             catch (Exception ex)
@@ -325,27 +343,27 @@ namespace ClearCare.DataSource
             }
         }
 
-        public async Task<bool> resetPassword(String uid, String password) 
+        public async Task<bool> resetPassword(String uid, String password)
         {
             try
             {
                 DocumentReference userDocRef = db.Collection("User").Document(uid);
                 DocumentSnapshot snapshot = await userDocRef.GetSnapshotAsync();
-                
+
                 if (!snapshot.Exists)
                     throw new Exception("User not found. userID: " + uid);
-                
+
                 Dictionary<string, object> updates = new Dictionary<string, object>();
-                
+
                 // Ensure only selected base user fields are updated
                 if (password != null)
                     updates["Password"] = encryptionManagement.hashPassword(password);
-                
+
                 if (updates.Count > 0)
                     await userDocRef.UpdateAsync(updates);
-                
+
                 Console.WriteLine($"Successfully reset password for user {uid}, password is {password}");
-                
+
                 return true;
             }
             catch (Exception ex)
@@ -354,21 +372,21 @@ namespace ClearCare.DataSource
                 return false;
             }
         }
-    
+
         public async Task<bool> deleteUser(string uid)
         {
             try
             {
                 DocumentReference userDocRef = db.Collection("User").Document(uid);
                 DocumentSnapshot snapshot = await userDocRef.GetSnapshotAsync();
-                
+
                 if (!snapshot.Exists)
                     throw new Exception("User not found. userID: " + uid);
-                
+
                 await userDocRef.DeleteAsync();
-                
+
                 Console.WriteLine($"Successfully deleted user {uid}");
-                
+
                 return true;
             }
             catch (Exception ex)

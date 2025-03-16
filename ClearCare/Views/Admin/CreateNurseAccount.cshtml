@@ -30,7 +30,7 @@
                <a href="/Admin/LoadCreateDoctorAccount" class="btn btn-link">Switch to Create Doctor Account</a>
                @* <a href="/Admin/LoadCreatePatientCaregiverAccount" class="btn btn-link">Switch to Create Patient/Caregiver Account</a> *@
           </div>
-          <form method="post" action="/Admin/CreateAccount">
+          <form method="post" action="/Admin/createAccount">
                <div class="mb-3" hidden>
                     <label for="role" class="form-label">Role:</label>
                     <select id="role" name="role" class="form-control" required>
@@ -63,6 +63,9 @@
                </div>
                <button type="submit" class="btn btn-primary w-100">Create Account</button>
           </form>
+          <div class="text-center mv-3 mt-3">
+               <a href="/Admin/Dashboard" class="btn btn-link">Go Back to Dashboard</a>
+          </div>
      </div>
 </body>
 

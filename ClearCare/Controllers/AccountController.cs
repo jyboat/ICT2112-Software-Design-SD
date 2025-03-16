@@ -3,6 +3,7 @@ using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 using ClearCare.DataSource;
 using System.Threading.Tasks;
+using Google.Cloud.Firestore;
 
 namespace ClearCare.Controllers
 {
@@ -34,7 +35,22 @@ namespace ClearCare.Controllers
                 return View("~/Views/Register/Register.cshtml");
             }
 
-            string result = await _accountManagement.CreateAccount(email, password, name, mobileNumber, address, role);
+            Dictionary<string, object> infoDictionary = new Dictionary<string, object>();
+
+            if (role == "Patient")
+            {
+                infoDictionary.Add("AssignedCaregiverName", "");
+                infoDictionary.Add("AssignedCaregiverID", "");
+                infoDictionary.Add("DateOfBirth", Timestamp.FromDateTime(DateTime.UtcNow));
+            }
+            else if (role == "Caregiver")
+            {
+                infoDictionary.Add("AssignedPatientName", "");
+                infoDictionary.Add("AssignedPatientID", "");
+            }
+
+            User newUser = UserFactory.createUser("", email, password, name, (int)mobileNumber, address, role, infoDictionary);
+            string result = await _accountManagement.CreateAccount(newUser, password);
 
             if (result == "Account created successfully.")
             {

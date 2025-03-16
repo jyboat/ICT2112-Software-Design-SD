@@ -16,17 +16,17 @@ namespace ClearCare.Models.Control
         }
 
         // Method to create a new account
-        public async Task<string> CreateAccount(string email, string password, string name, long mobileNumber, string address, string role)
+        public async Task<string> CreateAccount(User newUser, String password)
         {
             // First, check if an account with the same email already exists
-            var existingUser = await _userGateway.findUserByEmail(email);
+            var existingUser = await _userGateway.findUserByEmail((string)newUser.getProfileData()["Email"]);
             if (existingUser != null)
             {
                 return "Account already exists.";
             }
 
             // Create a new User object with the necessary data
-            string newUserId = await _userGateway.InsertUser(email, password, name, mobileNumber, address, role);
+            string newUserId = await _userGateway.InsertUser(newUser, password);
 
             return newUserId != null ? "Account created successfully." : "Failed to create account.";
         }

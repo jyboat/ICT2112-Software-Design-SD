@@ -46,7 +46,7 @@ namespace ClearCare.Models.Control
           public async Task<User> retrieveUserByID(string uid) => await _userGateway.findUserByID(uid);
 
           // Method to create a new account
-          public async Task<string> CreateStaffAccount(User newUser, String password)
+          public async Task<string> createAccount(User newUser, String password)
           {
                var email = newUser.getProfileData()["Email"]?.ToString();
                if (string.IsNullOrEmpty(email))
@@ -73,7 +73,7 @@ namespace ClearCare.Models.Control
                }
 
                // Create a new User object with the necessary data
-               string newUserId = await _userGateway.InsertUser(email, password, name, mobileNumber, address, role);
+               string newUserId = await _userGateway.InsertUser(newUser, password);
 
                return newUserId != null ? "Account created successfully." : "Failed to create account.";
           }
@@ -111,7 +111,7 @@ namespace ClearCare.Models.Control
 
                return result ? "Password reset successful." : "Failed to reset password.";
           }
-     
+
           // Method to delete account
           public async Task<string> deleteAccount(string uid)
           {
