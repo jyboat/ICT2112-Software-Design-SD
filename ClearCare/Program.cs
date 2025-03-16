@@ -20,6 +20,9 @@ builder.Services.AddSingleton<EnquiryLoggingObserver>(); // hypothetical observe
 builder.Services.AddSingleton<SideEffectsMapper>();
 builder.Services.AddScoped<SideEffectControl>();
 
+builder.Services.AddSingleton<PrescriptionMapper>();
+builder.Services.AddScoped<PrescriptionControl>();
+
 var app = builder.Build();
 
 // Create a scope to resolve services
