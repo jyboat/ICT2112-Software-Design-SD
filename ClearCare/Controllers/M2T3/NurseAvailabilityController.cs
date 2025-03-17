@@ -3,6 +3,7 @@ using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using ClearCare.Interfaces;
 
 namespace ClearCare.Controllers
 {
@@ -28,7 +29,12 @@ namespace ClearCare.Controllers
             // Set the gateway's receiver to the manager (which implements IAvailabilityDB_Receive)
             gateway.Receiver = _manager;
 
-            _calendarManagement = new CalendarManagement(_serviceAppointmentManagement, _manager);
+            var _serviceAppointmentGateway = new ServiceAppointmentGateway();
+            _serviceAppointmentManagement = new ServiceAppointmentManagement(_serviceAppointmentGateway);
+            _serviceAppointmentGateway.Receiver = _serviceAppointmentManagement;
+         
+
+            _calendarManagement = new CalendarManagement((IRetrieveAllAppointments)_serviceAppointmentManagement, (INurseAvailability) _manager);
         }
 
         // Displays Nurse Availability for Calendar
@@ -41,12 +47,12 @@ namespace ClearCare.Controllers
 
         // Displays Nurse Availability View
         [HttpGet]
-        [Route("")]
+        [Route("Index")]
         public IActionResult Index()
         {
             // var availabilityList = await _manager.getAvailabilityByStaff("USR003"); // Dummy ID for testing
             // return View(availabilityList);
-             return View("Index");
+            return View("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
 
         // Add Availability (Handles Form Submission)
@@ -56,7 +62,7 @@ namespace ClearCare.Controllers
         {
             await _manager.addAvailability("USR003", date);
             return Ok(new { message = "Availability added successfully!" });
-            return RedirectToAction("Index");
+            return RedirectToAction("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
 
         // Handles Updating of Availability
@@ -66,7 +72,7 @@ namespace ClearCare.Controllers
         {
             await _manager.updateAvailability(availabilityId, "USR003", date);
             return Ok(new { message = "Availability updated successfully!" });
-            return RedirectToAction("Index");
+            return RedirectToAction("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
 
         // Handles Deletion of Availability
@@ -77,7 +83,7 @@ namespace ClearCare.Controllers
             // Console.WriteLine($"Attempting to delete availability with ID: {availabilityId}");
             await _manager.deleteAvailability(availabilityId);
             return Ok(new { message = "Availability deleted successfully!" });
-            return RedirectToAction("Index");
+            return RedirectToAction("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
 
         

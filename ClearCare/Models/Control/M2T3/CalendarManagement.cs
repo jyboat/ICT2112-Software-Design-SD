@@ -52,7 +52,7 @@ namespace ClearCare.Models.Control
             var eventList = appointments.Select(a => new
             {
                 id = a["AppointmentId"],
-                title = "Appointment with " + a["DoctorId"],
+                title = "Appointment for " + a["PatientId"],
                 start = ((DateTime)a["DateTime"]).ToString("yyyy-MM-ddTHH:mm:ss"),
                 extendedProps = new
                 {
@@ -60,7 +60,10 @@ namespace ClearCare.Models.Control
                     nurseId = a.ContainsKey("NurseId") ? a["NurseId"] : null,
                     doctorId = a["DoctorId"],
                     status = a["Status"],
-                    location = a["Location"]
+                    serviceType = a["ServiceTypeId"],
+                    slot = a["Slot"],
+                    location = a["Location"],
+                    dateTime = ((DateTime)a["DateTime"]).ToString("yyyy-MM-ddTHH:mm:ss"),
                 }
             }).ToList();
 
