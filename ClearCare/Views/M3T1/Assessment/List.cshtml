@@ -1,0 +1,38 @@
+@model IEnumerable<ClearCare.Models.Entities.M3T1.Assessment>
+
+<h2>Assessments</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Risk Level</th>
+            <th>Recommendation</th>
+            <th>Created At</th>
+            <th>Doctor ID</th>
+            <th>Action</th> <!-- Replaced "Doctor ID" with "Action" -->
+            <th>Patient ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var assessment in Model)
+        {
+            <tr>
+                <td>@assessment.GetId()</td>
+                <td>@assessment.GetRiskLevel()</td>
+                <td>@assessment.GetRecommendation()</td>
+                <td>@assessment.GetCreatedAt().ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td>@assessment.GetDoctorId()</td>
+                <td>
+                    <!-- Edit Button -->
+                    <a asp-action="ViewEdit" asp-route-assessmentId="@assessment.GetId()" class="btn btn-warning">Edit</a>
+                    <!-- View Detail Button -->
+                    <a asp-action="ViewAssessment" asp-route-assessmentId="@assessment.GetId()" class="btn btn-info">View Details</a>
+                </td>
+                <td>@assessment.GetPatientId()</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="ViewAdd" class="btn btn-primary">Add New Assessment</a>
