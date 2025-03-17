@@ -5,6 +5,7 @@ using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 using Google.Protobuf.WellKnownTypes;
 using ClearCare.Interfaces;
+using Google.Cloud.Firestore;
 
 namespace ClearCare.Models.Control
 {
@@ -14,6 +15,7 @@ namespace ClearCare.Models.Control
         private readonly ICreateAppointment _iCreateAppointment;
         private readonly INurseAvailability _iNurseAvailability;
         private IAutomaticScheduleStrategy? _iAutomaticScheduleStrategy;
+        private FirestoreDb db;
 
         // // Declare the field at the class level
         // private readonly ServiceAppointmentGateway _serviceAppointmentGateway;
@@ -28,6 +30,7 @@ namespace ClearCare.Models.Control
             _iNurseAvailability = INurseAvailability;
             // To be set at runtime later
             _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; 
+            db = FirebaseService.Initialize();
         }
 
 
@@ -50,44 +53,54 @@ namespace ClearCare.Models.Control
             public string Name { get; set; } = string.Empty;
         }
 
-        public void AutomaticallyScheduleAppointment()
+        public async void AutomaticallyScheduleAppointment()
         {
             if (_iAutomaticScheduleStrategy == null)
             {
                 throw new InvalidOperationException("Scheduling strategy has not been set. Use SetAlgorithm() first.");
             }
 
-            // Dummy Data :'(
-            var nurses = new List<Nurse>
+            // Direct Db query
+            Query nurseQuery = db.Collection("User").WhereEqualTo("Role", "Nurse");
+            QuerySnapshot snapshot = await nurseQuery.GetSnapshotAsync();
+
+            var nurses = new List<Nurse>();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
             {
-                new Nurse { NurseId = "NURSE001", Name = "Nurse A" },
-                new Nurse { NurseId = "NURSE002", Name = "Nurse B" },
-                new Nurse { NurseId = "NURSE003", Name = "Nurse C" },
-                new Nurse { NurseId = "NURSE004", Name = "Nurse D" }
-            };
+                nurses.Add(new Nurse
+                {
+                    NurseId = document.Id,
+                    Name = document.GetValue<string>("Name")
+                });
+            }
 
-            var patients = new List<Patient>
+            Query patientQuery = db.Collection("User").WhereEqualTo("Role", "Patient");
+            QuerySnapshot snapshot1 = await patientQuery.GetSnapshotAsync();
+
+            var patients = new List<Patient>();
+
+            foreach(DocumentSnapshot document in snapshot1.Documents)
             {
-                new Patient { PatientId = "PAT001", Name = "Patient 1" },
-                new Patient { PatientId = "PAT002", Name = "Patient 2" },
-                new Patient { PatientId = "PAT003", Name = "Patient 3" },
-                new Patient { PatientId = "PAT004", Name = "Patient 4" },
-                new Patient { PatientId = "PAT005", Name = "Patient 5" },
-                new Patient { PatientId = "PAT006", Name = "Patient 6" },
-                new Patient { PatientId = "PAT007", Name = "Patient 7" },
-                new Patient { PatientId = "PAT008", Name = "Patient 8" },
-                new Patient { PatientId = "PAT009", Name = "Patient 9" },
-                new Patient { PatientId = "PAT010", Name = "Patient 10" },
-                new Patient { PatientId = "PAT011", Name = "Patient 11" },
-                new Patient { PatientId = "PAT012", Name = "Patient 12" },
-                new Patient { PatientId = "PAT013", Name = "Patient 13" },
-                new Patient { PatientId = "PAT014", Name = "Patient 14" },
-                new Patient { PatientId = "PAT015", Name = "Patient 15" }
-            };
+                patients.Add(new Patient
+                {
+                    PatientId = document.Id,
+                    Name = document.GetValue<string>("Name")
+                });
+            }
 
+            Query serviceQuery = db.Collection("service_type");
+            QuerySnapshot snapshot2 = await serviceQuery.GetSnapshotAsync();
 
+            var services = new List<string>();
+
+            foreach(DocumentSnapshot document in snapshot2.Documents)
+            {
+                services.Add(document.GetValue<string>("name"));
+            }
+        
             // Call the auto-assignment function
-            _iAutomaticScheduleStrategy.AutomaticallySchedule(nurses, patients);
+            _iAutomaticScheduleStrategy.AutomaticallySchedule(nurses, patients, services);
         }
 
         public async Task TestInterface()
