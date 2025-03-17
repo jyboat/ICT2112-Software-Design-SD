@@ -4,22 +4,40 @@ using ClearCare.Models;
 using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 using Google.Protobuf.WellKnownTypes;
+using ClearCare.Interfaces;
 
 namespace ClearCare.Models.Control
 {
     public class AutomaticAppointmentScheduler
     {
-        // Declare the field at the class level
-        private readonly ServiceAppointmentGateway _serviceAppointmentGateway;
+        // Interfaces Automatic Requires
+        private readonly ICreateAppointment _iCreateAppointment;
+        private readonly INurseAvailability _iNurseAvailability;
+        private IAutomaticScheduleStrategy? _iAutomaticScheduleStrategy;
+
+        // // Declare the field at the class level
+        // private readonly ServiceAppointmentGateway _serviceAppointmentGateway;
 
         // Constructor initializes the field
-        public AutomaticAppointmentScheduler()
+        public AutomaticAppointmentScheduler(
+            ICreateAppointment ICreateAppointment, 
+            INurseAvailability INurseAvailability,
+            IAutomaticScheduleStrategy? IAutomaticScheduleStrategy = null)
         {
-            _serviceAppointmentGateway = new ServiceAppointmentGateway();
+            _iCreateAppointment = ICreateAppointment;
+            _iNurseAvailability = INurseAvailability;
+            // To be set at runtime later
+            _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; 
         }
 
-        // Dummy model for testing
-        public class Nurse
+
+        public void SetAlgorithm(IAutomaticScheduleStrategy IAutomaticScheduleStrategy)
+        {
+            _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; 
+        }
+
+        // Dummy Entity for testing
+        public class Nurse 
         {
             public string NurseId { get; set; } = string.Empty;
             public string Name { get; set; } = string.Empty;
@@ -32,87 +50,20 @@ namespace ClearCare.Models.Control
             public string Name { get; set; } = string.Empty;
         }
 
-        void AssignNursesAndSlots(List<Nurse> nurses, List<ServiceAppointment> appointments)
+        public void AutomaticallyScheduleAppointment()
         {
-            int totalSlots = 14;
-            int nurseIndex = 0; 
-
-            // Sort patients by the number of services they need (those with fewer services go first)
-            var groupedAppointments = appointments.GroupBy(a => a.GetAttribute("PatientId")).OrderBy(g => g.Count()).ToList();
-
-            // Keep track of used slots per patient
-            var patientSlotTracker = new Dictionary<string, List<int>>();
-
-            // Keep track of used slots for each service type to prevent overlapping
-            var serviceSlotTracker = new Dictionary<string, List<int>>();
-
-            foreach (var patientAppointments in groupedAppointments)
+            if (_iAutomaticScheduleStrategy == null)
             {
-                // Assign a nurse to this patient
-                var nurse = nurses[nurseIndex]; 
-
-                // Make sure patient is assigned to the same nurse
-                foreach (var appointment in patientAppointments)
-                {
-                    // Start from slot 1
-                    int assignedSlot = 1;
-
-                    // Check that other patient dont have same service in the same slot
-                    while ((patientSlotTracker.ContainsKey(appointment.GetAttribute("PatientId")) && patientSlotTracker[appointment.GetAttribute("PatientId")].Contains(assignedSlot)) ||
-                        (serviceSlotTracker.ContainsKey(appointment.GetAttribute("ServiceTypeId")) && serviceSlotTracker[appointment.GetAttribute("ServiceTypeId")].Contains(assignedSlot)))
-                    {
-                        assignedSlot++;
-
-                        // If all slots are used, reset to first available slot
-                        if (assignedSlot > totalSlots)
-                            assignedSlot = 1;
-                    }
-
-                    // Assign the nurse and slot
-                    appointment.appointNurseToPatient(nurse.NurseId, assignedSlot);
-                    // appointment.NurseId = nurse.NurseId;
-                    // appointment.Slot = assignedSlot;
-
-                    // Track patient slot usage
-                    if (!patientSlotTracker.ContainsKey(appointment.GetAttribute("PatientId")))
-                    {
-                        patientSlotTracker[appointment.GetAttribute("PatientId")] = new List<int>();
-                    }
-                    patientSlotTracker[appointment.GetAttribute("PatientId")].Add(assignedSlot);
-
-                    // Track service slot usage
-                    if (!serviceSlotTracker.ContainsKey(appointment.GetAttribute("ServiceTypeId")))
-                    {
-                        serviceSlotTracker[appointment.GetAttribute("ServiceTypeId")] = new List<int>();
-                    }
-                    serviceSlotTracker[appointment.GetAttribute("ServiceTypeId")].Add(assignedSlot);
-                }
-
-                // Move to the next nurse in round-robin
-                // Once last nurse assigned to everyone it will reset to the first one
-                nurseIndex = (nurseIndex + 1) % nurses.Count;
-
-                // Check if each service all the slot assigned
-                bool fullyAssigned = serviceSlotTracker.All(entry => entry.Value.Distinct().Count() == 14);
-
-                if (fullyAssigned)
-                {
-                    Console.WriteLine("All services have been fully assigned. STOP!!!!!!!!!!!");
-                    return; 
-                }
-
+                throw new InvalidOperationException("Scheduling strategy has not been set. Use SetAlgorithm() first.");
             }
-        }
 
-        public void TestAutoAssignment()
-        {
+            // Dummy Data :'(
             var nurses = new List<Nurse>
             {
                 new Nurse { NurseId = "NURSE001", Name = "Nurse A" },
                 new Nurse { NurseId = "NURSE002", Name = "Nurse B" },
                 new Nurse { NurseId = "NURSE003", Name = "Nurse C" },
-                new Nurse { NurseId = "NURSE004", Name = "Nurse D" },
-                new Nurse { NurseId = "NURSE005", Name = "Nurse E" }
+                new Nurse { NurseId = "NURSE004", Name = "Nurse D" }
             };
 
             var patients = new List<Patient>
@@ -121,36 +72,29 @@ namespace ClearCare.Models.Control
                 new Patient { PatientId = "PAT002", Name = "Patient 2" },
                 new Patient { PatientId = "PAT003", Name = "Patient 3" },
                 new Patient { PatientId = "PAT004", Name = "Patient 4" },
-                new Patient { PatientId = "PAT005", Name = "Patient 5" }
+                new Patient { PatientId = "PAT005", Name = "Patient 5" },
+                new Patient { PatientId = "PAT006", Name = "Patient 6" },
+                new Patient { PatientId = "PAT007", Name = "Patient 7" },
+                new Patient { PatientId = "PAT008", Name = "Patient 8" },
+                new Patient { PatientId = "PAT009", Name = "Patient 9" },
+                new Patient { PatientId = "PAT010", Name = "Patient 10" },
+                new Patient { PatientId = "PAT011", Name = "Patient 11" },
+                new Patient { PatientId = "PAT012", Name = "Patient 12" },
+                new Patient { PatientId = "PAT013", Name = "Patient 13" },
+                new Patient { PatientId = "PAT014", Name = "Patient 14" },
+                new Patient { PatientId = "PAT015", Name = "Patient 15" }
             };
 
-            var services = new List<string> { "Home Safety Assessment", "Medication", "Counselling", "Caregiver Training" };
-            var appointments = new List<ServiceAppointment>();
-
-            foreach (var patient in patients)
-            {
-                foreach (var service in services)
-                {
-                    appointments.Add(ServiceAppointment.setApptDetails(
-                        // Create unique id
-                        appointmentId: Guid.NewGuid().ToString(), 
-                        patientId: patient.PatientId, 
-                        nurseId: "", 
-                        doctorId: "",
-                        serviceTypeId: service, 
-                        status: "Pending", 
-                        dateTime: DateTime.Now, 
-                        slot: 0,
-                        location: "Physical" 
-                    ));
-                }
-            }
 
             // Call the auto-assignment function
-            AssignNursesAndSlots(nurses, appointments);
+            _iAutomaticScheduleStrategy.AutomaticallySchedule(nurses, patients);
         }
 
-
+        public async Task TestInterface()
+        {
+           //  await _iCreateAppointment.CreateAppointment();
+            var staffAvailability = await _iNurseAvailability.getAllStaffAvailability();
+        }   
 
     }
 }

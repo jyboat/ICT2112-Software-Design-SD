@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using ClearCare.Interfaces;
+using ClearCare.Control;
 
 // Request Handling
 [Route("api/[controller]")]
@@ -19,18 +20,28 @@ public class ServiceAppointmentsController : Controller
     private readonly NurseAvailabilityManagement _nurseAvailabilityManagement;
     private readonly ManualAppointmentScheduler _manualAppointmentScheduler;
 
+    
+
     public ServiceAppointmentsController()
     {
+        var _serviceAppointmentGateway = new ServiceAppointmentGateway();
+        ServiceAppointmentManagement = new ServiceAppointmentManagement(_serviceAppointmentGateway);
+         // ServiceAppointmentManagement = new ServiceAppointmentManagement();
+        _serviceAppointmentGateway.Receiver = ServiceAppointmentManagement;
+
         // _nurseAvailabilityManagement = new NurseAvailabilityManagement(new NurseAvailabilityGateway());
         var nurse_availability_gateway = new NurseAvailabilityGateway();
         // Create the manager and pass the gateway
         _nurseAvailabilityManagement = new NurseAvailabilityManagement(nurse_availability_gateway);
         // Set the gateway's receiver to the manager (which implements IAvailabilityDB_Receive)
         nurse_availability_gateway.Receiver = _nurseAvailabilityManagement;
-        
-        ServiceAppointmentManagement = new ServiceAppointmentManagement();
+
+
+       
+
         _calendarManagement = new CalendarManagement(ServiceAppointmentManagement, _nurseAvailabilityManagement);
-        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler();
+
+        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler((ICreateAppointment) ServiceAppointmentManagement, (INurseAvailability) _nurseAvailabilityManagement);       
         _manualAppointmentScheduler = new ManualAppointmentScheduler((ICreateAppointment) ServiceAppointmentManagement, (INurseAvailability) _nurseAvailabilityManagement);
 
     }
@@ -41,11 +52,10 @@ public class ServiceAppointmentsController : Controller
     {
         // await to wait for task complete or data to retrieve before executing
         var appointment = await ServiceAppointmentManagement.RetrieveAllAppointments();
-
         // No record exists
         if (appointment != null && appointment.Any())
         {
-            return View("Index", appointment);
+            return View("~/Views/M2T3/ServiceAppointments/Index.cshtml", appointment);
         }
         else
         {
@@ -66,7 +76,7 @@ public class ServiceAppointmentsController : Controller
     [Route("Calendar")]
     public IActionResult Calendar()
     {
-        return View("Calendar");
+        return View("~/Views/M2T3/ServiceAppointments/Calendar.cshtml");
     }
 
     // Implement IRetrieveAll
@@ -81,8 +91,7 @@ public class ServiceAppointmentsController : Controller
     {
         ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
         ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
-        AutomaticAppointmentScheduler.TestAutoAssignment();
-        return View("CreateServiceAppt"); // Render the form
+        return View("~/Views/M2T3/ServiceAppointments/CreateServiceAppt.cshtml"); // Render the form
     }
 
 
@@ -93,7 +102,7 @@ public class ServiceAppointmentsController : Controller
     [Route("Create")]
     public async Task<IActionResult> CreateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
     {
-        var appointment = await ServiceAppointmentManagement.CreateAppt(
+        var appointment = await ServiceAppointmentManagement.CreateAppointment(
             requestData["AppointmentId"].GetString() ?? "",
             requestData["PatientId"].GetString() ?? "",
             requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
@@ -103,6 +112,7 @@ public class ServiceAppointmentsController : Controller
             requestData["DateTime"].GetDateTime(),
             requestData["Slot"].GetInt32(),
             requestData["Location"].GetString() ?? "");
+        
 
         // No record exists
         if (appointment != "" && appointment.Any())
@@ -121,11 +131,11 @@ public class ServiceAppointmentsController : Controller
     [Route("Retrieve/{appointmentId}")]
     public async Task<IActionResult> GetAppointment(string appointmentId)
     {
-        var appointmentDetail = await ServiceAppointmentManagement.GetAppt(appointmentId);
+        var appointmentDetail = await ServiceAppointmentManagement.getAppointmentByID(appointmentId);
 
         if (appointmentDetail != null && appointmentDetail.Any())
         {
-            return View("AppointmentDetails", appointmentDetail);
+            return View("~/Views/M2T3/ServiceAppointments/AppointmentDetails.cshtml", appointmentDetail);
         }
         else
         {
@@ -161,7 +171,7 @@ public class ServiceAppointmentsController : Controller
     {
         try
         {
-            var result = await ServiceAppointmentManagement.UpdateAppt(
+            var result = await ServiceAppointmentManagement.UpdateAppointment(
                 requestData["AppointmentId"].GetString() ?? "",
                 requestData["PatientId"].GetString() ?? "",
                 requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
@@ -195,8 +205,7 @@ public class ServiceAppointmentsController : Controller
     {
         try
         {
-            var result = await ServiceAppointmentManagement.DeleteAppt(appointmentId);
-
+            var result = await ServiceAppointmentManagement.DeleteAppointment(appointmentId);
             // TODO - Should we strictly return a view or can we return a JSON response? - dinie
             if (result)
             {
@@ -215,12 +224,14 @@ public class ServiceAppointmentsController : Controller
 
     }
 
-     [HttpGet]
+    // Test Manual's Interface
+
+        [HttpGet]
         [Route("TestManualAppointment")]
         public async Task<IActionResult> TestManualAppointment()
         {
             await _manualAppointmentScheduler.TestInterface();
-            return View("TestManualAppointment"); // Render the View
+            return View("~/Views/M2T3/ServiceAppointments/TestManualAppointment.cshtml"); // Render the View
         }
 
         [HttpPost]
@@ -228,6 +239,16 @@ public class ServiceAppointmentsController : Controller
         public async Task<IActionResult> RunTestManualAppointment()
         {
             await _manualAppointmentScheduler.TestInterface();
-            return RedirectToAction("TestManualAppointment");
+            return RedirectToAction("~/Views/M2T3/ServiceAppointments/TestManualAppointment.cshtml");
         }
+
+        // Test Auto Interface
+        [HttpGet]
+        [Route("TestAutoAppointment")]
+        public void TestAutoAppointment()
+        {
+            AutomaticAppointmentScheduler.SetAlgorithm(new PreferredNurseStrategy());
+            AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment();
+        }
+
 }
