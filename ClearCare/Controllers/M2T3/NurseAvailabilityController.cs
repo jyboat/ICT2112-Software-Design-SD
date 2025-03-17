@@ -29,7 +29,10 @@ namespace ClearCare.Controllers
             // Set the gateway's receiver to the manager (which implements IAvailabilityDB_Receive)
             gateway.Receiver = _manager;
 
-            _serviceAppointmentManagement =  new ServiceAppointmentManagement();
+            var _serviceAppointmentGateway = new ServiceAppointmentGateway();
+            _serviceAppointmentManagement = new ServiceAppointmentManagement(_serviceAppointmentGateway);
+            _serviceAppointmentGateway.Receiver = _serviceAppointmentManagement;
+         
 
             _calendarManagement = new CalendarManagement((IRetrieveAllAppointments)_serviceAppointmentManagement, (INurseAvailability) _manager);
         }
