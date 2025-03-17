@@ -20,8 +20,15 @@ public class ServiceAppointmentsController : Controller
     private readonly NurseAvailabilityManagement _nurseAvailabilityManagement;
     private readonly ManualAppointmentScheduler _manualAppointmentScheduler;
 
+    
+
     public ServiceAppointmentsController()
     {
+        var _serviceAppointmentGateway = new ServiceAppointmentGateway();
+        ServiceAppointmentManagement = new ServiceAppointmentManagement(_serviceAppointmentGateway);
+         // ServiceAppointmentManagement = new ServiceAppointmentManagement();
+        _serviceAppointmentGateway.Receiver = ServiceAppointmentManagement;
+
         // _nurseAvailabilityManagement = new NurseAvailabilityManagement(new NurseAvailabilityGateway());
         var nurse_availability_gateway = new NurseAvailabilityGateway();
         // Create the manager and pass the gateway
@@ -30,7 +37,7 @@ public class ServiceAppointmentsController : Controller
         nurse_availability_gateway.Receiver = _nurseAvailabilityManagement;
 
 
-        ServiceAppointmentManagement = new ServiceAppointmentManagement();
+       
 
         _calendarManagement = new CalendarManagement(ServiceAppointmentManagement, _nurseAvailabilityManagement);
 
@@ -44,7 +51,7 @@ public class ServiceAppointmentsController : Controller
     public async Task<IActionResult> RetrieveAllAppointment()
     {
         // await to wait for task complete or data to retrieve before executing
-        var appointment = await ServiceAppointmentManagement.RetrieveAllAppointments();
+        var appointment = await ServiceAppointmentManagement.getAllServiceAppointments();
 
         // No record exists
         if (appointment != null && appointment.Any())
@@ -96,7 +103,7 @@ public class ServiceAppointmentsController : Controller
     [Route("Create")]
     public async Task<IActionResult> CreateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
     {
-        var appointment = await ServiceAppointmentManagement.CreateAppt(
+        var appointment = await ServiceAppointmentManagement.addServiceAppointment(
             requestData["AppointmentId"].GetString() ?? "",
             requestData["PatientId"].GetString() ?? "",
             requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
@@ -106,6 +113,7 @@ public class ServiceAppointmentsController : Controller
             requestData["DateTime"].GetDateTime(),
             requestData["Slot"].GetInt32(),
             requestData["Location"].GetString() ?? "");
+        
 
         // No record exists
         if (appointment != "" && appointment.Any())
@@ -124,7 +132,7 @@ public class ServiceAppointmentsController : Controller
     [Route("Retrieve/{appointmentId}")]
     public async Task<IActionResult> GetAppointment(string appointmentId)
     {
-        var appointmentDetail = await ServiceAppointmentManagement.GetAppt(appointmentId);
+        var appointmentDetail = await ServiceAppointmentManagement.getAppointmentByID(appointmentId);
 
         if (appointmentDetail != null && appointmentDetail.Any())
         {
@@ -164,7 +172,7 @@ public class ServiceAppointmentsController : Controller
     {
         try
         {
-            var result = await ServiceAppointmentManagement.UpdateAppt(
+            var result = await ServiceAppointmentManagement.UpdateAppointment(
                 requestData["AppointmentId"].GetString() ?? "",
                 requestData["PatientId"].GetString() ?? "",
                 requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
@@ -198,8 +206,7 @@ public class ServiceAppointmentsController : Controller
     {
         try
         {
-            var result = await ServiceAppointmentManagement.DeleteAppt(appointmentId);
-
+            var result = await ServiceAppointmentManagement.DeleteAppointment(appointmentId);
             // TODO - Should we strictly return a view or can we return a JSON response? - dinie
             if (result)
             {
