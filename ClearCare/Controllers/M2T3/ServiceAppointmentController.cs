@@ -103,7 +103,7 @@ public class ServiceAppointmentsController : Controller
     [Route("Create")]
     public async Task<IActionResult> CreateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
     {
-        var appointment = await ServiceAppointmentManagement.addServiceAppointment(
+        var appointment = await ServiceAppointmentManagement.CreateAppointment(
             requestData["AppointmentId"].GetString() ?? "",
             requestData["PatientId"].GetString() ?? "",
             requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",

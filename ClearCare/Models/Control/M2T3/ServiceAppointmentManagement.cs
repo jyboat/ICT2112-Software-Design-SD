@@ -57,7 +57,7 @@
         }
             
         // Create Service Appointment
-        public async Task<string> addServiceAppointment(string appointmentId, string patientId, string nurseId,
+        public async Task<string> CreateAppointment (string appointmentId, string patientId, string nurseId,
                 string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
             {
                 // Map JSON data to model
@@ -170,17 +170,15 @@
                 };
             }
             
-            public Task CreateAppointment() {
-                Console.WriteLine("Hello Create Appointment Interface");
-                return Task.CompletedTask;
-            }
+            // public Task CreateAppointment() {
+            //     Console.WriteLine("Hello Create Appointment Interface");
+            //     return Task.CompletedTask;
+            // }
         
 
             public async Task<List<Dictionary<string, object>>> RetrieveAllAppointments()
             {
-                Console.WriteLine("Test Thing");
-
-              
+                              
                 List<ServiceAppointment> appointments = await this.getAllServiceAppointments(); 
                 List<Dictionary<string, object>> appointmentList = appointments
                     .Select(a => a.ToFirestoreDictionary()) 
