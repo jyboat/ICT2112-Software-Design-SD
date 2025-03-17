@@ -1,0 +1,88 @@
+@{
+    ViewData["Title"] = "Appointments Calendar";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Appointments Calendar</title>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #calendar {
+            max-width: 900px;
+            margin: 40px auto;
+        }
+        #filterContainer {
+            text-align: center;
+            margin: 20px auto;
+        }
+        .filterInput {
+            width: 180px;
+            padding: 10px;
+            margin-right: 10px;
+        }
+        #filterButton, #resetButton {
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        function loadCalendar(doctorId = '', patientId = '', nurseId = '') {
+            var queryParams = [];
+            if (doctorId) queryParams.push('doctorId=' + doctorId);
+            if (patientId) queryParams.push('patientId=' + patientId);
+            if (nurseId) queryParams.push('nurseId=' + nurseId);
+            var queryString = queryParams.length ? '?' + queryParams.join('&') : '';
+
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: '/api/ServiceAppointments/GetAppointmentsForCalendar' + queryString,
+                eventClick: function(info) {
+                    alert('Appointment ID: ' + info.event.id + '\n' +
+                          'Patient ID: ' + info.event.extendedProps.patientId + '\n' +
+                          'Nurse ID: ' + info.event.extendedProps.nurseId + '\n' +
+                          'Doctor ID: ' + info.event.extendedProps.doctorId);
+                }
+            });
+            calendar.render();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadCalendar(); // Load all appointments by default
+
+            // Filter button
+            $('#filterButton').on('click', function () {
+                var doctorId = $('#doctorInput').val().trim();
+                var patientId = $('#patientInput').val().trim();
+                var nurseId = $('#nurseInput').val().trim();
+                $('#calendar').html('');  // Clear the existing calendar
+                loadCalendar(doctorId, patientId, nurseId);
+            });
+
+            // Reset button
+            $('#resetButton').on('click', function () {
+                $('#doctorInput').val('');
+                $('#patientInput').val('');
+                $('#nurseInput').val('');
+                $('#calendar').html('');  // Clear the existing calendar
+                loadCalendar(); // Reload all appointments
+            });
+        });
+    </script>
+</head>
+<body>
+    <h2 style="text-align: center;">Service Appointments Calendar</h2>
+
+    <div id="filterContainer">
+        <input type="text" id="doctorInput" class="filterInput" placeholder="Enter Doctor ID">
+        <input type="text" id="patientInput" class="filterInput" placeholder="Enter Patient ID">
+        <input type="text" id="nurseInput" class="filterInput" placeholder="Enter Nurse ID">
+        <button id="filterButton">Filter</button>
+        <button id="resetButton">Reset Filters</button>
+    </div>
+
+    <div id="calendar"></div>
+</body>
+</html>

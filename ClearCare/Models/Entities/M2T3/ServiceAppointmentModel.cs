@@ -1,0 +1,173 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Google.Cloud.Location;
+using Newtonsoft.Json;
+using Google.Cloud.Firestore;
+
+namespace ClearCare.Models.Entities
+{
+    [FirestoreData]
+    public class ServiceAppointment
+    {
+        // string.Empty = set empty default or else it will throw error FCK U ASP.NET
+        [FirestoreProperty]
+        private string AppointmentId { get; set; } = string.Empty;
+
+        [FirestoreProperty]
+        private string PatientId { get; set; } = string.Empty;
+
+        [FirestoreProperty]
+        private string NurseId { get; set; } = string.Empty;
+
+        [FirestoreProperty]
+        private string DoctorId { get; set; } = string.Empty;
+
+        [FirestoreProperty]
+        private string ServiceTypeId { get; set; } = string.Empty;
+
+        [FirestoreProperty]
+        private string Status { get; set; } = string.Empty;
+
+        [FirestoreProperty]
+        private DateTime DateTime { get; set; }
+
+        [FirestoreProperty]
+        private int Slot { get; set; } = 0; 
+
+        [FirestoreProperty]
+        private string Location { get; set; } = string.Empty;
+
+        // Getter and Setter
+        private string GetAppointmentID() => AppointmentId;
+        private string GetPatientID() => PatientId;
+        private string GetNurseID() => NurseId;
+        private string GetDoctorID() => DoctorId;
+        private string GetServiceType() => ServiceTypeId;
+        private string GetStatus() => Status;
+        private DateTime GetDateTime() => DateTime; 
+        private int GetSlot() => Slot;
+        private string GetLocation() => Location;
+
+        private void SetAppointmentID(string appointmentId) => AppointmentId = appointmentId;
+        private void SetPatientID(string patientId) => PatientId = patientId;
+        private void SetNurseID(string nurseId) => NurseId = nurseId;
+        private void SetDoctorID(string doctorId) => DoctorId = doctorId;
+        private void SetServiceId(string serviceTypeId) => ServiceTypeId = serviceTypeId;
+        private void SetStatus(string status) => Status = status;
+        private void SetDateTime(DateTime dateTime) => DateTime = dateTime;
+        private void SetSlot(int slot) => Slot = slot;
+        private void SetLocation(string location) => Location = location;
+
+        public void SetAppointmentId(string appointmentId)
+        {
+            SetAppointmentID(appointmentId);
+        }
+        
+        public void appointNurseToPatient(string nurseId, int slot){
+            SetNurseID(nurseId);
+            SetSlot(slot);
+        }
+
+        public string GetAttribute(string attributeName)
+        {
+            return attributeName switch
+            {
+                "AppointmentId" => GetAppointmentID(),
+                "PatientId" => GetPatientID(),
+                "NurseId" => GetNurseID(),
+                "DoctorId" => GetDoctorID(),
+                "ServiceTypeId" => GetServiceType(),
+                "Status" => GetStatus(),
+                "Location" => GetLocation(),
+                _ => throw new ArgumentException("Invalid attribute name")
+            };
+        }
+
+        public int GetIntAttribute(string attributeName)
+        {
+            return attributeName switch
+            {
+                "Slot" => GetSlot(),
+                _ => throw new ArgumentException("Invalid integer attribute name")
+            };
+        }
+        
+        public static ServiceAppointment setApptDetails(string appointmentId, string patientId, string nurseId,
+            string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
+        {
+            return new ServiceAppointment
+            {
+                AppointmentId = appointmentId,
+                PatientId = patientId,
+                NurseId = nurseId,
+                DoctorId = doctorId,
+                ServiceTypeId = serviceTypeId,
+                Status = status,
+                DateTime = dateTime,
+                Slot = slot,
+                Location = location
+            };
+        }
+
+        public Dictionary<string, object> GetApptDetails()
+        {
+            return new Dictionary<string, object>
+            {
+                { "PatientID", GetPatientID() },
+                { "AppointmentID", GetAppointmentID() },
+                { "NurseID", GetNurseID() },
+                { "DoctorID", GetDoctorID() },
+                { "ServiceType", GetServiceType() },
+                { "Status", GetStatus() },
+                { "DateTime", GetDateTime() },
+                { "Slot", GetSlot() },
+                { "Location", GetLocation() }
+            };
+        }
+
+        // Data Normalization
+        // Convert firebase key-value pair into ServiceAppointment Structure so it can be used directly
+        // No more key-value but return the object
+        // Extracts values from { "PatientId": "USR010", "NurseId": "USR001", .... }
+        // and maps them into the ServiceAppointment model
+        // ServiceAppointment { PatientId = "USR010", NurseId = "USR001", ... }
+        // Simple Domain Model Mapping
+        public static ServiceAppointment FromFirestoreData(string appointmentId, Dictionary<string, object> data)
+        {
+            return new ServiceAppointment
+            {
+                AppointmentId = appointmentId,
+                PatientId = data["PatientId"].ToString() ?? "",
+                NurseId = data.ContainsKey("NurseId") ? data["NurseId"].ToString() ?? "" : "" ,
+                DoctorId = data["DoctorId"].ToString() ?? "",
+                ServiceTypeId = data["ServiceTypeId"].ToString() ?? "",
+                Status = data["Status"].ToString() ?? "",
+                DateTime = ((Google.Cloud.Firestore.Timestamp)data["DateTime"]).ToDateTime(),
+                Slot = data.ContainsKey("Slot") ? Convert.ToInt32(data["Slot"]) : 0,
+                Location = data["Location"].ToString()  ?? ""
+            };
+        }
+
+        // Convert to Firestore Dictionary format for insertion
+        // Acts as a getter for all attributes 
+        public Dictionary<string, object> ToFirestoreDictionary()
+        {
+            return new Dictionary<string, object>
+            {
+                { "AppointmentId", AppointmentId },
+                { "PatientId", PatientId },
+                { "NurseId", NurseId },
+                { "DoctorId", DoctorId },
+                { "ServiceTypeId", ServiceTypeId },
+                { "Status", Status },
+                { "DateTime", DateTime },
+                { "Slot", Slot },
+                { "Location", Location }
+            };
+        }
+
+    }
+
+
+}

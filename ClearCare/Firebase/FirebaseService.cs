@@ -1,5 +1,6 @@
 using Google.Cloud.Firestore;
 using System;
+using System.Runtime.InteropServices;
 
 public class FirebaseService
 {
@@ -9,8 +10,23 @@ public class FirebaseService
     {
         if (_firestoreDb == null)
         {
-            // Firebase Admin SDK JSON file
-            string path = @"Firebase\firebase-adminsdk.json"; 
+            // Determine the OS and set the file path accordingly
+            string path;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                // Path for MacBook
+                path = @"Firebase/firebase-adminsdk.json";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // Path for Windows
+                path = @"Firebase\firebase-adminsdk.json"; // not to make path absolute with "C: "
+            }
+            else
+            {
+                throw new PlatformNotSupportedException("Unsupported operating system.");
+            }
+
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
 
             _firestoreDb = FirestoreDb.Create("ict2112");
