@@ -38,6 +38,7 @@ builder.Services.AddScoped<IEncryption, EncryptionManagement>(); // Ensure Encry
 builder.Services.AddScoped<IMedicalRecord, ViewMedicalRecord>(); // Ensure ViewMedicalRecord implements IMedicalRecord
 builder.Services.AddScoped<IUserDetails, ProfileManagement>(); // Ensure ProfileManagement implements IUserDetails
 builder.Services.AddScoped<IMedicalRecordSubject, ManageMedicalRecord>();
+builder.Services.AddScoped<IUserList, AdminManagement>();
 builder.Services.AddScoped<UpdateViewObserver>();
 
 var app = builder.Build();

@@ -2,12 +2,13 @@ using System;
 using System.Threading.Tasks;
 using ClearCare.Models.Entities;
 using ClearCare.DataSource;
+using ClearCare.Models.Interface;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace ClearCare.Models.Control
 {
-     public class AdminManagement
+     public class AdminManagement : IUserList
      {
           private readonly UserGateway _userGateway;
 
