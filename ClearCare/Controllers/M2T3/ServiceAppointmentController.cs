@@ -51,8 +51,7 @@ public class ServiceAppointmentsController : Controller
     public async Task<IActionResult> RetrieveAllAppointment()
     {
         // await to wait for task complete or data to retrieve before executing
-        var appointment = await ServiceAppointmentManagement.getAllServiceAppointments();
-
+        var appointment = await ServiceAppointmentManagement.RetrieveAllAppointments();
         // No record exists
         if (appointment != null && appointment.Any())
         {
