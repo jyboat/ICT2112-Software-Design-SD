@@ -22,12 +22,14 @@
 
 
             // Get All Service Appointment
-            public async Task<List<ServiceAppointment>> getAllServiceAppointments()
+            public async Task<List<Dictionary<string, object>>> RetrieveAllAppointments()
             {
                 List<ServiceAppointment> appointments = await _dbGateway.fetchAllServiceAppointments();
+                 List<Dictionary<string, object>> appointmentList = appointments
+                    .Select(a => a.ToFirestoreDictionary()) 
+                    .ToList();
 
-                
-                return appointments;
+                return appointmentList;
             }
 
             public Task receiveServiceAppointmentList(List<ServiceAppointment> allServiceAppointments)
@@ -174,20 +176,6 @@
             //     Console.WriteLine("Hello Create Appointment Interface");
             //     return Task.CompletedTask;
             // }
-        
-
-            public async Task<List<Dictionary<string, object>>> RetrieveAllAppointments()
-            {
-                              
-                List<ServiceAppointment> appointments = await this.getAllServiceAppointments(); 
-                List<Dictionary<string, object>> appointmentList = appointments
-                    .Select(a => a.ToFirestoreDictionary()) 
-                    .ToList();
-
-                return appointmentList;
-                            
-            }   
-
         }
 
     }
