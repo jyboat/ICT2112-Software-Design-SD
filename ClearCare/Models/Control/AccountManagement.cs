@@ -68,9 +68,8 @@ namespace ClearCare.Models.Control
                 return false; // Ensure it's not null or empty
             }
 
-            // Hash the password
-            string hashedPassword = _passwordService.hashPassword(newPassword);
-            bool isUpdated = await _userGateway.resetPassword(userId, hashedPassword);
+            // Pass the plaintext password to UserGateway.resetPassword
+            bool isUpdated = await _userGateway.resetPassword(userId, newPassword);
 
             if (isUpdated)
             {
