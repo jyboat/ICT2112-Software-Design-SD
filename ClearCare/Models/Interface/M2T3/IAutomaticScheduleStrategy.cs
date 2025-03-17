@@ -8,6 +8,7 @@ namespace ClearCare.Interfaces
     {
         void AutomaticallySchedule(
             List<AutomaticAppointmentScheduler.Nurse> nurses, 
-            List<AutomaticAppointmentScheduler.Patient> appointments);
+            List<AutomaticAppointmentScheduler.Patient> appointments,
+            List<string> services);
     }
 }

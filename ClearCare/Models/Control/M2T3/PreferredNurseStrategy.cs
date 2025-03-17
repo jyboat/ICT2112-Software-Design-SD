@@ -10,9 +10,11 @@ namespace ClearCare.Control
     {
 
         // Inital insert of service appointment w/o nurse and slot attribute filled
-        public List<ServiceAppointment> InitialInsert(List<AutomaticAppointmentScheduler.Patient> patients){
-            var services = new List<string> { "Home Safety Assessment", "Medication", "Counselling", "Caregiver Training" };
+        public List<ServiceAppointment> InitialInsert(List<AutomaticAppointmentScheduler.Patient> patients, List<string> allServices){
+            var services = allServices;
             var appointments = new List<ServiceAppointment>();
+
+            // Need add backlog entries into the starting entries of appointments 
 
             foreach (var patient in patients)
             {
@@ -38,9 +40,10 @@ namespace ClearCare.Control
 
         public void AutomaticallySchedule(
             List<AutomaticAppointmentScheduler.Nurse> nurses, 
-            List<AutomaticAppointmentScheduler.Patient> patients)
+            List<AutomaticAppointmentScheduler.Patient> patients,
+            List<string> services)
         {
-            var appointments = InitialInsert(patients);
+            var appointments = InitialInsert(patients, services);
             int totalSlots = 14;
             int maxPatientsPerSlot = 3;
             int nurseIndex = 0;
@@ -103,10 +106,10 @@ namespace ClearCare.Control
 
                         assignedSlot++;
 
-                        // No more slot, print and exit
+                        // No more slot, print and stop the algorithm
                         if (assignedSlot > totalSlots)
                         {
-                            // Print results for debugging
+                            // // Print results for debugging
                             foreach (var appt in appointments)
                             {
                                 Console.WriteLine($"Appointment ID: {appt.GetAttribute("AppointmentId")}, " +
@@ -117,7 +120,8 @@ namespace ClearCare.Control
                             }
                             // Probably here that needs observer
                             Console.WriteLine($"Error: No available slots for patient left");
-                            return;  // Stop execution to prevent infinite loop
+                        
+                            return; 
                         }
                     }
 
@@ -139,6 +143,15 @@ namespace ClearCare.Control
 
                 // Move to the next nurse (RR)
                 nurseIndex = (nurseIndex + 1) % nurses.Count;
+            }
+
+            foreach (var appt in appointments)
+            {
+                Console.WriteLine($"Appointment ID: {appt.GetAttribute("AppointmentId")}, " +
+                                $"Patient: {appt.GetAttribute("PatientId")}, " +
+                                $"Nurse: {appt.GetAttribute("NurseId")}, " +
+                                $"Service: {appt.GetAttribute("ServiceTypeId")}, " +
+                                $"Slot: {appt.GetIntAttribute("Slot")}");
             }
         }
     }
