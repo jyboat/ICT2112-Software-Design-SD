@@ -169,6 +169,7 @@
                 {
                     new Dictionary<string, string> {{"id", "1"}, {"name", "Mike Tyson"}},
                     new Dictionary<string, string> {{"id", "2"}, {"name", "Rocky Balboa"}},
+                    new Dictionary<string, string> {{"id", "USR003"}, {"name", "USR003"}},
                 };
             }
             

@@ -57,24 +57,25 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            loadCalendar(); // Load all appointments by default
+            // init calendar
+            loadCalendar(); 
 
-            // Filter button
-            $('#filterButton').on('click', function () {
-                var doctorId = $('#doctorInput').val().trim();
-                var patientId = $('#patientInput').val().trim();
-                var nurseId = $('#nurseInput').val().trim();
-                $('#calendar').html('');  // Clear the existing calendar
+            // filter button
+            document.getElementById('filterButton').addEventListener('click', function() {
+                var doctorId = document.getElementById('doctorInput').value.trim();
+                var patientId = document.getElementById('patientInput').value.trim();
+                var nurseId = document.getElementById('nurseInput').value.trim();
+                document.getElementById('calendar').innerHTML = '';  // clear calendar
                 loadCalendar(doctorId, patientId, nurseId);
             });
 
-            // Reset button
-            $('#resetButton').on('click', function () {
-                $('#doctorInput').val('');
-                $('#patientInput').val('');
-                $('#nurseInput').val('');
-                $('#calendar').html('');  // Clear the existing calendar
-                loadCalendar(); // Reload all appointments
+            // reset button
+            document.getElementById('resetButton').addEventListener('click', function() {
+                document.getElementById('doctorInput').value = '';
+                document.getElementById('patientInput').value = '';
+                document.getElementById('nurseInput').value = '';
+                document.getElementById('calendar').innerHTML = '';  // clear calendar
+                loadCalendar(); // reload all appointments
             });
         });
 
@@ -214,7 +215,6 @@
         <button id="filterButton">Filter</button>
         <button id="resetButton">Reset Filters</button>
     </div>
-
     <div id="calendar"></div>
 
     <!-- Edit Appointment Modal -->

@@ -251,4 +251,43 @@ public class ServiceAppointmentsController : Controller
             AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment();
         }
 
+        [HttpPost]
+        [Route("AddAppt")]
+        public async Task<IActionResult> AddAppt([FromBody] Dictionary<string, JsonElement> requestData)
+        {
+            string jsonRequestBody = JsonSerializer.Serialize(requestData);
+            
+            Console.WriteLine("Received JSON request body: " + jsonRequestBody);
+
+            string appointmentId = requestData["AppointmentId"].GetString() ?? "";
+            string patientId = requestData["PatientId"].GetString() ?? "";
+            string nurseId = requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "";
+            string doctorId = requestData["DoctorId"].GetString() ?? "";
+            string serviceTypeId = requestData["ServiceTypeId"].GetString() ?? "";
+            string status = requestData["Status"].GetString() ?? "";
+            DateTime dateTime = requestData["DateTime"].GetDateTime();
+            int slot = requestData["Slot"].GetInt32();
+            string location = requestData["Location"].GetString() ?? "";
+
+            try
+            {
+                string createdAppointmentId = await _manualAppointmentScheduler.ScheduleAppointment(
+                    appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
+                );
+
+                return Ok(new { Message = "Appointment created successfully", AppointmentId = createdAppointmentId });
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Log the exception message
+                Console.WriteLine($"Error: {ex.Message}");
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle other exceptions
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+                return StatusCode(500, new { Message = "An unexpected error occurred." });
+            }
+        }
 }
