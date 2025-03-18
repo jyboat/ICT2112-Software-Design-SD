@@ -27,6 +27,16 @@
 <div class="container mt-5">
     <h1 class="mb-4 text-center">@ViewData["Title"]</h1>
 
+    <!-- Toggle Views -->
+    <div class="mb-3 text-center">
+        <a asp-action="Dashboard" asp-route-currentView="medical" class="btn @(ViewData["CurrentView"]!.ToString() == "medical" ? "btn-primary" : "btn-outline-primary")">
+            Medical Staff (Doctors & Nurses)
+        </a>
+        <a asp-action="Dashboard" asp-route-currentView="patient" class="btn @(ViewData["CurrentView"]!.ToString() == "patient" ? "btn-primary" : "btn-outline-primary")">
+            Patients & Caregivers
+        </a>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h5 class="fw-bold mb-1">User Accounts Overview</h5>
@@ -126,74 +136,108 @@
             <div class="modal fade" id="viewUserModal_@user?.getProfileData()["UserID"]" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="userModalLabel">
-                    <i class="bi bi-person-circle me-2"></i>User Profile
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <div class="d-flex align-items-center mb-4">
-                    <div class="bg-light rounded-circle p-3 me-3">
-                        <i class="bi bi-person-fill fs-1 text-primary"></i>
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="userModalLabel">
+                            <i class="bi bi-person-circle me-2"></i>User Profile
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div>
-                        <h4 class="mb-0">@user?.getProfileData()["Name"]</h4>
-                        <span class="badge bg-secondary">@user?.getProfileData()["Role"]</span>
+                    <div class="modal-body p-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="bg-light rounded-circle p-3 me-3">
+                                <i class="bi bi-person-fill fs-1 text-primary"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0">@user?.getProfileData()["Name"]</h4>
+                                <span class="badge bg-secondary">@user?.getProfileData()["Role"]</span>
+                            </div>
+                        </div>
+                        
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex px-0">
+                                <div class="me-3">
+                                    <i class="bi bi-envelope text-muted"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted">Email</small>
+                                    <p class="mb-0">@user?.getProfileData()["Email"]</p>
+                                </div>
+                            </div>
+                            
+                            <div class="list-group-item d-flex px-0">
+                                <div class="me-3">
+                                    <i class="bi bi-telephone text-muted"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted">Phone</small>
+                                    <p class="mb-0">@user?.getProfileData()["MobileNumber"]</p>
+                                </div>
+                            </div>
+                            
+                            <div class="list-group-item d-flex px-0">
+                                <div class="me-3">
+                                    <i class="bi bi-geo-alt text-muted"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted">Address</small>
+                                    <p class="mb-0">@user?.getProfileData()["Address"]</p>
+                                </div>
+                            </div>
+                            
+                            <div class="list-group-item d-flex px-0">
+                                <div class="me-3">
+                                    <i class="bi bi-fingerprint text-muted"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted">User ID</small>
+                                    <p class="mb-0">@user?.getProfileData()["UserID"]</p>
+                                </div>
+                            </div>
+                            
+                            @if (user?.getProfileData()["Role"].ToString() == "Patient" && user?.getProfileData()["AssignedCaregiverID"] != null)
+                            {
+                                <div class="list-group-item d-flex px-0">
+                                    <div class="me-3">
+                                        <i class="bi bi-heart-pulse text-muted"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">Caregiver</small>
+                                        <p class="mb-0">
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#viewUserModal_@user?.getProfileData()["AssignedCaregiverID"]">
+                                                @user?.getProfileData()["AssignedCaregiverName"]
+                                            </a>
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+                            
+                            @if (user?.getProfileData()["Role"].ToString() == "Caregiver" && user?.getProfileData()["AssignedPatientID"] != null)
+                            {
+                                <div class="list-group-item d-flex px-0">
+                                    <div class="me-3">
+                                        <i class="bi bi-people text-muted"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">Patient(s)</small>
+                                        <p class="mb-1">
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#viewUserModal_@user?.getProfileData()["AssignedPatientID"]">
+                                                @user?.getProfileData()["AssignedPatientName"]
+                                            </a>
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                        <a href="/UpdateProfilePage/@user?.getProfileData()["UserID"]" class="btn btn-primary">
+                            <i class="bi bi-pencil-square me-1"></i>Edit Profile
+                        </a>
                     </div>
-                    
-                    <div class="list-group list-group-flush">
-                    <div class="list-group-item d-flex px-0">
-                        <div class="me-3">
-                        <i class="bi bi-envelope text-muted"></i>
-                        </div>
-                        <div>
-                        <small class="text-muted">Email</small>
-                        <p class="mb-0">@user?.getProfileData()["Email"]</p>
-                        </div>
-                    </div>
-                    
-                    <div class="list-group-item d-flex px-0">
-                        <div class="me-3">
-                        <i class="bi bi-telephone text-muted"></i>
-                        </div>
-                        <div>
-                        <small class="text-muted">Phone</small>
-                        <p class="mb-0">@user?.getProfileData()["MobileNumber"]</p>
-                        </div>
-                    </div>
-                    
-                    <div class="list-group-item d-flex px-0">
-                        <div class="me-3">
-                        <i class="bi bi-geo-alt text-muted"></i>
-                        </div>
-                        <div>
-                        <small class="text-muted">Address</small>
-                        <p class="mb-0">@user?.getProfileData()["Address"]</p>
-                        </div>
-                    </div>
-                    
-                    <div class="list-group-item d-flex px-0">
-                        <div class="me-3">
-                        <i class="bi bi-fingerprint text-muted"></i>
-                        </div>
-                        <div>
-                        <small class="text-muted">User ID</small>
-                        <p class="mb-0">@user?.getProfileData()["UserID"]</p>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                    <a href="/UpdateProfilePage/@user?.getProfileData()["UserID"]" class="btn btn-primary">
-                        <i class="bi bi-pencil-square me-1"></i>Edit Profile
-                    </a>
-                </div>
                 </div>
             </div>
-            </div>
+        </div>
 
             // Reset Password Modal
             <div class="modal fade" id="resetPassword_@user?.getProfileData()["UserID"]" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
