@@ -188,7 +188,7 @@
          
 
 
-            // i hardcode the "retrieval" of nurse and patirents first, later once get from mod 1, will update
+            // i hardcode the "retrieval" of services, nurse and patients first, later once get from mod 1, will update
             public List<Dictionary<string, string>> GetAllPatients()
             {
                 return new List<Dictionary<string, string>>
@@ -209,6 +209,16 @@
             }
 
             
+            
+            public List<Dictionary<string, string>> GetAllServiceTypes()
+            {
+                return new List<Dictionary<string, string>>
+                {
+                    new Dictionary<string, string> {{"id", "1"}, {"name", "FINANCIAL COUNSELING"}},
+                    new Dictionary<string, string> {{"id", "2"}, {"name", "PHYSICAL THERAPY"}},
+                    new Dictionary<string, string> {{"id", "3"}, {"name", "WOUND CARE"}},
+                };
+            }
             
             // public Task CreateAppointment() {
             //     Console.WriteLine("Hello Create Appointment Interface");

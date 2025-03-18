@@ -12,7 +12,7 @@ namespace ClearCare.Models.Control
     {
         private readonly ICreateAppointment _iCreateAppointment;
         private readonly INurseAvailability _iNurseAvailability;
-        public ManualAppointmentScheduler (ICreateAppointment ICreateAppointment, INurseAvailability INurseAvailability)
+        public ManualAppointmentScheduler(ICreateAppointment ICreateAppointment, INurseAvailability INurseAvailability)
         {
             _iCreateAppointment = ICreateAppointment;
             _iNurseAvailability = INurseAvailability;
@@ -20,67 +20,67 @@ namespace ClearCare.Models.Control
 
         public async Task TestInterface()
         {
-           //  await _iCreateAppointment.CreateAppointment();
+            //  await _iCreateAppointment.CreateAppointment();
             var staffAvailability = await _iNurseAvailability.getAllStaffAvailability();
         }
 
         public async Task<string> CreateAppointment(string appointmentId, string patientId, string nurseId,
     string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
-    {
-        // Calling CreateAppointment method from the ICreateAppointment interface
-        return await _iCreateAppointment.CreateAppointment(appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location);
-    }
+        {
+            // Calling CreateAppointment method from the ICreateAppointment interface
+            return await _iCreateAppointment.CreateAppointment(appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location);
+        }
 
         public async Task<bool> ValidateAppointmentSlot(string appointmentId, string patientId, string nurseId,
     string doctorId, DateTime dateTime, int slot)
-    {
-        bool isValid = true;
-        Console.WriteLine($"nurseId: {nurseId}");
-        Console.WriteLine($"dateTime: {dateTime}");
-
-        // retrieve staff availability
-        var nurseAvailability = await _iNurseAvailability.getAvailabilityByStaff(nurseId);
-
-        var requestedDate = dateTime.Date;
-        var requestedTime = dateTime.TimeOfDay;
-
-        foreach (var availability in nurseAvailability)
         {
-            var availabilityDetails = availability.getAvailabilityDetails();
+            bool isValid = true;
+            Console.WriteLine($"nurseId: {nurseId}");
+            Console.WriteLine($"dateTime: {dateTime}");
 
-            // extract the date, start time, and end time from the availability
-            DateTime availabilityDate = DateTime.Parse(availabilityDetails["date"].ToString());
-            TimeSpan startTime = TimeSpan.Parse(availabilityDetails["startTime"].ToString());
-            TimeSpan endTime = TimeSpan.Parse(availabilityDetails["endTime"].ToString());
+            // retrieve staff availability
+            var nurseAvailability = await _iNurseAvailability.getAvailabilityByStaff(nurseId);
 
-            // Console.WriteLine($"Availability Date: {availabilityDate}");
-            // Console.WriteLine($"Start Time: {startTime}");
-            // Console.WriteLine($"End Time: {endTime}");
+            var requestedDate = dateTime.Date;
+            var requestedTime = dateTime.TimeOfDay;
 
-            // check if the requested date matches the availability date
-            if (requestedDate == availabilityDate.Date)
+            foreach (var availability in nurseAvailability)
             {
-                // check if the requested time is within the start and end time
-                if (requestedTime >= startTime && requestedTime <= endTime)
+                var availabilityDetails = availability.getAvailabilityDetails();
+
+                // extract the date, start time, and end time from the availability
+                DateTime availabilityDate = DateTime.Parse(availabilityDetails["date"].ToString());
+                TimeSpan startTime = TimeSpan.Parse(availabilityDetails["startTime"].ToString());
+                TimeSpan endTime = TimeSpan.Parse(availabilityDetails["endTime"].ToString());
+
+                // Console.WriteLine($"Availability Date: {availabilityDate}");
+                // Console.WriteLine($"Start Time: {startTime}");
+                // Console.WriteLine($"End Time: {endTime}");
+
+                // check if the requested date matches the availability date
+                if (requestedDate == availabilityDate.Date)
                 {
-                    Console.WriteLine($"Nurse {availabilityDetails["nurseID"]} is unavailable at {dateTime}.");
-                    isValid = false; // The nurse is unavailable
-                    break; // exit the loop since availability conflict is found
+                    // check if the requested time is within the start and end time
+                    if (requestedTime >= startTime && requestedTime <= endTime)
+                    {
+                        Console.WriteLine($"Nurse {availabilityDetails["nurseID"]} is unavailable at {dateTime}.");
+                        isValid = false; // The nurse is unavailable
+                        break; // exit the loop since availability conflict is found
+                    }
                 }
             }
-        }
 
-        if (isValid)
-        {
-            Console.WriteLine("Appointment slot is valid.");
-        }
-        else
-        {
-            Console.WriteLine("Appointment slot is not valid.");
-        }
+            // if (isValid)
+            // {
+            //     Console.WriteLine("Appointment slot is valid.");
+            // }
+            // else
+            // {
+            //     Console.WriteLine("Appointment slot is not valid.");
+            // }
 
-        return isValid;
-    }
+            return isValid;
+        }
 
         public async Task<string> ScheduleAppointment(string appointmentId, string patientId, string nurseId,
     string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
@@ -88,7 +88,7 @@ namespace ClearCare.Models.Control
             Console.WriteLine("Scheduling appointment...");
 
             bool isSlotValid = await ValidateAppointmentSlot(appointmentId, patientId, nurseId, doctorId, dateTime, slot);
-            
+
             if (!isSlotValid)
             {
                 Console.WriteLine("Cannot schedule appointment: invalid slot.");

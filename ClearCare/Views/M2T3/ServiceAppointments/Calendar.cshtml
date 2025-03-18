@@ -33,6 +33,11 @@
         }
     </style>
     <script>
+        const patientsData = @Html.Raw(Json.Serialize(ViewBag.Patients));
+        const nursesData = @Html.Raw(Json.Serialize(ViewBag.Nurses));
+        const serviceTypes = @Html.Raw(Json.Serialize(ViewBag.ServiceTypes));
+        const DoctorId = @Html.Raw(Json.Serialize(ViewBag.DoctorId));
+        
         function loadCalendar(doctorId = '', patientId = '', nurseId = '') {
             var queryParams = [];
             if (doctorId) queryParams.push('doctorId=' + doctorId);
@@ -58,7 +63,7 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             // init calendar
-            loadCalendar(); 
+            loadCalendar();
 
             // filter button
             document.getElementById('filterButton').addEventListener('click', function() {
@@ -90,10 +95,26 @@
             document.getElementById("editServiceType").value = extendedProps.serviceType;
             document.getElementById("editSlot").value = extendedProps.slot;
             document.getElementById("editStatus").value = extendedProps.status;
+
+            populateDropdowns();
+
+            setTimeout(() => {
+                document.getElementById("editPatientId").value = extendedProps.patientId;
+                document.getElementById("editNurseId").value = extendedProps.nurseId;
+            }, 300);
+            
             $('#editAppointmentModal').modal('show');
         }
 
         function openAddModal() {
+            // clear the form fields
+            document.getElementById("addDate").value = "";
+            document.getElementById("addTimeSlot").value = "";
+            document.getElementById("addLocation").value = "";
+
+            populateDropdowns();
+
+            // show the modal
             $('#addAppointmentModal').modal('show');
         }
 
@@ -160,48 +181,109 @@
             }
         }
 
-        function addAppointment() {
-            let id = document.getElementById("addAppointmentId").value;
-            let patientId = document.getElementById("addPatientId").value;
-            let nurseId = document.getElementById("addNurseID").value;
-            let doctorId = document.getElementById("addDoctorID").value;
-            let serviceType = document.getElementById("addServiceType").value;
-            let status = document.getElementById("addStatus").value;
-            let dateTime = document.getElementById("addDateTime").value;
-            let slot = document.getElementById("addSlot").value;
-            let location = document.getElementById("addLocation").value;
+        console.log("Patients data:", patientsData);
+        console.log("Nurses data:", nursesData);
+        console.log("Services data:", serviceTypes);
+        
+        
+        function generateAppointmentId(length=20) {
+            const chars =  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
 
-            let formattedDateTime = new Date(dateTime).toISOString().split(".")[0] + "Z"; // Convert to UTC format
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * chars.length);
+                result += chars.charAt(randomIndex);
+            }
+            
+            return result;
+        }
+        
+        const populateDropdowns = () => {
+            // Populate patient dropdowns
+            populateDropdown("addPatientId", patientsData);
+            populateDropdown("editPatientId", patientsData);
+            populateDropdown("editServiceType", serviceTypes);
 
-            let requestData = {
-                AppointmentId: id || "dummy123", //TODO: fix hardcode, must follow endpoint data type
-                PatientId: patientId,
-                NurseId: nurseId,
-                DoctorId: doctorId || "1", //TODO: fix hardcode, must follow endpoint data type
-                ServiceTypeId: serviceType,
-                Status: status,
-                DateTime: formattedDateTime,
-                Slot: parseInt(slot),
-                Location: location
-            };
-
-            console.log(requestData)
-
-            fetch("/api/ServiceAppointments/Create", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(requestData)
-            }).then(response => {
-                if (response.ok) {
-                    alert("Availability added successfully!");
-                    closeModal();
-                    window.location.reload();
-                } else {
-                    alert("Error adding availability.");
-                }
-            }).catch(error => console.error("Error:", error));
+            // Populate nurse dropdowns
+            populateDropdown("addNurseId", nursesData);
+            populateDropdown("editNurseId", nursesData);
+            populateDropdown("addServiceType", serviceTypes);
+        }
+        
+        const populateDropdown = (elementId, options) => {
+            const dropdown = document.getElementById(elementId);
+            dropdown.innerHTML = '<option value="">Select...</option>';
+            
+            options.forEach(option => {
+                const optionElement = document.createElement("option");
+                optionElement.value = option.id;
+                optionElement.text = option.name;
+                dropdown.appendChild(optionElement);
+            })
         }
 
+        function addAppointment() {
+            let id = generateAppointmentId(20);
+            let patientId = document.getElementById("addPatientId").value;
+            let nurseId = document.getElementById("addNurseId").value;
+            let doctorId = document.getElementById("addDoctorID").value;
+            let serviceType = document.getElementById("addServiceType").value;
+            let status = "PENDING" // default status
+            let selectedDate = document.getElementById("addDate").value;
+            let selectedTimeSlot = document.getElementById("addTimeSlot").value;
+            let location = document.getElementById("addLocation").value;
+
+            if (!selectedDate || selectedTimeSlot === "") {
+                alert("Please select both a date and time slot.")
+                return;
+            }
+
+            // calc hour based on the selected time slot
+            let hour = 8 + parseInt(selectedTimeSlot);
+
+            // manually construct the ISO DateTime string
+            let isoDateTime = `${selectedDate}T${hour.toString().padStart(2, '0')}:00:00.000Z`;
+
+            let formData = {
+                AppointmentId: id || "dummy123",
+                PatientId: patientId,
+                NurseId: nurseId,
+                DoctorId: doctorId || "1",
+                ServiceTypeId: serviceType,
+                Status: status,
+                DateTime: isoDateTime,
+                Slot: parseInt(selectedTimeSlot),
+                Location: location
+            };
+            
+            fetch("/api/ServiceAppointments/AddAppt", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            // Log the entire error response for debugging
+                            console.error("Error response:", err.message);
+                            throw new Error(err.message || "An error occurred");
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert("Appointment created successfully!");
+                    console.log("Response:", data);
+                    $('#addAppointmentModal').modal('hide');
+                    location.reload();
+                })
+                .catch(error => {
+                    alert("Error: " + error.message); // display the error message
+                    console.error("Error:", error);
+                });
+        }
     </script>
 </head>
 
@@ -294,36 +376,60 @@
                         <input type="hidden" id="addAppointmentId">
 
                         <div class="form-group">
-                            <label for="addPatientId">Patient ID</label>
-                            <input type="text" class="form-control" id="addPatientId">
+                            <label for="addPatientId">Select Patient</label>
+                            <select class="form-select" id="addPatientId">
+                                <option value="">Select Patient...</option>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label for="addNurseID">Nurse ID</label>
-                            <input type="text" class="form-control" id="addNurseID">
+                            <label for="addNurseId">Select Nurse</label>
+                            <select class="form-select" id="addNurseId">
+                                <option value="">Select Nurse...</option>
+                            </select>
                         </div>
+                        @* Need to be retrieved from session *@
+                        <input type="hidden" id="addDoctorID" value="DOC001">
+                        @* This one need to be pulled from management control class *@
                         <div class="form-group">
-                            <label for="addDoctorID">Doctor ID</label>
-                            <input type="text" class="form-control" id="addDoctorID" readonly>
+                            <label for="addServiceType">Select Service Type</label>
+                            <select class="form-select" id="addServiceType">
+                                <option value="">Select Service Type...</option>
+                            </select>
                         </div>
-                        <div class="form-group">
-                            <label for="addServiceType">Service Type</label>
-                            <input type="text" class="form-control" id="addServiceType">
-                        </div>
+
+                        @* This one by default should be pending when the appointment just created
                         <div class="form-group">
                             <label for="addStatus">Status</label>
                             <input type="text" class="form-control" id="addStatus">
-                        </div>
+                        </div> *@
+                        
+                        @* Separate Date and Time selection *@
                         <div class="form-group">
-                            <label for="addDateTime">Date and Time</label>
-                            <input type="datetime-local" class="form-control" id="addDateTime">
+                            <label for="addDate">Date:</label>
+                            <input type="date" id="addDate" name="Date" required>
+
+                            <label for="addTimeSlot">Time Slot:</label>
+                            <select id="addTimeSlot" name="TimeSlot" required>
+                                <option value="">Select Time Slot</option>
+                                <option value="0">08:00 - 09:00</option>
+                                <option value="1">09:00 - 10:00</option>
+                                <option value="2">10:00 - 11:00</option>
+                                <option value="3">11:00 - 12:00</option>
+                                <option value="4">12:00 - 13:00</option>
+                                <option value="5">13:00 - 14:00</option>
+                                <option value="6">14:00 - 15:00</option>
+                                <option value="7">15:00 - 16:00</option>
+                            </select><br><br>
                         </div>
-                        <div class="form-group">
-                            <label for="addSlot">Slot</label>
-                            <input type="text" class="form-control" id="addSlot">
-                        </div>
+
+                        @* Location only set for 2 options, phsyical OR virtual *@
                         <div class="form-group">
                             <label for="addLocation">Location</label>
-                            <input type="text" class="form-control" id="addLocation">
+                            <select class="form-select" id="addLocation">
+                                <option value="">Select Location...</option>
+                                <option value="PHYSICAL">Physical</option>
+                                <option value="VIRTUAL">Virtual</option>
+                            </select>
                         </div>
 
                         <button type="button" class="btn btn-primary" onclick="addAppointment()">Add

@@ -20,13 +20,12 @@ public class ServiceAppointmentsController : Controller
     private readonly NurseAvailabilityManagement _nurseAvailabilityManagement;
     private readonly ManualAppointmentScheduler _manualAppointmentScheduler;
 
-    
 
     public ServiceAppointmentsController()
     {
-        
-         ServiceAppointmentManagement = new ServiceAppointmentManagement();
-        
+
+        ServiceAppointmentManagement = new ServiceAppointmentManagement();
+
 
         _nurseAvailabilityManagement = new NurseAvailabilityManagement();
         // var nurse_availability_gateway = new NurseAvailabilityGateway();
@@ -36,12 +35,12 @@ public class ServiceAppointmentsController : Controller
         // nurse_availability_gateway.Receiver = _nurseAvailabilityManagement;
 
 
-       
+
 
         _calendarManagement = new CalendarManagement(ServiceAppointmentManagement, _nurseAvailabilityManagement);
 
-        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler((ICreateAppointment) ServiceAppointmentManagement, (INurseAvailability) _nurseAvailabilityManagement);       
-        _manualAppointmentScheduler = new ManualAppointmentScheduler((ICreateAppointment) ServiceAppointmentManagement, (INurseAvailability) _nurseAvailabilityManagement);
+        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler((ICreateAppointment)ServiceAppointmentManagement, (INurseAvailability)_nurseAvailabilityManagement);
+        _manualAppointmentScheduler = new ManualAppointmentScheduler((ICreateAppointment)ServiceAppointmentManagement, (INurseAvailability)_nurseAvailabilityManagement);
 
     }
 
@@ -75,6 +74,11 @@ public class ServiceAppointmentsController : Controller
     [Route("Calendar")]
     public IActionResult Calendar()
     {
+        ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
+        ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
+        ViewBag.ServiceTypes = ServiceAppointmentManagement.GetAllServiceTypes();
+        ViewBag.DoctorId = "DOC001"; // hardcoded for now, will retrieve from session later
+
         return View("~/Views/M2T3/ServiceAppointments/Calendar.cshtml");
     }
 
@@ -111,7 +115,7 @@ public class ServiceAppointmentsController : Controller
             requestData["DateTime"].GetDateTime(),
             requestData["Slot"].GetInt32(),
             requestData["Location"].GetString() ?? "");
-        
+
 
         // No record exists
         if (appointment != "" && appointment.Any())
@@ -225,68 +229,68 @@ public class ServiceAppointmentsController : Controller
 
     // Test Manual's Interface
 
-        [HttpGet]
-        [Route("TestManualAppointment")]
-        public async Task<IActionResult> TestManualAppointment()
+    [HttpGet]
+    [Route("TestManualAppointment")]
+    public async Task<IActionResult> TestManualAppointment()
+    {
+        await _manualAppointmentScheduler.TestInterface();
+        return View("~/Views/M2T3/ServiceAppointments/TestManualAppointment.cshtml"); // Render the View
+    }
+
+    [HttpPost]
+    [Route("TestManualAppointment")]
+    public async Task<IActionResult> RunTestManualAppointment()
+    {
+        await _manualAppointmentScheduler.TestInterface();
+        return RedirectToAction("~/Views/M2T3/ServiceAppointments/TestManualAppointment.cshtml");
+    }
+
+    // Test Auto Interface
+    [HttpGet]
+    [Route("TestAutoAppointment")]
+    public void TestAutoAppointment()
+    {
+        AutomaticAppointmentScheduler.SetAlgorithm(new PreferredNurseStrategy());
+        AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment();
+    }
+
+    [HttpPost]
+    [Route("AddAppt")]
+    public async Task<IActionResult> AddAppt([FromBody] Dictionary<string, JsonElement> requestData)
+    {
+        string jsonRequestBody = JsonSerializer.Serialize(requestData);
+
+        Console.WriteLine("Received JSON request body: " + jsonRequestBody);
+
+        string appointmentId = requestData["AppointmentId"].GetString() ?? "";
+        string patientId = requestData["PatientId"].GetString() ?? "";
+        string nurseId = requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "";
+        string doctorId = requestData["DoctorId"].GetString() ?? "";
+        string serviceTypeId = requestData["ServiceTypeId"].GetString() ?? "";
+        string status = "PENDING"; // hardcoded to always set PENDING as the default status
+        DateTime dateTime = requestData["DateTime"].GetDateTime();
+        int slot = requestData["Slot"].GetInt32();
+        string location = requestData["Location"].GetString() ?? "";
+
+        try
         {
-            await _manualAppointmentScheduler.TestInterface();
-            return View("~/Views/M2T3/ServiceAppointments/TestManualAppointment.cshtml"); // Render the View
-        }
+            string createdAppointmentId = await _manualAppointmentScheduler.ScheduleAppointment(
+                appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
+            );
 
-        [HttpPost]
-        [Route("TestManualAppointment")]
-        public async Task<IActionResult> RunTestManualAppointment()
+            return Ok(new { Message = "Appointment created successfully", AppointmentId = createdAppointmentId });
+        }
+        catch (InvalidOperationException ex)
         {
-            await _manualAppointmentScheduler.TestInterface();
-            return RedirectToAction("~/Views/M2T3/ServiceAppointments/TestManualAppointment.cshtml");
+            // Log the exception message
+            Console.WriteLine($"Error: {ex.Message}");
+            return BadRequest(new { Message = ex.Message });
         }
-
-        // Test Auto Interface
-        [HttpGet]
-        [Route("TestAutoAppointment")]
-        public void TestAutoAppointment()
+        catch (Exception ex)
         {
-            AutomaticAppointmentScheduler.SetAlgorithm(new PreferredNurseStrategy());
-            AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment();
+            // Handle other exceptions
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            return StatusCode(500, new { Message = "An unexpected error occurred." });
         }
-
-        [HttpPost]
-        [Route("AddAppt")]
-        public async Task<IActionResult> AddAppt([FromBody] Dictionary<string, JsonElement> requestData)
-        {
-            string jsonRequestBody = JsonSerializer.Serialize(requestData);
-            
-            Console.WriteLine("Received JSON request body: " + jsonRequestBody);
-
-            string appointmentId = requestData["AppointmentId"].GetString() ?? "";
-            string patientId = requestData["PatientId"].GetString() ?? "";
-            string nurseId = requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "";
-            string doctorId = requestData["DoctorId"].GetString() ?? "";
-            string serviceTypeId = requestData["ServiceTypeId"].GetString() ?? "";
-            string status = requestData["Status"].GetString() ?? "";
-            DateTime dateTime = requestData["DateTime"].GetDateTime();
-            int slot = requestData["Slot"].GetInt32();
-            string location = requestData["Location"].GetString() ?? "";
-
-            try
-            {
-                string createdAppointmentId = await _manualAppointmentScheduler.ScheduleAppointment(
-                    appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
-                );
-
-                return Ok(new { Message = "Appointment created successfully", AppointmentId = createdAppointmentId });
-            }
-            catch (InvalidOperationException ex)
-            {
-                // Log the exception message
-                Console.WriteLine($"Error: {ex.Message}");
-                return BadRequest(new { Message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                // Handle other exceptions
-                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
-                return StatusCode(500, new { Message = "An unexpected error occurred." });
-            }
-        }
+    }
 }
