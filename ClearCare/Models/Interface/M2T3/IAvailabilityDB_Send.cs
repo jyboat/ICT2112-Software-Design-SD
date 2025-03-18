@@ -9,6 +9,8 @@ namespace ClearCare.Interfaces
 {
     public interface IAvailabilityDB_Send
     {
+        IAvailabilityDB_Receive Receiver { get; set; }
+
         // Fetches the list of all nurse availabilities from the database - implemented from NurseAvailabilityGateway; used in NurseAvailabilityManagement (getAllStaffAvailability)
         Task<List<NurseAvailability>> fetchAllStaffAvailability();
 

@@ -2,6 +2,7 @@ using ClearCare.Interfaces;
 using ClearCare.Models.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ClearCare.DataSource;
 
 namespace ClearCare.Models.Control
 {
@@ -9,9 +10,10 @@ namespace ClearCare.Models.Control
     {
         private readonly IAvailabilityDB_Send _dbGateway;
 
-        public NurseAvailabilityManagement(IAvailabilityDB_Send dbGateway)
+        public NurseAvailabilityManagement()
         {
-            _dbGateway = dbGateway;
+            _dbGateway = (IAvailabilityDB_Send) new NurseAvailabilityGateway();
+            _dbGateway.Receiver = this;
         }
 
         // Implementing INurseAvailability Interface - used by ServiceAppointments not the DB Interfaces!!
