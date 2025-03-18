@@ -14,10 +14,10 @@
             
 
         private readonly IServiceAppointmentDB_Send _dbGateway;
-
-        public ServiceAppointmentManagement(IServiceAppointmentDB_Send dbGateway)
+        public ServiceAppointmentManagement()
         {
-            _dbGateway = dbGateway;
+            _dbGateway = (IServiceAppointmentDB_Send) new ServiceAppointmentGateway();
+            _dbGateway.Receiver = this;
         }
 
 

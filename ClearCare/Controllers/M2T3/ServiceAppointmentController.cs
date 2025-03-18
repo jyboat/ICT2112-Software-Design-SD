@@ -24,17 +24,16 @@ public class ServiceAppointmentsController : Controller
 
     public ServiceAppointmentsController()
     {
-        var _serviceAppointmentGateway = new ServiceAppointmentGateway();
-        ServiceAppointmentManagement = new ServiceAppointmentManagement(_serviceAppointmentGateway);
-         // ServiceAppointmentManagement = new ServiceAppointmentManagement();
-        _serviceAppointmentGateway.Receiver = ServiceAppointmentManagement;
+        
+         ServiceAppointmentManagement = new ServiceAppointmentManagement();
+        
 
-        // _nurseAvailabilityManagement = new NurseAvailabilityManagement(new NurseAvailabilityGateway());
-        var nurse_availability_gateway = new NurseAvailabilityGateway();
-        // Create the manager and pass the gateway
-        _nurseAvailabilityManagement = new NurseAvailabilityManagement(nurse_availability_gateway);
-        // Set the gateway's receiver to the manager (which implements IAvailabilityDB_Receive)
-        nurse_availability_gateway.Receiver = _nurseAvailabilityManagement;
+        _nurseAvailabilityManagement = new NurseAvailabilityManagement();
+        // var nurse_availability_gateway = new NurseAvailabilityGateway();
+        // // Create the manager and pass the gateway
+        // _nurseAvailabilityManagement = new NurseAvailabilityManagement(nurse_availability_gateway);
+        // // Set the gateway's receiver to the manager (which implements IAvailabilityDB_Receive)
+        // nurse_availability_gateway.Receiver = _nurseAvailabilityManagement;
 
 
        
