@@ -4,17 +4,23 @@ using ClearCare.Models.Entities;
 using ClearCare.DataSource;
 using System.Data;
 using System.Reflection;
+using ClearCare.Business;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ClearCare.Controllers
 {
      public class AdminController : Controller
      {
           private readonly AdminManagement _adminManagement;
+          private readonly AuditManagement _auditManagement; // Add AuditManagement
 
           public AdminController()
           {
                var userGateway = new UserGateway();
                _adminManagement = new AdminManagement(userGateway);
+               _auditManagement = new AuditManagement(); // Initialize AuditManagement
           }
 
           // GET: /Admin/Dashboard
@@ -51,6 +57,17 @@ namespace ClearCare.Controllers
                return View("~/Views/Admin/Dashboard.cshtml");
           }
 
+          // ✅ NEW: GET: /Admin/AuditView
+          [HttpGet]
+          public async Task<IActionResult> AuditView()
+          {
+               List<AuditLog> auditLogs = await _auditManagement.GetAllAuditLogsAsync();
+
+               // Ensure ViewData is not null
+               ViewData["AuditLogs"] = auditLogs ?? new List<AuditLog>();
+
+               return View("~/Views/Admin/AuditView.cshtml");
+          }
 
           // GET: /Admin/LoadCreateNurseAccount
           [HttpGet]
@@ -127,6 +144,7 @@ namespace ClearCare.Controllers
                {
                     TempData["ErrorMessage"] = "User ID is required.";
                     return RedirectToAction("Dashboard"); // Redirect to Dashboard or another page
+                    return RedirectToAction("Dashboard");
                }
 
                // Get user details from Firestore
@@ -153,23 +171,13 @@ namespace ClearCare.Controllers
           }
 
           // POST: /Admin/UserProfile
+          // POST: /Admin/updateAccount
           [HttpPost]
           public async Task<IActionResult> updateAccount(string uid, string email, string name, string role, string address, long? mobileNumber, string? department, string? specialization)
           {
                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || mobileNumber == null || (string.IsNullOrEmpty(department) && string.IsNullOrEmpty(specialization)))
                {
                     ViewBag.ErrorMessage = "Please fill in all required fields.";
-                    return RedirectToAction("LoadRoleForm", new { role = role });
-               }
-               // Role-specific validation
-               if (role == "Nurse" && string.IsNullOrEmpty(department))
-               {
-                    ViewBag.ErrorMessage = "Department is required for Nurse accounts.";
-                    return RedirectToAction("LoadRoleForm", new { role = role });
-               }
-               else if (role == "Doctor" && string.IsNullOrEmpty(specialization))
-               {
-                    ViewBag.ErrorMessage = "Specialization is required for Doctor accounts.";
                     return RedirectToAction("LoadRoleForm", new { role = role });
                }
 
@@ -181,6 +189,7 @@ namespace ClearCare.Controllers
                     { "MobileNumber", mobileNumber },
                     { "Address", address },
                     { "Role", role }  // Always save the role
+                    { "Role", role }
                };
 
                // Add role-specific fields
@@ -231,6 +240,7 @@ namespace ClearCare.Controllers
           }
 
           // POST: /Admin/ResetPassword
+          // POST: /Admin/DeleteAccount
           [HttpPost]
           public async Task<IActionResult> deleteAccount(string uid)
           {
@@ -255,4 +265,4 @@ namespace ClearCare.Controllers
           }
 
      }
-}
+}}
