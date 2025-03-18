@@ -16,7 +16,7 @@
 <body>
 <h1 class="my-4">@ViewData["Title"]</h1>
 
-<form id="appointmentForm" method="post">
+<form id="appointmentForm" method="post" asp-action="ReassignManual">
     <!-- Disabled or hidden fields for unchangeable data -->
     <label for="appointmentId">Appointment ID:</label>
     <input type="text" id="appointmentId" name="AppointmentId" value="@Model.AppointmentId" readonly style="background-color: #e9ecef;"><br><br>

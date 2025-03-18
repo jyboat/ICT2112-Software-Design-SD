@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace ClearCare.Models.Control
 {
-    public class ServiceBacklogManagement: IServiceBacklogDB_Receive
+    public class ServiceBacklogManagement: IServiceBacklogDB_Receive, ISchedulingListener
     {
         private readonly IServiceBacklogDB_Send _dbGateway;
+        private readonly ServiceAppointmentManagement serviceManager = new ServiceAppointmentManagement();
         private ServiceBacklogController? _controller;
         
         public ServiceBacklogManagement()
@@ -21,8 +22,7 @@ namespace ClearCare.Models.Control
             _controller = controller;
         }
 
-        // Get all backlogs including details of each
-        public async Task<List<ServiceBacklogViewModel>> getBacklogs()
+        private async Task<List<ServiceBacklog>> getAllBacklogs()
         {
             List<Dictionary<string, string>> backlogsDTO = await _dbGateway.fetchServiceBacklogs();
             var serviceBacklogs = new List<ServiceBacklog>();
@@ -35,8 +35,15 @@ namespace ClearCare.Models.Control
                 serviceBacklogs.Add(serviceBacklog);
             }
 
+            return serviceBacklogs;
+        }
+
+        // Get all backlogs including details of each
+        public async Task<List<ServiceBacklogViewModel>> getAllBacklogDetails()
+        {
+            // get all backlogs
+            List<ServiceBacklog> serviceBacklogs = await getAllBacklogs();
             // Get all services
-            var serviceManager = new ServiceAppointmentManagement();
             var allAppointments = await serviceManager.RetrieveAllAppointments();
 
             // Combine data into ServiceBacklogViewModel
@@ -71,8 +78,7 @@ namespace ClearCare.Models.Control
             ServiceBacklog serviceBacklog = new ServiceBacklog();
             serviceBacklog.setBacklogInformation(backlogDTO["backlogId"], backlogDTO["appointmentId"]);
 
-            var serviceManager = new ServiceAppointmentManagement();
-            var appointment = await serviceManager.GetAppt(serviceBacklog.getBacklogInformation()["appointmentId"]);
+            var appointment = await serviceManager.getAppointmentByID(serviceBacklog.getBacklogInformation()["appointmentId"]);
 
             var serviceBacklogViewModel = await createViewModel(serviceBacklog, appointment);
 
@@ -87,10 +93,10 @@ namespace ClearCare.Models.Control
             return true;
         }
 
-        public void addBacklog(string serviceAppointmentId)
+        public async Task addBacklog(string serviceAppointmentId)
         {
             ServiceBacklog backlog = new ServiceBacklog(serviceAppointmentId);
-            _dbGateway.createServiceBacklog(backlog);
+            await _dbGateway.createServiceBacklog(backlog);
         }
 
         public async Task deleteBacklog(string backlogId)
@@ -108,14 +114,14 @@ namespace ClearCare.Models.Control
             {
                 Console.WriteLine($"Received {backlogList.Count} backlogs.");
                 
-                foreach (var backlog in backlogList)
-                {
-                    foreach (var kvp in backlog)
-                    {
-                        Console.Write($"{kvp.Key}: {kvp.Value}, ");
-                    }
-                    Console.WriteLine("");
-                }
+                // foreach (var backlog in backlogList)
+                // {
+                //     foreach (var kvp in backlog)
+                //     {
+                //         Console.Write($"{kvp.Key}: {kvp.Value}, ");
+                //     }
+                //     Console.WriteLine("");
+                // }
             }
 
             return Task.CompletedTask;
@@ -179,6 +185,37 @@ namespace ClearCare.Models.Control
                 NurseId = (string)appointment["NurseId"],
                 ServiceType = (string)appointment["ServiceTypeId"]
             });
+        }
+
+        public async Task update(string appointmentID, string eventType)
+        {
+            if (eventType == "success")
+            {
+                // get all backlogs
+                List<ServiceBacklog> allBacklogs = await getAllBacklogs();
+
+                
+                var backlog = allBacklogs.FirstOrDefault(b => b.getBacklogInformation()["appointmentId"] == appointmentID);
+                if (backlog != null)
+                {
+                    // remove the backlog if it exists
+                    await deleteBacklog(backlog.getBacklogInformation()["backlogId"]);
+                    Console.WriteLine($"Backlog with appointment ID {appointmentID} has been removed.");
+                }
+            }
+            else if (eventType == "fail")
+            {
+                // get all backlogs
+                List<ServiceBacklog> allBacklogs = await getAllBacklogs();
+
+                // if backlog doesn't already exist
+                var backlog = allBacklogs.FirstOrDefault(b => b.getBacklogInformation()["appointmentId"] == appointmentID);
+                if (backlog == null)
+                {
+                    // add backlog
+                    await addBacklog(appointmentID);
+                }
+            }
         }
     }
 }

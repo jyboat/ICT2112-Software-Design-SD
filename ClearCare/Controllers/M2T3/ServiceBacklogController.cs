@@ -25,7 +25,7 @@ namespace ClearCare.Controllers
         [Route("Index")]
         public async Task<IActionResult> Index()
         {
-            var backlogs = await _manager.getBacklogs();
+            var backlogs = await _manager.getAllBacklogDetails();
             // // if backlogs are not fetched
             // if (TempData["DataFetched"] == null || !(bool)TempData["DataFetched"])
             // {
@@ -62,11 +62,12 @@ namespace ClearCare.Controllers
             return View("~/Views/M2T3/ServiceBacklog/Reassign.cshtml", backlog);
         }
 
-        // [HttpPost]
-        // public async Task<IActionResult> ReassignManual(string id)
-        // {
+        [HttpPost]
+        public async Task<IActionResult> ReassignManual()
+        {
             // call manual scheduler
             // delete old once successfully scheduled
-        // }
+            return RedirectToAction("Index");
+        }
     }
 }
