@@ -24,10 +24,9 @@ public class ServiceAppointmentsController : Controller
 
     public ServiceAppointmentsController()
     {
-        var _serviceAppointmentGateway = new ServiceAppointmentGateway();
-        ServiceAppointmentManagement = new ServiceAppointmentManagement(_serviceAppointmentGateway);
-         // ServiceAppointmentManagement = new ServiceAppointmentManagement();
-        _serviceAppointmentGateway.Receiver = ServiceAppointmentManagement;
+        
+         ServiceAppointmentManagement = new ServiceAppointmentManagement();
+        
 
         // _nurseAvailabilityManagement = new NurseAvailabilityManagement(new NurseAvailabilityGateway());
         var nurse_availability_gateway = new NurseAvailabilityGateway();
