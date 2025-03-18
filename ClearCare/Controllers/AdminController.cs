@@ -218,13 +218,13 @@ namespace ClearCare.Controllers
 
                string result = await _adminManagement.resetStaffPassword(uid);
 
-               if (result == "Password reset successful.")
+               if (result == "Failed to reset password.")
                {
-                    TempData["SuccessMessage"] = $"Password reset for user with ID: {uid}";
+                    TempData["ErrorMessage"] = result;
                }
                else
                {
-                    TempData["ErrorMessage"] = $"Password reset failed for user with ID: {uid}";
+                    TempData["SuccessMessage"] = result;
                }
 
                return RedirectToAction("Dashboard");
