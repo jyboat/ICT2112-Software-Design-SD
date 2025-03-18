@@ -14,11 +14,13 @@ namespace ClearCare.Controllers
     {
         private readonly ViewMedicalRecord viewMedicalRecord;
         private readonly ErratumManagement erratumManagement;
+        private readonly ViewPersonalMedicalRecord viewPersonalMedicalRecord;
 
         public ViewRecordController(IEncryption encryptionService)
         {
             viewMedicalRecord = new ViewMedicalRecord(encryptionService);
             erratumManagement = new ErratumManagement(encryptionService);
+            viewPersonalMedicalRecord = new ViewPersonalMedicalRecord();
         }
 
         // View all medical record on 1 page
@@ -105,5 +107,35 @@ namespace ClearCare.Controllers
             // If the export failed, return an error message
             return Content(exportResult);
         }
+
+        // M1T4
+        [Route("PatientMedicalRecords")]
+        public async Task<IActionResult> viewPatientMedRecord()
+        {
+            var userID = HttpContext.Session.GetString("UserID");
+
+            if (string.IsNullOrEmpty(userID))
+            {
+                return RedirectToAction("DisplayLogin", "Login");
+            }
+
+            if (viewPersonalMedicalRecord == null)
+            {
+                throw new Exception("viewPersonalMedicalRecord is not initialized.");
+            }
+
+            var medicalRecords = await viewPersonalMedicalRecord.getMedicalRecord(userID);
+
+            if (medicalRecords == null || medicalRecords.Count == 0)
+            {
+                ViewData["MedicalRecords"] = new List<dynamic>();
+                return View("ViewPatientMedRecord");
+            }
+            ViewData["PersonalMedicalRecords"] = medicalRecords;
+
+            return View("ViewPatientMedRecord");
+        }
+
     }
+
 }

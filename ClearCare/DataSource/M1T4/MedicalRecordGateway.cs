@@ -15,7 +15,50 @@ namespace ClearCare.DataSource
             // Initialize Firebase
             db = FirebaseService.Initialize();
         }
-        
+
+        // userID is patientID
+        public async Task<List<MedicalRecord>> findMedicalRecordsByUserID(string userID)
+        {
+            if (db == null)
+            {
+                throw new Exception("Database connection is not initialized.");
+            }
+
+            List<MedicalRecord> recordsList = new List<MedicalRecord>();
+            Query query = db.Collection("MedicalRecords").WhereEqualTo("PatientID", userID);
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+            if (snapshot.Documents.Count == 0)
+            {
+                return recordsList;
+            }
+
+            foreach (var doc in snapshot.Documents)
+            {
+                string recordID = doc.Id;
+                string doctorNote = doc.GetValue<string>("DoctorNote");
+                Timestamp timestamp = doc.GetValue<Timestamp>("Date");
+                DateTime date = timestamp.ToDateTime();
+
+                byte[] attachment = doc.ContainsField("Attachment") && doc.GetValue<object>("Attachment") != null
+                            ? doc.GetValue<byte[]>("Attachment")
+                            : new byte[0];  // Ensures no null values
+
+                string attachmentName = doc.ContainsField("AttachmentName")
+                                ? doc.GetValue<string>("AttachmentName")
+                                : string.Empty;  // Ensures no null values
+
+                string doctorID = doc.GetValue<string>("DoctorID");
+
+                Timestamp firestoreTimestamp = Timestamp.FromDateTime(date.ToUniversalTime());
+
+                MedicalRecord record = new MedicalRecord(recordID, doctorNote, firestoreTimestamp, userID, attachment, attachmentName, doctorID);
+                recordsList.Add(record);
+            }
+
+            return recordsList;
+        }
+
         // Retrieve all medical records
         public async Task<List<MedicalRecord>> retrieveAllMedicalRecords()
         {
@@ -73,7 +116,7 @@ namespace ClearCare.DataSource
         }
 
         // insert a medical record
-        public async Task<MedicalRecord> insertMedicalRecord(string doctorNote, string patientID,  byte[] fileBytes, string fileName, string doctorID)
+        public async Task<MedicalRecord> insertMedicalRecord(string doctorNote, string patientID, byte[] fileBytes, string fileName, string doctorID)
         {
             try
             {
