@@ -1,6 +1,7 @@
 using ClearCare.Models.Interface; 
 using ClearCare.Models.Control;   
 using ClearCare.Models.Hubs;   
+using ClearCare.DataSource;
 using ClearCare.Controllers;
 using Microsoft.AspNetCore.SignalR;
 
@@ -40,6 +41,7 @@ builder.Services.AddScoped<IUserDetails, ProfileManagement>(); // Ensure Profile
 builder.Services.AddScoped<IMedicalRecordSubject, ManageMedicalRecord>();
 builder.Services.AddScoped<IUserList, AdminManagement>();
 builder.Services.AddScoped<UpdateViewObserver>();
+builder.Services.AddScoped<UserGateway>(); // Add this line
 
 var app = builder.Build();
 

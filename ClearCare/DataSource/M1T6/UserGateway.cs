@@ -347,28 +347,42 @@ namespace ClearCare.DataSource
         {
             try
             {
+                if (string.IsNullOrEmpty(uid) || string.IsNullOrEmpty(password))
+                {
+                    Console.WriteLine("Error: UserID or password is null or empty");
+                    return false;
+                }
+
                 DocumentReference userDocRef = db.Collection("User").Document(uid);
                 DocumentSnapshot snapshot = await userDocRef.GetSnapshotAsync();
 
                 if (!snapshot.Exists)
-                    throw new Exception("User not found. userID: " + uid);
+                {
+                    Console.WriteLine($"Error: User not found. userID: {uid}");
+                    return false;
+                }
 
-                Dictionary<string, object> updates = new Dictionary<string, object>();
+                Dictionary<string, object> updates = new Dictionary<string, object>
+                {
+                    { "Password", encryptionManagement.hashPassword(password) },
+                    { "RequirePasswordChange", true }
+                };
 
-                // Ensure only selected base user fields are updated
-                if (password != null)
-                    updates["Password"] = encryptionManagement.hashPassword(password);
-
-                if (updates.Count > 0)
+                try
+                {
                     await userDocRef.UpdateAsync(updates);
-
-                Console.WriteLine($"Successfully reset password for user {uid}, password is {password}");
-
-                return true;
+                    Console.WriteLine($"Successfully reset password for user {uid}");
+                    return true;
+                }
+                catch (Exception updateEx)
+                {
+                    Console.WriteLine($"Failed to update user document: {updateEx.Message}");
+                    return false;
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error updating user profile password: " + ex.Message);
+                Console.WriteLine($"Error in resetPassword: {ex.Message}");
                 return false;
             }
         }

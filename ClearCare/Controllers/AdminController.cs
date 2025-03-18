@@ -19,14 +19,33 @@ namespace ClearCare.Controllers
 
           // GET: /Admin/Dashboard
           [HttpGet]
-          public async Task<IActionResult> Dashboard()
+          public async Task<IActionResult> Dashboard(string currentView = "medical")
           {
                var users = await _adminManagement.retrieveAllUsers();
 
                if (users != null)
                {
-                    var sortedUsers = users.OrderBy(u => u.getProfileData()["UserID"]).ToList();
-                    ViewData["Users"] = sortedUsers;
+                    List<User> filteredUsers;
+
+                    if (currentView == "medical") // for doctors and nurses
+                    {
+                         // Filter for doctors and nurses
+                         filteredUsers = users
+                              .Where(u => new[] { "Doctor", "Nurse" }.Contains(u.getProfileData()["Role"]))
+                              .OrderBy(u => u.getProfileData()["UserID"])
+                              .ToList();
+                    }
+                    else // for patients and caregiver
+                    {
+                         // Filter for doctors and nurses
+                         filteredUsers = users
+                              .Where(u => new[] { "Patient", "Caregiver" }.Contains(u.getProfileData()["Role"]))
+                              .OrderBy(u => u.getProfileData()["UserID"])
+                              .ToList();
+                    }
+
+                    ViewData["Users"] = filteredUsers;
+                    ViewData["CurrentView"] = currentView;
                }
 
                return View("~/Views/Admin/Dashboard.cshtml");
@@ -199,13 +218,13 @@ namespace ClearCare.Controllers
 
                string result = await _adminManagement.resetStaffPassword(uid);
 
-               if (result == "Password reset successful.")
+               if (result == "Failed to reset password.")
                {
-                    TempData["SuccessMessage"] = $"Password reset for user with ID: {uid}";
+                    TempData["ErrorMessage"] = result;
                }
                else
                {
-                    TempData["ErrorMessage"] = $"Password reset failed for user with ID: {uid}";
+                    TempData["SuccessMessage"] = result;
                }
 
                return RedirectToAction("Dashboard");

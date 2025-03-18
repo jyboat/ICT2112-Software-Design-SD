@@ -11,10 +11,12 @@ namespace ClearCare.Models.Control
      public class AdminManagement : IUserList
      {
           private readonly UserGateway _userGateway;
+          private readonly EmailService _emailService;
 
           public AdminManagement(UserGateway userGateway)
           {
                _userGateway = userGateway;
+               _emailService = new EmailService();
           }
 
           public static string GeneratePassword(int length = 12)
@@ -108,9 +110,44 @@ namespace ClearCare.Models.Control
                     return "Account does not exist.";
                }
 
-               var result = await _userGateway.resetPassword(uid, GeneratePassword());
+               var newPassword = GeneratePassword();
+               // Set the temporary password and mark account for required password change
+               var result = await _userGateway.resetPassword(uid, newPassword);
+               
+               if (result)
+               {
+                    // Update user profile to require password change
+                    var profileData = user.getProfileData();
 
-               return result ? "Password reset successful." : "Failed to reset password.";
+                    // Send email with temporary password
+                    var emailBody = $"""
+                         Hello {profileData["Name"]},
+
+                         Your password for {profileData["Email"]} has been reset.
+
+                         Your temporary password is: {newPassword}
+
+                         For security reasons, you will be required to change this password when you next log in.
+
+                         If you did not request this change, please contact Clear Care Customer Service immediately.
+
+                         Best regards,
+                         ClearCare Support Team
+                    """;
+
+                    bool sendStatus = await _emailService.sendEmail(profileData["Email"].ToString()!, "Password Reset - Action Required", emailBody);
+
+                    if (!sendStatus)
+                    {
+                         Console.WriteLine("Password reset successful but failed to send email notification.");
+                         return "Password reset successful but failed to send email notification.";
+                    }
+                    
+                    Console.WriteLine("Password reset successful. User will be required to change password on next login.");
+                    return "Password reset successful. User will be required to change password on next login.";
+               }
+
+               return "Failed to reset password.";
           }
 
           // Method to delete account
