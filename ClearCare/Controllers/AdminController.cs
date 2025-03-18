@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 using ClearCare.DataSource;
-using System.Data;
-using System.Reflection;
 using ClearCare.Business;
 using System.Collections.Generic;
 using System.Linq;
@@ -143,17 +141,12 @@ namespace ClearCare.Controllers
                if (string.IsNullOrEmpty(uid))
                {
                     TempData["ErrorMessage"] = "User ID is required.";
-                    return RedirectToAction("Dashboard"); // Redirect to Dashboard or another page
                     return RedirectToAction("Dashboard");
                }
 
-               // Get user details from Firestore
                var user = await _adminManagement.retrieveUserByID(uid);
-
-               // load the user data into the view
                ViewData["User"] = user;
 
-               // load the correct view
                if (user.getProfileData()["Role"].ToString() == "Nurse")
                {
                     return View("~/Views/Admin/UpdateNurseAccount.cshtml");
@@ -164,13 +157,11 @@ namespace ClearCare.Controllers
                }
                else
                {
-                    // return View("~/Views/Admin/UpdatePatientCaregiverAccount.cshtml");
                     TempData["ErrorMessage"] = "User ID not found.";
                     return RedirectToAction("Dashboard");
                }
           }
 
-          // POST: /Admin/UserProfile
           // POST: /Admin/updateAccount
           [HttpPost]
           public async Task<IActionResult> updateAccount(string uid, string email, string name, string role, string address, long? mobileNumber, string? department, string? specialization)
@@ -181,18 +172,15 @@ namespace ClearCare.Controllers
                     return RedirectToAction("LoadRoleForm", new { role = role });
                }
 
-               // Create dictionary for updated data
                Dictionary<string, object> updatedUserData = new Dictionary<string, object>
                {
                     { "Email", email },
                     { "Name", name },
                     { "MobileNumber", mobileNumber },
                     { "Address", address },
-                    { "Role", role }  // Always save the role
                     { "Role", role }
                };
 
-               // Add role-specific fields
                if (role == "Nurse" && !string.IsNullOrEmpty(department))
                {
                     updatedUserData.Add("Department", department);
@@ -239,7 +227,6 @@ namespace ClearCare.Controllers
                return RedirectToAction("Dashboard");
           }
 
-          // POST: /Admin/ResetPassword
           // POST: /Admin/DeleteAccount
           [HttpPost]
           public async Task<IActionResult> deleteAccount(string uid)
@@ -263,6 +250,5 @@ namespace ClearCare.Controllers
 
                return RedirectToAction("Dashboard");
           }
-
      }
-}}
+}
