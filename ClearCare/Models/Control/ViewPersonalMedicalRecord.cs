@@ -17,10 +17,8 @@ namespace ClearCare.Models.Control
             _encryptionManagement = new EncryptionManagement();
         }
 
-        // patientID = userID
         public async Task<List<dynamic>> getMedicalRecord(string userID)
         {
-            
             var medicalRecords = await _medicalRecordGateway.findMedicalRecordsByUserID(userID);
             var processedRecords = new List<dynamic>();
 
@@ -31,14 +29,13 @@ namespace ClearCare.Models.Control
 
             foreach (var record in medicalRecords)
             {
-            
-                // Extract record details
-                var recordDetails = record.getRecordDetails();
+                var recordDetails = record.getRecordDetails(); 
+
+                var (attachmentBytes, attachmentFileName) = record.retrieveAttachment();
 
                 Google.Cloud.Firestore.Timestamp firestoreTimestamp = (Google.Cloud.Firestore.Timestamp)recordDetails["Date"];
                 DateTime dateTime = firestoreTimestamp.ToDateTime();
-
-                string formattedDate = dateTime.ToString("dd MMM yyyy, HH:mm");  
+                string formattedDate = dateTime.ToString("dd MMM yyyy, HH:mm");
 
                 string decryptedDoctorNote;
                 if (recordDetails["DoctorNote"] is string encryptedNote && !string.IsNullOrEmpty(encryptedNote))
@@ -49,7 +46,6 @@ namespace ClearCare.Models.Control
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Error decrypting DoctorNote for Record ID: {recordDetails["MedicalRecordID"]} - {ex.Message}");
                         decryptedDoctorNote = "Error decrypting note";
                     }
                 }
@@ -57,20 +53,43 @@ namespace ClearCare.Models.Control
                 {
                     decryptedDoctorNote = "No Notes Available";
                 }
-               
-                string attachmentName = recordDetails["AttachmentName"]?.ToString() ?? "No Attachment";
+
+                string attachmentName = attachmentFileName ?? "No Attachment";
+                string attachmentBase64 = null;
+                string attachmentMimeType = null;
+
+                if (attachmentBytes != null && attachmentBytes.Length > 0)
+                {
+                    
+                    // Determine MIME type based on file extension
+                    string fileExtension = attachmentName.Split('.').Last().ToLower();
+                    switch (fileExtension)
+                    {
+                        case "jpg": case "jpeg": attachmentMimeType = "image/jpeg"; break;
+                        case "png": attachmentMimeType = "image/png"; break;
+                        case "pdf": attachmentMimeType = "application/pdf"; break;
+                        default: attachmentMimeType = "application/octet-stream"; break;
+                    }
+
+                    attachmentBase64 = Convert.ToBase64String(attachmentBytes);
+                }
 
                 processedRecords.Add(new
                 {
                     MedicalRecordID = recordDetails["MedicalRecordID"],
-                    Date = formattedDate,  
-                    DoctorNote = decryptedDoctorNote, 
+                    Date = formattedDate,
+                    DoctorNote = decryptedDoctorNote,
                     DoctorID = recordDetails["DoctorID"],
-                    AttachmentName = attachmentName
+                    AttachmentName = attachmentName,
+                    AttachmentData = attachmentBase64, 
+                    AttachmentType = attachmentMimeType 
                 });
             }
 
             return processedRecords;
         }
+
+
+
     }
 }

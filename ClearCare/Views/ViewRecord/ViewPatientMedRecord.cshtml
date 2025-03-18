@@ -42,9 +42,9 @@ else
                         <td>@record.DoctorNote</td>
                         <td>@record.AttachmentName</td>
                         <td>
-                            <button class="btn btn-outline-primary btn-sm" onclick="showNotes('@record.DoctorNote')">
-
-                                View Notes
+                            <button class="btn btn-outline-primary btn-sm"
+                                onclick="showAttachment('@record.AttachmentData', '@record.AttachmentType')">
+                                View Attachment
                             </button>
                         </td>
                     </tr>
@@ -81,17 +81,46 @@ else
     </div>
 }
 
-<!-- Modal for Doctor's Notes -->
-<div class="modal fade" id="notesModal" tabindex="-1" aria-labelledby="notesModalLabel" aria-hidden="true">
+<!-- Modal for Viewing Attachments -->
+<div class="modal fade" id="attachmentModal" tabindex="-1" aria-labelledby="attachmentModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="notesModalLabel">Doctor's Notes</h5>
+                <h5 class="modal-title" id="attachmentModalLabel">Attachment Preview</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="notesContent">
-                <!-- Notes will be dynamically inserted here -->
+            <div class="modal-body text-center" id="attachmentContent">
+                <!-- Attachment will be inserted dynamically -->
             </div>
         </div>
     </div>
 </div>
+
+
+@section Scripts {
+<script>
+    function showAttachment(attachmentData, attachmentType) {
+        let modalBody = document.getElementById("attachmentContent");
+        modalBody.innerHTML = ""; // Clear previous content
+
+        if (attachmentData && attachmentData !== "null" && attachmentType) {
+            if (attachmentType.startsWith("image/")) {
+                // **Display Image**
+                modalBody.innerHTML = `<img src="data:${attachmentType};base64,${attachmentData}" alt="Attachment" class="img-fluid">`;
+            } else if (attachmentType === "application/pdf") {
+                // **Display PDF in Viewer**
+                modalBody.innerHTML = `<iframe src="data:${attachmentType};base64,${attachmentData}" width="100%" height="500px"></iframe>`;
+            } else {
+                // **Unsupported File Type**
+                modalBody.innerHTML = `<p class="text-warning">Unsupported file type: ${attachmentType}</p>`;
+            }
+        } else {
+            // **No Attachment Found**
+            modalBody.innerHTML = `<p class="text-muted">No attachment available.</p>`;
+        }
+
+        var modal = new bootstrap.Modal(document.getElementById('attachmentModal'));
+        modal.show();
+    }
+</script>
+}
