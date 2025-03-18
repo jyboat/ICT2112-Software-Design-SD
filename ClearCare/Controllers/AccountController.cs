@@ -12,10 +12,13 @@ namespace ClearCare.Controllers
     {
         private readonly AccountManagement _accountManagement;
 
+        private readonly AuditManagement _auditManagement; // ✅ Declare AuditManagement
+
         public AccountController(IPassword passwordService)
     {
         var userGateway = new UserGateway(); // ✅ Declare userGateway
         _accountManagement = new AccountManagement(userGateway, passwordService); // ✅ Pass passwordService
+        _auditManagement = new AuditManagement(); // ✅ Initialize AuditManagement
     }
         // GET: /Account/Register
         [HttpGet]
@@ -50,7 +53,7 @@ namespace ClearCare.Controllers
             }
 
             User newUser = UserFactory.createUser("", email, password, name, (int)mobileNumber, address, role, infoDictionary);
-            string result = await _accountManagement.CreateAccount(newUser, password);
+            string result = await _accountManagement.CreateAccount(newUser, password, _auditManagement);
 
             if (result == "Account created successfully.")
             {

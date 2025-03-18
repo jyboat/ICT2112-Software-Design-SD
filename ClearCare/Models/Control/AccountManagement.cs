@@ -18,7 +18,7 @@ namespace ClearCare.Models.Control
         }
 
         // Method to create a new account
-        public async Task<string> CreateAccount(User newUser, String password)
+        public async Task<string> CreateAccount(User newUser, String password, IAuditSubject auditLog)
         {
             // First, check if an account with the same email already exists
             var existingUser = await _userGateway.findUserByEmail((string)newUser.getProfileData()["Email"]);
@@ -29,8 +29,18 @@ namespace ClearCare.Models.Control
 
             // Create a new User object with the necessary data
             string newUserId = await _userGateway.InsertUser(newUser, password);
+            if (newUserId != null)
+                    {
+                        Console.WriteLine($"🚀 User created successfully: {newUserId}");
 
-            return newUserId != null ? "Account created successfully." : "Failed to create account.";
+                        // ✅ Log action in the audit log
+                        string auditResult = await auditLog.InsertAuditLog("Created new account", newUserId);
+                        Console.WriteLine($"✅ Audit log insertion result: {auditResult}");
+
+                        return "Account created successfully.";
+                    }
+
+                    return "Failed to create account.";
         }
 
         // Method to check if an account already exists

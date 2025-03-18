@@ -1,34 +1,72 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using ClearCare.DataSource;  // Correct namespace for AuditGateway
+using ClearCare.Models.Interface;
+using ClearCare.DataSource;
 using ClearCare.Models.Entities;
 
-namespace ClearCare.Business
+namespace ClearCare.Models.Control
 {
-    public class AuditManagement
+    public class AuditManagement : IAuditSubject
+
     {
         private readonly AuditGateway _auditGateway;
+        private static List<IAuditObserver> _auditObservers = new List<IAuditObserver>(); // ✅ Observer list
 
         public AuditManagement()
         {
             _auditGateway = new AuditGateway();
         }
 
-        // Logs an action
-        public async Task<string> LogActionAsync(string action, string performedBy)
+        // ✅ Add an observer (Ensures no duplicates)
+        public void AddObserver(IAuditObserver observer)
         {
-            AuditLog newLog = await _auditGateway.InsertAuditLog(action, performedBy);
-            return newLog?.AuditLogID ?? "Error: Could not log action";
+            if (!_auditObservers.Any(o => o.GetType() == observer.GetType()))
+            {
+                _auditObservers.Add(observer);
+                Console.WriteLine($"Observer {observer.GetType().Name} added.");
+            }
         }
 
-        // Fetch all audit logs
+        // ✅ Remove an observer
+        public void RemoveObserver(IAuditObserver observer)
+        {
+            _auditObservers.Remove(observer);
+        }
+
+        // ✅ Notify observers about a new audit log
+        public async Task NotifyObservers()
+        {
+            var updatedAudit = await _auditGateway.RetrieveAllAuditLogs();
+            foreach (var observer in _auditObservers)
+            {
+                Console.WriteLine("🔔 Notifying observers about new audit log...");
+                observer.OnAuditLogInserted(updatedAudit); // ✅ Pass the new log to observers
+            }
+        }
+
+        // ✅ Insert audit log & notify observers
+        public async Task<string> InsertAuditLog(string action, string performedBy)
+        {
+            AuditLog newLog = await _auditGateway.InsertAuditLog(action, performedBy);
+
+            if (newLog != null)
+            {
+                NotifyObservers(); // ✅ Notify observers about the new log
+                return newLog.AuditLogID; // ✅ Return new log ID
+            }
+
+            return "Error: Could not log action"; // ✅ Ensure return value if log insertion fails
+        }
+
+        // ✅ Fetch all audit logs
         public async Task<List<AuditLog>> GetAllAuditLogsAsync()
         {
             return await _auditGateway.RetrieveAllAuditLogs();
         }
 
-        // Get specific audit log by ID
+        // ✅ Get specific audit log by ID
         public async Task<AuditLog> GetAuditLogAsync(string auditLogId)
         {
             return await _auditGateway.RetrieveAuditLogById(auditLogId);

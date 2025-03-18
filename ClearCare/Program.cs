@@ -40,8 +40,14 @@ builder.Services.AddScoped<IMedicalRecord, ViewMedicalRecord>(); // Ensure ViewM
 builder.Services.AddScoped<IUserDetails, ProfileManagement>(); // Ensure ProfileManagement implements IUserDetails
 builder.Services.AddScoped<IMedicalRecordSubject, ManageMedicalRecord>();
 builder.Services.AddScoped<IUserList, AdminManagement>();
+builder.Services.AddScoped<IAuditSubject, AuditManagement>();
+builder.Services.AddScoped<AccountManagement>();
 builder.Services.AddScoped<UpdateViewObserver>();
 builder.Services.AddScoped<UserGateway>(); // Add this line
+builder.Services.AddScoped<UpdateAuditLogObserver>();
+// ✅ Register observer and SignalR context for Audit Logging
+
+
 
 var app = builder.Build();
 
@@ -49,6 +55,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var observer = scope.ServiceProvider.GetRequiredService<UpdateViewObserver>();
+    var auditobserver = scope.ServiceProvider.GetRequiredService<UpdateAuditLogObserver>();
 }
 
 // Configure the HTTP request pipeline.
@@ -71,6 +78,10 @@ app.UseAuthorization();
 
 // Map the SignalR Hub to the "/medicalRecordHub" URL
 app.MapHub<MedicalRecordHub>("/medicalRecordHub");
+
+// Map the SignalR Hub to the "/auditLogHub" URL
+app.MapHub<AuditLogHub>("/auditLogHub"); // ✅ Map the SignalR hub
+
 
 // To allow app to use session
 app.UseSession();

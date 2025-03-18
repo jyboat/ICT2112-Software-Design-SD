@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ClearCare.Business;
 using ClearCare.Models.Entities;
+using ClearCare.Models.Control;
 
 namespace ClearCare.Controllers
 {
@@ -26,7 +26,7 @@ namespace ClearCare.Controllers
                 return BadRequest(new { Message = "Invalid audit log data. Action and PerformedBy are required." });
             }
 
-            string auditLogId = await _auditManagement.LogActionAsync(auditLog.Action, auditLog.PerformedBy);
+            string auditLogId = await _auditManagement.InsertAuditLog(auditLog.Action, auditLog.PerformedBy);
 
             return Ok(new { Message = "Audit log created successfully", AuditLogID = auditLogId });
         }

@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 using ClearCare.DataSource;
-using ClearCare.Business;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
