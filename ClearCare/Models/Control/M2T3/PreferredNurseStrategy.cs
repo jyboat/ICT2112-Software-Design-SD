@@ -3,7 +3,6 @@ using ClearCare.Models.Entities;
 using ClearCare.Models.Control;
 using ClearCare.Interfaces;
 
-
 namespace ClearCare.Control
 {
     public class PreferredNurseStrategy: IAutomaticScheduleStrategy
@@ -21,8 +20,6 @@ namespace ClearCare.Control
                 foreach (var service in services)
                 {
                     appointments.Add(ServiceAppointment.setApptDetails(
-                        // Create unique id
-                        appointmentId: Guid.NewGuid().ToString(), 
                         patientId: patient.PatientId, 
                         nurseId: "", 
                         doctorId: "",
@@ -38,10 +35,11 @@ namespace ClearCare.Control
             return appointments;
         }
 
-        public void AutomaticallySchedule(
+        public List<ServiceAppointment> AutomaticallySchedule(
             List<AutomaticAppointmentScheduler.Nurse> nurses, 
             List<AutomaticAppointmentScheduler.Patient> patients,
-            List<string> services)
+            List<string> services/*,
+            Action<string, string> notify*/)
         {
             var appointments = InitialInsert(patients, services);
             int totalSlots = 14;
@@ -121,7 +119,7 @@ namespace ClearCare.Control
                             // Probably here that needs observer
                             Console.WriteLine($"Error: No available slots for patient left");
                         
-                            return; 
+                            return appointments;
                         }
                     }
 
@@ -153,6 +151,8 @@ namespace ClearCare.Control
                                 $"Service: {appt.GetAttribute("ServiceTypeId")}, " +
                                 $"Slot: {appt.GetIntAttribute("Slot")}");
             }
+
+            return appointments;
         }
     }
 }

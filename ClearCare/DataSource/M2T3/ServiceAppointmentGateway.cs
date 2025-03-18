@@ -43,20 +43,20 @@ namespace ClearCare.DataSource
             return appointmentList;
          }
 
-         public async Task<Dictionary<string, object>> fetchServiceAppointmentByID(string appointmentId) {
-            DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointmentId);
+         public async Task<Dictionary<string, object>> fetchServiceAppointmentByID(string documentId) {
+            DocumentReference docRef = _db.Collection("ServiceAppointments").Document(documentId);
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
             if (!snapshot.Exists)
             {
-                Console.WriteLine($"Firestore Document Not Found: {appointmentId}");
+                Console.WriteLine($"Firestore Document Not Found: {documentId}");
                 return null;
             }
 
             // Convert to Dictionary from firebase key-value format
             var data = snapshot.ToDictionary();
             
-            var appt = ServiceAppointment.FromFirestoreData(appointmentId, data).ToFirestoreDictionary();
+            var appt = ServiceAppointment.FromFirestoreData(documentId, data).ToFirestoreDictionary();
             await _receiver.receiveServiceAppointmentById(appt);
             return appt;
          }
@@ -65,8 +65,6 @@ namespace ClearCare.DataSource
         {
             // Get Collection in Firebase
             DocumentReference docRef = _db.Collection("ServiceAppointments").Document();
-
-            appointment.SetAppointmentId(docRef.Id);
 
             // Convert input data to firestore data format for insert
             Dictionary<string, object> appointmentData = appointment.ToFirestoreDictionary();

@@ -33,8 +33,12 @@ namespace ClearCare.DataSource
         {
             List<NurseAvailability> availabilityList = new List<NurseAvailability>();
 
-            CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
-            QuerySnapshot snapshot = await availabilitiesRef.GetSnapshotAsync();
+            DateTime currentDate = DateTime.Now; // Gets the current date and time
+            var currentDateString = currentDate.ToString("yyyy-MM-dd");
+
+            Query availabilitiesQuery = _db.Collection("NurseAvailability")
+                                       .WhereEqualTo("date", currentDateString);
+            QuerySnapshot snapshot = await availabilitiesQuery.GetSnapshotAsync();
 
             foreach (DocumentSnapshot document in snapshot.Documents)
             {

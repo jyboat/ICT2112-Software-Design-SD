@@ -59,17 +59,16 @@
         }
             
         // Create Service Appointment
-        public async Task<string> CreateAppointment (string appointmentId, string patientId, string nurseId,
+        public async Task<string> CreateAppointment (string patientId, string nurseId,
                 string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
             {
                 // Map JSON data to model
                 var appointment = ServiceAppointment.setApptDetails(
-                    appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
+                    patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
                 );
 
                 string appointmentID = await _dbGateway.CreateAppointment(appointment);
                 return appointmentID;
-
             }
 
         public Task receiveCreatedServiceAppointmentId(string serviceAppointmentId) {
@@ -99,7 +98,7 @@
                     
                     // create updated appt
                     var updatedAppointment = ServiceAppointment.setApptDetails(
-                        appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
+                        patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
                     );
                     
                     // call gateway to update
@@ -183,10 +182,6 @@
                 }
                 return Task.CompletedTask;
         }
-
-            
-         
-
 
             // i hardcode the "retrieval" of services, nurse and patients first, later once get from mod 1, will update
             public List<Dictionary<string, string>> GetAllPatients()

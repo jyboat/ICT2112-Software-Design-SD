@@ -6,10 +6,11 @@ using ClearCare.Models.Entities;
 using Google.Protobuf.WellKnownTypes;
 using ClearCare.Interfaces;
 using Google.Cloud.Firestore;
+using ClearCare.Models.Interface.M2T3;
 
 namespace ClearCare.Models.Control
 {
-    public class AutomaticAppointmentScheduler
+    public class AutomaticAppointmentScheduler : AbstractSchedulingNotifier
     {
         // Interfaces Automatic Requires
         private readonly ICreateAppointment _iCreateAppointment;
@@ -44,7 +45,6 @@ namespace ClearCare.Models.Control
         {
             public string NurseId { get; set; } = string.Empty;
             public string Name { get; set; } = string.Empty;
-            public List<int> AssignedSlots { get; set; } = new List<int>(); 
         }
 
         public class Patient
@@ -58,21 +58,6 @@ namespace ClearCare.Models.Control
             if (_iAutomaticScheduleStrategy == null)
             {
                 throw new InvalidOperationException("Scheduling strategy has not been set. Use SetAlgorithm() first.");
-            }
-
-            // Direct Db query
-            Query nurseQuery = db.Collection("User").WhereEqualTo("Role", "Nurse");
-            QuerySnapshot snapshot = await nurseQuery.GetSnapshotAsync();
-
-            var nurses = new List<Nurse>();
-
-            foreach (DocumentSnapshot document in snapshot.Documents)
-            {
-                nurses.Add(new Nurse
-                {
-                    NurseId = document.Id,
-                    Name = document.GetValue<string>("Name")
-                });
             }
 
             Query patientQuery = db.Collection("User").WhereEqualTo("Role", "Patient");
@@ -98,9 +83,51 @@ namespace ClearCare.Models.Control
             {
                 services.Add(document.GetValue<string>("name"));
             }
+
+            var nurses = new List<Nurse>();
+
+            var AvailableNurse = await _iNurseAvailability.getAllStaffAvailability();
+
+            foreach (var nurse in AvailableNurse)
+            {
+                var availabilityDetails = nurse.getAvailabilityDetails();
+                if (availabilityDetails.ContainsKey("nurseID"))
+                {
+                    nurses.Add(new Nurse
+                    {
+                        NurseId = availabilityDetails["nurseID"].ToString() ?? " "    
+                    });
+                }
+            }
         
             // Call the auto-assignment function
-            _iAutomaticScheduleStrategy.AutomaticallySchedule(nurses, patients, services);
+            var serviceAppointment = _iAutomaticScheduleStrategy.AutomaticallySchedule(nurses, patients, services/*, notify*/);
+
+            foreach (var serviceAppt in serviceAppointment)
+            {
+                var appointmentId = await _iCreateAppointment.CreateAppointment(
+                    serviceAppt.GetAttribute("PatientId"),
+                    serviceAppt.GetAttribute("NurseId"),
+                    "Hardcode Doctor",
+                    serviceAppt.GetAttribute("ServiceTypeId"),
+                    "Pending",
+                    DateTime.UtcNow,
+                    serviceAppt.GetIntAttribute("Slot"),
+                    "Physical"
+                );
+
+                if (string.IsNullOrEmpty(serviceAppt.GetAttribute("NurseId")))
+                {
+                    Console.WriteLine($"Failed to schedule Appointment: {appointmentId}");
+                    notify(appointmentId, "false");
+                }
+                else
+                {
+                    Console.WriteLine($"Successfully scheduled Appointment: {appointmentId}");
+                    notify(appointmentId, "success");
+                }
+            }
+
         }
 
         public async Task TestInterface()

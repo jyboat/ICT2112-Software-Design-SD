@@ -9,8 +9,6 @@
 <h2>Create Service Appointment</h2>
 
 <form id="appointmentForm" method="post">
-    <label for="appointmentId">Appointment ID:</label>
-    <input type="text" id="appointmentId" name="AppointmentId" required><br><br>
 
     <label for="patientId">Patient:</label>
     <select id="patientId" name="PatientId" class="select2" required>
@@ -99,7 +97,6 @@
         
         // build the form data object
         let formData = {
-            AppointmentId: document.getElementById("appointmentId").value,
             PatientId: document.getElementById("patientId").value,
             NurseId: document.getElementById("nurseId").value,
             DoctorId: document.getElementById("doctorId").value,
@@ -114,7 +111,7 @@
         console.log("sending data:", formData);
 
         // send the data to the API
-        fetch("/api/ServiceAppointments/AddAppt", {
+        fetch("/api/ServiceAppointments/Create", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

@@ -106,7 +106,6 @@ public class ServiceAppointmentsController : Controller
     public async Task<IActionResult> CreateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
     {
         var appointment = await ServiceAppointmentManagement.CreateAppointment(
-            requestData["AppointmentId"].GetString() ?? "",
             requestData["PatientId"].GetString() ?? "",
             requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
             requestData["DoctorId"].GetString() ?? "",
@@ -131,10 +130,10 @@ public class ServiceAppointmentsController : Controller
     // // GET: Retrieve an appointment
     // Route localhost:5007/api/ServiceAppointments/Retrieve/{Id} that retriggers GET
     [HttpGet]
-    [Route("Retrieve/{appointmentId}")]
-    public async Task<IActionResult> GetAppointment(string appointmentId)
+    [Route("Retrieve/{documentId}")]
+    public async Task<IActionResult> GetAppointment(string documentId)
     {
-        var appointmentDetail = await ServiceAppointmentManagement.getAppointmentByID(appointmentId);
+        var appointmentDetail = await ServiceAppointmentManagement.getAppointmentByID(documentId);
 
         if (appointmentDetail != null && appointmentDetail.Any())
         {
@@ -228,7 +227,6 @@ public class ServiceAppointmentsController : Controller
     }
 
     // Test Manual's Interface
-
     [HttpGet]
     [Route("TestManualAppointment")]
     public async Task<IActionResult> TestManualAppointment()
@@ -262,7 +260,7 @@ public class ServiceAppointmentsController : Controller
 
         Console.WriteLine("Received JSON request body: " + jsonRequestBody);
 
-        string appointmentId = requestData["AppointmentId"].GetString() ?? "";
+        // string appointmentId = requestData["AppointmentId"].GetString() ?? "";
         string patientId = requestData["PatientId"].GetString() ?? "";
         string nurseId = requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "";
         string doctorId = requestData["DoctorId"].GetString() ?? "";
@@ -275,7 +273,7 @@ public class ServiceAppointmentsController : Controller
         try
         {
             string createdAppointmentId = await _manualAppointmentScheduler.ScheduleAppointment(
-                appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
+                patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
             );
 
             return Ok(new { Message = "Appointment created successfully", AppointmentId = createdAppointmentId });

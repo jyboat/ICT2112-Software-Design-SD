@@ -24,14 +24,14 @@ namespace ClearCare.Models.Control
             var staffAvailability = await _iNurseAvailability.getAllStaffAvailability();
         }
 
-        public async Task<string> CreateAppointment(string appointmentId, string patientId, string nurseId,
+        public async Task<string> CreateAppointment(string patientId, string nurseId,
     string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
         {
             // Calling CreateAppointment method from the ICreateAppointment interface
-            return await _iCreateAppointment.CreateAppointment(appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location);
+            return await _iCreateAppointment.CreateAppointment(patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location);
         }
 
-        public async Task<bool> ValidateAppointmentSlot(string appointmentId, string patientId, string nurseId,
+        public async Task<bool> ValidateAppointmentSlot(string patientId, string nurseId,
     string doctorId, DateTime dateTime, int slot)
         {
             bool isValid = true;
@@ -82,12 +82,12 @@ namespace ClearCare.Models.Control
             return isValid;
         }
 
-        public async Task<string> ScheduleAppointment(string appointmentId, string patientId, string nurseId,
+        public async Task<string> ScheduleAppointment(string patientId, string nurseId,
     string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
         {
             Console.WriteLine("Scheduling appointment...");
 
-            bool isSlotValid = await ValidateAppointmentSlot(appointmentId, patientId, nurseId, doctorId, dateTime, slot);
+            bool isSlotValid = await ValidateAppointmentSlot(patientId, nurseId, doctorId, dateTime, slot);
 
             if (!isSlotValid)
             {
@@ -97,7 +97,7 @@ namespace ClearCare.Models.Control
 
             // calling the CreateAppointment method from the ICreateAppointment interface
             string createdAppointmentId = await _iCreateAppointment.CreateAppointment(
-                appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location);
+                patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location);
 
             if (!string.IsNullOrEmpty(createdAppointmentId))
             {

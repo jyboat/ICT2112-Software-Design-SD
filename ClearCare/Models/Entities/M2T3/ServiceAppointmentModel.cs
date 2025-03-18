@@ -49,7 +49,7 @@ namespace ClearCare.Models.Entities
         private int GetSlot() => Slot;
         private string GetLocation() => Location;
 
-        private void SetAppointmentID(string appointmentId) => AppointmentId = appointmentId;
+        // private void SetAppointmentID(string appointmentId) => AppointmentId = appointmentId;
         private void SetPatientID(string patientId) => PatientId = patientId;
         private void SetNurseID(string nurseId) => NurseId = nurseId;
         private void SetDoctorID(string doctorId) => DoctorId = doctorId;
@@ -59,11 +59,6 @@ namespace ClearCare.Models.Entities
         private void SetSlot(int slot) => Slot = slot;
         private void SetLocation(string location) => Location = location;
 
-        public void SetAppointmentId(string appointmentId)
-        {
-            SetAppointmentID(appointmentId);
-        }
-        
         public void appointNurseToPatient(string nurseId, int slot){
             SetNurseID(nurseId);
             SetSlot(slot);
@@ -93,12 +88,12 @@ namespace ClearCare.Models.Entities
             };
         }
         
-        public static ServiceAppointment setApptDetails(string appointmentId, string patientId, string nurseId,
+        public static ServiceAppointment setApptDetails(string patientId, string nurseId,
             string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
         {
             return new ServiceAppointment
             {
-                AppointmentId = appointmentId,
+                // AppointmentId = appointmentId,
                 PatientId = patientId,
                 NurseId = nurseId,
                 DoctorId = doctorId,
@@ -115,7 +110,7 @@ namespace ClearCare.Models.Entities
             return new Dictionary<string, object>
             {
                 { "PatientID", GetPatientID() },
-                { "AppointmentID", GetAppointmentID() },
+                // { "AppointmentID", GetAppointmentID() },
                 { "NurseID", GetNurseID() },
                 { "DoctorID", GetDoctorID() },
                 { "ServiceType", GetServiceType() },
