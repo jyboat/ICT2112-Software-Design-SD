@@ -9,7 +9,7 @@
 
     namespace ClearCare.Models.Control
     {
-        public class ServiceAppointmentManagement : IRetrieveAllAppointments,  ICreateAppointment, IServiceAppointmentDB_Receive
+        public class ServiceAppointmentManagement : IRetrieveAllAppointments,  ICreateAppointment, IServiceAppointmentDB_Receive, IAppointmentTime
         {
             
 
@@ -145,12 +145,47 @@
                 }
                 else
                 {
-                    Console.WriteLine("Service Appointment update failed.");
+                    Console.WriteLine("Service Appointment deletion failed.");
+                }
+                return Task.CompletedTask;
+        }
+
+        public async Task<DateTime?> getAppointmentTime(string appointmentId) 
+        {
+            if (string.IsNullOrEmpty(appointmentId))
+            {
+                Console.WriteLine("Error: No AppointmentID");
+                return null;
+            }
+
+            try{
+                    DateTime? datetime = await _dbGateway.fetchAppointmentTime(appointmentId);
+                    return datetime;
+            }
+    
+            catch (Exception e)
+                {
+                    Console.WriteLine($"Error finding service appointment time: {e.Message}");
+                    return null;
+                }
+
+            return null; 
+        }
+
+        public Task receiveServiceAppointmentTimeById(DateTime? dateTime) {
+             if (dateTime != null)
+                {
+                    Console.WriteLine("1 Service Appointment Time Successfully Retrieved.");
+                }
+                else
+                {
+                    Console.WriteLine("Service Appointment Time retrival failed.");
                 }
                 return Task.CompletedTask;
         }
 
             
+         
 
 
             // i hardcode the "retrieval" of nurse and patirents first, later once get from mod 1, will update
@@ -172,6 +207,8 @@
                     new Dictionary<string, string> {{"id", "USR003"}, {"name", "USR003"}},
                 };
             }
+
+            
             
             // public Task CreateAppointment() {
             //     Console.WriteLine("Hello Create Appointment Interface");

@@ -15,6 +15,7 @@ namespace ClearCare.Interfaces
     Task<string> CreateAppointment(ServiceAppointment appointment);
     Task<bool> UpdateAppointment(ServiceAppointment appointment);
     Task<bool> DeleteAppointment (string appointmentId);
+    Task<DateTime?> fetchAppointmentTime(string appointmentId);
     
    }
 }

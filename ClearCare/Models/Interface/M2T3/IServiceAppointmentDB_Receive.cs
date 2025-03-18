@@ -14,5 +14,6 @@ namespace ClearCare.Interfaces
     Task receiveCreatedServiceAppointmentId(string serviceAppointmentId); 
     Task receiveUpdatedServiceAppointmentStatus(bool updateStatus);
     Task receiveDeletedServiceAppointmentStatus(bool deleteStatus);
+    Task receiveServiceAppointmentTimeById(DateTime? dateTime);
    }
 }
