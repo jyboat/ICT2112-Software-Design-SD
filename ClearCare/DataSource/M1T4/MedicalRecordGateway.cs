@@ -3,6 +3,7 @@ using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
 using ClearCare.Models.Entities;
+using Google.Protobuf;
 
 namespace ClearCare.DataSource
 {
@@ -40,13 +41,21 @@ namespace ClearCare.DataSource
                 Timestamp timestamp = doc.GetValue<Timestamp>("Date");
                 DateTime date = timestamp.ToDateTime();
 
-                byte[] attachment = doc.ContainsField("Attachment") && doc.GetValue<object>("Attachment") != null
-                            ? doc.GetValue<byte[]>("Attachment")
-                            : new byte[0];  // Ensures no null values
+                byte[] attachment = new byte[0]; // Default empty array
+
+                if (doc.ContainsField("Attachment") && doc.GetValue<object>("Attachment") != null)
+                {
+                    var blobData = doc.GetValue<ByteString>("Attachment"); 
+
+                    if (blobData != null)
+                    {
+                        attachment = blobData.ToByteArray(); 
+                    }
+                }
 
                 string attachmentName = doc.ContainsField("AttachmentName")
                                 ? doc.GetValue<string>("AttachmentName")
-                                : string.Empty;  // Ensures no null values
+                                : string.Empty;
 
                 string doctorID = doc.GetValue<string>("DoctorID");
 
