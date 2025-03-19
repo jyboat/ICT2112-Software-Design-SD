@@ -1,5 +1,7 @@
 using ClearCare.Models.Entities;
 using Google.Cloud.Firestore;
+using System;
+using System.Collections.Generic;
 
 namespace ClearCare.DataSource
 {
@@ -23,9 +25,43 @@ namespace ClearCare.DataSource
                     return new Admin(userID, email, password, name, (int)mobileNumber, address, role, adminID, assignedBackupAdmin);
 
                 case "Patient":
-                    string assignedCaregiverName = (string)infoDictionary["AssignedCaregiverName"];
-                    string assignedCaregiverID = (string)infoDictionary["AssignedCaregiverID"];
-                    Timestamp dateOfBirth = (Timestamp)infoDictionary["DateOfBirth"];
+                    // Added null checks for Patient fields
+                    string assignedCaregiverName = infoDictionary.ContainsKey("AssignedCaregiverName") ? 
+                            (string)infoDictionary["AssignedCaregiverName"] : "";
+                    string assignedCaregiverID = infoDictionary.ContainsKey("AssignedCaregiverID") ? 
+                            (string)infoDictionary["AssignedCaregiverID"] : "";
+                    Timestamp dateOfBirth;
+                    if (infoDictionary.ContainsKey("DateOfBirth"))
+                    {
+                        if (infoDictionary["DateOfBirth"] is Timestamp timestamp)
+                        {
+                            dateOfBirth = timestamp;
+                        }
+                        else if (infoDictionary["DateOfBirth"] is string dateString)
+                        {
+                            // Try to parse the string to a DateTime
+                            try
+                            {
+                                DateTime parsedDate = DateTime.Parse(dateString);
+                                dateOfBirth = Timestamp.FromDateTime(DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc));
+                            }
+                            catch
+                            {
+                                // If parsing fails, use default value
+                                dateOfBirth = Timestamp.FromDateTime(DateTime.UtcNow);
+                            }
+                        }
+                        else
+                        {
+                            // Default for unexpected type
+                            dateOfBirth = Timestamp.FromDateTime(DateTime.UtcNow);
+                        }
+                    }
+                    else
+                    {
+                        // No DateOfBirth field
+                        dateOfBirth = Timestamp.FromDateTime(DateTime.UtcNow);
+                    }
                     return new Patient(userID, email, password, name, (int)mobileNumber, address, role, assignedCaregiverName, assignedCaregiverID, dateOfBirth);
 
                 case "Caregiver":

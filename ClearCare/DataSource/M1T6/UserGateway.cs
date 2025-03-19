@@ -12,7 +12,7 @@ using ClearCare.Models.Interface;
 
 namespace ClearCare.DataSource
 {
-    public class UserGateway : IAdminDatabase //, IUserDatabase
+    public class UserGateway : IAdminDatabase, IDelegateDatabase
     {
         private FirestoreDb db;
         private readonly EncryptionManagement encryptionManagement;
@@ -95,16 +95,85 @@ namespace ClearCare.DataSource
 
             if (role == "Patient")
             {
-                string assignedCaregiverName = snapshot.GetValue<string>("AssignedCaregiverName");
-                string assignedCaregiverID = snapshot.GetValue<string>("AssignedCaregiverID");
-                Timestamp dateOfBirth = snapshot.GetValue<Timestamp>("DateOfBirth");
+                string assignedCaregiverName = snapshot.ContainsField("AssignedCaregiverName") ? snapshot.GetValue<string>("AssignedCaregiverName") : "";
+                string assignedCaregiverID = snapshot.ContainsField("AssignedCaregiverID") ? snapshot.GetValue<string>("AssignedCaregiverID") : "";
+                
+                // Handle DateOfBirth more carefully
+                Timestamp dateOfBirth;
+                if (snapshot.ContainsField("DateOfBirth"))
+                {
+                    try
+                    {
+                        // Try to get the value as Timestamp directly
+                        dateOfBirth = snapshot.GetValue<Timestamp>("DateOfBirth");
+                    }
+                    catch
+                    {
+                        // If that fails, try to get as a dictionary and convert
+                        var rawValue = snapshot.ToDictionary()["DateOfBirth"];
+                        if (rawValue is Dictionary<string, object> timestampDict)
+                        {
+                            // If it's stored as a dictionary with seconds and nanoseconds
+                            // Create a DateTime and convert to Timestamp
+                            try
+                            {
+                                if (timestampDict.ContainsKey("_seconds") && timestampDict.ContainsKey("_nanoseconds"))
+                                {
+                                    long seconds = Convert.ToInt64(timestampDict["_seconds"]);
+                                    int nanoseconds = Convert.ToInt32(timestampDict["_nanoseconds"]);
+                                    
+                                    // Convert seconds since epoch to DateTime
+                                    DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(seconds);
+                                    
+                                    // Convert to Timestamp
+                                    dateOfBirth = Timestamp.FromDateTime(dateTime);
+                                }
+                                else
+                                {
+                                    // Default value
+                                    dateOfBirth = Timestamp.FromDateTime(DateTime.UtcNow);
+                                }
+                            }
+                            catch
+                            {
+                                // Default value
+                                dateOfBirth = Timestamp.FromDateTime(DateTime.UtcNow);
+                            }
+                        }
+                        else if (rawValue is string dateString)
+                        {
+                            // If it's stored as a string, parse it
+                            try
+                            {
+                                DateTime parsedDate = DateTime.Parse(dateString);
+                                dateOfBirth = Timestamp.FromDateTime(DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc));
+                            }
+                            catch
+                            {
+                                // Default value if parsing fails
+                                dateOfBirth = Timestamp.FromDateTime(DateTime.UtcNow);
+                            }
+                        }
+                        else
+                        {
+                            // Default for other types
+                            dateOfBirth = Timestamp.FromDateTime(DateTime.UtcNow);
+                        }
+                    }
+                }
+                else
+                {
+                    // Default if field doesn't exist
+                    dateOfBirth = Timestamp.FromDateTime(DateTime.UtcNow);
+                }
+                
                 return new Patient(userID, emailAddress, password, name, mobileNumber, address, role, assignedCaregiverName, assignedCaregiverID, dateOfBirth);
             }
 
             if (role == "Caregiver")
             {
-                string assignedPatientName = snapshot.GetValue<string>("AssignedPatientName");
-                string assignedPatientID = snapshot.GetValue<string>("AssignedPatientID");
+                string assignedPatientName = snapshot.ContainsField("AssignedPatientName") ? snapshot.GetValue<string>("AssignedPatientName") : "";
+                string assignedPatientID = snapshot.ContainsField("AssignedPatientID") ? snapshot.GetValue<string>("AssignedPatientID") : "";
                 return new Caregiver(userID, emailAddress, password, name, mobileNumber, address, role, assignedPatientName, assignedPatientID);
             }
 
@@ -114,7 +183,6 @@ namespace ClearCare.DataSource
             // return new User(userID, emailAddress, password, name, mobileNumber, address, role);
             // Use the UserFactory to create the appropriate user based on the role
             return UserFactory.createUser(userID, emailAddress, password, name, mobileNumber, address, role, docDictionary);
-
         }
 
         // Function to get all User in a list
@@ -191,7 +259,6 @@ namespace ClearCare.DataSource
                 Console.WriteLine($"User {userID} exists but has no 'Name' field.");
                 return "Unknown User";
             }
-            return snapshot.ContainsField("Name") ? snapshot.GetValue<string>("Name") : "Unknown User";
         }
 
         // Insert a new user with auto-incremented UserID
@@ -325,6 +392,17 @@ namespace ClearCare.DataSource
                         {
                             updates["DateOfBirth"] = dobTimestamp; // Ensure correct type before storing
                         }
+                        if (updatedFields.ContainsKey("AssignedCaregiverID"))
+                            updates["AssignedCaregiverID"] = updatedFields["AssignedCaregiverID"].ToString();
+                        if (updatedFields.ContainsKey("AssignedCaregiverName"))
+                            updates["AssignedCaregiverName"] = updatedFields["AssignedCaregiverName"].ToString();
+                        break;
+
+                    case "Caregiver":
+                        if (updatedFields.ContainsKey("AssignedPatientID"))
+                            updates["AssignedPatientID"] = updatedFields["AssignedPatientID"].ToString();
+                        if (updatedFields.ContainsKey("AssignedPatientName"))
+                            updates["AssignedPatientName"] = updatedFields["AssignedPatientName"].ToString();
                         break;
 
                     default:
