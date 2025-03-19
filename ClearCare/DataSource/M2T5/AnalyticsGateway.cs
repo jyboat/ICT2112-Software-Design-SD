@@ -12,7 +12,7 @@ namespace ClearCare.DataSource
 
         public AnalyticsGateway()
         {
-            db = FirebaseService.Initialize();  // Ensure Firebase is initialized
+            db = FirebaseService.Initialize(); 
         }
 
         // Get general analytics for medical records
@@ -82,5 +82,88 @@ namespace ClearCare.DataSource
                 return null;
             }
         }
+
+               public async Task<Dictionary<string, object>> GetAppointmentAnalytics()
+        {
+            try
+            {
+                var appointments = await db.Collection("ServiceAppointments").GetSnapshotAsync();
+
+                if (appointments.Documents.Count == 0)
+                {
+                    Console.WriteLine("No appointment records found in Firestore.");
+                    return new Dictionary<string, object>();
+                }
+
+                // Total number of appointments
+                int totalAppointments = appointments.Documents.Count;
+
+                // Count appointments per service type
+                Dictionary<string, int> appointmentsPerType = new Dictionary<string, int>();
+
+                // Count appointments per doctor
+                Dictionary<string, int> appointmentsPerDoctor = new Dictionary<string, int>();
+
+                // Count appointments per month
+                Dictionary<string, int> appointmentsPerMonth = new Dictionary<string, int>();
+
+                // Count completed, pending, and cancelled appointments
+                int completedAppointments = 0;
+                int pendingAppointments = 0;
+                int cancelledAppointments = 0;
+
+                foreach (var doc in appointments.Documents)
+                {
+                    string serviceType = doc.ContainsField("ServiceTypeId") ? doc.GetValue<string>("ServiceTypeId") : "Unknown";
+                    string doctorId = doc.ContainsField("DoctorId") ? doc.GetValue<string>("DoctorId") : "Unknown";
+                    string status = doc.ContainsField("Status") ? doc.GetValue<string>("Status") : "Unknown";
+                    Timestamp date = doc.ContainsField("DateTime") ? doc.GetValue<Timestamp>("DateTime") : Timestamp.FromDateTime(DateTime.UtcNow);
+
+                    // Count appointments per service type
+                    if (appointmentsPerType.ContainsKey(serviceType))
+                        appointmentsPerType[serviceType]++;
+                    else
+                        appointmentsPerType[serviceType] = 1;
+
+                    // Count appointments per doctor
+                    if (appointmentsPerDoctor.ContainsKey(doctorId))
+                        appointmentsPerDoctor[doctorId]++;
+                    else
+                        appointmentsPerDoctor[doctorId] = 1;
+
+                    // Count appointments per month
+                    string monthYearKey = date.ToDateTime().ToString("yyyy-MM");
+                    if (appointmentsPerMonth.ContainsKey(monthYearKey))
+                        appointmentsPerMonth[monthYearKey]++;
+                    else
+                        appointmentsPerMonth[monthYearKey] = 1;
+
+                    // Count completed, pending, and cancelled appointments
+                    if (status == "Completed")
+                        completedAppointments++;
+                    else if (status == "Cancelled")
+                        cancelledAppointments++;
+                    else
+                        pendingAppointments++;
+                }
+
+                return new Dictionary<string, object>
+                {
+                    { "TotalAppointments", totalAppointments },
+                    { "AppointmentsPerType", appointmentsPerType },
+                    { "AppointmentsPerDoctor", appointmentsPerDoctor },
+                    { "AppointmentsPerMonth", appointmentsPerMonth },
+                    { "CompletedAppointments", completedAppointments },
+                    { "PendingAppointments", pendingAppointments },
+                    { "CancelledAppointments", cancelledAppointments }
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error retrieving appointment analytics: {ex.Message}");
+                return null;
+            }
+        }
+
     }
 }
