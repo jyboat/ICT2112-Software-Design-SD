@@ -38,18 +38,27 @@ namespace ClearCare.Control
         public List<ServiceAppointment> AutomaticallySchedule(
             List<AutomaticAppointmentScheduler.Nurse> nurses, 
             List<AutomaticAppointmentScheduler.Patient> patients,
-            List<string> services/*,
-            Action<string, string> notify*/)
+            List<string> services,
+            List<ServiceAppointment> backlogEntries)
         {
             var appointments = InitialInsert(patients, services);
             int totalSlots = 14;
             int maxPatientsPerSlot = 3;
             int nurseIndex = 0;
 
-            // Sort patients by the number of services they need (fewest services first)
+            // Concatenate backlogEntries with the newly created appointments
+            var combinedAppointments = backlogEntries.Concat(appointments).ToList();
+                        
+            // // Sort patients by the number of services they need (fewest services first)
             var groupedAppointments = appointments.GroupBy(a => a.GetAttribute("PatientId"))
                                                 .OrderBy(g => g.Count())
                                                 .ToList();
+            var groupedAppointments2 = backlogEntries.GroupBy(a => a.GetAttribute("PatientId"))
+                                                .OrderBy(g => g.Count())
+                                                .ToList();
+            
+
+            var combined = groupedAppointments2.Concat(groupedAppointments);
 
             // Track slots used per patient
             var patientSlotTracker = new Dictionary<string, List<int>>();
@@ -60,7 +69,7 @@ namespace ClearCare.Control
             // Track nurse availability per slot
             var nurseSlotTracker = new Dictionary<string, List<int>>();
 
-            foreach (var patientAppointments in groupedAppointments)
+            foreach (var patientAppointments in combined)
             {
                 // Assign a nurse to this patient
                 var nurse = nurses[nurseIndex];
@@ -108,7 +117,7 @@ namespace ClearCare.Control
                         if (assignedSlot > totalSlots)
                         {
                             // // Print results for debugging
-                            foreach (var appt in appointments)
+                            foreach (var appt in combinedAppointments)
                             {
                                 Console.WriteLine($"Appointment ID: {appt.GetAttribute("AppointmentId")}, " +
                                                 $"Patient: {appt.GetAttribute("PatientId")}, " +
@@ -119,7 +128,7 @@ namespace ClearCare.Control
                             // Probably here that needs observer
                             Console.WriteLine($"Error: No available slots for patient left");
                         
-                            return appointments;
+                            return combinedAppointments;
                         }
                     }
 
@@ -143,7 +152,7 @@ namespace ClearCare.Control
                 nurseIndex = (nurseIndex + 1) % nurses.Count;
             }
 
-            foreach (var appt in appointments)
+            foreach (var appt in combinedAppointments)
             {
                 Console.WriteLine($"Appointment ID: {appt.GetAttribute("AppointmentId")}, " +
                                 $"Patient: {appt.GetAttribute("PatientId")}, " +
@@ -152,7 +161,7 @@ namespace ClearCare.Control
                                 $"Slot: {appt.GetIntAttribute("Slot")}");
             }
 
-            return appointments;
+            return combinedAppointments;
         }
     }
 }

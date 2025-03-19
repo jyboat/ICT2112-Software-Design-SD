@@ -17,6 +17,7 @@ namespace ClearCare.Models.Control
         private readonly INurseAvailability _iNurseAvailability;
         private IAutomaticScheduleStrategy? _iAutomaticScheduleStrategy;
         private FirestoreDb db;
+        // private readonly ServiceBacklogManagement _serviceBacklogManagement;
 
         // // Declare the field at the class level
         // private readonly ServiceAppointmentGateway _serviceAppointmentGateway;
@@ -32,6 +33,9 @@ namespace ClearCare.Models.Control
             // To be set at runtime later
             _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; 
             db = FirebaseService.Initialize();
+
+            // _serviceBacklogManagement = new ServiceBacklogManagement();
+            // attach(_serviceBacklogManagement);
         }
 
 
@@ -55,11 +59,16 @@ namespace ClearCare.Models.Control
 
         public async void AutomaticallyScheduleAppointment()
         {
+            // Attach listener only when scheduling is called
+            var _serviceBacklogManagement = new ServiceBacklogManagement();
+            attach(_serviceBacklogManagement);
+
             if (_iAutomaticScheduleStrategy == null)
             {
                 throw new InvalidOperationException("Scheduling strategy has not been set. Use SetAlgorithm() first.");
             }
 
+            // Hardcoded data
             Query patientQuery = db.Collection("User").WhereEqualTo("Role", "Patient");
             QuerySnapshot snapshot1 = await patientQuery.GetSnapshotAsync();
 
@@ -74,6 +83,7 @@ namespace ClearCare.Models.Control
                 });
             }
 
+            // Hardcoded data
             Query serviceQuery = db.Collection("service_type");
             QuerySnapshot snapshot2 = await serviceQuery.GetSnapshotAsync();
 
@@ -99,32 +109,65 @@ namespace ClearCare.Models.Control
                     });
                 }
             }
-        
+
+            // Hardcoded data
+            var backlogEntries = new List<ServiceAppointment>();
+
+            Query BLQuery = db.Collection("ServiceBacklogs");
+            QuerySnapshot snapshot = await BLQuery.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                string appointmentId = document.GetValue<string>("appointmentId");
+                Dictionary<string, object> entry = await _iCreateAppointment.getAppointmentByID(appointmentId);
+                entry["DateTime"] = DateTime.Now; 
+                ServiceAppointment appointment = ServiceAppointment.FromFirestoreData(appointmentId, entry);
+
+                backlogEntries.Add(appointment);
+            }
+
             // Call the auto-assignment function
-            var serviceAppointment = _iAutomaticScheduleStrategy.AutomaticallySchedule(nurses, patients, services/*, notify*/);
+            var serviceAppointment = _iAutomaticScheduleStrategy.AutomaticallySchedule(nurses, patients, services, backlogEntries);
 
             foreach (var serviceAppt in serviceAppointment)
             {
-                var appointmentId = await _iCreateAppointment.CreateAppointment(
-                    serviceAppt.GetAttribute("PatientId"),
-                    serviceAppt.GetAttribute("NurseId"),
-                    "Hardcode Doctor",
-                    serviceAppt.GetAttribute("ServiceTypeId"),
-                    "Pending",
-                    DateTime.UtcNow,
-                    serviceAppt.GetIntAttribute("Slot"),
-                    "Physical"
-                );
+                if (serviceAppt.GetAttribute("AppointmentId") != "")
+                {
+                    await _iCreateAppointment.DeleteAppointment(
+                        serviceAppt.GetAttribute("AppointmentId")
+                    );
 
-                if (string.IsNullOrEmpty(serviceAppt.GetAttribute("NurseId")))
-                {
-                    Console.WriteLine($"Failed to schedule Appointment: {appointmentId}");
-                    notify(appointmentId, "false");
+                    await _iCreateAppointment.CreateAppointment(
+                        serviceAppt.GetAttribute("PatientId"),
+                        serviceAppt.GetAttribute("NurseId"),
+                        "Hardcode Doctor",
+                        serviceAppt.GetAttribute("ServiceTypeId"),
+                        "Pending",
+                        DateTime.UtcNow,
+                        serviceAppt.GetIntAttribute("Slot"),
+                        "Physical"
+                    );
+
+                    // Console.WriteLine($"Successfully rescheduled Appointment: {serviceAppt.GetAttribute("AppointmentId")}");
+                    notify(serviceAppt.GetAttribute("AppointmentId"), "success");
                 }
-                else
-                {
-                    Console.WriteLine($"Successfully scheduled Appointment: {appointmentId}");
-                    notify(appointmentId, "success");
+                else{
+                    var appointmentId = await _iCreateAppointment.CreateAppointment(
+                        serviceAppt.GetAttribute("PatientId"),
+                        serviceAppt.GetAttribute("NurseId"),
+                        "Hardcode Doctor",
+                        serviceAppt.GetAttribute("ServiceTypeId"),
+                        "Pending",
+                        DateTime.UtcNow,
+                        serviceAppt.GetIntAttribute("Slot"),
+                        "Physical"
+                    );
+
+                    if (string.IsNullOrEmpty(serviceAppt.GetAttribute("NurseId")))
+                    {
+                        Console.WriteLine($"Failed to schedule Appointment: {appointmentId}");
+                        notify(appointmentId, "false");
+                    }
                 }
             }
 

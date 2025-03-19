@@ -9,7 +9,7 @@ namespace ClearCare.Interfaces
         List<ServiceAppointment> AutomaticallySchedule(
             List<AutomaticAppointmentScheduler.Nurse> nurses, 
             List<AutomaticAppointmentScheduler.Patient> appointments,
-            List<string> services/*,
-            Action<string, string> notify*/);
+            List<string> services,
+            List<ServiceAppointment> backlogEntries);
     }
 }
