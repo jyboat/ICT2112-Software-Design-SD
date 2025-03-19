@@ -1,0 +1,91 @@
+@{
+    var analytics = ViewData["MedicalRecordsAnalytics"] as Dictionary<string, object>;
+    var recordsPerDoctor = analytics?["RecordsPerDoctor"] as Dictionary<string, int>;
+    var recordsPerPatient = analytics?["RecordsPerPatient"] as Dictionary<string, int>;
+    var recordsPerMonth = analytics?["RecordsPerMonth"] as Dictionary<string, int>;
+}
+
+<h2 class="text-center my-4">Medical Records Analytics</h2>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white shadow-lg p-4">
+                <h5 class="card-title">Total Medical Records</h5>
+                <p class="card-text fs-4">@analytics?["TotalRecords"]</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-dark shadow-lg p-4">
+                <h5 class="card-title">Records With Attachments</h5>
+                <p class="card-text fs-4">@analytics?["RecordsWithAttachments"]</p>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="mt-4">Records Per Doctor</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Doctor ID</th>
+                <th>Total Records</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (recordsPerDoctor != null)
+            {
+                @foreach (var doctor in recordsPerDoctor)
+                {
+                    <tr>
+                        <td>@doctor.Key</td>
+                        <td>@doctor.Value</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <h3 class="mt-4">Records Per Patient</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Patient ID</th>
+                <th>Total Records</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (recordsPerPatient != null)
+            {
+                @foreach (var patient in recordsPerPatient)
+                {
+                    <tr>
+                        <td>@patient.Key</td>
+                        <td>@patient.Value</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <h3 class="mt-4">Records Per Month</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Month-Year</th>
+                <th>Total Records</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (recordsPerMonth != null)
+            {
+                @foreach (var month in recordsPerMonth)
+                {
+                    <tr>
+                        <td>@month.Key</td>
+                        <td>@month.Value</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

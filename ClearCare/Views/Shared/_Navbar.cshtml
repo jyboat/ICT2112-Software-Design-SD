@@ -35,6 +35,9 @@
                             <i class="bi bi-calendar-week me-1"></i>Appointments
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Analytics" asp-action="MedicalRecords"><i class="bi bi-bar-chart me-1"></i>Analytics</a>
+                    </li>
                 }
                 @* Check if user is nurse *@
                 @if (userRole == "Nurse"){
