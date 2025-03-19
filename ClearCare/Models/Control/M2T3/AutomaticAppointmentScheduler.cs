@@ -166,7 +166,7 @@ namespace ClearCare.Models.Control
                     if (string.IsNullOrEmpty(serviceAppt.GetAttribute("NurseId")))
                     {
                         Console.WriteLine($"Failed to schedule Appointment: {appointmentId}");
-                        notify(appointmentId, "false");
+                        notify(appointmentId, "fail");
                     }
                 }
             }
