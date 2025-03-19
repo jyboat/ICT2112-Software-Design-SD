@@ -5,6 +5,8 @@
     var recordsPerMonth = analytics?["RecordsPerMonth"] as Dictionary<string, int>;
 }
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <h2 class="text-center my-4">Medical Records Analytics</h2>
 
 <div class="container">
@@ -23,7 +25,31 @@
         </div>
     </div>
 
-    <h3 class="mt-4">Records Per Doctor</h3>
+    <!-- Pie Chart: Records With Attachments -->
+    <h3 class="mt-4 text-center">Medical Records with Attachments</h3>
+    <div style="width: 400px; height: 400px; margin: auto;">
+        <canvas id="recordsAttachmentsChart"></canvas>
+    </div>
+
+    <!-- Line Chart: Total Records Over Time -->
+    <h3 class="mt-4 text-center">Medical Records Created Over Time</h3>
+    <div style="width: 800px; height: 400px; margin: auto;">
+        <canvas id="recordsOverTimeChart"></canvas>
+    </div>
+
+    <!-- Bar Chart: Records Per Doctor -->
+    <h3 class="mt-4 text-center">Records Per Doctor</h3>
+    <div style="width: 600px; height: 400px; margin: auto;">
+        <canvas id="recordsPerDoctorChart"></canvas>
+    </div>
+
+    <!-- Bar Chart: Records Per Patient -->
+    <h3 class="mt-4 text-center">Records Per Patient</h3>
+    <div style="width: 600px; height: 400px; margin: auto;">
+        <canvas id="recordsPerPatientChart"></canvas>
+    </div>
+
+        <h3 class="mt-4">Records Per Doctor</h3>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -89,3 +115,86 @@
         </tbody>
     </table>
 </div>
+
+<script>
+    // Pie Chart: Records With vs. Without Attachments
+    var ctx1 = document.getElementById('recordsAttachmentsChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'pie',
+        data: {
+            labels: ['With Attachments', 'Without Attachments'],
+            datasets: [{
+                data: [@analytics?["RecordsWithAttachments"], @analytics?["TotalRecords"] - @analytics?["RecordsWithAttachments"]],
+                backgroundColor: ['#28a745', '#dc3545']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Line Chart: Medical Records Over Time
+    var ctx2 = document.getElementById('recordsOverTimeChart').getContext('2d');
+    var recordsPerMonth = @Html.Raw(Json.Serialize(recordsPerMonth ?? new Dictionary<string, int>()));
+    new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: Object.keys(recordsPerMonth),
+            datasets: [{
+                label: 'Total Medical Records',
+                data: Object.values(recordsPerMonth),
+                borderColor: '#007bff',
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Bar Chart: Medical Records Per Doctor
+    var ctx3 = document.getElementById('recordsPerDoctorChart').getContext('2d');
+    var recordsPerDoctor = @Html.Raw(Json.Serialize(recordsPerDoctor ?? new Dictionary<string, int>()));
+    new Chart(ctx3, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(recordsPerDoctor),
+            datasets: [{
+                label: 'Medical Records',
+                data: Object.values(recordsPerDoctor),
+                backgroundColor: '#17a2b8'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Bar Chart: Medical Records Per Patient
+    var ctx4 = document.getElementById('recordsPerPatientChart').getContext('2d');
+    var recordsPerPatient = @Html.Raw(Json.Serialize(recordsPerPatient ?? new Dictionary<string, int>()));
+    new Chart(ctx4, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(recordsPerPatient),
+            datasets: [{
+                label: 'Medical Records',
+                data: Object.values(recordsPerPatient),
+                backgroundColor: '#ff9800'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
