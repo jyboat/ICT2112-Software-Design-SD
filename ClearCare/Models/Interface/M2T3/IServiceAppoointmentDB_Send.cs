@@ -9,12 +9,14 @@ namespace ClearCare.Interfaces
 {
     public interface IServiceAppointmentDB_Send
    {
+    IServiceAppointmentDB_Receive Receiver { get; set; }
     // fetch all service appointments from db, implemented by gateway
     Task<List<ServiceAppointment>> fetchAllServiceAppointments();
     Task<Dictionary<string, object>> fetchServiceAppointmentByID(string appointmentId); 
     Task<string> CreateAppointment(ServiceAppointment appointment);
     Task<bool> UpdateAppointment(ServiceAppointment appointment);
     Task<bool> DeleteAppointment (string appointmentId);
+    Task<DateTime?> fetchAppointmentTime(string appointmentId);
     
    }
 }

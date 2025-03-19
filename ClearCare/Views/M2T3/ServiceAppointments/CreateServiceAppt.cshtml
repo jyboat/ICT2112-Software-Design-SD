@@ -9,8 +9,6 @@
 <h2>Create Service Appointment</h2>
 
 <form id="appointmentForm" method="post">
-    <label for="appointmentId">Appointment ID:</label>
-    <input type="text" id="appointmentId" name="AppointmentId" required><br><br>
 
     <label for="patientId">Patient:</label>
     <select id="patientId" name="PatientId" class="select2" required>
@@ -39,11 +37,21 @@
     <label for="status">Status:</label>
     <input type="text" id="status" name="Status" required><br><br>
 
-    <label for="dateTime">Date & Time:</label>
-    <input type="datetime-local" id="dateTime" name="DateTime" required><br><br>
+    <label for="appointmentDate">Date:</label>
+    <input type="date" id="appointmentDate" name="AppointmentDate" required><br><br>
 
-    <label for="slot">Slot:</label>
-    <input type="number" id="slot" name="Slot" required><br><br>
+    <label for="timeSlot">Time Slot:</label>
+    <select id="timeSlot" name="TimeSlot" required>
+        <option value="">Select Time Slot</option>
+        <option value="0">08:00 - 09:00</option>
+        <option value="1">09:00 - 10:00</option>
+        <option value="2">10:00 - 11:00</option>
+        <option value="3">11:00 - 12:00</option>
+        <option value="4">12:00 - 13:00</option>
+        <option value="5">13:00 - 14:00</option>
+        <option value="6">14:00 - 15:00</option>
+        <option value="7">15:00 - 16:00</option>
+    </select><br><br>
 
     <label for="location">Location:</label>
     <select id="location" name="Location" class="form-control" required>
@@ -57,35 +65,52 @@
 
 <script>
     $(document).ready(function() {
-        // If you still want Select2 for the other dropdowns, keep this
+        // initialize select2 for dropdown fields
         $('.select2').select2({
             placeholder: 'Search...',
             allowClear: true
         });
+        
+        // set today as the minimum date for the appointment date
+        let today = new Date();
+        let formattedDate = today.toISOString().split('T')[0];
+        document.getElementById('appointmentDate').min = formattedDate;
     });
     
     document.getElementById("appointmentForm").addEventListener("submit", function(event) {
-        event.preventDefault(); // Prevent form from redirecting
-        console.log("walao")
+        event.preventDefault(); // prevent form from redirecting
         
-        // Convert input datetime to UTC format (YYYY-MM-DDTHH:mm:ssZ)
-        let selectedDateTime = new Date(document.getElementById("dateTime").value);
-        let formattedDateTime = selectedDateTime.toISOString().split(".")[0] + "Z"; // Convert to UTC format
-
+        // get the selected date and time slot
+        let selectedDate = document.getElementById("appointmentDate").value;
+        let selectedTimeSlot = document.getElementById("timeSlot").value;
+        
+        if (!selectedDate || selectedTimeSlot === "") {
+            alert("Please select both date and time slot");
+            return;
+        }
+        
+        // calculate the hours based on the selected time slot
+        let hour = 8 + parseInt(selectedTimeSlot);
+        
+        // manually construct the ISO string without timezone conversion
+        let isoString = `${selectedDate}T${hour.toString().padStart(2, '0')}:00:00.000Z`;
+        
+        // build the form data object
         let formData = {
-            AppointmentId: document.getElementById("appointmentId").value,
             PatientId: document.getElementById("patientId").value,
             NurseId: document.getElementById("nurseId").value,
             DoctorId: document.getElementById("doctorId").value,
             ServiceTypeId: document.getElementById("serviceTypeId").value,
             Status: document.getElementById("status").value,
-            DateTime: formattedDateTime,
-            Slot: parseInt(document.getElementById("slot").value),
+            DateTime: isoString, // use our manually constructed ISO string
+            Slot: parseInt(selectedTimeSlot),
             Location: document.getElementById("location").value
         };
 
-        console.log(formData)
+        // log the data for debugging
+        console.log("sending data:", formData);
 
+        // send the data to the API
         fetch("/api/ServiceAppointments/Create", {
             method: "POST",
             headers: {
@@ -93,12 +118,23 @@
             },
             body: JSON.stringify(formData)
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    // Log the entire error response for debugging
+                    console.error("Error response:", err.message);
+                    throw new Error(err.message || "An error occurred");
+                });
+            }
+            return response.json();
+        })
         .then(data => {
-            alert("Response: " + JSON.stringify(data));
+            alert("Appointment created successfully!");
             console.log("Response:", data);
         })
-        .catch(error => console.error("Error:", error));
+        .catch(error => {
+            alert("Error: " + error.message); // display the error message
+            console.error("Error:", error);
+        });
     });
-
 </script>

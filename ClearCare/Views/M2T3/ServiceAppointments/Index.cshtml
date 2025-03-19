@@ -14,7 +14,6 @@
     <table border="1">
         <thead>
             <tr>
-                <th>Appointment ID</th>
                 <th>Patient ID</th>
                 <th>Nurse ID</th>
                 <th>Doctor ID</th>
@@ -29,7 +28,6 @@
             @foreach (var appointment in Model)
             {
                 <tr>
-                    <td>@appointment["AppointmentId"]</td>
                     <td>@appointment["PatientId"]</td>
                     <td>@appointment["NurseId"]</td>
                     <td>@appointment["DoctorId"]</td>

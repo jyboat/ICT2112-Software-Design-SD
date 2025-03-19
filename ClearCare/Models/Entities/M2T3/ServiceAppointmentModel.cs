@@ -49,21 +49,16 @@ namespace ClearCare.Models.Entities
         private int GetSlot() => Slot;
         private string GetLocation() => Location;
 
-        private void SetAppointmentID(string appointmentId) => AppointmentId = appointmentId;
+        // private void SetAppointmentID(string appointmentId) => AppointmentId = appointmentId;
         private void SetPatientID(string patientId) => PatientId = patientId;
         private void SetNurseID(string nurseId) => NurseId = nurseId;
         private void SetDoctorID(string doctorId) => DoctorId = doctorId;
         private void SetServiceId(string serviceTypeId) => ServiceTypeId = serviceTypeId;
         private void SetStatus(string status) => Status = status;
-        private void SetDateTime(DateTime dateTime) => DateTime = dateTime;
+        public void SetDateTime(DateTime dateTime) => DateTime = dateTime;
         private void SetSlot(int slot) => Slot = slot;
         private void SetLocation(string location) => Location = location;
 
-        public void SetAppointmentId(string appointmentId)
-        {
-            SetAppointmentID(appointmentId);
-        }
-        
         public void appointNurseToPatient(string nurseId, int slot){
             SetNurseID(nurseId);
             SetSlot(slot);
@@ -93,12 +88,12 @@ namespace ClearCare.Models.Entities
             };
         }
         
-        public static ServiceAppointment setApptDetails(string appointmentId, string patientId, string nurseId,
+        public static ServiceAppointment setApptDetails(string patientId, string nurseId,
             string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
         {
             return new ServiceAppointment
             {
-                AppointmentId = appointmentId,
+                // AppointmentId = appointmentId,
                 PatientId = patientId,
                 NurseId = nurseId,
                 DoctorId = doctorId,
@@ -115,7 +110,7 @@ namespace ClearCare.Models.Entities
             return new Dictionary<string, object>
             {
                 { "PatientID", GetPatientID() },
-                { "AppointmentID", GetAppointmentID() },
+                // { "AppointmentID", GetAppointmentID() },
                 { "NurseID", GetNurseID() },
                 { "DoctorID", GetDoctorID() },
                 { "ServiceType", GetServiceType() },
@@ -135,6 +130,26 @@ namespace ClearCare.Models.Entities
         // Simple Domain Model Mapping
         public static ServiceAppointment FromFirestoreData(string appointmentId, Dictionary<string, object> data)
         {
+            // Check if the DateTime field is already a DateTime or a Firestore Timestamp
+            object dateTimeValue = data["DateTime"];
+            DateTime appointmentDateTime;
+
+            if (dateTimeValue is DateTime)
+            {
+                // If it's already a DateTime, use it directly
+                appointmentDateTime = (DateTime)dateTimeValue;
+            }
+            else if (dateTimeValue is Google.Cloud.Firestore.Timestamp)
+            {
+                // If it's a Firestore Timestamp, convert it to DateTime
+                appointmentDateTime = ((Google.Cloud.Firestore.Timestamp)dateTimeValue).ToDateTime();
+            }
+            else
+            {
+                // Handle the case where DateTime is missing or has an unexpected type
+                throw new InvalidCastException("Unexpected DateTime type in Firestore data.");
+            }
+
             return new ServiceAppointment
             {
                 AppointmentId = appointmentId,
@@ -143,7 +158,7 @@ namespace ClearCare.Models.Entities
                 DoctorId = data["DoctorId"].ToString() ?? "",
                 ServiceTypeId = data["ServiceTypeId"].ToString() ?? "",
                 Status = data["Status"].ToString() ?? "",
-                DateTime = ((Google.Cloud.Firestore.Timestamp)data["DateTime"]).ToDateTime(),
+                DateTime = appointmentDateTime,
                 Slot = data.ContainsKey("Slot") ? Convert.ToInt32(data["Slot"]) : 0,
                 Location = data["Location"].ToString()  ?? ""
             };

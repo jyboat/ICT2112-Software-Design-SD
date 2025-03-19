@@ -22,16 +22,15 @@ namespace ClearCare.Controllers
         {
             // did this so to resolve the circular dependency and fix the error by ensuring that the gateway has a receiver set before any callbacks are invoked otherwise this shit doesnt load lmao
 
-            // Create the gateway first using the parameterless constructor
-            var gateway = new NurseAvailabilityGateway();
-            // Create the manager and pass the gateway
-            _manager = new NurseAvailabilityManagement(gateway);
-            // Set the gateway's receiver to the manager (which implements IAvailabilityDB_Receive)
-            gateway.Receiver = _manager;
+            // // Create the gateway first using the parameterless constructor
+            // var gateway = new NurseAvailabilityGateway();
+            // // Create the manager and pass the gateway
+            // _manager = new NurseAvailabilityManagement(gateway);
+            // // Set the gateway's receiver to the manager (which implements IAvailabilityDB_Receive)
+            // gateway.Receiver = _manager;
 
-            var _serviceAppointmentGateway = new ServiceAppointmentGateway();
-            _serviceAppointmentManagement = new ServiceAppointmentManagement(_serviceAppointmentGateway);
-            _serviceAppointmentGateway.Receiver = _serviceAppointmentManagement;
+            _manager = new NurseAvailabilityManagement();
+            _serviceAppointmentManagement = new ServiceAppointmentManagement();
          
 
             _calendarManagement = new CalendarManagement((IRetrieveAllAppointments)_serviceAppointmentManagement, (INurseAvailability) _manager);

@@ -9,15 +9,15 @@
 
     namespace ClearCare.Models.Control
     {
-        public class ServiceAppointmentManagement : IRetrieveAllAppointments,  ICreateAppointment, IServiceAppointmentDB_Receive
+        public class ServiceAppointmentManagement : IRetrieveAllAppointments,  ICreateAppointment, IServiceAppointmentDB_Receive, IAppointmentTime
         {
             
 
         private readonly IServiceAppointmentDB_Send _dbGateway;
-
-        public ServiceAppointmentManagement(IServiceAppointmentDB_Send dbGateway)
+        public ServiceAppointmentManagement()
         {
-            _dbGateway = dbGateway;
+            _dbGateway = (IServiceAppointmentDB_Send) new ServiceAppointmentGateway();
+            _dbGateway.Receiver = this;
         }
 
 
@@ -59,17 +59,16 @@
         }
             
         // Create Service Appointment
-        public async Task<string> CreateAppointment (string appointmentId, string patientId, string nurseId,
+        public async Task<string> CreateAppointment (string patientId, string nurseId,
                 string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
             {
                 // Map JSON data to model
                 var appointment = ServiceAppointment.setApptDetails(
-                    appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
+                    patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
                 );
 
                 string appointmentID = await _dbGateway.CreateAppointment(appointment);
                 return appointmentID;
-
             }
 
         public Task receiveCreatedServiceAppointmentId(string serviceAppointmentId) {
@@ -99,7 +98,7 @@
                     
                     // create updated appt
                     var updatedAppointment = ServiceAppointment.setApptDetails(
-                        appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
+                        patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
                     );
                     
                     // call gateway to update
@@ -145,15 +144,46 @@
                 }
                 else
                 {
-                    Console.WriteLine("Service Appointment update failed.");
+                    Console.WriteLine("Service Appointment deletion failed.");
                 }
                 return Task.CompletedTask;
         }
 
-            
+        public async Task<DateTime?> getAppointmentTime(string appointmentId) 
+        {
+            if (string.IsNullOrEmpty(appointmentId))
+            {
+                Console.WriteLine("Error: No AppointmentID");
+                return null;
+            }
 
+            try{
+                    DateTime? datetime = await _dbGateway.fetchAppointmentTime(appointmentId);
+                    return datetime;
+            }
+    
+            catch (Exception e)
+                {
+                    Console.WriteLine($"Error finding service appointment time: {e.Message}");
+                    return null;
+                }
 
-            // i hardcode the "retrieval" of nurse and patirents first, later once get from mod 1, will update
+            return null; 
+        }
+
+        public Task receiveServiceAppointmentTimeById(DateTime? dateTime) {
+             if (dateTime != null)
+                {
+                    Console.WriteLine("1 Service Appointment Time Successfully Retrieved.");
+                }
+                else
+                {
+                    Console.WriteLine("Service Appointment Time retrival failed.");
+                }
+                return Task.CompletedTask;
+        }
+
+            // i hardcode the "retrieval" of services, nurse and patients first, later once get from mod 1, will update
             public List<Dictionary<string, string>> GetAllPatients()
             {
                 return new List<Dictionary<string, string>>
@@ -169,6 +199,19 @@
                 {
                     new Dictionary<string, string> {{"id", "1"}, {"name", "Mike Tyson"}},
                     new Dictionary<string, string> {{"id", "2"}, {"name", "Rocky Balboa"}},
+                    new Dictionary<string, string> {{"id", "USR003"}, {"name", "USR003"}},
+                };
+            }
+
+            
+            
+            public List<Dictionary<string, string>> GetAllServiceTypes()
+            {
+                return new List<Dictionary<string, string>>
+                {
+                    new Dictionary<string, string> {{"id", "1"}, {"name", "FINANCIAL COUNSELING"}},
+                    new Dictionary<string, string> {{"id", "2"}, {"name", "PHYSICAL THERAPY"}},
+                    new Dictionary<string, string> {{"id", "3"}, {"name", "WOUND CARE"}},
                 };
             }
             
