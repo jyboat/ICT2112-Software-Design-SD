@@ -173,6 +173,8 @@ public class ServiceAppointmentsController : Controller
     {
         try
         {
+            Console.WriteLine("Received JSON request body: " + JsonSerializer.Serialize(requestData));
+
             var result = await ServiceAppointmentManagement.UpdateAppointment(
                 requestData["AppointmentId"].GetString() ?? "",
                 requestData["PatientId"].GetString() ?? "",
@@ -260,7 +262,7 @@ public class ServiceAppointmentsController : Controller
 
         Console.WriteLine("Received JSON request body: " + jsonRequestBody);
 
-        // string appointmentId = requestData["AppointmentId"].GetString() ?? "";
+        string appointmentId = requestData["AppointmentId"].GetString() ?? "";
         string patientId = requestData["PatientId"].GetString() ?? "";
         string nurseId = requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "";
         string doctorId = requestData["DoctorId"].GetString() ?? "";

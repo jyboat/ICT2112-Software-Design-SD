@@ -25,7 +25,8 @@ namespace ClearCare.DataSource
             set { _receiver = value; }
         }
 
-         public async Task<List<ServiceAppointment>> fetchAllServiceAppointments() {
+        public async Task<List<ServiceAppointment>> fetchAllServiceAppointments()
+        {
             CollectionReference appointmentsRef = _db.Collection("ServiceAppointments");
             QuerySnapshot snapshot = await appointmentsRef.GetSnapshotAsync();
             List<ServiceAppointment> appointmentList = new List<ServiceAppointment>();
@@ -41,9 +42,10 @@ namespace ClearCare.DataSource
             }
             await _receiver.receiveServiceAppointmentList(appointmentList);
             return appointmentList;
-         }
+        }
 
-         public async Task<Dictionary<string, object>> fetchServiceAppointmentByID(string documentId) {
+        public async Task<Dictionary<string, object>> fetchServiceAppointmentByID(string documentId)
+        {
             DocumentReference docRef = _db.Collection("ServiceAppointments").Document(documentId);
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
@@ -55,13 +57,13 @@ namespace ClearCare.DataSource
 
             // Convert to Dictionary from firebase key-value format
             var data = snapshot.ToDictionary();
-            
+
             var appt = ServiceAppointment.FromFirestoreData(documentId, data).ToFirestoreDictionary();
             await _receiver.receiveServiceAppointmentById(appt);
             return appt;
-         }
+        }
 
-         public async Task<string> CreateAppointment(ServiceAppointment appointment)
+        public async Task<string> CreateAppointment(ServiceAppointment appointment)
         {
             // Get Collection in Firebase
             DocumentReference docRef = _db.Collection("ServiceAppointments").Document();
@@ -79,38 +81,69 @@ namespace ClearCare.DataSource
 
         public async Task<bool> UpdateAppointment(ServiceAppointment appointment)
         {
+            // debug the incoming data
+            string appointmentJson = JsonConvert.SerializeObject(appointment);
+            Console.WriteLine($"attempting to update appointment with data: {appointmentJson}");
+
+            // safely get the appointment id and validate it
+            string appointmentId = appointment?.GetAttribute("AppointmentId");
+            Console.WriteLine($"extracted appointmentId: '{appointmentId}'");
+
+            if (string.IsNullOrEmpty(appointmentId))
+            {
+                Console.WriteLine("failed: appointmentId is null or empty");
+                _receiver.receiveUpdatedServiceAppointmentStatus(false);
+                return false;
+            }
+
             try
             {
-                DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointment.GetAttribute("AppointmentId"));
-        
+                // validate document reference creation
+                DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointmentId);
+                Console.WriteLine($"document path: {docRef.Path}");
+
                 // check if document exists
                 DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
                 if (!snapshot.Exists)
                 {
+                    Console.WriteLine($"document with id '{appointmentId}' doesn't exist");
+                    _receiver.receiveUpdatedServiceAppointmentStatus(false);
                     return false;
                 }
-        
+
                 // update with the new data
                 Dictionary<string, object> appointmentData = appointment.ToFirestoreDictionary();
+                Console.WriteLine($"converted data for firestore: {JsonConvert.SerializeObject(appointmentData)}");
                 await docRef.SetAsync(appointmentData);
                 _receiver.receiveUpdatedServiceAppointmentStatus(true);
-        
+                Console.WriteLine("update successful");
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"error updating appointment in firestore: {ex.Message}");
+                // detailed error logging
+                string errorDetails = $"error updating appointment '{appointmentId}' in firestore: {ex.Message}";
+                errorDetails += $"\nstack trace: {ex.StackTrace}";
+
+                if (ex.InnerException != null)
+                {
+                    errorDetails += $"\ninner exception: {ex.InnerException.Message}";
+                }
+
+                errorDetails += $"\nappointment data: {appointmentJson}";
+
+                Console.WriteLine(errorDetails);
                 _receiver.receiveUpdatedServiceAppointmentStatus(false);
                 return false;
             }
         }
 
-        public async Task<bool> DeleteAppointment (string appointmentId)
+        public async Task<bool> DeleteAppointment(string appointmentId)
         {
-             try
+            try
             {
                 DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointmentId);
-                
+
                 // check if document exists
                 DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
                 if (!snapshot.Exists)
@@ -118,10 +151,10 @@ namespace ClearCare.DataSource
                     await _receiver.receiveDeletedServiceAppointmentStatus(false);
                     return false;
                 }
-                
+
                 // delete doc
                 await docRef.DeleteAsync();
-               
+
                 await _receiver.receiveDeletedServiceAppointmentStatus(true);
 
                 return true;
@@ -133,7 +166,7 @@ namespace ClearCare.DataSource
                 throw;
             }
         }
-       public async Task<DateTime?> fetchAppointmentTime(string appointmentId)
+        public async Task<DateTime?> fetchAppointmentTime(string appointmentId)
         {
             // Get Firestore document reference
             DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointmentId);
@@ -171,10 +204,10 @@ namespace ClearCare.DataSource
             }
         }
 
-    
-        
+
+
     }
-    
+
     // {
     //     private readonly FirestoreDb _db;
 
@@ -238,25 +271,25 @@ namespace ClearCare.DataSource
     //         var data = snapshot.ToDictionary();
     //         return ServiceAppointment.FromFirestoreData(appointmentId, data);
     //     }
-        
+
     //     // update an existing appointment
     //     public async Task<bool> UpdateAppointmentAsync(ServiceAppointment appointment)
     //     {
     //         try
     //         {
     //             DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointment.GetAttribute("AppointmentId"));
-        
+
     //             // check if document exists
     //             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
     //             if (!snapshot.Exists)
     //             {
     //                 return false;
     //             }
-        
+
     //             // update with the new data
     //             Dictionary<string, object> appointmentData = appointment.ToFirestoreDictionary();
     //             await docRef.SetAsync(appointmentData);
-        
+
     //             return true;
     //         }
     //         catch (Exception ex)
@@ -265,21 +298,21 @@ namespace ClearCare.DataSource
     //             return false;
     //         }
     //     }
-        
+
     //     // delete an existing appointment
     //     public async Task<bool> DeleteAppointmentAsync(string appointmentId)
     //     {
     //         try
     //         {
     //             DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointmentId);
-                
+
     //             // check if document exists
     //             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
     //             if (!snapshot.Exists)
     //             {
     //                 return false;
     //             }
-                
+
     //             // delete doc
     //             await docRef.DeleteAsync();
 
