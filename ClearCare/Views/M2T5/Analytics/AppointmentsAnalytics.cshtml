@@ -7,48 +7,48 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<!-- Dashboard Header -->
 <div class="container mt-4">
-    <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center">
-        <h2 class="fw-bold">Service Appointments Dashboard</h2>
+        <h2 class="fw-bold">📅 Service Appointments Dashboard</h2>
         <h5 class="text-muted">March 2025</h5>
     </div>
-    
-    <!-- Summary Metrics (Widgets) -->
+
+    <!-- Summary Metrics -->
     <div class="row text-center mt-4">
         <div class="col-md-3">
-            <div class="card bg-primary text-white shadow p-3">
-                <h6>Total Appointments</h6>
-                <h3>@analytics?["TotalAppointments"]</h3>
+            <div class="card bg-primary text-white shadow-lg p-3">
+                <h6>📊 Total Appointments</h6>
+                <h3 class="fw-bold">@analytics?["TotalAppointments"]</h3>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-success text-white shadow p-3">
-                <h6>Completed Appointments</h6>
-                <h3>@analytics?["CompletedAppointments"]</h3>
+            <div class="card bg-success text-white shadow-lg p-3">
+                <h6>✅ Completed Appointments</h6>
+                <h3 class="fw-bold">@analytics?["CompletedAppointments"]</h3>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-warning text-dark shadow p-3">
-                <h6>Pending Appointments</h6>
-                <h3>@analytics?["PendingAppointments"]</h3>
+            <div class="card bg-warning text-dark shadow-lg p-3">
+                <h6>⏳ Pending Appointments</h6>
+                <h3 class="fw-bold">@analytics?["PendingAppointments"]</h3>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-danger text-white shadow p-3">
-                <h6>Cancelled Appointments</h6>
-                <h3>@analytics?["CancelledAppointments"]</h3>
+            <div class="card bg-danger text-white shadow-lg p-3">
+                <h6>❌ Cancelled Appointments</h6>
+                <h3 class="fw-bold">@analytics?["CancelledAppointments"]</h3>
             </div>
         </div>
     </div>
 
-      <!-- Graph Section -->
+    <!-- Charts Section -->
     <div class="row mt-4">
         <!-- Line Chart: Appointments Over Time -->
         <div class="col-md-8">
-            <div class="card shadow p-4">
-                <h5 class="text-center">Appointments Over Time</h5>
-                <div style="width: 100%; height: 300px;">
+            <div class="card shadow-lg p-4">
+                <h5 class="text-center">📈 Appointments Over Time</h5>
+                <div class="chart-container">
                     <canvas id="appointmentsOverTimeChart"></canvas>
                 </div>
             </div>
@@ -56,39 +56,89 @@
 
         <!-- Doughnut Chart: Appointment Status Breakdown -->
         <div class="col-md-4">
-            <div class="card shadow p-4">
-                <h5 class="text-center">Status Breakdown</h5>
-                <div style="width: 250px; height: 250px; margin: auto;">
+            <div class="card shadow-lg p-4">
+                <h5 class="text-center">📊 Status Breakdown</h5>
+                <div class="chart-container">
                     <canvas id="appointmentStatusChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Bar Charts -->
     <div class="row mt-4">
-        <!-- Bar Chart: Appointments Per Service Type -->
         <div class="col-md-6">
-            <div class="card shadow p-4">
-                <h5 class="text-center">Per Service Type</h5>
-                <div style="width: 100%; height: 250px;">
+            <div class="card shadow-lg p-4">
+                <h5 class="text-center">🩺 Appointments Per Service Type</h5>
+                <div class="chart-container">
                     <canvas id="appointmentsPerServiceChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Bar Chart: Appointments Per Doctor -->
         <div class="col-md-6">
-            <div class="card shadow p-4">
-                <h5 class="text-center">Per Doctor</h5>
-                <div style="width: 100%; height: 250px;">
+            <div class="card shadow-lg p-4">
+                <h5 class="text-center">👨‍⚕️ Appointments Per Doctor</h5>
+                <div class="chart-container">
                     <canvas id="appointmentsPerDoctorChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Data Tables -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h4 class="text-center">📊 Appointments Per Service Type</h4>
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Service Type</th>
+                        <th>Total Appointments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (appointmentsPerType != null)
+                    {
+                        @foreach (var type in appointmentsPerType)
+                        {
+                            <tr>
+                                <td>@type.Key</td>
+                                <td>@type.Value</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-md-6">
+            <h4 class="text-center">📊 Appointments Per Doctor</h4>
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Doctor ID</th>
+                        <th>Total Appointments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (appointmentsPerDoctor != null)
+                    {
+                        @foreach (var doctor in appointmentsPerDoctor)
+                        {
+                            <tr>
+                                <td>@doctor.Key</td>
+                                <td>@doctor.Value</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<!-- JavaScript for Charts -->
+<!-- Chart.js Scripts -->
 <script>
     // Doughnut Chart: Appointment Status Breakdown
     var ctx1 = document.getElementById('appointmentStatusChart').getContext('2d');

@@ -7,133 +7,136 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<h2 class="text-center my-4">Medical Records Analytics</h2>
+<!-- Dashboard Header -->
+<h2 class="text-center my-4 fw-bold">📊 Medical Records Dashboard</h2>
 
 <div class="container">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card bg-primary text-white shadow-lg p-4">
-                <h5 class="card-title">Total Medical Records</h5>
-                <p class="card-text fs-4">@analytics?["TotalRecords"]</p>
+    <!-- Key Metrics Row -->
+    <div class="row text-center">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white shadow-lg p-3">
+                <h6 class="card-title">Total Medical Records</h6>
+                <h3 class="fw-bold">@analytics?["TotalRecords"]</h3>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card bg-warning text-dark shadow-lg p-4">
-                <h5 class="card-title">Records With Attachments</h5>
-                <p class="card-text fs-4">@analytics?["RecordsWithAttachments"]</p>
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow-lg p-3">
+                <h6 class="card-title">Records With Attachments</h6>
+                <h3 class="fw-bold">@analytics?["RecordsWithAttachments"]</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark shadow-lg p-3">
+                <h6 class="card-title">Records Per Doctor</h6>
+                <h3 class="fw-bold">@recordsPerDoctor?.Count</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white shadow-lg p-3">
+                <h6 class="card-title">Records Per Patient</h6>
+                <h3 class="fw-bold">@recordsPerPatient?.Count</h3>
             </div>
         </div>
     </div>
 
-    <!-- Pie Chart: Records With Attachments -->
-    <h3 class="mt-4 text-center">Medical Records with Attachments</h3>
-    <div style="width: 400px; height: 400px; margin: auto;">
-        <canvas id="recordsAttachmentsChart"></canvas>
+    <!-- Charts Row -->
+    <div class="row mt-4">
+        <!-- Line Chart: Records Over Time -->
+        <div class="col-md-8">
+            <div class="card shadow-lg p-4">
+                <h5 class="text-center">📈 Medical Records Created Over Time</h5>
+                <div class="chart-container">
+                    <canvas id="recordsOverTimeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie Chart: Records With Attachments -->
+        <div class="col-md-4">
+            <div class="card shadow-lg p-4">
+                <h5 class="text-center">📂 Records With Attachments</h5>
+                <div class="chart-container">
+                    <canvas id="recordsAttachmentsChart"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Line Chart: Total Records Over Time -->
-    <h3 class="mt-4 text-center">Medical Records Created Over Time</h3>
-    <div style="width: 800px; height: 400px; margin: auto;">
-        <canvas id="recordsOverTimeChart"></canvas>
+    <!-- Bar Charts Row -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4">
+                <h5 class="text-center">👨‍⚕️ Records Per Doctor</h5>
+                <div class="chart-container">
+                    <canvas id="recordsPerDoctorChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4">
+                <h5 class="text-center">🏥 Records Per Patient</h5>
+                <div class="chart-container">
+                    <canvas id="recordsPerPatientChart"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Bar Chart: Records Per Doctor -->
-    <h3 class="mt-4 text-center">Records Per Doctor</h3>
-    <div style="width: 600px; height: 400px; margin: auto;">
-        <canvas id="recordsPerDoctorChart"></canvas>
-    </div>
-
-    <!-- Bar Chart: Records Per Patient -->
-    <h3 class="mt-4 text-center">Records Per Patient</h3>
-    <div style="width: 600px; height: 400px; margin: auto;">
-        <canvas id="recordsPerPatientChart"></canvas>
-    </div>
-
-        <h3 class="mt-4">Records Per Doctor</h3>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Doctor ID</th>
-                <th>Total Records</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (recordsPerDoctor != null)
-            {
-                @foreach (var doctor in recordsPerDoctor)
-                {
+    <!-- Data Tables -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h4 class="text-center">📊 Records Per Doctor</h4>
+            <table class="table table-striped">
+                <thead class="table-dark">
                     <tr>
-                        <td>@doctor.Key</td>
-                        <td>@doctor.Value</td>
+                        <th>Doctor ID</th>
+                        <th>Total Records</th>
                     </tr>
-                }
-            }
-        </tbody>
-    </table>
+                </thead>
+                <tbody>
+                    @if (recordsPerDoctor != null)
+                    {
+                        @foreach (var doctor in recordsPerDoctor)
+                        {
+                            <tr>
+                                <td>@doctor.Key</td>
+                                <td>@doctor.Value</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
 
-    <h3 class="mt-4">Records Per Patient</h3>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Patient ID</th>
-                <th>Total Records</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (recordsPerPatient != null)
-            {
-                @foreach (var patient in recordsPerPatient)
-                {
+        <div class="col-md-6">
+            <h4 class="text-center">📊 Records Per Patient</h4>
+            <table class="table table-striped">
+                <thead class="table-dark">
                     <tr>
-                        <td>@patient.Key</td>
-                        <td>@patient.Value</td>
+                        <th>Patient ID</th>
+                        <th>Total Records</th>
                     </tr>
-                }
-            }
-        </tbody>
-    </table>
-
-    <h3 class="mt-4">Records Per Month</h3>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Month-Year</th>
-                <th>Total Records</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (recordsPerMonth != null)
-            {
-                @foreach (var month in recordsPerMonth)
-                {
-                    <tr>
-                        <td>@month.Key</td>
-                        <td>@month.Value</td>
-                    </tr>
-                }
-            }
-        </tbody>
-    </table>
+                </thead>
+                <tbody>
+                    @if (recordsPerPatient != null)
+                    {
+                        @foreach (var patient in recordsPerPatient)
+                        {
+                            <tr>
+                                <td>@patient.Key</td>
+                                <td>@patient.Value</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
+<!-- Chart.js Scripts -->
 <script>
-    // Pie Chart: Records With vs. Without Attachments
-    var ctx1 = document.getElementById('recordsAttachmentsChart').getContext('2d');
-    new Chart(ctx1, {
-        type: 'pie',
-        data: {
-            labels: ['With Attachments', 'Without Attachments'],
-            datasets: [{
-                data: [@analytics?["RecordsWithAttachments"], @analytics?["TotalRecords"] - @analytics?["RecordsWithAttachments"]],
-                backgroundColor: ['#28a745', '#dc3545']
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-
     // Line Chart: Medical Records Over Time
     var ctx2 = document.getElementById('recordsOverTimeChart').getContext('2d');
     var recordsPerMonth = @Html.Raw(Json.Serialize(recordsPerMonth ?? new Dictionary<string, int>()));
@@ -145,7 +148,25 @@
                 label: 'Total Medical Records',
                 data: Object.values(recordsPerMonth),
                 borderColor: '#007bff',
-                fill: false
+                backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Pie Chart: Records With vs. Without Attachments
+    var ctx1 = document.getElementById('recordsAttachmentsChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+            labels: ['With Attachments', 'Without Attachments'],
+            datasets: [{
+                data: [@analytics?["RecordsWithAttachments"], @analytics?["TotalRecords"] - @analytics?["RecordsWithAttachments"]],
+                backgroundColor: ['#28a745', '#dc3545']
             }]
         },
         options: {
