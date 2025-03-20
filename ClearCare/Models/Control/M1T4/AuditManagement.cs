@@ -8,7 +8,7 @@ using ClearCare.Models.Entities;
 
 namespace ClearCare.Models.Control
 {
-    public class AuditManagement : IAuditSubject
+    public class AuditManagement : IAuditSubject, IAuditLog
 
     {
         private readonly AuditGateway _auditGateway;

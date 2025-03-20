@@ -11,13 +11,15 @@ namespace ClearCare.Models.Control
         private ErratumGateway ErratumGateway;
         private readonly UserGateway UserGateway;
         private readonly IEncryption encryptionService;
+        private readonly IAuditLog auditService;
         string encryptedErratumDetails = string.Empty;
 
-        public ErratumManagement(IEncryption encryptionService)
+        public ErratumManagement(IEncryption encryptionService, IAuditLog auditService)
         {
             ErratumGateway = new ErratumGateway();
             UserGateway = new UserGateway();
             this.encryptionService = encryptionService;
+            this.auditService = auditService;
         }
 
         public async Task<List<dynamic>> getAllErratum()
@@ -50,6 +52,7 @@ namespace ClearCare.Models.Control
             encryptedErratumDetails = encryptionService.encryptMedicalData(erratumDetails);
 
             var result = await ErratumGateway.insertErratum(medicalRecordID, encryptedErratumDetails, doctorID);
+            await auditService.InsertAuditLog($"Updated Medical Record {medicalRecordID}", doctorID);
 
             if (result == null)
             {

@@ -16,10 +16,10 @@ namespace ClearCare.Controllers
         private readonly ErratumManagement erratumManagement;
         private readonly ViewPersonalMedicalRecord viewPersonalMedicalRecord;
 
-        public ViewRecordController(IEncryption encryptionService)
+        public ViewRecordController(IEncryption encryptionService, IAuditLog auditService)
         {
             viewMedicalRecord = new ViewMedicalRecord(encryptionService);
-            erratumManagement = new ErratumManagement(encryptionService);
+            erratumManagement = new ErratumManagement(encryptionService, auditService);
             viewPersonalMedicalRecord = new ViewPersonalMedicalRecord();
         }
 
