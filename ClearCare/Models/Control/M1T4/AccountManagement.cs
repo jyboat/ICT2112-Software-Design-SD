@@ -36,7 +36,6 @@ namespace ClearCare.Models.Control
                         // ✅ Log action in the audit log
                         string auditResult = await auditLog.InsertAuditLog("Created new account", newUserId);
                         Console.WriteLine($"✅ Audit log insertion result: {auditResult}");
-
                         return "Account created successfully.";
                     }
 

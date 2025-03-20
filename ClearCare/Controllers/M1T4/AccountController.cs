@@ -59,6 +59,7 @@ namespace ClearCare.Controllers
             {
                 ViewBag.SuccessMessage = result;
                 return RedirectToAction("DisplayLogin", "Login");
+                TempData["SuccessMessage"] = "Your message";
             }
             else
             {
