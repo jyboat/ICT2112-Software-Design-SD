@@ -1,0 +1,106 @@
+@{
+    ViewData["Title"] = "Notification Preferences";
+}
+
+@{
+    var userRole = Context.Session.GetString("Role");
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="text-center">
+    <h1 class="display-4">Update Your Notification Preferences</h1>
+    <p>User Role from session: @userRole</p>
+</div>
+
+<!-- Notification Preference Selection -->
+<div class="container mt-5">
+    <div class="mb-3">
+        <label class="form-label">Notification Preference:</label>
+        <div>
+            <input type="radio" id="enableNotifications" name="notificationPreference" value="enabled">
+            <label for="enableNotifications">Enable Notifications</label>
+        </div>
+        <div>
+            <input type="radio" id="disableNotifications" name="notificationPreference" value="disabled">
+            <label for="disableNotifications">Disable Notifications</label>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Choose your preferred method of notification:</label>
+        <div>
+            <input type="checkbox" id="smsNotification" name="notificationMethod" value="sms">
+            <label for="smsNotification">SMS</label>
+        </div>
+        <div>
+            <input type="checkbox" id="emailNotification" name="notificationMethod" value="email">
+            <label for="emailNotification">Email</label>
+        </div>
+    </div>
+
+    <button onclick="saveNotificationPreference()" class="btn btn-primary">Save Preferences</button>
+</div>
+
+<!-- JavaScript to handle preference saving -->
+<script>
+async function saveNotificationPreference() {
+    console.log('Preference save triggered');
+
+    var userId = '@ViewData["UserID"]';
+    console.log("UserID from session: " + userId);
+
+    const selectedPreference = document.querySelector('input[name="notificationPreference"]:checked');
+    const selectedMethods = [];
+    
+    // Check selected methods
+    if (document.getElementById('smsNotification').checked) {
+        selectedMethods.push('sms');
+    }
+    if (document.getElementById('emailNotification').checked) {
+        selectedMethods.push('email');
+    }
+
+    if (!selectedPreference) {
+        alert("Please select a preference before saving.");
+        return;
+    }
+
+    if (selectedMethods.length === 0) {
+        alert("Please select at least one notification method (SMS/Email).");
+        return;
+    }
+
+    try {
+        const preferenceData = {
+            preference: [selectedPreference.value], // Wrap the preference in an array
+            methods: selectedMethods
+        };
+
+        console.log('Data being sent to API:', preferenceData);
+
+        const response = await fetch('/NotificationPreference/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(preferenceData)
+        });
+
+        console.log('API request sent', response);
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("Unexpected response format (not JSON). Check API response.");
+        }
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert('Preference saved successfully!');
+        } else {
+            alert('Error: ' + result.message);
+        }
+    } catch (error) {
+        alert('Failed to save preference: ' + error.message);
+    }
+}
+</script>
