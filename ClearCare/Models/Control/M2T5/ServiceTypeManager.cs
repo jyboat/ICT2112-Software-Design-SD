@@ -1,33 +1,36 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using ClearCare.Models.Entities;
-using ClearCare.DataSource;
+using ClearCare.Firebase;
 
 namespace ClearCare.Models.Control
 {
     public class ServiceTypeManager
     {
-        private ServiceType_TDG serviceTypeTdg = new ServiceType_TDG();
+        private ServiceTypeRepository _serviceTypeRepository = new ServiceTypeRepository();
 
-        public List<ServiceType_SDM> GetServiceTypes()
+        public async Task<List<ServiceType_SDM>> GetServiceTypes()
         {
-            return serviceTypeTdg.FetchServiceTypes();
+            return await _serviceTypeRepository.GetServiceTypes();
         }
 
-        public void CreateServiceType(string name, int duration, string requirements)
+        public async Task CreateServiceType(string name, int duration, string requirements)
         {
-            var newService = new ServiceType_SDM(serviceTypeTdg.FetchServiceTypes().Count + 1, name, duration, requirements);
-            serviceTypeTdg.CreateServiceType(newService);
+            List<ServiceType_SDM> existingServices = await _serviceTypeRepository.GetServiceTypes();
+            int newId = existingServices.Count + 1; // Auto-increment ID
+            ServiceType_SDM newService = new ServiceType_SDM(newId, name, duration, requirements);
+            await _serviceTypeRepository.AddServiceType(newService);
         }
 
-        public void UpdateServiceType(int id, string name, int duration, string requirements)
+        public async Task UpdateServiceType(int id, string name, int duration, string requirements)
         {
-            var updatedService = new ServiceType_SDM(id, name, duration, requirements);
-            serviceTypeTdg.UpdateServiceType(updatedService);
+            ServiceType_SDM updatedService = new ServiceType_SDM(id, name, duration, requirements);
+            await _serviceTypeRepository.UpdateServiceType(id, updatedService);
         }
 
-        public void DeleteServiceType(int id)
+        public async Task DeleteServiceType(int id)
         {
-            serviceTypeTdg.DeleteServiceType(id);
+            await _serviceTypeRepository.DeleteServiceType(id);
         }
     }
 }

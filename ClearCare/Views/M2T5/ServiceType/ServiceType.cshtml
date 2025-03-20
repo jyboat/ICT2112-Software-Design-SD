@@ -30,7 +30,8 @@
                 <td>@service.Duration</td>
                 <td>@service.Requirements</td>
                 <td>
-                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editServiceModal-@service.ServiceTypeId">
+                    <button class="btn btn-warning" data-bs-toggle="modal"
+                        data-bs-target="#editServiceModal-@service.ServiceTypeId">
                         Edit
                     </button>
                     <button class="btn btn-danger" onclick="confirmDelete(@service.ServiceTypeId, '@service.Name')">
@@ -55,14 +56,17 @@
                     <div class="mb-3">
                         <label for="serviceName" class="form-label">Service Name</label>
                         <input type="text" class="form-control" id="serviceName" name="name" required>
+                        <div class="invalid-feedback">Service name is required.</div>
                     </div>
                     <div class="mb-3">
                         <label for="serviceDuration" class="form-label">Duration (minutes)</label>
-                        <input type="number" class="form-control" id="serviceDuration" name="duration" required>
+                        <input type="number" class="form-control" id="serviceDuration" name="duration" min="1" required>
+                        <div class="invalid-feedback">Service duration must be at least 1 minute.</div>
                     </div>
                     <div class="mb-3">
                         <label for="serviceRequirements" class="form-label">Requirements</label>
-                        <textarea class="form-control" id="serviceRequirements" name="requirements"></textarea>
+                        <textarea class="form-control" id="serviceRequirements" name="requirements" required></textarea>
+                        <div class="invalid-feedback">Service requirements are required.</div>
                     </div>
                     <button type="submit" class="btn btn-primary">Add Service</button>
                 </form>
@@ -70,6 +74,46 @@
         </div>
     </div>
 </div>
+
+
+@foreach (var service in Model)
+{
+    <div class="modal fade" id="editServiceModal-@service.ServiceTypeId" tabindex="-1"
+        aria-labelledby="editServiceModalLabel-@service.ServiceTypeId" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editServiceModalLabel-@service.ServiceTypeId">Edit Service</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form asp-action="Edit" asp-controller="ServiceTypePage" method="post">
+                        <input type="hidden" name="id" value="@service.ServiceTypeId" />
+                        <div class="mb-3">
+                            <label for="editServiceName-@service.ServiceTypeId" class="form-label">Service Name</label>
+                            <input type="text" class="form-control" id="editServiceName-@service.ServiceTypeId" name="name"
+                                value="@service.Name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editServiceDuration-@service.ServiceTypeId" class="form-label">Duration (minutes)</label>
+                            <input type="number" class="form-control" id="editServiceDuration-@service.ServiceTypeId"
+                                name="duration" value="@service.Duration" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editServiceRequirements-@service.ServiceTypeId"
+                                class="form-label">Requirements</label>
+                            <textarea class="form-control" id="editServiceRequirements-@service.ServiceTypeId"
+                                name="requirements" required>@service.Requirements</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
 
 <!-- Delete Confirmation Script -->
 <script>
