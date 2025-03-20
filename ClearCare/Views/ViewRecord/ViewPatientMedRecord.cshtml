@@ -17,10 +17,10 @@ else
 
 <h2 class="mb-4 text-primary">My Medical Records</h2>
 
-<div class="mb-3 d-flex justify-content-between">
+<!--<div class="mb-3 d-flex justify-content-between">
     <input type="text" id="searchInput" class="form-control w-50" placeholder="Search medical records..."
         onkeyup="searchTable()">
-</div>
+</div>-->
 
 @if (medicalRecords != null && medicalRecords.Count > 0)
 {
@@ -122,5 +122,73 @@ else
         var modal = new bootstrap.Modal(document.getElementById('attachmentModal'));
         modal.show();
     }
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        const table = document.getElementById("recordsTable");
+        const rows = Array.from(table.getElementsByTagName("tr"));
+        const pageIndicator = document.getElementById("pageIndicator");
+        const prevButton = document.getElementById("prevPage");
+        const nextButton = document.getElementById("nextPage");
+
+        function showPage(page) {
+            const totalPages = Math.ceil(rows.length / rowsPerPage);
+            if (totalPages === 0) {
+                pageIndicator.textContent = "No records available";
+                prevButton.style.display = "none";
+                nextButton.style.display = "none";
+                return;
+            }
+
+            // Hide all rows first.
+            rows.forEach(row => row.style.display = "none");
+
+            // Calculate which rows to show.
+            const startIndex = (page - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            rows.slice(startIndex, endIndex).forEach(row => row.style.display = "");
+
+            // Update the page indicator.
+            pageIndicator.textContent = `Page ${page} of ${totalPages}`;
+
+            // Enable/disable buttons based on the current page.
+            prevButton.disabled = (page === 1);
+            nextButton.disabled = (page === totalPages);
+        }
+
+        // Define functions for next and previous actions.
+        window.nextPage = function () {
+            const totalPages = Math.ceil(rows.length / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                showPage(currentPage);
+            }
+        };
+
+        window.prevPage = function () {
+            if (currentPage > 1) {
+                currentPage--;
+                showPage(currentPage);
+            }
+        };
+
+        // Initial display of page 1.
+        showPage(currentPage);
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(function () {
+            let alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                let bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 3000); // Auto-dismiss after 3 seconds
+    });
 </script>
 }
