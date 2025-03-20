@@ -1,0 +1,77 @@
+﻿@using ClearCare.Models.Entities.M3T1
+@{
+    ViewData["Title"] = "Community Hub";
+}
+
+<h2>Welcome to the Community Hub!</h2>
+<p>This is where the community comes together. Feel free to create posts, join groups, and interact with others!</p>
+
+@model List<CommunityGroup>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Community Groups</title>
+    <style> 
+      
+        table {
+            width: 100%;
+            border-collapse: collapse; 
+            margin-top: 20px;
+        } 
+
+        th, td {
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            text-align: center; 
+        } 
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+
+    </style> 
+</head>
+<body>
+    <h1>Community Groups</h1>
+
+    @if (Model != null && Model.Count > 0)
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>Group Name</th>
+                    <th>Description</th>
+                    <th>Created Date</th>
+                    <th>Members</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var group in Model)
+                {
+                    <tr>
+                        <td>
+                            <a href="@Url.Action("displayGroup", "Community", new { groupId = group.GetId() })">
+                                @group.GetName()
+                            </a>
+                        </td>
+                        <td>@group.GetDescription()</td>
+                        <td>@group.GetCreationDate()</td>
+                        <td>@(group.GetMemberIds().Count > 0 ? string.Join(", ", group.GetMemberIds()) : "No Members")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p style="text-align:center; color: red;">No community groups available.</p>
+    }
+
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="@Url.Action("displayCreateGroupForm")">Create New Group</a>
+    </div>
+</body>
+</html>
+

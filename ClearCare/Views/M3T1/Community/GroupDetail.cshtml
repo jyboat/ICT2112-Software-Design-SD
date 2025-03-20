@@ -1,0 +1,86 @@
+﻿@using ClearCare.Models.Control.M3T1
+@model CommunityGroupViewModel
+
+@{
+    ViewData["Title"] = Model.CommunityGroup.GetName();
+    string userId = "123";
+}
+
+<h2>@Model.CommunityGroup.GetName()</h2>
+<p>@Model.CommunityGroup.GetDescription()</p>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>@Model.CommunityGroup.GetName()</title>
+    <style>
+        .post-container {
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        .post-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+            .post-form textarea {
+                width: 100%;
+                padding: 10px;
+                resize: none;
+            }
+
+            .post-form button {
+                padding: 10px;
+                background-color: blue;
+                color: white;
+                border: none;
+                cursor: pointer;
+            }
+
+        .post-list {
+            border-top: 2px solid #ddd;
+            margin-top: 20px;
+            padding-top: 10px;
+        }
+
+        .post {
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+        }
+
+            .post strong {
+                display: block;
+                margin-bottom: 5px;
+            }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <h3>Group Posts</h3>
+        <div class="post-list">
+            @if (Model.Posts.Any())
+            {
+                @foreach (var post in Model.Posts)
+                {
+                    <div class="post">
+                        <strong>@post.GetTitle() by @post.GetPostedBy()</strong>
+                        <p>@post.GetContent()</p>
+                        <small>Posted on: @post.GetPostedAt()</small>
+                    </div>
+                }
+            }
+            else
+            {
+                <p style="text-align:center; color: red;">No posts yet. Be the first to post!</p>
+            }
+        </div>
+        <h3>Create a New Post</h3>
+        <a href="@Url.Action("displayPostForm", "Community", new { groupId = Model.CommunityGroup.GetId(), userId = "123" })">
+            Create New Post
+        </a>
+    </div>
+</body>
+</html>

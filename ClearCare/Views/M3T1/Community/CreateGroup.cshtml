@@ -1,0 +1,27 @@
+﻿@{
+    string userId = "123"; // TODO: Replace this with actual logged-in user ID (e.g., from session or authentication)
+}
+
+<h2>Create New Group</h2>
+
+<form method="post" action="@Url.Action("submitCreateGroup")">
+    <!-- Hidden input to include userId in form submission -->
+    <input type="hidden" id="userId" name="userId" value="@userId" />
+
+    <div>
+        <label for="name">Group Name:</label>
+        <input type="text" id="name" name="name" required />
+    </div>
+
+    <div>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea>
+    </div>
+
+    <!-- Hidden input to automatically add userId as default member -->
+    <input type="hidden" id="memberIds" name="memberIds" value="@userId" />
+
+    <div>
+        <input type="submit" value="Create Group" />
+    </div>
+</form>
