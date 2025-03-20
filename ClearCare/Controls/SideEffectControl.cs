@@ -1,8 +1,7 @@
 using ClearCare.Models;
 using ClearCare.Gateways;
 using ClearCare.Observer;   // <--- Add this
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 
 namespace ClearCare.Controls
 {

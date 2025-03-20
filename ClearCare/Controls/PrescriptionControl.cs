@@ -9,9 +9,7 @@ namespace ClearCare.Controls
     // Mark as Singleton to match your UML
     public class PrescriptionControl : IFetchPrescriptions
     {
-        // single instance (per UML's "singleton" mention)
-        private static PrescriptionControl _instance;
-
+    
         // the mapper to talk to Firestore
         private readonly PrescriptionMapper _mapper;
 
