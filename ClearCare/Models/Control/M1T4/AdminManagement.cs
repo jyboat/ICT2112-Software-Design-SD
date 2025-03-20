@@ -49,7 +49,7 @@ namespace ClearCare.Models.Control
           public async Task<User> retrieveUserByID(string uid) => await _userGateway.findUserByID(uid);
 
           // Method to create a new account
-          public async Task<string> createAccount(User newUser, String password)
+          public async Task<string> createAccount(User newUser, String password, IAuditSubject auditLog)
           {
                var email = newUser.getProfileData()["Email"]?.ToString();
                if (string.IsNullOrEmpty(email))
@@ -75,15 +75,20 @@ namespace ClearCare.Models.Control
                     return "Password, Name, Address and Role is required.";
                }
 
+              
+
                // Create a new User object with the necessary data
                string newUserId = await _userGateway.InsertUser(newUser, password);
+
+                // Insert audit log after account creation
+               string auditResult = await auditLog.InsertAuditLog("Created new account", newUserId);
 
                return newUserId != null ? "Account created successfully." : "Failed to create account.";
           }
 
 
           // Method to update user account
-          public async Task<string> updateStaffAccount(string uid, Dictionary<string, object> profileData)
+          public async Task<string> updateStaffAccount(string uid, Dictionary<string, object> profileData, IAuditSubject auditLog)
           {
                if (string.IsNullOrEmpty(uid))
                {
@@ -98,11 +103,14 @@ namespace ClearCare.Models.Control
 
                var result = await _userGateway.updateUser(uid, profileData);
 
+               // Insert audit log after successful account update
+               string auditResult = await auditLog.InsertAuditLog("Updated staff account", uid);
+
                return result ? "Account updated successfully." : "Failed to update account.";
           }
 
           // Method to reset password
-          public async Task<string> resetStaffPassword(string uid)
+          public async Task<string> resetStaffPassword(string uid, IAuditSubject auditLog)
           {
                var user = await _userGateway.findUserByID(uid);
                if (user == null)
@@ -116,6 +124,9 @@ namespace ClearCare.Models.Control
                
                if (result)
                {
+                    // Insert audit log after successful password reset
+                    string auditResult = await auditLog.InsertAuditLog("Reset staff password", uid);
+
                     // Update user profile to require password change
                     var profileData = user.getProfileData();
 
@@ -151,7 +162,7 @@ namespace ClearCare.Models.Control
           }
 
           // Method to delete account
-          public async Task<string> deleteAccount(string uid)
+          public async Task<string> deleteAccount(string uid, IAuditSubject auditLog)
           {
                var user = await _userGateway.findUserByID(uid);
                if (user == null)
@@ -160,6 +171,9 @@ namespace ClearCare.Models.Control
                }
 
                var result = await _userGateway.deleteUser(uid);
+
+               // Insert audit log after successful account deletion
+               string auditResult = await auditLog.InsertAuditLog("Deleted account", uid);
 
                return result ? "Account deleted successfully." : "Failed to delete account.";
           }

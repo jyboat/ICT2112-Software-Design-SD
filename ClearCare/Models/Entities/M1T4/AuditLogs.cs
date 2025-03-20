@@ -24,7 +24,11 @@ namespace ClearCare.Models.Entities
         {
             Action = action;
             PerformedBy = performedBy;
-            EntryDate = Timestamp.FromDateTime(entryDate);
+
+            // Convert UTC time to local time (for example, using the local timezone of the server)
+            DateTime localEntryDate = entryDate.ToLocalTime();
+
+            EntryDate = Timestamp.FromDateTime(localEntryDate);
         }
 
         public Dictionary<string, object> GetAuditDetails()
