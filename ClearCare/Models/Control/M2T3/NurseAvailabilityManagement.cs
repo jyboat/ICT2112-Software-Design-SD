@@ -21,7 +21,7 @@ namespace ClearCare.Models.Control
         // Get all availabilities for all nurses - implemented in INurseAvailability 
         public async Task<List<NurseAvailability>> getAllStaffAvailability()
         {
-            List<NurseAvailability> availabilities = await _dbGateway.fetchAllStaffAvailability();
+            List<NurseAvailability> availabilities = await _dbGateway.fetchAvailability();
 
             // returning availabilities as a List cuz ServiceAppointments need it
             return availabilities;
@@ -98,7 +98,7 @@ namespace ClearCare.Models.Control
         public async Task addAvailability(string nurseID, string date)
         {
             // Retrieve all existing availabilities to find the highest ID
-            List<NurseAvailability> allAvailabilities = await _dbGateway.fetchAllStaffAvailability();
+            List<NurseAvailability> allAvailabilities = await _dbGateway.fetchAvailability();
 
             // Find the highest availability ID in the existing records
             int maxAvailabilityId = 0;
