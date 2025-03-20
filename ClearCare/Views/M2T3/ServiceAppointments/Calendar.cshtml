@@ -277,6 +277,7 @@
                     alert("Appointment created successfully!");
                     console.log("Response:", data);
                     $('#addAppointmentModal').modal('hide');
+                    window.location.reload();
                 })
                 .catch(error => {
                     alert("Error: " + error.message); // display the error message
