@@ -22,7 +22,7 @@
 
 
             // Get All Service Appointment
-            public async Task<List<Dictionary<string, object>>> RetrieveAllAppointments()
+            public async Task<List<Dictionary<string, object>>> retrieveAllAppointments()
             {
                 List<ServiceAppointment> appointments = await _dbGateway.fetchAllServiceAppointments();
                  List<Dictionary<string, object>> appointmentList = appointments

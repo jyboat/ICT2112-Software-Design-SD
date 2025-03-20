@@ -44,7 +44,7 @@ namespace ClearCare.Models.Control
             // get all backlogs
             List<ServiceBacklog> serviceBacklogs = await getAllBacklogs();
             // Get all services
-            var allAppointments = await serviceManager.RetrieveAllAppointments();
+            var allAppointments = await serviceManager.retrieveAllAppointments();
 
             // Combine data into ServiceBacklogViewModel
             var serviceBacklogViewModels = new List<ServiceBacklogViewModel>();

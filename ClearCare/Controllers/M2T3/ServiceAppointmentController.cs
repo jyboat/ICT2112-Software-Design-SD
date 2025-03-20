@@ -49,7 +49,7 @@ public class ServiceAppointmentsController : Controller
     public async Task<IActionResult> RetrieveAllAppointment()
     {
         // await to wait for task complete or data to retrieve before executing
-        var appointment = await ServiceAppointmentManagement.RetrieveAllAppointments();
+        var appointment = await ServiceAppointmentManagement.retrieveAllAppointments();
         // No record exists
         if (appointment != null && appointment.Any())
         {
@@ -63,10 +63,10 @@ public class ServiceAppointmentsController : Controller
 
     [HttpGet]
     [Route("GetAppointmentsForCalendar")]
-    public async Task<JsonResult> GetAppointmentsForCalendar([FromQuery] string? doctorId,
+    public async Task<JsonResult> getAppointmentsForCalendar([FromQuery] string? doctorId,
         [FromQuery] string? patientId, [FromQuery] string? nurseId)
     {
-        return await _calendarManagement.GetAppointmentsForCalendar(doctorId, patientId, nurseId);
+        return await _calendarManagement.getAppointmentsForCalendar(doctorId, patientId, nurseId);
     }
 
 
@@ -85,7 +85,7 @@ public class ServiceAppointmentsController : Controller
     // Implement IRetrieveAll
     public async Task<List<Dictionary<string, object>>> RetrieveAll()
     {
-        return await ServiceAppointmentManagement.RetrieveAllAppointments();
+        return await ServiceAppointmentManagement.retrieveAllAppointments();
     }
 
     [HttpGet]

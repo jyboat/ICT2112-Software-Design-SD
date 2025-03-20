@@ -24,10 +24,10 @@ namespace ClearCare.Models.Control
             _getAvailabilityByStaff = getAvailabilityByStaff;
         }
 
-        public async Task<JsonResult> GetAppointmentsForCalendar(string? doctorId, string? patientId, string? nurseId)
+        public async Task<JsonResult> getAppointmentsForCalendar(string? doctorId, string? patientId, string? nurseId)
         {
             // Get all appointments from IRetrieveAllAppointments (implemented by ServiceAppointmentManagement)
-            var appointments = await _retrieveAllAppointments.RetrieveAllAppointments();
+            var appointments = await _retrieveAllAppointments.retrieveAllAppointments();
 
             if (appointments == null || !appointments.Any())
             {
@@ -70,7 +70,7 @@ namespace ClearCare.Models.Control
             return new JsonResult(eventList);
         }
 
-        public async Task<JsonResult> GetAvailabilityByNurseIdForCalendar(string? currentNurseId)
+        public async Task<JsonResult> getAvailabilityByNurseIdForCalendar(string? currentNurseId)
         {
             var nurseAvailabilityList = await _getAvailabilityByStaff.getAvailabilityByStaff(currentNurseId);
 
