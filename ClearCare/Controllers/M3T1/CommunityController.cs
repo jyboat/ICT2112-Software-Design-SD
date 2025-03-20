@@ -12,7 +12,7 @@ public class CommunityController : Controller
 {
     private readonly CommunityGroupManagement _communityGroup = new CommunityGroupManagement();
     private readonly CommunityPostManagement _communityPost = new CommunityPostManagement();
-    private readonly CommunityCommentManagement _communityComment = new CommunityCommentManagement();
+    //private readonly CommunityCommentManagement _communityComment = new CommunityCommentManagement();
 
     [HttpGet]
     [Route("")]
