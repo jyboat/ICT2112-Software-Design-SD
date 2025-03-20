@@ -4,83 +4,119 @@
 <nav class="navbar navbar-expand-lg navbar-toggleable-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
     <div class="container-fluid">
         <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ClearCare</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="navbar-collapse collapse">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-house me-1"></i>Home</a>
+                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index"><i
+                            class="bi bi-house me-1"></i>Home</a>
                 </li>
                 @* Check if user is admin *@
-                @if (userRole == "Admin"){
+                @if (userRole == "Admin")
+                {
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy"><i class="bi bi-person me-1"></i>Manage users</a>
+                        <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy"><i
+                                class="bi bi-person me-1"></i>Manage users</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Log" asp-action=""><i class="bi bi-journal-text me-1"></i>Audit Log</a>
+                        <a class="nav-link" asp-area="" asp-controller="Log" asp-action=""><i
+                                class="bi bi-journal-text me-1"></i>Audit Log</a>
                     </li>
                 }
                 @* Check if user is doctor or nurse *@
-                @if (userRole == "Doctor"){
+                @if (userRole == "Doctor")
+                {
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="ViewRecord" asp-action="DisplayViewRecord"><i class="bi bi-file-earmark-medical me-1"></i>Patient Medical Records</a>
+                        <a class="nav-link" asp-area="" asp-controller="ViewRecord" asp-action="DisplayViewRecord"><i
+                                class="bi bi-file-earmark-medical me-1"></i>Patient Medical Records</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Assessment" asp-action="Privacy"><i class="bi bi-house-check me-1"></i>Home Assessment</a>
+                        <a class="nav-link" asp-area="" asp-controller="Assessment" asp-action="Privacy"><i
+                                class="bi bi-house-check me-1"></i>Home Assessment</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="ServiceAppointments" asp-action="RetrieveAllAppointment">
                             <i class="bi bi-calendar-week me-1"></i>Appointments
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Analytics" asp-action="MedicalRecords"><i
+                                class="bi bi-bar-chart me-1"></i>Analytics</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Analytics" asp-action="AppointmentsAnalytics">
+                            <i class="bi bi-bar-chart me-1"></i> Appointments Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="ServiceTypePage" asp-action="Index">Service Type</a>
+                    </li>
+
                 }
                 @* Check if user is nurse *@
-                @if (userRole == "Nurse"){
+                @if (userRole == "Nurse")
+                {
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="ViewRecord" asp-action="DisplayViewRecord"><i class="bi bi-file-earmark-medical me-1"></i>Patient Medical Records</a>
+                        <a class="nav-link" asp-area="" asp-controller="ViewRecord" asp-action="DisplayViewRecord"><i
+                                class="bi bi-file-earmark-medical me-1"></i>Patient Medical Records</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Assessment" asp-action="Privacy"><i class="bi bi-house-check me-1"></i>Home Assessment</a>
+                        <a class="nav-link" asp-area="" asp-controller="Assessment" asp-action="Privacy"><i
+                                class="bi bi-house-check me-1"></i>Home Assessment</a>
                     </li>
                     <li class="nav-item">
-                    <a class="nav-link" asp-controller="NurseAvailability" asp-action="Index">Nurse Availability</a>
+                        <a class="nav-link" asp-controller="NurseAvailability" asp-action="Index">Nurse Availability</a>
                     </li>
                 }
                 @* Check if user is patient *@
-                @if (userRole == "Patient"){
+                @if (userRole == "Patient")
+                {
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Community" asp-action="Privacy"><i class="bi bi-person-heart me-1"></i>Community</a>
+                        <a class="nav-link" asp-area="" asp-controller="Community" asp-action="Privacy"><i
+                                class="bi bi-person-heart me-1"></i>Community</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Enquiry" asp-action="Privacy"><i class="bi bi-chat-dots me-1"></i>Enquiry</a>
+                        <a class="nav-link" asp-area="" asp-controller="Enquiry" asp-action="Privacy"><i
+                                class="bi bi-chat-dots me-1"></i>Enquiry</a>
                     </li>
                 }
             </ul>
             <ul class="navbar-nav ms-auto">
                 @* Check if user is patient *@
-                @if (userRole == "Patient"){
-                <li class="nav-item">
-                    <a class="nav-link" asp-area="" asp-controller="Resource" asp-action="Index"><i class="bi bi-folder me-1"></i>Resources</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-area="" asp-controller="Feedback" asp-action="Index"><i class="bi bi-receipt me-1"></i>Feedback</a>
-                </li>
-                <li class="nav-item dropdown my-auto">
-                    <a class="btn text-white dropdown-toggle" href="#" id="profile-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person me-1"></i>Profile
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-primary mt-1" aria-labelledby="profile-dropdown" style="z-index: 1050;">
-                        <a class="dropdown-item" asp-area="" asp-controller="Profile" asp-action="displayProfile"><i class="bi bi-person-badge me-1"></i>My Profile</a>
-                        <a class="dropdown-item" asp-action="" asp-controller="Records" asp-action=""><i class="bi bi-clipboard-pulse me-1"></i>Medical Record</a>
-                        <a class="dropdown-item" asp-action="" asp-controller="Records" asp-action=""><i class="bi bi-people-fill me-1"></i>Assign Caregiver</a>
-                    </div>
-                </li>
-                }
-                else{
+                @if (userRole == "Patient")
+                {
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Profile" asp-action="displayProfile"><i class="bi bi-person-vcard me-1"></i>My Profile</a>
+                        <a class="nav-link" asp-area="" asp-controller="Resource" asp-action="Index"><i
+                                class="bi bi-folder me-1"></i>Resources</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Feedback" asp-action="Index"><i
+                                class="bi bi-receipt me-1"></i>Feedback</a>
+                    </li>
+                    <li class="nav-item dropdown my-auto">
+                        <a class="btn text-white dropdown-toggle" href="#" id="profile-dropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person me-1"></i>Profile
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-primary mt-1"
+                            aria-labelledby="profile-dropdown" style="z-index: 1050;">
+                            <a class="dropdown-item" asp-area="" asp-controller="Profile" asp-action="displayProfile"><i
+                                    class="bi bi-person-badge me-1"></i>My Profile</a>
+                            <a class="dropdown-item" asp-action="" asp-controller="Records" asp-action=""><i
+                                    class="bi bi-clipboard-pulse me-1"></i>Medical Record</a>
+                            <a class="dropdown-item" asp-action="" asp-controller="Records" asp-action=""><i
+                                    class="bi bi-people-fill me-1"></i>Assign Caregiver</a>
+                        </div>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Profile" asp-action="displayProfile"><i
+                                class="bi bi-person-vcard me-1"></i>My Profile</a>
                     </li>
                 }
             </ul>

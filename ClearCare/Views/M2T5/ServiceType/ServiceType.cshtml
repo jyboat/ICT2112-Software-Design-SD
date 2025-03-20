@@ -1,0 +1,81 @@
+@model List<ClearCare.Models.Entities.ServiceType_SDM>
+
+@{
+    ViewData["Title"] = "Service Types";
+}
+
+<h2>Service Types</h2>
+
+<!-- Button to trigger add service modal -->
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServiceModal">
+    Add a Service
+</button>
+
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Duration</th>
+            <th>Requirements</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var service in Model)
+        {
+            <tr>
+                <td>@service.ServiceTypeId</td>
+                <td>@service.Name</td>
+                <td>@service.Duration</td>
+                <td>@service.Requirements</td>
+                <td>
+                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editServiceModal-@service.ServiceTypeId">
+                        Edit
+                    </button>
+                    <button class="btn btn-danger" onclick="confirmDelete(@service.ServiceTypeId, '@service.Name')">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Add Service Modal -->
+<div class="modal fade" id="addServiceModal" tabindex="-1" aria-labelledby="addServiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addServiceModalLabel">Add New Service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Create" asp-controller="ServiceTypePage" method="post">
+                    <div class="mb-3">
+                        <label for="serviceName" class="form-label">Service Name</label>
+                        <input type="text" class="form-control" id="serviceName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="serviceDuration" class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-control" id="serviceDuration" name="duration" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="serviceRequirements" class="form-label">Requirements</label>
+                        <textarea class="form-control" id="serviceRequirements" name="requirements"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Service</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Script -->
+<script>
+    function confirmDelete(serviceId, serviceName) {
+        if (confirm("Are you sure you want to delete " + serviceName + "?")) {
+            window.location.href = "/ServiceTypePage/Delete/" + serviceId;
+        }
+    }
+</script>
