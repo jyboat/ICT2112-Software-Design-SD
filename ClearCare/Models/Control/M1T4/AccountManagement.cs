@@ -50,7 +50,7 @@ namespace ClearCare.Models.Control
             return user != null ? "Account exists." : "Account does not exist.";
         }
 
-        public async Task<bool> ResetPassword(string email, string newPassword, HttpContext httpContext)
+        public async Task<bool> ResetPassword(string email, string newPassword, HttpContext httpContext, IAuditSubject auditLog)
         {
             var resetConfirmed = httpContext.Session.GetString("ResetConfirmed");
             if (resetConfirmed != "true")
@@ -82,6 +82,7 @@ namespace ClearCare.Models.Control
 
             if (isUpdated)
             {
+                string auditResult = await auditLog.InsertAuditLog("Reset password", userId);
                 httpContext.Session.Remove("ResetConfirmed");
                 return true;
             }

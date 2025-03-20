@@ -12,12 +12,15 @@ namespace ClearCare.Controllers
         private readonly LoginManagement LoginManagement;
         private readonly AccountManagement _accountManagement;
 
+        private readonly AuditManagement _auditManagement; // Add AuditManagement
+
         public LoginController(IPassword passwordService, IEmail emailService)
         {
             var userGateway = new UserGateway(); 
 
             LoginManagement = new LoginManagement(passwordService, emailService);
-            _accountManagement = new AccountManagement(userGateway, passwordService);    
+            _accountManagement = new AccountManagement(userGateway, passwordService);   
+            _auditManagement = new AuditManagement(); // ✅ Initialize AuditManagement 
         }
 
         public IActionResult displayLogin()
@@ -231,7 +234,7 @@ namespace ClearCare.Controllers
                 return View("NewPassword");
             }
 
-            bool isReset = await _accountManagement.ResetPassword(resetEmail, newPassword, HttpContext);
+            bool isReset = await _accountManagement.ResetPassword(resetEmail, newPassword, HttpContext, _auditManagement);
             if (isReset)
             {
                 HttpContext.Session.Remove("ResetEmail");
