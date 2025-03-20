@@ -1,4 +1,4 @@
-namespace ClearCare.Models
+namespace ClearCare.Models.ViewModels
 {
     public class ErrorViewModel
     {

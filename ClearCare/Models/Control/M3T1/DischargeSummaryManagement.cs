@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using ClearCare.DataSource;
 using ClearCare.Models.Entities.M3T1;
 using ClearCare.Models.Interfaces.M3T1;
+using ClearCare.Models.Interfaces.M3T2;
+using ClearCare.Models.Entities.M3T2;
 
 
 namespace ClearCare.Models.Control.M3T1
@@ -11,10 +13,12 @@ namespace ClearCare.Models.Control.M3T1
     public class DischargeSummaryManager : ISummaryReceive
     {
         private readonly ISummarySend _gateway;
+        private readonly IFetchPrescriptions _fetchPrescriptions;
 
-        public DischargeSummaryManager(ISummarySend gateway)
+        public DischargeSummaryManager(ISummarySend gateway, IFetchPrescriptions fetcher)
         {
             _gateway = gateway;
+            _fetchPrescriptions = fetcher;
         }
 
         public Task receiveSummaries(List<DischargeSummary> summaries)
@@ -80,6 +84,19 @@ namespace ClearCare.Models.Control.M3T1
                 Console.WriteLine("Failed to delete summary");
             }
             return Task.CompletedTask;
+        }
+        public async Task<PrescriptionModel?> getPrescription(string patientId)
+        {
+            List<PrescriptionModel> prescriptions = await _fetchPrescriptions.FetchPrescriptions();
+            PrescriptionModel patientPrescript = null;
+            foreach (var prescription in prescriptions)
+            {
+                if (prescription.PatientId.ToString() == patientId)
+                {
+                    patientPrescript = prescription;
+                }
+            }
+            return patientPrescript;
         }
 
         public async Task<bool> updateSummary(string id, string details, string instructions, string createdAt, string patientId)

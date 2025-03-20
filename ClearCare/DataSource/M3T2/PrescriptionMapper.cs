@@ -1,13 +1,16 @@
+using ClearCare.Models;
 using ClearCare.Models.Entities.M3T2;
+using ClearCare.Models.Interfaces.M3T2;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
+using Microsoft.AspNetCore.Builder.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ClearCare.DataSource.M3T2
+namespace ClearCare.Gateways
 {
-    public class PrescriptionMapper
+    public class PrescriptionMapper : IFetchPrescriptions
     {
         private readonly FirestoreDb _db;
 
@@ -90,6 +93,29 @@ namespace ClearCare.DataSource.M3T2
             {
                 Console.WriteLine($"Error fetching shared prescriptions: {ex.Message}");
             }
+        }
+
+        public async Task<List<PrescriptionModel>> FetchPrescriptions()
+        {
+            var prescriptions = new List<PrescriptionModel>();
+            try
+            {
+                var snapshot = await _db.Collection("Prescriptions").GetSnapshotAsync();
+                foreach (var doc in snapshot.Documents)
+                {
+                    if (doc.Exists)
+                    {
+                        var item = doc.ConvertTo<PrescriptionModel>();
+                        prescriptions.Add(item);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching prescriptions: {ex.Message}");
+            }
+
+            return prescriptions;
         }
     }
 }

@@ -1,10 +1,10 @@
 using ClearCare.DataSource.M3T1;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Text.Json;
 using ClearCare.Models.Control.M3T1;
 using ClearCare.Models.Entities.M3T1;
+using ClearCare.Models.Interfaces.M3T2;
+using ClearCare.Gateways;
+using ClearCare.Models.ViewModels;
 
 // Request Handling
 [Route("Summary")]
@@ -15,7 +15,8 @@ public class SummaryController : Controller
     public SummaryController()
     {
         var gateway = new SummaryGateway();
-        _manager = new DischargeSummaryManager(gateway);
+        IFetchPrescriptions fetcher = new PrescriptionMapper();
+        _manager = new DischargeSummaryManager(gateway, fetcher);
         gateway.receiver = _manager;
     }
 
@@ -35,17 +36,27 @@ public class SummaryController : Controller
     public async Task<IActionResult> ViewSummary(string summaryId)
     {
         var summary = await _manager.getSummary(summaryId);
+        string patientId = (string)summary.GetSummaryDetails()["PatientId"];
+
+        var prescription = await _manager.getPrescription(patientId);
+
         if (summary == null)
         {
             return View("List");
         }
-        return View("~/Views/M3T1/Summary/Index.cshtml", summary);
+        var viewModel = new SummaryViewModel
+        {
+            Summary = summary,
+            Prescription = prescription
+        };
+
+        return View("~/Views/M3T1/Summary/Index.cshtml", viewModel);
     }
 
     [Route("Add")]
     [HttpGet]
     public IActionResult ViewAdd() { 
-        return View("Add");
+        return View("~/Views/M3T1/Summary/Add.cshtml");
     }
 
     [Route("Add")]
@@ -62,7 +73,7 @@ public class SummaryController : Controller
         if (!DateTime.TryParse(date, out parsedDate))
         {
             TempData["ErrorMessage"] = "Invalid date format";
-            return View("Add");
+            return View("~/Views/M3T1/Summary/Add.cshtml");
         }
 
         string formattedDate = parsedDate.ToString("yyyy-MM-dd");
@@ -99,7 +110,7 @@ public class SummaryController : Controller
         if (!DateTime.TryParse(date, out parsedDate))
         {
             TempData["ErrorMessage"] = "Invalid date format";
-            return View("Add");
+            return View("~/Views/M3T1/Summary/Add.cshtml");
         }
 
         string formattedDate = parsedDate.ToString("yyyy-MM-dd");

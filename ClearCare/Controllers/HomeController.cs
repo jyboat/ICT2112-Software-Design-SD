@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using ClearCare.Models;
+using ClearCare.Models.ViewModels;
 
 namespace ClearCare.Controllers;
 

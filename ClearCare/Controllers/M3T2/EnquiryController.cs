@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using ClearCare.Models;
+using ClearCare.Models.ViewModels;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using ClearCare.Models.Control.M3T2;
