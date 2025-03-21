@@ -2,37 +2,37 @@
     ViewData["Title"] = "Feedback Submission";
 }
 
-<div class="container">
-    <div class="card shadow p-4">
-        <h2 class="text-info mb-3">Submit Feedback</h2>
-        <form action="/Feedback/Submission" method="post">
-            <div class="table-responsive">
-                <table class="table table-bordered feedback-table">
-                    <tbody>
-                        <tr>
-                            <th>Feedback Content:</th>
-                            <td>
-                                <textarea name="content" class="form-control" required></textarea>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Rating:</th>
-                            <td>
-                                <select name="rating" class="form-control" required>
-                                    <option value="5">5: Excellent</option>
-                                    <option value="4">4: Good</option>
-                                    <option value="3">3: Fair</option>
-                                    <option value="2">2: Poor</option>
-                                    <option value="1">1: Very Poor</option>
-                                </select>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </div>
-        </form>
+<section class="container add-feedback">
+    <div class="card shadow-sm p-3 mb-4">
+        <div class="card-body">
+            <h2 class="card-title text-info">Submit Feedback</h2>
+            <hr class="w-100" />
+
+            <form action="/Feedback/Submission" method="post">
+                <!-- Content Input -->
+                <div class="mb-3">
+                    <label for="feedbackContent" class="form-label fw-bold">Your Feedback</label>
+                    <textarea id="feedbackContent" name="content" class="form-control" placeholder="Write your feedback..." rows="3" required></textarea>
+                </div>
+
+                <!-- Rating Selection -->
+                <div class="mb-3">
+                    <label for="feedbackRating" class="form-label fw-bold">Rating</label>
+                    <select id="feedbackRating" name="rating" class="form-select" required>
+                        <option value="" disabled selected>Select a rating</option>
+                        <option value="1">⭐ 1 - Poor</option>
+                        <option value="2">⭐⭐ 2 - Fair</option>
+                        <option value="3">⭐⭐⭐ 3 - Good</option>
+                        <option value="4">⭐⭐⭐⭐ 4 - Very Good</option>
+                        <option value="5">⭐⭐⭐⭐⭐ 5 - Excellent</option>
+                    </select>
+                </div>
+
+                <!-- Submit Button (Bottom Right) -->
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-success">Submit</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
+</section>

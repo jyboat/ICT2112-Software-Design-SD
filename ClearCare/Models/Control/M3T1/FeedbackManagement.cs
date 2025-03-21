@@ -30,7 +30,7 @@ namespace ClearCare.Models.Control.M3T1
             return Task.CompletedTask;
         }
 
-        public Task receiveFeedbacksByPatientId(List<Feedback> feedbacks)
+        public Task receiveFeedbacksByUserId(List<Feedback> feedbacks)
         {
             if (feedbacks.Count > 0)
             {
@@ -43,7 +43,7 @@ namespace ClearCare.Models.Control.M3T1
             return Task.CompletedTask;
         }
 
-        public Task receiveFeedback(Feedback feedback)
+        public Task receiveFeedbackById(Feedback feedback)
         {
             if (feedback != null)
             {
@@ -82,19 +82,6 @@ namespace ClearCare.Models.Control.M3T1
             return Task.CompletedTask;
         }
 
-        public Task receiveResponseStatus(bool success)
-        {
-            if (success)
-            {
-                Console.WriteLine("Added response successfully");
-            }
-            else
-            {
-                Console.WriteLine("Failed to add response");
-            }
-            return Task.CompletedTask;
-        }
-
         public Task receiveDeleteStatus(bool success)
         {
             if (success)
@@ -113,24 +100,14 @@ namespace ClearCare.Models.Control.M3T1
             return await _gateway.insertFeedback(content, rating, patientId, dateCreated);
         }
 
-        public async Task<bool> updateFeedback(string feedbackId, string content, int rating, string dateCreated)
-        {
-            return await _gateway.updateFeedback(feedbackId, content, rating, dateCreated);
-        }
-
-        public async Task<bool> respondToFeedback(string feedbackId, string response, string doctorId, string dateResponded)
-        {
-            return await _gateway.insertResponse(feedbackId, response, doctorId, dateResponded);
-        }
-
         public async Task<List<Feedback>> viewFeedback()
         {
             return await _gateway.fetchFeedbacks();
         }
 
-        public async Task<List<Feedback>> viewFeedbackByPatientId(string patientId)
+        public async Task<List<Feedback>> viewFeedbackByUserId(string patientId)
         {
-            return await _gateway.fetchFeedbacksByPatientId(patientId);
+            return await _gateway.fetchFeedbacksByUserId(patientId);
         }
 
         public async Task<Feedback> getFeedback(string feedbackId)

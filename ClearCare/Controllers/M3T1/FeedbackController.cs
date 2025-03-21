@@ -11,13 +11,16 @@ using ClearCare.Models.Control.M3T1;
 [Route("Feedback")]
 public class FeedbackController : Controller
 {
-    private readonly FeedbackManager _manager;
+    private readonly FeedbackManager _feedbackManager;
+    private readonly ResponseManager _responseManager;
 
     public FeedbackController()
     {
-        var gateway = new FeedbackGateway();
-        _manager = new FeedbackManager(gateway);
-        gateway.receiver = _manager;
+        var feedbackMapper = new FeedbackMapper();
+        _feedbackManager = new FeedbackManager(feedbackMapper);
+        _responseManager = new ResponseManager(feedbackMapper);
+        feedbackMapper.feedbackReceiver = _feedbackManager;
+        feedbackMapper.responseReceiver = _responseManager;
     }
 
     [Route("")]
@@ -25,26 +28,66 @@ public class FeedbackController : Controller
     public async Task<IActionResult> DisplayAllFeedback()
     {
         List<Dictionary<string, object>> feedbackList = new List<Dictionary<string, object>>();
+        List<Dictionary<string, object>> responseList = new List<Dictionary<string, object>>();
+
         ViewBag.UserRole = "Doctor"; // Hardcoded for testing
 
-        if (ViewBag.UserRole == "Doctor") {
+        if (ViewBag.UserRole == "Doctor" || ViewBag.UserRole == "Nurse") {
             
-            feedbackList = (await _manager.viewFeedback())
+            feedbackList = (await _feedbackManager.viewFeedback())
                 .Select(s => s.GetFeedbackDetails())
+                .ToList();
+
+            responseList = (await _responseManager.viewResponse())
+                .Select(r => r.GetResponseDetails())
                 .ToList();
         }
         else if (ViewBag.UserRole == "Patient")
         {
             String patientId = "1"; // Hardcoded for testing
-            feedbackList = (await _manager.viewFeedbackByPatientId(patientId))
+            feedbackList = (await _feedbackManager.viewFeedbackByUserId(patientId))
                 .Select(s => s.GetFeedbackDetails())
                 .ToList();
+
+            // Fetch responses only for feedbacks belonging to this patient
+            foreach (var feedback in feedbackList)
+            {
+                string? feedbackId = feedback["Id"]?.ToString();
+                if (!string.IsNullOrEmpty(feedbackId))
+                {
+                    var response = await _responseManager.viewResponseByFeedbackId(feedbackId);
+                    if (response != null)
+                    {
+                        responseList.Add(response.GetResponseDetails());
+                    }
+                }
+            }
         }
         else
         {
             return RedirectToAction("DisplayAllFeedback");
         }
-        return View("~/Views/M3T1/Feedback/List.cshtml", feedbackList);
+
+        // Create lookup dictionary for responses by FeedbackId
+        var responseMap = responseList
+            .Where(r => r.ContainsKey("FeedbackId"))
+            .ToDictionary(r => r["FeedbackId"]?.ToString() ?? "", r => r);
+
+        // Combine feedbackList and responseList
+        List<Dictionary<string, object>> combinedList = feedbackList.Select(fb =>
+        {
+            string feedbackId = fb["Id"]?.ToString() ?? "";
+            responseMap.TryGetValue(feedbackId, out var response);
+
+            fb["Response"] = response?["Response"] ?? "";
+            fb["DateResponded"] = response?["DateResponded"] ?? "";
+            fb["ResponseUserId"] = response?["UserId"] ?? "";
+            fb["ResponseId"] = response?["Id"] ?? "";
+
+            return fb;
+        }).ToList();
+
+        return View("~/Views/M3T1/Feedback/List.cshtml", combinedList);
     }
 
     [Route("Submission")]
@@ -65,26 +108,11 @@ public class FeedbackController : Controller
 
         string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
         // Process the feedback here
-        string id = await _manager.submitFeedback(content, rating, "1", currentDate);
+        string id = await _feedbackManager.submitFeedback(content, rating, "1", currentDate);
 
         TempData["SuccessMessage"] = "Feedback added successfully!";
 
         return RedirectToAction("DisplayAllFeedback");
-    }
-
-    [Route("Response/{feedbackId}")]
-    [HttpGet]
-    public async Task<IActionResult> DisplayResponseForm(string feedbackId)
-    {
-        var feedback = await _manager.getFeedback(feedbackId);
-
-        if (feedback == null)
-        {
-            TempData["ErrorMessage"] = "Feedback not found.";
-            return RedirectToAction("DisplayAllFeedback");
-        }
-
-        return View("~/Views/M3T1/Feedback/Response.cshtml", feedback);
     }
 
     [Route("Response/{feedbackId}")]
@@ -98,76 +126,45 @@ public class FeedbackController : Controller
 
         string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
         // Process the response here
-        bool success = await _manager.respondToFeedback(feedbackId, response, "1", currentDate);
+        string id = await _responseManager.respondToFeedback(feedbackId, response, "1", currentDate);
 
-        if (!success)
-        {
-            TempData["ErrorMessage"] = "Failed to respond to feedback. Please try again.";
-        }
-        else
-        {
-            TempData["SuccessMessage"] = "Response added successfully!";
-        }
+        TempData["SuccessMessage"] = "Response added successfully!";
 
         return RedirectToAction("DisplayAllFeedback");
     }
 
-    [Route("View/{feedbackId}")]
-    [HttpGet]
-    public async Task<IActionResult> ViewFeedback(string feedbackId)
-    {
-        var feedback = await _manager.getFeedback(feedbackId);
-        if (feedback == null)
-        {
-            return RedirectToAction("DisplayAllFeedback");
-        }
-        return View("~/Views/M3T1/Feedback/Index.cshtml", feedback);
-    }
-
-    [Route("Edit/{feedbackId}")]
-    [HttpGet]
-    public async Task<IActionResult> ViewEdit(string feedbackId)
-    {
-        var feedback = await _manager.getFeedback(feedbackId);
-        if (feedback == null)
-        {
-            return RedirectToAction("DisplayAllFeedback");
-        }
-        return View("~/Views/M3T1/Feedback/Edit.cshtml", feedback);
-    }
-
-    [Route("Edit/{feedbackId}")]
+    [Route("ResponseEdit/{responseId}")]
     [HttpPost]
-    public async Task<IActionResult> UpdateFeedback(string feedbackId, string content, int rating)
+    public async Task<IActionResult> UpdateResponse(string responseId, string response)
     {
-        if (string.IsNullOrEmpty(content) || rating < 1 || rating > 5)
+        if (string.IsNullOrEmpty(response))
         {
             TempData["ErrorMessage"] = "Please fill in all required fields";
         }
 
         string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
-        // Process the feedback here
-        bool success = await _manager.updateFeedback(feedbackId, content, rating, currentDate);
+        // Process the response here
+        bool success = await _responseManager.updateResponse(responseId, response, "1", currentDate);
 
         if (!success)
         {
-            TempData["ErrorMessage"] = "Failed to respond to feedback. Please try again.";
+            TempData["ErrorMessage"] = "Failed to update response. Please try again.";
         }
         else
         {
-            TempData["SuccessMessage"] = "Feedback updated successfully!";
+            TempData["SuccessMessage"] = "Response updated successfully!";
         }
 
         return RedirectToAction("DisplayAllFeedback");
     }
 
-    [Route("Delete/{feedbackId}")]
+    [Route("ResponseDelete/{responseId}")]
     [HttpPost]
-    public async Task<IActionResult> DeleteFeedback(string feedbackId)
+    public async Task<IActionResult> DeleteResponse(string responseId)
     {
-        await _manager.deleteFeedback(feedbackId);
+        await _responseManager.deleteResponse(responseId);
 
-        TempData["SuccessMessage"] = "Feedback deleted successfully!";
+        TempData["SuccessMessage"] = "Response deleted successfully!";
 
         return RedirectToAction("DisplayAllFeedback");
     }

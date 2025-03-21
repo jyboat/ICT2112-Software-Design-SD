@@ -8,13 +8,9 @@ namespace ClearCare.Models.Interfaces.M3T1
 
         Task<Feedback> fetchFeedbackById(string id);
 
-        Task<List<Feedback>> fetchFeedbacksByPatientId(string id);
+        Task<List<Feedback>> fetchFeedbacksByUserId(string userId);
 
-        Task<string> insertFeedback(string content, int rating, string patientId, string dateCreated);
-
-        Task<bool> updateFeedback(string id, string content, int rating, string dateCreated);
-
-        Task<bool> insertResponse(string id, string response, string doctorId, string dateResponded);
+        Task<string> insertFeedback(string content, int rating, string userId, string dateCreated);
 
         Task<bool> deleteFeedback(string id);
     }
