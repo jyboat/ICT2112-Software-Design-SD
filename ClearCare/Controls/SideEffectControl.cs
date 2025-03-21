@@ -1,11 +1,10 @@
 using ClearCare.Models;
 using ClearCare.Gateways;
-using ClearCare.Observer;   // <--- Add this
-
+using ClearCare.Observer;
 
 namespace ClearCare.Controls
 {
-    // Implement ISubject<SideEffectModel>
+    // Implements ISubject<SideEffectModel>
     public class SideEffectControl : ISubject<SideEffectModel>
     {
         private readonly SideEffectsMapper _sideEffectsMapper;
@@ -19,7 +18,7 @@ namespace ClearCare.Controls
         }
 
         //=============================
-        // ISubject<SideEffectModel>
+        // ISubject<SideEffectModel> Implementation
         //=============================
         public void Attach(Observer.IObserver<SideEffectModel> observer)
         {
@@ -33,8 +32,10 @@ namespace ClearCare.Controls
                 _observers.Remove(observer);
         }
 
-        // A private helper to notify all observers a side effect was created
-        private void NotifyCreated(SideEffectModel sideEffect)
+        //=============================
+        // Private Notification Helper
+        //=============================
+        private void notifyCreated(SideEffectModel sideEffect)
         {
             foreach (var obs in _observers)
             {
@@ -43,20 +44,17 @@ namespace ClearCare.Controls
         }
 
         //=============================
-        // Existing Methods
+        // Public Methods
         //=============================
-        public async Task<List<SideEffectModel>> GetSideEffectsAsync()
+        public async Task<List<SideEffectModel>> getSideEffectsAsync()
         {
-            return await _sideEffectsMapper.GetAllSideEffectsAsync();
+            return await _sideEffectsMapper.getAllSideEffectsAsync();
         }
 
-        public async Task AddSideEffectAsync(SideEffectModel sideEffect)
+        public async Task addSideEffectAsync(SideEffectModel sideEffect)
         {
-            // 1. Persist to Firestore
-            await _sideEffectsMapper.AddSideEffectAsync(sideEffect);
-
-            // 2. Notify all observers that a new side effect was created
-            NotifyCreated(sideEffect);
+            await _sideEffectsMapper.addSideEffectAsync(sideEffect);
+            notifyCreated(sideEffect);
         }
     }
 }

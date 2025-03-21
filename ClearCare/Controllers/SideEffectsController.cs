@@ -13,32 +13,32 @@ namespace ClearCare.Controllers
         {
             _sideEffectControl = sideEffectControl;
         }
- // GET: Render the form for adding a new side effect
+
+        // GET: Render the form for adding a new side effect
         [HttpGet]
-        public IActionResult Add()
+        public IActionResult add()
         {
             return View();
         }
 
-
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> index()
         {
-            var sideEffects = await _sideEffectControl.GetSideEffectsAsync();
+            var sideEffects = await _sideEffectControl.getSideEffectsAsync();
             return View(sideEffects);
         }
 
-          // Handle the form submission
+        // Handle the form submission
         [HttpPost]
-        public async Task<IActionResult> Add(SideEffectModel sideEffect)
+        public async Task<IActionResult> add(SideEffectModel sideEffect)
         {
             if (ModelState.IsValid)
             {
-                await _sideEffectControl.AddSideEffectAsync(sideEffect);
-                return RedirectToAction("Index");
+                await _sideEffectControl.addSideEffectAsync(sideEffect);
+                return RedirectToAction("index");
             }
 
             return View(sideEffect);
         }
-        
     }
 }

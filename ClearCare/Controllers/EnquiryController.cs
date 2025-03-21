@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models;
-using ClearCare.Controls;     // <--- Import the namespace for EnquiryControl
+using ClearCare.Controls;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
@@ -11,7 +11,6 @@ namespace ClearCare.Controllers
         private readonly ILogger<EnquiryController> _logger;
         private readonly EnquiryControl _enquiryControl;
 
-        // Inject both logger and EnquiryControl
         public EnquiryController(ILogger<EnquiryController> logger, EnquiryControl enquiryControl)
         {
             _logger = logger;
@@ -19,112 +18,98 @@ namespace ClearCare.Controllers
         }
 
         // Display the Enquiry Form
-        public IActionResult Index()
+        public IActionResult index()
         {
-            // Possibly show an empty form or a list of all enquiries
             return View();
         }
 
         // List all enquiries in memory
         [HttpGet]
-        public IActionResult ListEnquiries()
+        public IActionResult listEnquiries()
         {
-            // The controller calls the control to fetch data
-            var enquiries = _enquiryControl.FetchAllEnquiries();
+            var enquiries = _enquiryControl.fetchAllEnquiries();
             return View(enquiries);
         }
 
         // List all enquiries for a particular user (via Firestore)
         [HttpGet]
-        public async Task<IActionResult> ListEnquiriesByUser(string userUUID)
+        public async Task<IActionResult> listEnquiriesByUser(string userUUID)
         {
-            var userEnquiries = await _enquiryControl.FetchEnquiriesByUserAsync(userUUID);
+            var userEnquiries = await _enquiryControl.fetchEnquiriesByUserAsync(userUUID);
             return View("ListEnquiries", userEnquiries);
         }
 
         // Submit an enquiry (POST)
         [HttpPost]
-        public async Task<IActionResult> SubmitEnquiry(Enquiry enquiry)
+        public async Task<IActionResult> submitEnquiry(Enquiry enquiry)
         {
-            // Let the control handle the logic
-            await _enquiryControl.CreateEnquiryAsync(enquiry);
+            await _enquiryControl.createEnquiryAsync(enquiry);
 
-            // Pass data to the View using ViewData (or a strongly-typed model)
             ViewData["Name"] = enquiry.Name;
             ViewData["Email"] = enquiry.Email;
             ViewData["Message"] = enquiry.Message;
 
-            return View("EnquiryResult"); // e.g., a "Thank you" page
+            return View("EnquiryResult");
         }
 
         [HttpPost]
-public async Task<IActionResult> SendReply(
-    string enquiryId,
-    string recipientName,
-    string recipientEmail,
-    string originalMessage,
-    string userUUID,
-    string subject,
-    string message)
-{
-    try
-    {
-        // 1. Build the Reply object
-        var reply = new Reply
-        {
-            EnquiryId = enquiryId,
-            Subject = subject,
-            Message = message,
-            RecipientName = recipientName,
-            RecipientEmail = recipientEmail,
-            OriginalMessage = originalMessage,
-            UserUUID = userUUID
-            // CreatedAt can be set here or in the Gateway (e.g., SaveReplyAsync)
-        };
-
-        // 2. Save the reply (through your Control or Gateway)
-        await _enquiryControl.SaveReplyAsync(enquiryId, reply);
-
-        // 3. Fetch the updated Enquiry and Replies
-        var updatedEnquiry = await _enquiryControl.FetchEnquiryByFirestoreIdAsync(enquiryId);
-        var updatedReplies = await _enquiryControl.FetchRepliesForEnquiryAsync(enquiryId);
-
-        // 4. Create a new ViewModel with updated data
-        var viewModel = new ReplyToEnquiryViewModel
-        {
-            Enquiry = updatedEnquiry,
-            Replies = updatedReplies
-        };
-
-        // 5. Return the same "Reply" view with the updated data
-        return View("Reply", viewModel);
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error sending reply");
-        return View("Error", new ErrorViewModel
-        {
-            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
-        });
-    }
-}
-
-
-
-        // EnquiryController.cs
-        [HttpGet]
-        public async Task<IActionResult> Reply(string id)
+        public async Task<IActionResult> sendReply(
+            string enquiryId,
+            string recipientName,
+            string recipientEmail,
+            string originalMessage,
+            string userUUID,
+            string subject,
+            string message)
         {
             try
             {
-                var enquiry = await _enquiryControl.FetchEnquiryByFirestoreIdAsync(id);
+                var reply = new Reply
+                {
+                    EnquiryId = enquiryId,
+                    Subject = subject,
+                    Message = message,
+                    RecipientName = recipientName,
+                    RecipientEmail = recipientEmail,
+                    OriginalMessage = originalMessage,
+                    UserUUID = userUUID
+                };
+
+                await _enquiryControl.saveReplyAsync(enquiryId, reply);
+
+                var updatedEnquiry = await _enquiryControl.fetchEnquiryByFirestoreIdAsync(enquiryId);
+                var updatedReplies = await _enquiryControl.fetchRepliesForEnquiryAsync(enquiryId);
+
+                var viewModel = new ReplyToEnquiryViewModel
+                {
+                    Enquiry = updatedEnquiry,
+                    Replies = updatedReplies
+                };
+
+                return View("Reply", viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending reply");
+                return View("Error", new ErrorViewModel
+                {
+                    RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+                });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> reply(string id)
+        {
+            try
+            {
+                var enquiry = await _enquiryControl.fetchEnquiryByFirestoreIdAsync(id);
                 if (enquiry == null)
                 {
                     return NotFound($"Enquiry with ID {id} not found.");
                 }
 
-                // Use EnquiryControl for replies too
-                var replies = await _enquiryControl.FetchRepliesForEnquiryAsync(id);
+                var replies = await _enquiryControl.fetchRepliesForEnquiryAsync(id);
 
                 var viewModel = new ReplyToEnquiryViewModel
                 {
@@ -143,7 +128,5 @@ public async Task<IActionResult> SendReply(
                 });
             }
         }
-
-
     }
 }

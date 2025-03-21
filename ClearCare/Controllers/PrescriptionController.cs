@@ -16,7 +16,7 @@ namespace ClearCare.Controllers
 
         // GET: /Prescription/Create
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult create()
         {
             // Render a form for creating a Prescription
             return View();
@@ -24,21 +24,21 @@ namespace ClearCare.Controllers
 
         // POST: /Prescription/Create
         [HttpPost]
-        public async Task<IActionResult> Create(PrescriptionModel model)
+        public async Task<IActionResult> create(PrescriptionModel model)
         {
             if (ModelState.IsValid)
             {
-                await _prescriptionControl.AddPrescriptionAsync(model);
-                return RedirectToAction("Index");
+                await _prescriptionControl.addPrescriptionAsync(model);
+                return RedirectToAction("index");
             }
             return View(model);
         }
 
         // GET: /Prescription
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> index()
         {
-            var prescriptions = await _prescriptionControl.GetAllPrescriptionsAsync();
+            var prescriptions = await _prescriptionControl.getAllPrescriptionsAsync();
             return View(prescriptions);
         }
     }

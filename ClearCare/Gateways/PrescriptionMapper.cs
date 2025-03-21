@@ -15,7 +15,6 @@ namespace ClearCare.Gateways
 
         public PrescriptionMapper()
         {
-            // Ensure Firebase is only initialized once
             if (FirebaseApp.DefaultInstance == null)
             {
                 FirebaseApp.Create(new AppOptions
@@ -24,12 +23,10 @@ namespace ClearCare.Gateways
                 });
             }
 
-            // Replace "ict2112" with your actual Firebase Project ID
             _db = FirestoreDb.Create("ict2112");
         }
 
-        // Gets all prescriptions from the "Prescriptions" collection
-        public async Task<List<PrescriptionModel>> GetAllPrescriptionsAsync()
+        public async Task<List<PrescriptionModel>> getAllPrescriptionsAsync()
         {
             var prescriptions = new List<PrescriptionModel>();
             try
@@ -51,14 +48,11 @@ namespace ClearCare.Gateways
             return prescriptions;
         }
 
-        // Adds a new prescription document
-        public async Task AddPrescriptionAsync(PrescriptionModel prescription)
+        public async Task addPrescriptionAsync(PrescriptionModel prescription)
         {
             try
             {
-                // Convert the DateIssued to UTC if it's not already
                 prescription.DateIssued = DateTime.SpecifyKind(prescription.DateIssued, DateTimeKind.Utc);
-
                 await _db.Collection("Prescriptions").AddAsync(prescription);
                 Console.WriteLine($"Prescription added for Patient: {prescription.PatientId}");
             }
@@ -68,13 +62,10 @@ namespace ClearCare.Gateways
             }
         }
 
-
-        // Saves a prescription "plan" string, for example
-        public async Task SavePrescriptionsAsync(string medicationPlan)
+        public async Task savePrescriptionsAsync(string medicationPlan)
         {
             try
             {
-                // You might parse the plan and store it in a structured way
                 var data = new { Plan = medicationPlan, Created = DateTime.UtcNow };
                 await _db.Collection("Prescriptions").AddAsync(data);
             }
@@ -84,8 +75,7 @@ namespace ClearCare.Gateways
             }
         }
 
-        // Fetches prescriptions for a specific user from "SharedPrescriptions" or similar
-        public async Task FetchSharedPrescriptionsAsync(string userId)
+        public async Task fetchSharedPrescriptionsAsync(string userId)
         {
             try
             {
@@ -104,7 +94,7 @@ namespace ClearCare.Gateways
             }
         }
 
-         public async Task<List<PrescriptionModel>> FetchPrescriptions()
+        public async Task<List<PrescriptionModel>> fetchPrescriptions()
         {
             var prescriptions = new List<PrescriptionModel>();
             try

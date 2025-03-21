@@ -24,7 +24,7 @@ namespace ClearCare.Gateways
             _db = FirestoreDb.Create("ict2112"); // Replace with your Firebase project ID
         }
 
-        public async Task<List<SideEffectModel>> GetAllSideEffectsAsync()
+        public async Task<List<SideEffectModel>> getAllSideEffectsAsync()
         {
             var sideEffects = new List<SideEffectModel>();
 
@@ -50,7 +50,7 @@ namespace ClearCare.Gateways
             return sideEffects;
         }
 
-        public async Task AddSideEffectAsync(SideEffectModel sideEffect)
+        public async Task addSideEffectAsync(SideEffectModel sideEffect)
         {
             try
             {
