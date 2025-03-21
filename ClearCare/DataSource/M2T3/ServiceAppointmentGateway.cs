@@ -40,6 +40,7 @@ namespace ClearCare.DataSource
                     appointmentList.Add(appointment);
                 }
             }
+            await CheckAndUpdateStatusAsync(appointmentList);
             await _receiver.receiveServiceAppointmentList(appointmentList);
             return appointmentList;
         }
@@ -203,6 +204,35 @@ namespace ClearCare.DataSource
                 return null;
             }
         }
+
+        public async Task<List<ServiceAppointment>> CheckAndUpdateStatusAsync(List<ServiceAppointment> appointments)
+        {
+            if (appointments == null || appointments.Count == 0) return new List<ServiceAppointment>();
+
+            foreach (var appointment in appointments)
+            {
+                if (appointment.CheckAndMarkAsMissed()) 
+                {
+                    Console.WriteLine($"🔍 Appointment ID: {appointment.GetAttribute("AppointmentId")}, Status: {appointment.GetAttribute("Status")}, DateTime: {appointment.GetAttribute("Datetime")}");
+
+                    bool success = await UpdateAppointment(appointment); // 🔥 Await the async method
+                    if (!success)
+                    {
+                        Console.WriteLine($"Failed to update appointment status to missed: {appointment.GetAttribute("AppointmentId")}");
+                    }
+                    else {
+                        Console.WriteLine($"updated {appointment.GetAttribute("AppointmentId")} to {appointment.GetAttribute("Status")}");
+                    }
+                
+                }
+
+            }
+
+            return appointments;
+        }
+
+
+
 
 
 
