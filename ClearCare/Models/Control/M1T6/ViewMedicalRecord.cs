@@ -97,11 +97,11 @@ namespace ClearCare.Models.Control
                 if (string.IsNullOrEmpty(utcTimestamp))
                     return "N/A";
 
-                // ✅ Remove "Timestamp: " prefix safely
+                // Remove "Timestamp: " prefix safely
                 if (utcTimestamp.StartsWith("Timestamp: "))
                     utcTimestamp = utcTimestamp.Substring(10).Trim();
 
-                // ✅ Define multiple possible timestamp formats
+                // Define multiple possible timestamp formats
                 string[] formats = {
         "yyyy-MM-ddTHH:mm:ss.fffffffZ", // Full precision
         "yyyy-MM-ddTHH:mm:ss.ffffffZ",  // 6 decimal places
@@ -111,7 +111,7 @@ namespace ClearCare.Models.Control
 
                 DateTime utcDateTime;
 
-                // ✅ Try to parse the timestamp
+                // Try to parse the timestamp
                 bool success = DateTime.TryParseExact(utcTimestamp, formats,
                                                       System.Globalization.CultureInfo.InvariantCulture,
                                                       System.Globalization.DateTimeStyles.AdjustToUniversal,
@@ -123,14 +123,15 @@ namespace ClearCare.Models.Control
                         return "Invalid Date";
                 }
 
-                // ✅ Explicitly set DateTimeKind to UTC to fix conversion error
+                // Explicitly set DateTimeKind to UTC to fix conversion error
                 utcDateTime = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc);
 
-                // ✅ Convert from UTC to UTC+8
+                // Convert from UTC to UTC+8
                 TimeZoneInfo utcPlus8Zone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
                 DateTime utcPlus8Time = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, utcPlus8Zone);
 
-                return utcPlus8Time.ToString("yyyy-MM-dd HH:mm:ss",System.Globalization.CultureInfo.InvariantCulture);
+                // Format the date as "21 March 2025, 05:03 PM"
+                return utcPlus8Time.ToString("dd MMMM yyyy, hh:mm tt", System.Globalization.CultureInfo.InvariantCulture);
             }
 
 
@@ -141,7 +142,8 @@ namespace ClearCare.Models.Control
                 StringBuilder csvContent = new StringBuilder();
                 csvContent.AppendLine("MedicalRecordID,PatientID,CreatedBy,Date,DoctorNote");
 
-                csvContent.AppendLine($"{medicalRecord.MedicalRecordID},{medicalRecord.PatientID},{medicalRecord.CreatedBy},=\"{ConvertToUTC8(medicalRecord.Date.ToString())}\",{medicalRecord.DoctorNote}");
+                csvContent.AppendLine($"{medicalRecord.MedicalRecordID},{medicalRecord.PatientID},{medicalRecord.CreatedBy},\"{ConvertToUTC8(medicalRecord.Date.ToString())}\",{medicalRecord.DoctorNote}");
+
 
 
 
@@ -151,8 +153,9 @@ namespace ClearCare.Models.Control
                     csvContent.AppendLine("ErratumID,MedicalRecordID,FiledBy,DateFiled,ErratumDetails");
                     foreach (var erratum in filteredErratums)
                     {
-                        // csvContent.AppendLine($"{erratum.ErratumID},{erratum.MedicalRecordID},{erratum.CreatedBy},{ConvertToUTC8(erratum.Date.ToString())},{erratum.ErratumDetails}");
-                        csvContent.AppendLine($"{erratum.ErratumID},{erratum.MedicalRecordID},{erratum.CreatedBy},=\"{ConvertToUTC8(erratum.Date.ToString())}\",{erratum.ErratumDetails}");
+
+                        csvContent.AppendLine($"{erratum.ErratumID},{erratum.MedicalRecordID},{erratum.CreatedBy},\"{ConvertToUTC8(erratum.Date.ToString())}\",{erratum.ErratumDetails}");
+
 
                     }
                 }
