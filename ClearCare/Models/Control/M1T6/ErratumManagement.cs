@@ -41,23 +41,28 @@ namespace ClearCare.Models.Control
                     MedicalRecordID = erratumDetails["MedicalRecordID"],
                     Date = erratumDetails["Date"],
                     CreatedBy = doctorName,
-                    ErratumDetails = decryptedErratumDetails
+                    ErratumDetails = decryptedErratumDetails,
+                    ErratumAttachmentName = erratumDetails["ErratumAttachmentName"],
+                    HasErratumAttachment = erratumDetails["HasErratumAttachment"]
                 });
             }
             return processedErratum;
         }
 
-        public async Task<Erratum> createErratum(string medicalRecordID, string erratumDetails, string doctorID)
+        public async Task<Erratum> getErratumByID(string erratumID)
+        {
+            var erratum = await ErratumGateway.getErratumByID(erratumID) ?? throw new InvalidOperationException($"Erratum with ID {erratumID} not found.");
+            return erratum;
+        }
+
+        public async Task<Erratum> createErratum(string medicalRecordID, string erratumDetails, string doctorID, byte[] fileBytes, string fileName)
         {
             encryptedErratumDetails = encryptionService.encryptMedicalData(erratumDetails);
 
-            var result = await ErratumGateway.insertErratum(medicalRecordID, encryptedErratumDetails, doctorID);
-            await auditService.InsertAuditLog($"Updated Medical Record {medicalRecordID}", doctorID);
+            var result = await ErratumGateway.insertErratum(medicalRecordID, encryptedErratumDetails, doctorID, fileBytes, fileName) ?? throw new InvalidOperationException("Failed to create erratum.");
 
-            if (result == null)
-            {
-                throw new InvalidOperationException("Failed to create erratum.");
-            }
+            await auditService.InsertAuditLog("Filed new erratum", doctorID);
+
             return result;
         }
     }

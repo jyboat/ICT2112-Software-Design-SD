@@ -80,6 +80,25 @@ namespace ClearCare.Controllers
             return File(fileBytes, "application/octet-stream", fileName);
         }
 
+        [Route("ViewErratumAttachment/{erratumID}")]
+        public async Task<IActionResult> viewErratumAttachment(string erratumID)
+        {
+            var erratum = await erratumManagement.getErratumByID(erratumID);
+            if (erratum == null || !erratum.hasErratumAttachment())
+            {
+                return NotFound("File not found.");
+            }
+
+            var (fileBytes, fileName) = erratum.retrieveErratumAttachment();
+
+            if (fileBytes == null)
+            {
+                return NotFound("File content is empty.");
+            }
+
+            return File(fileBytes, "application/octet-stream", fileName);
+        }
+
         //exportRecord(): void
         [Route("Export/{recordID}")]
         public async Task<IActionResult> exportRecord(string recordID)
