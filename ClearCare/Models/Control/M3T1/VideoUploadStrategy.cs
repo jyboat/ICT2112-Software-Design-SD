@@ -2,6 +2,7 @@ using Google.Cloud.Storage.V1;
 using System.IO;
 using System.Threading.Tasks;
 using ClearCare.Interfaces.M3T1;
+using ClearCare.DataSource.M3T1;
 
 public class VideoUploadStrategy : IResourceStrategy
 {
