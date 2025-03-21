@@ -16,10 +16,10 @@ namespace ClearCare.Controllers
         private readonly ErratumManagement erratumManagement;
         private readonly ViewPersonalMedicalRecord viewPersonalMedicalRecord;
 
-        public ViewRecordController(IEncryption encryptionService, IAuditLog auditService)
+        public ViewRecordController(IEncryption encryptionService, IAuditLog auditService, ErratumManagement erratumManagement)
         {
-            viewMedicalRecord = new ViewMedicalRecord(encryptionService);
-            erratumManagement = new ErratumManagement(encryptionService, auditService);
+            viewMedicalRecord = new ViewMedicalRecord(encryptionService, erratumManagement);
+            this.erratumManagement = erratumManagement;
             viewPersonalMedicalRecord = new ViewPersonalMedicalRecord();
         }
 
@@ -82,10 +82,10 @@ namespace ClearCare.Controllers
 
         //exportRecord(): void
         [Route("Export/{recordID}")]
-        public async Task<IActionResult> exportRecord(string recordID)
+        public async Task<IActionResult> exportRecord(string recordID, string format = "csv")
         {
             // Call the ExportMedicalRecord method from ViewMedicalRecord to export the medical record
-            string exportResult = await viewMedicalRecord.exportMedicalRecord(recordID);
+            string exportResult = await viewMedicalRecord.exportMedicalRecord(recordID, format);
 
             // Check if the export was successful or if there was an error
             if (exportResult.Contains("exported"))
@@ -95,13 +95,13 @@ namespace ClearCare.Controllers
 
                 // Read the file from the path
                 var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
-                var fileName = $"{recordID}_MedicalRecord.csv"; // Use the recordID in the file name
+                var fileName = $"{recordID}_MedicalRecord.{format}"; // Use the recordID in the file name
 
                 // Delete the file after sending it to the user (optional, to keep the server clean)
                 System.IO.File.Delete(filePath);
 
                 // Return the file as a downloadable response
-                return File(fileBytes, "text/csv", fileName);
+                return File(fileBytes, format == "csv" ? "text/csv" : "application/pdf", fileName);
             }
 
             // If the export failed, return an error message

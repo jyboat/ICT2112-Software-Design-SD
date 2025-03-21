@@ -82,10 +82,18 @@
     }
 
     <div class="pt-4">
-        <!-- Export Button -->
-        <a href="/ViewRecord/Export/@record?.MedicalRecordID" class="btn btn-primary">Export Record</a>
-        
-        <!-- Back Button -->
-        <a href="/ViewRecord" class="btn btn-secondary">Back to Records</a>
+    <!-- Export Button with Format Selection -->
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            Export Record
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/ViewRecord/Export/@record?.MedicalRecordID?format=csv">Export as CSV</a></li>
+            <li><a class="dropdown-item" href="/ViewRecord/Export/@record?.MedicalRecordID?format=pdf">Export as PDF</a></li>
+        </ul>
     </div>
+    
+    <!-- Back Button -->
+    <a href="/ViewRecord" class="btn btn-secondary">Back to Records</a>
+</div>
 </div>

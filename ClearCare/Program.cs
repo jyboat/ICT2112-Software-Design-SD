@@ -46,6 +46,7 @@ builder.Services.AddScoped<AccountManagement>();
 builder.Services.AddScoped<UpdateViewObserver>();
 builder.Services.AddScoped<UserGateway>(); // Add this line
 builder.Services.AddScoped<UpdateAuditLogObserver>();
+builder.Services.AddScoped<ErratumManagement>();
 // ✅ Register observer and SignalR context for Audit Logging
 
 
