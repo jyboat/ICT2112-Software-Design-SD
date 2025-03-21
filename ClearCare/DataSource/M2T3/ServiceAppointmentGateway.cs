@@ -40,6 +40,7 @@ namespace ClearCare.DataSource
                     appointmentList.Add(appointment);
                 }
             }
+            await CheckAndUpdateStatusAsync(appointmentList);
             await _receiver.receiveServiceAppointmentList(appointmentList);
             return appointmentList;
         }
@@ -54,13 +55,20 @@ namespace ClearCare.DataSource
                 Console.WriteLine($"Firestore Document Not Found: {documentId}");
                 return null;
             }
-
-            // Convert to Dictionary from firebase key-value format
+              // Convert snapshot to dictionary
             var data = snapshot.ToDictionary();
+            
+            // Convert Firestore document to a ServiceAppointment object
+            ServiceAppointment appointment = ServiceAppointment.FromFirestoreData(documentId, data);
 
-            var appt = ServiceAppointment.FromFirestoreData(documentId, data).ToFirestoreDictionary();
-            await _receiver.receiveServiceAppointmentById(appt);
-            return appt;
+            // ✅ Pass appointment (not snapshot) to CheckAndUpdateStatusAsync()
+            appointment = await CheckAndUpdateStatusAsync(appointment);
+
+            // Convert updated appointment back to a dictionary
+            var updatedData = appointment.ToFirestoreDictionary();
+
+            await _receiver.receiveServiceAppointmentById(updatedData);
+            return updatedData;
         }
 
         public async Task<string> CreateAppointment(ServiceAppointment appointment)
@@ -203,6 +211,49 @@ namespace ClearCare.DataSource
                 return null;
             }
         }
+
+        public async Task<List<ServiceAppointment>> CheckAndUpdateStatusAsync(List<ServiceAppointment> appointments)
+        {
+            if (appointments == null || appointments.Count == 0) return new List<ServiceAppointment>();
+
+            foreach (var appointment in appointments)
+            {
+                if (appointment.CheckAndMarkAsMissed()) 
+                {
+                    Console.WriteLine($"🔍 Appointment ID: {appointment.GetAttribute("AppointmentId")}, Status: {appointment.GetAttribute("Status")}, DateTime: {appointment.GetAttribute("Datetime")}");
+
+                    bool success = await UpdateAppointment(appointment); // 🔥 Await the async method
+                    if (!success)
+                    {
+                        Console.WriteLine($"Failed to update appointment status to missed: {appointment.GetAttribute("AppointmentId")}");
+                    }
+                    else {
+                        Console.WriteLine($"updated {appointment.GetAttribute("AppointmentId")} to {appointment.GetAttribute("Status")}");
+                    }
+                
+                }
+
+            }
+
+            return appointments;
+        }
+
+        public async Task<ServiceAppointment> CheckAndUpdateStatusAsync(ServiceAppointment appointment) {
+            if (appointment.CheckAndMarkAsMissed()) {
+                bool success = await UpdateAppointment(appointment);
+                if (!success)
+                    {
+                        Console.WriteLine($"Failed to update appointment status to missed: {appointment.GetAttribute("AppointmentId")}");
+                    }
+                    else {
+                        Console.WriteLine($"updated {appointment.GetAttribute("AppointmentId")} to {appointment.GetAttribute("Status")}");
+                    }
+            }
+            return appointment;
+        }
+
+
+
 
 
 

@@ -74,6 +74,7 @@ namespace ClearCare.Models.Entities
                 "DoctorId" => GetDoctorID(),
                 "ServiceTypeId" => GetServiceType(),
                 "Status" => GetStatus(),
+                "Datetime" => GetDateTime().ToString(),
                 "Location" => GetLocation(),
                 _ => throw new ArgumentException("Invalid attribute name")
             };
@@ -180,6 +181,23 @@ namespace ClearCare.Models.Entities
                 { "Slot", Slot },
                 { "Location", Location }
             };
+        }
+        public void UpdateStatus(string newStatus)
+        {
+            if (!string.IsNullOrWhiteSpace(newStatus))
+            {
+                Status = newStatus;
+            }
+        }
+
+        public bool CheckAndMarkAsMissed()
+        {
+            if (Status != "Completed" && DateTime < DateTime.UtcNow && Status != "Missed")
+            {
+                UpdateStatus("Missed");
+                return true; 
+            }
+            return false;
         }
 
     }
