@@ -72,7 +72,7 @@ namespace ClearCare.DataSource.M3T1
                         string dateCreated = doc.ContainsField("DateCreated") ? doc.GetValue<string>("DateCreated") : "";
                         bool hasResponded = doc.ContainsField("HasResponded") ? doc.GetValue<bool>("HasResponded") : false;
 
-                        Feedback feedback = new Feedback(id, content, rating, dateCreated, userId, hasResponded);
+                        Feedback feedback = new Feedback(id, content, rating, userId, dateCreated, hasResponded);
                         feedbacks.Add(feedback);
                     }
                     catch (Exception ex)

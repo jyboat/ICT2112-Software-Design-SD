@@ -82,6 +82,8 @@ public class FeedbackController : Controller
             fb["Response"] = response?["Response"] ?? "";
             fb["DateResponded"] = response?["DateResponded"] ?? "";
             fb["ResponseUserId"] = response?["UserId"] ?? "";
+            fb["ResponseId"] = response?["Id"] ?? "";
+
             return fb;
         }).ToList();
 
@@ -113,32 +115,6 @@ public class FeedbackController : Controller
         return RedirectToAction("DisplayAllFeedback");
     }
 
-    [Route("Delete/{feedbackId}")]
-    [HttpPost]
-    public async Task<IActionResult> DeleteFeedback(string feedbackId)
-    {
-        await _feedbackManager.deleteFeedback(feedbackId);
-
-        TempData["SuccessMessage"] = "Feedback deleted successfully!";
-
-        return RedirectToAction("DisplayAllFeedback");
-    }
-
-    [Route("Response/{feedbackId}")]
-    [HttpGet]
-    public async Task<IActionResult> DisplayResponseForm(string feedbackId)
-    {
-        var feedback = await _feedbackManager.getFeedback(feedbackId);
-
-        if (feedback == null)
-        {
-            TempData["ErrorMessage"] = "Feedback not found.";
-            return RedirectToAction("DisplayAllFeedback");
-        }
-
-        return View("~/Views/M3T1/Feedback/Response.cshtml", feedback);
-    }
-
     [Route("Response/{feedbackId}")]
     [HttpPost]
     public async Task<IActionResult> PostRespondFeedback(string feedbackId, string response)
@@ -155,18 +131,6 @@ public class FeedbackController : Controller
         TempData["SuccessMessage"] = "Response added successfully!";
 
         return RedirectToAction("DisplayAllFeedback");
-    }
-
-    [Route("ResponseEdit/{responseId}")]
-    [HttpGet]
-    public async Task<IActionResult> ViewResponseEdit(string responseId)
-    {
-        var response = await _responseManager.getResponse(responseId);
-        if (response == null)
-        {
-            return RedirectToAction("DisplayAllFeedback");
-        }
-        return View("~/Views/M3T1/Feedback/ResponseEdit.cshtml", response);
     }
 
     [Route("ResponseEdit/{responseId}")]

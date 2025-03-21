@@ -26,7 +26,7 @@
                         </span>
 
                         @* Show "Replied" only when necessary *@
-                        @if (true) // Replace with feedback replied flag
+                        @if (Convert.ToBoolean(feedback["HasResponded"])) // Replace with feedback replied flag
                         {
                             <span class="text-muted fst-italic">Replied</span>
                         }
@@ -54,20 +54,20 @@
             <!-- Reply Section -->
             @if (ViewBag.UserRole == "Doctor")
                     { /// if user is doctor
-                if (false) // Replace with feedback replied flag (if not replied)
+                if (!Convert.ToBoolean(feedback["HasResponded"])) // Replace with feedback replied flag (if not replied)
                 {
                     <form action="/Feedback/Response/@feedback["Id"]" method="post">
-                        <textarea type="text" name="replyContent" class="form-control" placeholder="Write a reply..." required></textarea>
+                        <textarea type="text" name="response" class="form-control" placeholder="Write a reply..." required></textarea>
                         <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-sm btn-success mt-2">Reply</button>
                         </div>
                     </form>
                 }else{ // Replace action with update reply route, put reply content in textarea
-                    <form action="" method="post">
-                        <textarea type="text" name="replyContent" class="form-control" placeholder="Write a reply..." required></textarea>
+                    <form action="/Feedback/ResponseEdit/@feedback["ResponseId"]" method="post">
+                        <textarea type="text" name="response" class="form-control" placeholder="Write a reply..." required>@feedback["Response"]</textarea>
                         <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-sm btn-success mt-2">Edit</button>
-                            <a href="" class="btn btn-sm btn-danger ms-2 mt-2">Delete</a>
+                            <button type="submit" class="btn btn-sm btn-success mt-2"><i class="bi bi-pencil-square me-2"></i>Edit</button>
+                            <a href="#" class="btn btn-sm btn-danger btn-delete mt-2 ms-2" data-id="@feedback["ResponseId"]" data-target="#deleteModal" data-toggle="modal"><i class="bi bi-trash me-2"></i>Delete</a>
                         </div>
                     </form>
                 }
@@ -78,3 +78,36 @@
         }
     </div>
 </section>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Response</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                Are you sure you want to delete this response?
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post">
+                    <input type="hidden" id="deleteId" name="id" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                    <button type="submit" class="btn btn-danger">Yes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $('.btn-delete').click(function(){
+            let responseId = $(this).data('id')
+            $('#deleteId').val(responseId)
+            $('#deleteForm').attr('action', '/Feedback/ResponseDelete/' + responseId)
+            $('#deleteModal').modal('show')
+        })
+    })
+</script>
