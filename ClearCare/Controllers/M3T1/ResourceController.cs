@@ -22,7 +22,19 @@ public class ResourceController : Controller
     public async Task<IActionResult> List()
     {
         List<Dictionary<string, object>> resourceList = (await _manager.viewResource())
-            .Select(r => r.GetDetails())
+            .Select(r => {
+                var details = r.GetDetails();
+                if (details.ContainsKey("CoverImage") && details["CoverImage"] is byte[] fileBytes && fileBytes.Length > 0)
+                {
+                    string base64String = Convert.ToBase64String(fileBytes);
+                    details["ImageSrc"] = $"data:image/jpeg;base64,{base64String}"; // Adjust MIME type if needed
+                }
+                else
+                {
+                    details["ImageSrc"] = "/img/default.jpg"; // Default image
+                }
+                return details;
+            })
             .ToList();
 
         return View("~/Views/M3T1/Resource/List.cshtml", resourceList);
@@ -35,48 +47,88 @@ public class ResourceController : Controller
         return View("~/Views/M3T1/Resource/Add.cshtml");
     }
 
+    //[Route("Add")]
+    //[HttpPost]
+    //public async Task<IActionResult> Add(
+    //IFormFile coverImage,
+    //string title,
+    //string description,
+    //string? articleUrl,
+    //IFormFile? videoFile,
+    //string resourceType,
+    //int uploadedBy)
+    //{
+    //    // 1. Upload the cover image to Firebase Storage
+    //    CoverImageUploadStrategy coverImageUploader = new CoverImageUploadStrategy();
+    //    string coverImageUrl = await coverImageUploader.UploadCoverImageAsync(coverImage);
+
+    //    // 2. Choose the correct strategy based on resourceType
+    //    IResourceStrategy strategy = resourceType.ToLower() switch
+    //    {
+    //        "article" => new ArticleUrlStrategy(),
+    //        "video" => new VideoUploadStrategy(),
+    //        _ => throw new ArgumentException("Unsupported resource type")
+    //    };
+
+    //    // 3. Prepare video file (if any)
+    //    Stream? fileStream = videoFile?.OpenReadStream();
+    //    string? fileName = videoFile?.FileName;
+    //    string? contentType = videoFile?.ContentType;
+
+    //    // 4. Upload + Save to Firestore via Strategy (includes using the gateway)
+    //    string resourceId = await strategy.UploadAsync(
+    //        title,
+    //        description,
+    //        uploadedBy,
+    //        DateTime.Now.ToString("yyyy-MM-dd"),
+    //        fileStream,
+    //        fileName,
+    //        contentType,
+    //        articleUrl,
+    //        coverImageUrl
+    //    );
+
+    //    // 5. Redirect to the resource list view
+    //    return RedirectToAction("List");
+    //}
+
     [Route("Add")]
     [HttpPost]
     public async Task<IActionResult> Add(
     IFormFile coverImage,
     string title,
     string description,
+    IFormFile resourceFile,
     string? articleUrl,
     IFormFile? videoFile,
     string resourceType,
     int uploadedBy)
     {
-        // 1. Upload the cover image to Firebase Storage
-        CoverImageUploadStrategy coverImageUploader = new CoverImageUploadStrategy();
-        string coverImageUrl = await coverImageUploader.UploadCoverImageAsync(coverImage);
+        byte[] fileBytes = Array.Empty<byte>();
+        string fileName = string.Empty;
 
-        // 2. Choose the correct strategy based on resourceType
-        IResourceStrategy strategy = resourceType.ToLower() switch
+        if (resourceFile != null && resourceFile.Length > 0)
         {
-            "article" => new ArticleUrlStrategy(),
-            "video" => new VideoUploadStrategy(),
-            _ => throw new ArgumentException("Unsupported resource type")
-        };
+            try
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await resourceFile.CopyToAsync(memoryStream);
+                    fileBytes = memoryStream.ToArray();
+                }
+                fileName = resourceFile.FileName;
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to process image";
+                return RedirectToAction("List");
+            }
+        }
 
-        // 3. Prepare video file (if any)
-        Stream? fileStream = videoFile?.OpenReadStream();
-        string? fileName = videoFile?.FileName;
-        string? contentType = videoFile?.ContentType;
+        await _manager.addResource(title, description, uploadedBy, DateTime.Now.ToString("yyyy-MM-dd"), fileBytes, fileName, articleUrl);
 
-        // 4. Upload + Save to Firestore via Strategy (includes using the gateway)
-        string resourceId = await strategy.UploadAsync(
-            title,
-            description,
-            uploadedBy,
-            DateTime.Now.ToString("yyyy-MM-dd"),
-            fileStream,
-            fileName,
-            contentType,
-            articleUrl,
-            coverImageUrl
-        );
+        TempData["SuccessMessage"] = "Resource added successfully!";
 
-        // 5. Redirect to the resource list view
         return RedirectToAction("List");
     }
 
@@ -89,7 +141,7 @@ public class ResourceController : Controller
     {
         if (string.IsNullOrEmpty(resourceId))
         {
-            ViewBag.ErrorMessage = "Invalid resource ID.";
+            TempData["ErrorMessage"] = "Invalid resource ID.";
             return RedirectToAction("List");
         }
 
@@ -97,7 +149,7 @@ public class ResourceController : Controller
 
         if (resource == null)
         {
-            ViewBag.ErrorMessage = "Resource not found.";
+            TempData["ErrorMessage"] = "Resource not found.";
             return RedirectToAction("List");
         }
 
@@ -113,7 +165,7 @@ public class ResourceController : Controller
 
         if (!success)
         {
-            ViewBag.ErrorMessage = "Failed to delete resource. Please try again.";
+            TempData["ErrorMessage"] = "Failed to delete resource. Please try again.";
         }
 
         return RedirectToAction("List");

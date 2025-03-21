@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ClearCare.DataSource.M3T1;
 using ClearCare.Models.Entities.M3T1;
-using Google.Cloud.Firestore;
 
 
 namespace ClearCare.Models.Control.M3T1
@@ -17,9 +16,9 @@ namespace ClearCare.Models.Control.M3T1
             _gateway = new ResourceGateway();
         }
 
-        public async Task<string> addResource(string title, string description, int uploadedBy, string dateCreated, string coverImageUrl, string targetUrl)
+        public async Task<string> addResource(string title, string description, int uploadedBy, string dateCreated, byte[] image, string coverImageName, string? targetUrl)
         {
-            return await _gateway.insertResource(title, description, uploadedBy, dateCreated, coverImageUrl, targetUrl);
+            return await _gateway.insertResource(title, description, uploadedBy, dateCreated, image, coverImageName, targetUrl);
         }
 
 
@@ -33,32 +32,14 @@ namespace ClearCare.Models.Control.M3T1
             return await _gateway.fetchResourceById(id);
         }
 
-        public async Task<bool> updateResource(string id, string title, string description, int uploadedBy)
+        public async Task<bool> updateResource(string id, string title, string description, int uploadedBy, byte[] image, string coverImageName, string targetUrl)
         {
-            return await _gateway.updateResource(id, title, description, uploadedBy);
+            return await _gateway.updateResource(id, title, description, uploadedBy, image, coverImageName, targetUrl);
         }
 
         public async Task<bool> deleteResource(string id)
         {
             return await _gateway.deleteResource(id);
-        }
-
-        public async Task AddResourceCard(string title, string description, int uploadedBy, string coverImageUrl, string targetUrl)
-        {
-            var db = FirestoreDb.Create("your-project-id");  // Ensure Firestore is initialized
-
-            CollectionReference resources = db.Collection("Resource");
-            var resourceData = new Dictionary<string, object>
-    {
-        { "Title", title },
-        { "Description", description },
-        { "UploadedBy", uploadedBy },
-        { "CoverImageUrl", coverImageUrl },
-        { "TargetUrl", targetUrl },
-        { "DateCreated", Timestamp.GetCurrentTimestamp().ToDateTime() }
-    };
-
-            await resources.AddAsync(resourceData);
         }
 
     }

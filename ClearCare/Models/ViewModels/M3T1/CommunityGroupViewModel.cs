@@ -1,6 +1,6 @@
 ﻿using ClearCare.Models.Entities.M3T1;
 
-namespace ClearCare.Models.Control.M3T1
+namespace ClearCare.Models.ViewModels.M3T1
 {
     public class CommunityGroupViewModel
     {

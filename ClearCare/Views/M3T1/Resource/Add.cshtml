@@ -3,51 +3,60 @@
 }
 
 <div class="container add-resource">
-    <div class="card shadow p-4">
-        <h2 class="text-info mb-3">Adding New Resource</h2>
-<form action="/Resource/Add" method="post" enctype="multipart/form-data">
-            <div class="table-responsive">
-                <table class="table table-bordered resource-table">
-                    <tbody>
-                        <tr>
-                            <th>Title:</th>
-                            <td>
-                                <input name="title" type="text" class="form-control" required />
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Description:</th>
-                            <td>
-                                <textarea name="description" class="form-control" required></textarea>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Uploaded By (User ID):</th>
-                            <td>
-                                <input name="uploadedBy" type="number" class="form-control" required />
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Date Created:</th>
-                            <td>
-                                <input name="dateCreated" type="date" class="form-control" required />
-                            </td>
-                        </tr>
-
-        <tr>
-    <th>Upload File:</th>
-    <td>
-        <input name="resourceFile" type="file" class="form-control" required />
-    </td>
-</tr>
-                        
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary w-100">Submit</button>
-            </div>
-        </form>
-    </div>
+	<div class="card card-body">
+		<h3 class="text-info font-weight-bold">Add Resource</h3>
+		<form method="post" action="/Resource/Add" enctype="multipart/form-data">
+			<div class="row">
+				<div class="col-lg-9">
+					<div class="md-form md-outline">
+						<label for="title">Title</label>
+						<input class="form-control w-50" type="text" name="title" id="title" required />
+					</div>
+					<div class="md-form md-outline">
+						<label for="description">Description</label>
+						<textarea class="form-control" id="description" name="description" rows="7" required></textarea>
+					</div>
+					<div class="md-form md-outline">
+						<label for="targetUrl">Article link</label>
+						<input class="form-control w-50" type="url" name="targetUrl" id="targetUrl" />
+					</div>
+					<div class="mt-2">
+						<label for="videoFile">Upload a Video</label>
+						<input type="file" name="videoFile" accept="video/mp4,video/wav" id="videoFile" />
+					</div>
+				</div>
+				<div class="col-lg-3">
+					<label class="fst-italic">Cover Image (Optional)</label>
+					<div class="custom-file">
+						<div class="files-upload" data-autosubmit="false">
+							<div class="wrapper">
+								<div class="card-text">
+									<i class="bi bi-5x bi-card-image"></i>
+									<p class="font-weight-bolder">No Image Uploaded</p>
+								</div>
+								<div class="preview">
+									<img class="poster" src="~/img/placeholder.jpg">
+									<div class="infos d-none">
+										<div class="infos-inner">
+											<p class="filename"></p>
+											<a type="button" class="btn btn-sm btn-success">Change image</a>
+										</div>
+									</div>
+								</div>
+								<button type="button" class="remove btn btn-sm btn-danger d-none">Remove</button>
+							</div>
+							<input type="file" name="resourceFile" accept="image/png,image/jpeg,image/jpg,image/gif">
+						</div>
+					</div>
+				</div>
+			</div>
+			<a href="/Resource" class="btn btn-danger">Cancel</a>
+			<button type="submit" class="btn btn-success">
+				Add
+				Resource
+			</button>
+		</form>
+	</div>
 </div>
+
+<script src="~/js/previewFile.js" asp-append-version="true"></script>

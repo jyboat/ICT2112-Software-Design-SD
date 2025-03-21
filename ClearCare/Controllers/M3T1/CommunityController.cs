@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models;
-using ClearCare.Models.Control;
+using ClearCare.Models.ViewModels.M3T1;
 using ClearCare.Models.Entities.M3T1;
 using ClearCare.Models.Control.M3T1;
 
