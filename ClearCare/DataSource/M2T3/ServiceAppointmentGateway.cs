@@ -212,7 +212,7 @@ namespace ClearCare.DataSource
             }
         }
 
-        public async Task<List<ServiceAppointment>> CheckAndUpdateStatusAsync(List<ServiceAppointment> appointments)
+        private async Task<List<ServiceAppointment>> CheckAndUpdateStatusAsync(List<ServiceAppointment> appointments)
         {
             if (appointments == null || appointments.Count == 0) return new List<ServiceAppointment>();
 
@@ -238,7 +238,7 @@ namespace ClearCare.DataSource
             return appointments;
         }
 
-        public async Task<ServiceAppointment> CheckAndUpdateStatusAsync(ServiceAppointment appointment) {
+        private async Task<ServiceAppointment> CheckAndUpdateStatusAsync(ServiceAppointment appointment) {
             if (appointment.CheckAndMarkAsMissed()) {
                 bool success = await UpdateAppointment(appointment);
                 if (!success)
