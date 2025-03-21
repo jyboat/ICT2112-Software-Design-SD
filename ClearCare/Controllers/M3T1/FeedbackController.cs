@@ -73,21 +73,6 @@ public class FeedbackController : Controller
     }
 
     [Route("Response/{feedbackId}")]
-    [HttpGet]
-    public async Task<IActionResult> DisplayResponseForm(string feedbackId)
-    {
-        var feedback = await _manager.getFeedback(feedbackId);
-
-        if (feedback == null)
-        {
-            TempData["ErrorMessage"] = "Feedback not found.";
-            return RedirectToAction("DisplayAllFeedback");
-        }
-
-        return View("~/Views/M3T1/Feedback/Response.cshtml", feedback);
-    }
-
-    [Route("Response/{feedbackId}")]
     [HttpPost]
     public async Task<IActionResult> PostRespondFeedback(string feedbackId, string response)
     {
@@ -110,18 +95,6 @@ public class FeedbackController : Controller
         }
 
         return RedirectToAction("DisplayAllFeedback");
-    }
-
-    [Route("View/{feedbackId}")]
-    [HttpGet]
-    public async Task<IActionResult> ViewFeedback(string feedbackId)
-    {
-        var feedback = await _manager.getFeedback(feedbackId);
-        if (feedback == null)
-        {
-            return RedirectToAction("DisplayAllFeedback");
-        }
-        return View("~/Views/M3T1/Feedback/Index.cshtml", feedback);
     }
 
     [Route("Edit/{feedbackId}")]

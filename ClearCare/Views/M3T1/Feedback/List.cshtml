@@ -4,82 +4,77 @@
     ViewData["Title"] = "Feedback List";
 }
 
-<section class="container">
-    <h2>Submitted Feedback</h2>
-    <div class="text-center mb-3">
-        <a role="button" href="/Feedback/Submission" class="btn btn-md btn-success">Submit Feedback<i class="bi bi-plus ms-1"></i></a>
-    </div>
-    <table class="table table-striped table-bordered text-center">
-        <thead>
-            <tr>
-                <th>Date Created</th>
-                <th>Content</th>
-                <th>Rating</th>
-                <th>Date Responded</th>
-                <th>Response</th>
-                @if (ViewBag.UserRole == "Doctor")
-                {
-                    <th>Patient ID</th>
-                    <th>Doctor ID</th>
-                    <th>Action</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var feedback in Model)
-            {
-                <tr>
-                    <td class="align-middle">@feedback["DateCreated"]</td>
-                    <td class="align-middle">@feedback["Content"]</td>
-                    <td class="align-middle">@feedback["Rating"]</td>
-                    <td class="align-middle">@feedback["DateResponded"]</td>
-                    <td class="align-middle">@feedback["Response"]</td>
-                    @if (ViewBag.UserRole == "Doctor")
-                    {
-                        <td class="align-middle">@feedback["PatientId"]</td>
-                        <td class="align-middle">@feedback["DoctorId"]</td>
-                        <td class="align-middle">
-                            <a href="/Feedback/View/@feedback["Id"]" class="btn btn-sm btn-primary"><i class="bi bi-eye me-2"></i>View</a>
-                            <a href="/Feedback/Edit/@feedback["Id"]" class="btn btn-sm btn-success"><i class="bi bi-pencil-square me-2"></i>Edit</a>
-                            <a href="/Feedback/Response/@feedback["Id"]" class="btn btn-sm btn-success"><i class="bi bi-reply me-2"></i>Create/Edit Response</a>
-                            <a href="#" class="btn btn-sm btn-danger btn-delete" data-id="@feedback["Id"]" data-target="#deleteModal" data-toggle="modal"><i class="bi bi-trash me-2"></i>Delete</a>
-                        </td>
-                    }
-                </tr>
-            }
-        </tbody>
-    </table>
-</section>
+<section class="container feedbacks">
+    <h2>Feedbacks</h2>
+    @if (ViewBag.UserRole == "Patient"){
+        <div class="text-center mb-3">
+            <a role="button" href="/Feedback/Submission" class="btn btn-md btn-success">Submit new Feedback<i class="bi bi-plus ms-1"></i></a>
+        </div>
+    }
 
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Delete Feedback</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                </button>
+    <div class="row">
+    @foreach (var feedback in Model)
+        {
+    <div class="col-12">
+        <div class="card shadow p-3 mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="text-primary">Patient name</h5>
+
+                    <div class="d-flex align-items-center">
+                        <span class="text-muted small me-3">
+                            <i class="bi bi-clock me-1"></i>@feedback["DateCreated"]
+                        </span>
+
+                        @* Show "Replied" only when necessary *@
+                        @if (true) // Replace with feedback replied flag
+                        {
+                            <span class="text-muted fst-italic">Replied</span>
+                        }
+                    </div>
+                </div>
+
+                <p class="mt-2">@feedback["Content"]</p>
+
+            <!-- Rating as stars -->
+            <div class="mb-2">
+                Rating:
+                @for (int i = 1; i <= 5; i++)
+                {
+                    if (i <= Convert.ToInt32(feedback["Rating"]))
+                    {
+                        <i class="bi bi-star-fill text-warning"></i> @* Filled star *@
+                    }
+                    else
+                    {
+                        <i class="bi bi-star text-warning"></i> @* Empty star *@
+                    }
+                }
             </div>
-            <div class="modal-body text-center">
-                Are you sure you want to delete this feedback?
-            </div>
-            <div class="modal-footer">
-                <form id="deleteForm" method="post">
-                    <input type="hidden" id="deleteId" name="id" />
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                    <button type="submit" class="btn btn-danger">Yes</button>
-                </form>
+
+            <!-- Reply Section -->
+            @if (ViewBag.UserRole == "Doctor")
+                    { /// if user is doctor
+                if (false) // Replace with feedback replied flag (if not replied)
+                {
+                    <form action="/Feedback/Response/@feedback["Id"]" method="post">
+                        <textarea type="text" name="replyContent" class="form-control" placeholder="Write a reply..." required></textarea>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-sm btn-success mt-2">Reply</button>
+                        </div>
+                    </form>
+                }else{ // Replace action with update reply route, put reply content in textarea
+                    <form action="" method="post">
+                        <textarea type="text" name="replyContent" class="form-control" placeholder="Write a reply..." required></textarea>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-sm btn-success mt-2">Edit</button>
+                            <a href="" class="btn btn-sm btn-danger ms-2 mt-2">Delete</a>
+                        </div>
+                    </form>
+                }
+            }
+
             </div>
         </div>
+        }
     </div>
-</div>
-
-<script>
-    $(document).ready(function(){
-        $('.btn-delete').click(function(){
-            let feedbackId = $(this).data('id')
-            $('#deleteId').val(feedbackId)
-            $('#deleteForm').attr('action', '/Feedback/Delete/' + feedbackId)
-            $('#deleteModal').modal('show')
-        })
-    })
-</script>
+</section>
