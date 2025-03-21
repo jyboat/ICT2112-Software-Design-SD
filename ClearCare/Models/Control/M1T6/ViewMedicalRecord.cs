@@ -21,7 +21,7 @@ namespace ClearCare.Models.Control
             MedicalRecordGateway = new MedicalRecordGateway();
             UserGateway = new UserGateway();
             this.encryptionService = encryptionService;
-            this.erratumManagement = erratumManagement;
+            this.erratumManagement = erratumManagement ?? throw new ArgumentNullException(nameof(erratumManagement));
         }
 
         // Retrieve all medical records and process them for display
@@ -80,6 +80,7 @@ namespace ClearCare.Models.Control
             return await MedicalRecordGateway.retrieveMedicalRecordById(recordID);
         }
 
+        //Export Medical Record
         public async Task<string> exportMedicalRecord(string recordID, string format = "csv")
         {
             var medicalRecord = await getAdjustedRecordByID(recordID);
@@ -91,13 +92,58 @@ namespace ClearCare.Models.Control
             var allErratums = await erratumManagement.getAllErratum();
             var filteredErratums = allErratums.Where(e => e.MedicalRecordID == recordID).ToList();
 
+            string ConvertToUTC8(string utcTimestamp)
+            {
+                if (string.IsNullOrEmpty(utcTimestamp))
+                    return "N/A";
+
+                // ✅ Remove "Timestamp: " prefix safely
+                if (utcTimestamp.StartsWith("Timestamp: "))
+                    utcTimestamp = utcTimestamp.Substring(10).Trim();
+
+                // ✅ Define multiple possible timestamp formats
+                string[] formats = {
+        "yyyy-MM-ddTHH:mm:ss.fffffffZ", // Full precision
+        "yyyy-MM-ddTHH:mm:ss.ffffffZ",  // 6 decimal places
+        "yyyy-MM-ddTHH:mm:ss.fffZ",     // 3 decimal places
+        "yyyy-MM-ddTHH:mm:ssZ"          // No milliseconds
+    };
+
+                DateTime utcDateTime;
+
+                // ✅ Try to parse the timestamp
+                bool success = DateTime.TryParseExact(utcTimestamp, formats,
+                                                      System.Globalization.CultureInfo.InvariantCulture,
+                                                      System.Globalization.DateTimeStyles.AdjustToUniversal,
+                                                      out utcDateTime);
+
+                if (!success)
+                {
+                    if (!DateTime.TryParse(utcTimestamp, out utcDateTime))
+                        return "Invalid Date";
+                }
+
+                // ✅ Explicitly set DateTimeKind to UTC to fix conversion error
+                utcDateTime = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc);
+
+                // ✅ Convert from UTC to UTC+8
+                TimeZoneInfo utcPlus8Zone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+                DateTime utcPlus8Time = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, utcPlus8Zone);
+
+                return utcPlus8Time.ToString("yyyy-MM-dd HH:mm:ss",System.Globalization.CultureInfo.InvariantCulture);
+            }
+
+
             string filePath;
             if (format.ToLower() == "csv")
             {
                 // CSV export code remains the same
                 StringBuilder csvContent = new StringBuilder();
-                csvContent.AppendLine("MedicalRecordID,PatientID,CreatedBy,Date,DoctorNote,AttachmentName");
-                csvContent.AppendLine($"{medicalRecord.MedicalRecordID},{medicalRecord.PatientID},{medicalRecord.CreatedBy},{medicalRecord.Date},{medicalRecord.DoctorNote},{medicalRecord.AttachmentName}");
+                csvContent.AppendLine("MedicalRecordID,PatientID,CreatedBy,Date,DoctorNote");
+
+                csvContent.AppendLine($"{medicalRecord.MedicalRecordID},{medicalRecord.PatientID},{medicalRecord.CreatedBy},=\"{ConvertToUTC8(medicalRecord.Date.ToString())}\",{medicalRecord.DoctorNote}");
+
+
 
                 if (filteredErratums.Count > 0)
                 {
@@ -105,7 +151,9 @@ namespace ClearCare.Models.Control
                     csvContent.AppendLine("ErratumID,MedicalRecordID,FiledBy,DateFiled,ErratumDetails");
                     foreach (var erratum in filteredErratums)
                     {
-                        csvContent.AppendLine($"{erratum.ErratumID},{erratum.MedicalRecordID},{erratum.CreatedBy},{erratum.Date},{erratum.ErratumDetails}");
+                        // csvContent.AppendLine($"{erratum.ErratumID},{erratum.MedicalRecordID},{erratum.CreatedBy},{ConvertToUTC8(erratum.Date.ToString())},{erratum.ErratumDetails}");
+                        csvContent.AppendLine($"{erratum.ErratumID},{erratum.MedicalRecordID},{erratum.CreatedBy},=\"{ConvertToUTC8(erratum.Date.ToString())}\",{erratum.ErratumDetails}");
+
                     }
                 }
 
@@ -149,7 +197,7 @@ namespace ClearCare.Models.Control
                         headerCell.Padding = 8f;
                         detailsTable.AddCell(headerCell);
 
-                        
+
                         // Medical Record ID row
                         PdfPCell labelCell = new PdfPCell(new Phrase("Medical Record ID", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD)));
                         labelCell.BackgroundColor = new BaseColor(240, 240, 240);
@@ -186,7 +234,8 @@ namespace ClearCare.Models.Control
                         labelCell.Padding = 5f;
                         detailsTable.AddCell(labelCell);
 
-                        valueCell = new PdfPCell(new Phrase(medicalRecord.Date.ToString()));
+                        //valueCell = new PdfPCell(new Phrase(medicalRecord.Date.ToString()));
+                        valueCell = new PdfPCell(new Phrase(ConvertToUTC8(medicalRecord.Date.ToString())));
                         valueCell.Padding = 5f;
                         detailsTable.AddCell(valueCell);
 
@@ -205,7 +254,7 @@ namespace ClearCare.Models.Control
                         labelCell.BackgroundColor = new BaseColor(240, 240, 240);
                         labelCell.Padding = 5f;
                         detailsTable.AddCell(labelCell);
-                    
+
 
                         doc.Add(detailsTable);
 
@@ -263,7 +312,8 @@ namespace ClearCare.Models.Control
                             {
                                 erratumTable.AddCell(new PdfPCell(new Phrase(erratum.ErratumID.ToString())));
                                 erratumTable.AddCell(new PdfPCell(new Phrase(erratum.CreatedBy)));
-                                erratumTable.AddCell(new PdfPCell(new Phrase(erratum.Date.ToString())));
+                                //erratumTable.AddCell(new PdfPCell(new Phrase(erratum.Date.ToString())));
+                                erratumTable.AddCell(new PdfPCell(new Phrase(ConvertToUTC8(erratum.Date.ToString()))));
                                 erratumTable.AddCell(new PdfPCell(new Phrase(erratum.ErratumDetails)));
                             }
 
