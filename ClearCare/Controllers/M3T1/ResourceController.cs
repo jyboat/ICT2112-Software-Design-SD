@@ -47,7 +47,8 @@ public class ResourceController : Controller
     int uploadedBy)
     {
         // 1. Upload the cover image to Firebase Storage
-        string coverImageUrl = await UploadCoverImageAsync(coverImage);
+        CoverImageUploadStrategy coverImageUploader = new CoverImageUploadStrategy();
+        string coverImageUrl = await coverImageUploader.UploadCoverImageAsync(coverImage);
 
         // 2. Choose the correct strategy based on resourceType
         IResourceStrategy strategy = resourceType.ToLower() switch
@@ -116,28 +117,6 @@ public class ResourceController : Controller
         }
 
         return RedirectToAction("List");
-    }
-
-
-    private async Task<string> UploadCoverImageAsync(IFormFile coverImage)
-    {
-        if (coverImage == null || coverImage.Length == 0)
-            throw new ArgumentException("Cover image is required.");
-
-        var storage = Google.Cloud.Storage.V1.StorageClient.Create();
-        string bucketName = "your-bucket.appspot.com";  // Replace with actual Firebase Storage bucket
-        string objectName = $"{Guid.NewGuid()}{Path.GetExtension(coverImage.FileName)}";
-
-        using var stream = coverImage.OpenReadStream();
-        await storage.UploadObjectAsync(
-            bucketName,
-            objectName,
-            coverImage.ContentType,
-            stream,
-            new Google.Cloud.Storage.V1.UploadObjectOptions { PredefinedAcl = Google.Cloud.Storage.V1.PredefinedObjectAcl.PublicRead }
-        );
-
-        return $"https://storage.googleapis.com/{bucketName}/{objectName}";
     }
 
 }
