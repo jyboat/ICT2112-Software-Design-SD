@@ -55,13 +55,20 @@ namespace ClearCare.DataSource
                 Console.WriteLine($"Firestore Document Not Found: {documentId}");
                 return null;
             }
-
-            // Convert to Dictionary from firebase key-value format
+              // Convert snapshot to dictionary
             var data = snapshot.ToDictionary();
+            
+            // Convert Firestore document to a ServiceAppointment object
+            ServiceAppointment appointment = ServiceAppointment.FromFirestoreData(documentId, data);
 
-            var appt = ServiceAppointment.FromFirestoreData(documentId, data).ToFirestoreDictionary();
-            await _receiver.receiveServiceAppointmentById(appt);
-            return appt;
+            // ✅ Pass appointment (not snapshot) to CheckAndUpdateStatusAsync()
+            appointment = await CheckAndUpdateStatusAsync(appointment);
+
+            // Convert updated appointment back to a dictionary
+            var updatedData = appointment.ToFirestoreDictionary();
+
+            await _receiver.receiveServiceAppointmentById(updatedData);
+            return updatedData;
         }
 
         public async Task<string> CreateAppointment(ServiceAppointment appointment)
@@ -229,6 +236,20 @@ namespace ClearCare.DataSource
             }
 
             return appointments;
+        }
+
+        public async Task<ServiceAppointment> CheckAndUpdateStatusAsync(ServiceAppointment appointment) {
+            if (appointment.CheckAndMarkAsMissed()) {
+                bool success = await UpdateAppointment(appointment);
+                if (!success)
+                    {
+                        Console.WriteLine($"Failed to update appointment status to missed: {appointment.GetAttribute("AppointmentId")}");
+                    }
+                    else {
+                        Console.WriteLine($"updated {appointment.GetAttribute("AppointmentId")} to {appointment.GetAttribute("Status")}");
+                    }
+            }
+            return appointment;
         }
 
 
