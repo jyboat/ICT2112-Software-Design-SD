@@ -15,21 +15,24 @@ namespace ClearCare.DataSource.M3T1
             _db = FirebaseService.Initialize();
         }
 
-        public async Task<string> insertResource(string title, string description, int uploadedBy, string dateCreated)
+        public async Task<string> insertResource(string title, string description, int uploadedBy, string dateCreated, string coverImageUrl, string targetUrl)
         {
             DocumentReference docRef = _db.Collection("Resource").Document();
 
             var resource = new Dictionary<string, object>
-            {
-                { "Title", title },
-                { "Description", description },
-                { "UploadedBy", uploadedBy },
-                { "DateCreated", dateCreated }
-            };
+    {
+        { "Title", title },
+        { "Description", description },
+        { "UploadedBy", uploadedBy },
+        { "DateCreated", dateCreated },
+        { "CoverImageUrl", coverImageUrl },
+        { "TargetUrl", targetUrl }
+    };
 
             await docRef.SetAsync(resource);
             return docRef.Id;
         }
+
 
         public async Task<List<Resource>> fetchResource()
         {

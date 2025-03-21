@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ClearCare.DataSource.M3T1;
 using ClearCare.Models.Entities.M3T1;
+using Google.Cloud.Firestore;
+
 
 namespace ClearCare.Models.Control.M3T1
 {
@@ -15,10 +17,11 @@ namespace ClearCare.Models.Control.M3T1
             _gateway = new ResourceGateway();
         }
 
-        public async Task<string> addResource(string title, string description, int uploadedBy, string dateCreated)
+        public async Task<string> addResource(string title, string description, int uploadedBy, string dateCreated, string coverImageUrl, string targetUrl)
         {
-            return await _gateway.insertResource(title, description, uploadedBy, dateCreated);
+            return await _gateway.insertResource(title, description, uploadedBy, dateCreated, coverImageUrl, targetUrl);
         }
+
 
         public async Task<List<Resource>> viewResource()
         {
@@ -39,5 +42,24 @@ namespace ClearCare.Models.Control.M3T1
         {
             return await _gateway.deleteResource(id);
         }
+
+        public async Task AddResourceCard(string title, string description, int uploadedBy, string coverImageUrl, string targetUrl)
+        {
+            var db = FirestoreDb.Create("your-project-id");  // Ensure Firestore is initialized
+
+            CollectionReference resources = db.Collection("Resource");
+            var resourceData = new Dictionary<string, object>
+    {
+        { "Title", title },
+        { "Description", description },
+        { "UploadedBy", uploadedBy },
+        { "CoverImageUrl", coverImageUrl },
+        { "TargetUrl", targetUrl },
+        { "DateCreated", Timestamp.GetCurrentTimestamp().ToDateTime() }
+    };
+
+            await resources.AddAsync(resourceData);
+        }
+
     }
 }

@@ -5,7 +5,7 @@
 <div class="container add-resource">
     <div class="card shadow p-4">
         <h2 class="text-info mb-3">Adding New Resource</h2>
-        <form action="/Resource/Add" method="post">
+<form action="/Resource/Add" method="post" enctype="multipart/form-data">
             <div class="table-responsive">
                 <table class="table table-bordered resource-table">
                     <tbody>
@@ -33,6 +33,14 @@
                                 <input name="dateCreated" type="date" class="form-control" required />
                             </td>
                         </tr>
+
+        <tr>
+    <th>Upload File:</th>
+    <td>
+        <input name="resourceFile" type="file" class="form-control" required />
+    </td>
+</tr>
+                        
                     </tbody>
                 </table>
             </div>

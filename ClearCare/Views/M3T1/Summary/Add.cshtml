@@ -1,49 +1,76 @@
-﻿
-
-@{
-    ViewData["Title"] = "Add Summary";
+﻿@{
+    ViewData["Title"] = "Add Resource";
 }
 
-<div class="container add-summary">
+<div class="container add-resource">
     <div class="card shadow p-4">
-        <h2 class="text-info mb-3">Adding New Summary for {patient name}</h2>
-        <form action="/Summary/Add" method="post">
+        <h2 class="text-info mb-3">Adding New Resource</h2>
+
+        <form action="/Resource/Add" method="post" enctype="multipart/form-data">
             <div class="table-responsive">
-                <table class="table table-bordered summary-table">
+                <table class="table table-bordered resource-table">
                     <tbody>
                         <tr>
-                            <th>Patient details</th>
+                            <th>Title:</th>
                             <td>
-                                <p class="mb-3"><strong>Name:</strong>{name}</p>
-                                <p class="mb-3"><strong>Date of Birth:</strong>{DOB}</p>
-                                <p class="mb-3"><strong>ID:</strong>{ID}</p>
+                                <input name="title" type="text" class="form-control" required />
                             </td>
                         </tr>
                         <tr>
-                            <th>Date of Discharge:</th>
-                            <td>@DateTime.Now.ToString("yyyy-MM-dd")</td>
-                        </tr>
-                        <tr>
-                            <th>Procedures and Details</th>
+                            <th>Short Description:</th>
                             <td>
-                                <textarea name="details" class="form-control" required></textarea>
+                                <textarea name="description" class="form-control" required></textarea>
                             </td>
                         </tr>
                         <tr>
-                            <th>Follow-up instructions:</th>
+                            <th>Uploaded By (User ID):</th>
                             <td>
-                                <textarea name="instructions" class="form-control" required></textarea>
+                                <input name="uploadedBy" type="number" class="form-control" required />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Cover Image:</th>
+                            <td>
+                                <input name="coverImage" type="file" class="form-control" accept="image/*" required />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Resource Type:</th>
+                            <td>
+                                <select id="resourceType" name="resourceType" class="form-control" required onchange="toggleInputFields()">
+                                    <option value="">-- Select Type --</option>
+                                    <option value="article">Article (Link)</option>
+                                    <option value="video">Video (Upload)</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr id="articleUrlRow" style="display: none;">
+                            <th>Article URL:</th>
+                            <td>
+                                <input name="articleUrl" id="articleUrl" type="url" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr id="videoFileRow" style="display: none;">
+                            <th>Upload Video:</th>
+                            <td>
+                                <input name="videoFile" id="videoFile" type="file" class="form-control" accept="video/*" />
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="text-center>">
+            <div class="text-center">
                 <button type="submit" class="btn btn-primary w-100">Submit</button>
             </div>
         </form>
     </div>
 </div>
 
-
+<script>
+    function toggleInputFields() {
+        var resourceType = document.getElementById("resourceType").value;
+        document.getElementById("articleUrlRow").style.display = (resourceType === "article") ? "" : "none";
+        document.getElementById("videoFileRow").style.display = (resourceType === "video") ? "" : "none";
+    }
+</script>
