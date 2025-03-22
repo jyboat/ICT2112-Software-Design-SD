@@ -11,7 +11,7 @@ namespace ClearCare.Models.ViewModels.M3T1
         public List<Dictionary<string, object>>? AllGroups { get; set; }
         public List<Dictionary<string, object>>? UserGroups { get; set; }
         public List<Dictionary<string, object>>? Posts { get; set; }
-        public List<Dictionary<string, object>>? Comments { get; set; }
+        public List<Dictionary<string, object>>? UserPosts { get; set; }
 
     }
 }

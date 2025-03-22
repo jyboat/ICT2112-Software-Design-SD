@@ -15,8 +15,6 @@
                 <tr>
                     <th>Date Created</th>
                     <th>Patient ID</th>
-                    <th>Details</th>
-                    <th>Instructions</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -26,8 +24,6 @@
                     <tr class="animated faster">
                         <td class="align-middle">@summary["CreatedAt"]</td>
                         <td class ="align-middle">@summary["PatientId"]</td>
-                        <td class="align-middle">@summary["Details"]</td>
-                        <td class="align-middle">@summary["Instructions"]</td>
                         <td class="align-middle">
                             <a href="/Summary/View/@summary["Id"]" class="btn btn-sm btn-primary"><i class="bi bi-eye me-2"></i>View</a>
                             <a href="/Summary/Edit/@summary["Id"]" class="btn btn-sm btn-success"><i class="bi bi-pencil-square me-2"></i>Edit</a>

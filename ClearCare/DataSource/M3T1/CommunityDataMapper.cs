@@ -243,6 +243,47 @@ namespace ClearCare.DataSource.M3T1
             }
         }
 
+        public async Task<List<CommunityPost>> fetchUserPosts(string userId)
+        {
+            try
+            {
+                List<CommunityPost> posts = new List<CommunityPost>();
+                // Fetch posts filtered by GroupId
+                var snapshot = await _db.Collection("CommunityPosts")
+                                         .WhereEqualTo("PostedBy", userId)
+                                         .GetSnapshotAsync();
+
+                foreach (DocumentSnapshot doc in snapshot.Documents)
+                {
+                    if (doc.Exists)
+                    {
+                        try
+                        {
+                            string id = doc.ContainsField("Id") ? doc.GetValue<string>("Id") : doc.Id;
+                            string title = doc.ContainsField("Title") ? doc.GetValue<string>("Title") : "";
+                            string content = doc.ContainsField("Content") ? doc.GetValue<string>("Content") : "";
+                            string groupId = doc.ContainsField("GroupId") ? doc.GetValue<string>("GroupId") : "";
+                            string postedAt = doc.ContainsField("PostedAt") ? doc.GetValue<string>("PostedAt") : "";
+
+                            CommunityPost post = new CommunityPost(id, title, content, userId, postedAt, groupId);
+                            posts.Add(post);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error converting community post {doc.Id}: {ex.Message}");
+                        }
+                    }
+                }
+
+                return posts;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching community posts: {ex.Message}");
+                return null;
+            }
+        }
+
         public async Task<CommunityPost> fetchPostById(string postId)
         {
             var snapshot = await _db.Collection("CommunityPosts")

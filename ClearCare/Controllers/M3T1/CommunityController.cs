@@ -25,6 +25,9 @@ public class CommunityController : Controller
         .Select(s => s.getDetails())
         .ToList();
 
+        List<CommunityPost> userPosts = await _communityPost.viewUserPosts("1"); // Change to current user id
+        var userPostList = userPosts.Select(s => s.getDetails()).ToList();
+
         var allGroups = (await _communityGroup.getAllgroups()).Select(s => s.getDetails()).ToList();
         List<Dictionary<string, object>> userGroups = new List<Dictionary<string, object>>();
 
@@ -43,6 +46,7 @@ public class CommunityController : Controller
         var viewModel = new CommunityViewModel
         {
             Posts = postList,
+            UserPosts = userPostList,
             AllGroups = allGroups,
             UserGroups = userGroups
         };
@@ -88,13 +92,6 @@ public class CommunityController : Controller
     //    return RedirectToAction("Index");
     //}
 
-    //[HttpGet]
-    //[Route("EditGroup")]
-    //public IActionResult displayEditGroupForm()
-    //{
-    //    return View("~/Views/M3T1/Community/EditGroup.cshtml");
-    //}
-
     //[HttpPost]
     //[Route("EditGroup")]
     //public async Task<IActionResult> editGroup(string groupId, string name, string description)
@@ -105,9 +102,9 @@ public class CommunityController : Controller
 
     [HttpPost]
     [Route("Post/Create")]
-    public async Task<IActionResult> submitPost(string title, string content, string postedBy, string groupId)
+    public async Task<IActionResult> submitPost(string title, string content, string groupId)
     {
-        string id = await _communityPost.createPost(title, content, postedBy);
+        string id = await _communityPost.createPost(title, content, "1"); // Change to current user id
         if (!string.IsNullOrEmpty(id))
         {
             TempData["SuccessMessage"] = "Post created successfully!";
@@ -120,28 +117,37 @@ public class CommunityController : Controller
         return RedirectToAction("List");
     }
 
-    //[HttpPost]
-    //[Route("GroupDetail")]
-    //public async Task<IActionResult> deletePost(string postId)
-    //{
-    //    await _communityPost.deletePost(postId);
-    //    return RedirectToAction("displayGroup");
-    //}
+    [HttpPost]
+    [Route("Post/Delete")]
+    public async Task<IActionResult> deletePost(string postId)
+    {
+        bool success = await _communityPost.deletePost(postId);
+        if (success)
+        {
+            TempData["SuccessMessage"] = "Post deleted successfully!";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Error in deleting post";
+        }
+        return RedirectToAction("List");
+    }
 
-    //[HttpGet]
-    //[Route("EditPost")]
-    //public IActionResult displayEditPostForm()
-    //{
-    //    return View("~/Views/M3T1/Community/EditGroup.cshtml");
-    //}
-
-    //[HttpPost]
-    //[Route("EditPost")]
-    //public async Task<IActionResult> editPost(string postId, string title, string content)
-    //{
-    //    await _communityPost.updatePost(postId, title, content);
-    //    return RedirectToAction("displayGroup");
-    //}
+    [HttpPost]
+    [Route("Post/Edit")]
+    public async Task<IActionResult> editPost(string postId, string title, string content)
+    {
+        bool success = await _communityPost.updatePost(postId, title, content);
+        if (success)
+        {
+            TempData["SuccessMessage"] = "Post edited successfully!";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Error in editing post";
+        }
+        return RedirectToAction("List");
+    }
 
     [HttpGet]
     [Route("Post/{id}")]
@@ -179,22 +185,40 @@ public class CommunityController : Controller
             TempData["ErrorMessage"] = "Error in creating comment";
         }
 
-        return RedirectToAction("displayPost", postId);
+        return RedirectToAction("displayPost", new { id = postId });
     }
 
-    //[HttpPost]
-    //[Route("PostDetail")]
-    //public async Task<IActionResult> deleteComment(string commentId)
-    //{
-    //    await _communityComment.deleteComment(commentId);
-    //    return RedirectToAction("displayPost");
-    //}
+    [HttpPost]
+    [Route("Comment/Delete")]
+    public async Task<IActionResult> deleteComment(string commentId, string postId)
+    {
+        bool success = await _communityComment.deleteComment(commentId);
+        if (success)
+        {
+            TempData["SuccessMessage"] = "Comment deleted successfully!";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Error in deleting comment";
+        }
+        return RedirectToAction("displayPost", new { id = postId });
+    }
 
-    //[HttpPost]
-    //[Route("PostDetail")]
-    //public async Task<IActionResult> editComment(string userId, string commentId, string content)
-    //{
-    //    await _communityComment.updateComment(userId, commentId, content);
-    //    return RedirectToAction("displayPost");
-    //}
+    [HttpPost]
+    [Route("Comment/Edit")]
+    public async Task<IActionResult> editComment(string commentId, string content, string postId)
+    {
+        bool success = await _communityComment.updateComment(commentId, content);
+
+        if (success)
+        {
+            TempData["SuccessMessage"] = "Comment edited successfully!";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Error in editing comment";
+        }
+
+        return RedirectToAction("displayPost", new { id = postId });
+    }
 }

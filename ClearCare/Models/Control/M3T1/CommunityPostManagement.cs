@@ -25,6 +25,10 @@ namespace ClearCare.Models.Control.M3T1
         {
             return await _dataMapper.fetchGroupPosts(groupId);
         }
+        public async Task<List<CommunityPost>> viewUserPosts(string userId)
+        {
+            return await _dataMapper.fetchUserPosts(userId);
+        }
 
         public async Task<CommunityPost> viewPost(string id)
         {

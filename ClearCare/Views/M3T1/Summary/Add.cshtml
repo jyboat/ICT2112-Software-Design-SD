@@ -1,76 +1,43 @@
 ﻿@{
-    ViewData["Title"] = "Add Resource";
+    ViewData["Title"] = "Add Summary";
 }
 
-<div class="container add-resource">
+<div class="container update-summary">
     <div class="card shadow p-4">
-        <h2 class="text-info mb-3">Adding New Resource</h2>
-
-        <form action="/Resource/Add" method="post" enctype="multipart/form-data">
+        <h2 class="text-info mb-3">Adding Summary for {patient name}</h2>
+        <form action="/Summary/Add" method="post">
             <div class="table-responsive">
-                <table class="table table-bordered resource-table">
+                <table class="table table-bordered summary-table">
                     <tbody>
                         <tr>
-                            <th>Title:</th>
+                            <th>Patient details</th>
                             <td>
-                                <input name="title" type="text" class="form-control" required />
+                                <p class="mb-3"><strong>Name:</strong>{name}</p>
+                                <p class="mb-3"><strong>Date of Birth:</strong>{DOB}</p>
+                                <p class="mb-3"><strong>ID:</strong>{ID}</p>
                             </td>
                         </tr>
                         <tr>
-                            <th>Short Description:</th>
+                            <th>Procedures and Details</th>
                             <td>
-                                <textarea name="description" class="form-control" required></textarea>
+                                <textarea name="details" class="form-control" required></textarea>
                             </td>
                         </tr>
                         <tr>
-                            <th>Uploaded By (User ID):</th>
+                            <th>Follow-up instructions:</th>
                             <td>
-                                <input name="uploadedBy" type="number" class="form-control" required />
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Cover Image:</th>
-                            <td>
-                                <input name="coverImage" type="file" class="form-control" accept="image/*" required />
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Resource Type:</th>
-                            <td>
-                                <select id="resourceType" name="resourceType" class="form-control" required onchange="toggleInputFields()">
-                                    <option value="">-- Select Type --</option>
-                                    <option value="article">Article (Link)</option>
-                                    <option value="video">Video (Upload)</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr id="articleUrlRow" style="display: none;">
-                            <th>Article URL:</th>
-                            <td>
-                                <input name="articleUrl" id="articleUrl" type="url" class="form-control" />
-                            </td>
-                        </tr>
-                        <tr id="videoFileRow" style="display: none;">
-                            <th>Upload Video:</th>
-                            <td>
-                                <input name="videoFile" id="videoFile" type="file" class="form-control" accept="video/*" />
+                                <textarea name="instructions" class="form-control" required></textarea>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="text-center">
+            <div class="text-center>">
                 <button type="submit" class="btn btn-primary w-100">Submit</button>
             </div>
         </form>
     </div>
 </div>
 
-<script>
-    function toggleInputFields() {
-        var resourceType = document.getElementById("resourceType").value;
-        document.getElementById("articleUrlRow").style.display = (resourceType === "article") ? "" : "none";
-        document.getElementById("videoFileRow").style.display = (resourceType === "video") ? "" : "none";
-    }
-</script>
+
