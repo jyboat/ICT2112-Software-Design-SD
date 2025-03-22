@@ -63,9 +63,18 @@ namespace ClearCare.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ReassignManual()
+        public async Task<IActionResult> ReassignManual(ServiceBacklogViewModel viewModel)
         {
             // call manual scheduler
+            Console.WriteLine("Reassigning Backlog:");
+            Console.WriteLine($"BacklogId: {viewModel.BacklogId}");
+            Console.WriteLine($"AppointmentId: {viewModel.AppointmentId}");
+            Console.WriteLine($"DateTime: {viewModel.DateTime}");
+            Console.WriteLine($"PatientId: {viewModel.PatientId}");
+            Console.WriteLine($"DoctorId: {viewModel.DoctorId}");
+            Console.WriteLine($"NurseId: {viewModel.NurseId}");
+            Console.WriteLine($"ServiceType: {viewModel.ServiceType}");
+            // await _manager.reassignBacklog(viewModel);
             // delete old once successfully scheduled
             return RedirectToAction("Index");
         }

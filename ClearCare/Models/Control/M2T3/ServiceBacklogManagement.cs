@@ -10,7 +10,6 @@ namespace ClearCare.Models.Control
     public class ServiceBacklogManagement: IServiceBacklogDB_Receive, ISchedulingListener
     {
         private readonly IServiceBacklogDB_Send _dbGateway;
-        private readonly ServiceAppointmentManagement serviceManager = new ServiceAppointmentManagement();
         private ServiceBacklogController? _controller;
         
         public ServiceBacklogManagement()
@@ -38,13 +37,13 @@ namespace ClearCare.Models.Control
             return serviceBacklogs;
         }
 
-        // Get all backlogs including details of each
+        // Get all backlogs including details of each service
         public async Task<List<ServiceBacklogViewModel>> getAllBacklogDetails()
         {
             // get all backlogs
             List<ServiceBacklog> serviceBacklogs = await getAllBacklogs();
             // Get all services
-            var allAppointments = await serviceManager.retrieveAllAppointments();
+            var allAppointments = await new ServiceAppointmentManagement().retrieveAllAppointments();
 
             // Combine data into ServiceBacklogViewModel
             var serviceBacklogViewModels = new List<ServiceBacklogViewModel>();
@@ -78,15 +77,38 @@ namespace ClearCare.Models.Control
             ServiceBacklog serviceBacklog = new ServiceBacklog();
             serviceBacklog.setBacklogInformation(backlogDTO["backlogId"], backlogDTO["appointmentId"]);
 
-            var appointment = await serviceManager.getAppointmentByID(serviceBacklog.getBacklogInformation()["appointmentId"]);
+            var appointment = await  new ServiceAppointmentManagement().getAppointmentByID(serviceBacklog.getBacklogInformation()["appointmentId"]);
 
             var serviceBacklogViewModel = await createViewModel(serviceBacklog, appointment);
 
             return serviceBacklogViewModel;
         }
 
-        public bool reassignBacklog()
+        public bool reassignBacklog(ServiceBacklogViewModel viewModel)
         {
+            try
+            {
+                // Print the view model data
+                Console.WriteLine("Reassigning Backlog:");
+                Console.WriteLine($"BacklogId: {viewModel.BacklogId}");
+                Console.WriteLine($"AppointmentId: {viewModel.AppointmentId}");
+                Console.WriteLine($"DateTime: {viewModel.DateTime}");
+                Console.WriteLine($"PatientId: {viewModel.PatientId}");
+                Console.WriteLine($"DoctorId: {viewModel.DoctorId}");
+                Console.WriteLine($"NurseId: {viewModel.NurseId}");
+                Console.WriteLine($"ServiceType: {viewModel.ServiceType}");
+
+                // Perform reassignment logic here
+                // For example, update the database or call another service
+
+                // If reassignment fails, return false
+                // return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error reassigning backlog: {ex.Message}");
+                return false;
+            }
             // if there was an error / cannot schedule, return false
 
             // if assignment successful
@@ -179,7 +201,7 @@ namespace ClearCare.Models.Control
                 BacklogId = serviceBacklog.getBacklogInformation()["backlogId"],
                 AppointmentId = serviceBacklog.getBacklogInformation()["appointmentId"],
                 DateTime = (DateTime)appointment["DateTime"],
-                DateTimeFormatted = ((DateTime)appointment["DateTime"]).ToString("yyyy-MM-dd HH:mm:ss"),
+                // DateTimeFormatted = ((DateTime)appointment["DateTime"]).ToString("yyyy-MM-dd HH:mm:ss"),
                 PatientId = (string)appointment["PatientId"],
                 DoctorId = (string)appointment["DoctorId"],
                 NurseId = (string)appointment["NurseId"],

@@ -18,6 +18,8 @@
 
 <form id="appointmentForm" method="post" asp-action="ReassignManual">
     <!-- Disabled or hidden fields for unchangeable data -->
+    <input type="hidden" name="BacklogId" value="@Model.BacklogId">
+
     <label for="appointmentId">Appointment ID:</label>
     <input type="text" id="appointmentId" name="AppointmentId" value="@Model.AppointmentId" readonly style="background-color: #e9ecef;"><br><br>
 
@@ -27,8 +29,8 @@
     <label for="doctorId">Doctor ID:</label>
     <input type="text" id="doctorId" name="DoctorId" value="@Model.DoctorId" readonly style="background-color: #e9ecef;"><br><br>
 
-    <label for="serviceTypeId">Service Type ID:</label>
-    <input type="text" id="serviceTypeId" name="ServiceTypeId" value="@Model.ServiceType" readonly style="background-color: #e9ecef;"><br><br>
+    <label for="serviceTypeId">Service Type:</label>
+    <input type="text" id="serviceTypeId" name="ServiceType" value="@Model.ServiceType" readonly style="background-color: #e9ecef;"><br><br>
 
     <label for="nurseId">Nurse:</label>
     <select id="nurseId" name="NurseId" class="select2" required>
@@ -41,6 +43,7 @@
 
     <label for="dateTime">Date & Time:</label>
     <input type="datetime-local" id="dateTime" name="DateTime" required><br><br>
+
 
     <label for="slot">Slot:</label>
     <input type="number" id="slot" name="Slot" required><br><br>
