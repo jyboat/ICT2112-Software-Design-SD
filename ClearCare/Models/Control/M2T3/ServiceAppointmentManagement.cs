@@ -240,6 +240,33 @@ namespace ClearCare.Models.Control
                 };
         }
 
+        public Task getUnscheduledPatients(List<ServiceAppointment> allServiceAppointments)
+        {
+            if (allServiceAppointments.Count == 0)
+            {
+                Console.WriteLine("No service appointment found.");
+            }
+            else
+            {
+                Console.WriteLine($"Received {allServiceAppointments.Count} service appointment found.");
+            }
+            return Task.CompletedTask;
+        }
+
+        public class Patient
+        {
+            public string PatientId { get; set; } = string.Empty;
+            public string Name { get; set; } = string.Empty;
+        }
+
+        public async Task<List<ServiceAppointmentGateway.Patient>> getUnscheduledPatients()
+        {
+            // Call the gateway to get the unscheduled patients.
+            List<ServiceAppointmentGateway.Patient> patients = await _dbGateway.fetchAllUnscheduledPatients();
+            return patients;
+        }
+
+
         // public Task CreateAppointment() {
         //     Console.WriteLine("Hello Create Appointment Interface");
         //     return Task.CompletedTask;

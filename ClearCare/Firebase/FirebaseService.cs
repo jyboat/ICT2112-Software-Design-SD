@@ -15,12 +15,12 @@ public class FirebaseService
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 // Path for MacBook
-                path = @"Firebase/firebase-adminsdk.json";
+                path = @"Firebase/firebase-adminsdk-private.json";
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 // Path for Windows
-                path = @"Firebase\firebase-adminsdk.json"; // not to make path absolute with "C: "
+                path = @"Firebase\firebase-adminsdk-private.json"; // not to make path absolute with "C: "
             }
             else
             {
@@ -29,7 +29,8 @@ public class FirebaseService
 
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
 
-            _firestoreDb = FirestoreDb.Create("ict2112");
+            // _firestoreDb = FirestoreDb.Create("ict2112");
+            _firestoreDb = FirestoreDb.Create("hello-world-f8882");
             Console.WriteLine("Connected to Firestore!");
         }
 

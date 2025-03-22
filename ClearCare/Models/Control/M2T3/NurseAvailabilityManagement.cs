@@ -12,7 +12,7 @@ namespace ClearCare.Models.Control
 
         public NurseAvailabilityManagement()
         {
-            _dbGateway = (IAvailabilityDB_Send) new NurseAvailabilityGateway();
+            _dbGateway = (IAvailabilityDB_Send)new NurseAvailabilityGateway();
             _dbGateway.Receiver = this;
         }
 
@@ -136,8 +136,8 @@ namespace ClearCare.Models.Control
         // Delete an availability - not implemented in any intefaces; used in NurseAvailabilityController (DeleteAvailability)
         public async Task deleteAvailability(int availabilityId)
         {
-             await _dbGateway.removeAvailability(availabilityId);
+            await _dbGateway.removeAvailability(availabilityId);
         }
     }
-    
+
 }

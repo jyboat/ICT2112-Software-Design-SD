@@ -97,6 +97,13 @@ public class ServiceAppointmentsController : Controller
         return View("~/Views/M2T3/ServiceAppointments/CreateServiceAppt.cshtml"); // Render the form
     }
 
+    [HttpGet]
+    [Route("AutoScheduling")]
+    public async Task<IActionResult> AddPatients()
+    {
+        ViewBag.Patients = await ServiceAppointmentManagement.getUnscheduledPatients();
+        return View("~/Views/M2T3/ServiceAppointments/AddPatientsAutoScheduling.cshtml");
+    }
 
     // POST: Create a new appointment
     // Route: localhost:5007/api/ServiceAppointments/Create that retriggers POST
@@ -246,12 +253,19 @@ public class ServiceAppointmentsController : Controller
     }
 
     // Test Auto Interface
-    [HttpGet]
+    [HttpPost]
     [Route("TestAutoAppointment")]
-    public void TestAutoAppointment()
+    public IActionResult TestAutoAppointment([FromForm] List<string> PatientIds)
     {
+        Console.WriteLine("Selected Patient IDs: " + string.Join(", ", PatientIds));
+    
+        // Pass the list of patient IDs to your scheduling algorithm.
+        // You might need to modify AutomaticallyScheduleAppointment to accept this list.
         AutomaticAppointmentScheduler.SetAlgorithm(new PreferredNurseStrategy());
-        AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment();
+        AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(PatientIds);
+        
+        // Return a response or redirect as needed.
+        return Ok(new { Message = "Auto appointment scheduling initiated.", SelectedPatients = PatientIds });
     }
 
     [HttpPost]

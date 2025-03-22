@@ -252,10 +252,42 @@ namespace ClearCare.DataSource
             return appointment;
         }
 
+        public class Patient
+        {
+            public string PatientId { get; set; } = string.Empty;
+            public string Name { get; set; } = string.Empty;
+        }
 
+        // To do: Retrieve from firebase/interface
+        public async Task<List<Patient>> fetchAllUnscheduledPatients()
+        {
+            
+            var patients = new List<Patient>
+            {
+                new Patient { PatientId = "PAT001", Name = "Patient 1" },
+                new Patient { PatientId = "PAT002", Name = "Patient 2" },
+                new Patient { PatientId = "PAT003", Name = "Patient 3" },
+                new Patient { PatientId = "PAT004", Name = "Patient 4" },
+                new Patient { PatientId = "PAT005", Name = "Patient 5" },
+                new Patient { PatientId = "PAT006", Name = "Patient 6" },
+                new Patient { PatientId = "PAT007", Name = "Patient 7" },
+                new Patient { PatientId = "PAT008", Name = "Patient 8" },
+                new Patient { PatientId = "PAT009", Name = "Patient 9" }
+            };
+            var unscheduledPatients = new List<Patient>();
 
-
-
+            foreach (var patient in patients)
+            {
+                Query appointmentsRef = _db.Collection("ServiceAppointments")
+                                        .WhereEqualTo("PatientId", patient.PatientId);
+                QuerySnapshot snapshot = await appointmentsRef.GetSnapshotAsync();
+                if(snapshot.Count == 0){
+                    unscheduledPatients.Add(new Patient { PatientId = patient.PatientId, Name = patient.Name });
+                }
+            }
+            
+            return unscheduledPatients;
+        }
 
     }
 

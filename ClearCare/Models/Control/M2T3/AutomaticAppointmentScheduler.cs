@@ -38,7 +38,6 @@ namespace ClearCare.Models.Control
             // attach(_serviceBacklogManagement);
         }
 
-
         public void SetAlgorithm(IAutomaticScheduleStrategy IAutomaticScheduleStrategy)
         {
             _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; 
@@ -51,13 +50,28 @@ namespace ClearCare.Models.Control
             public string Name { get; set; } = string.Empty;
         }
 
-        public class Patient
-        {
-            public string PatientId { get; set; }  = string.Empty;
-            public string Name { get; set; } = string.Empty;
-        }
+        // public class Patient
+        // {
+        //     public string PatientId { get; set; }  = string.Empty;
+        //     public string Name { get; set; } = string.Empty;
+        // }
 
-        public async void AutomaticallyScheduleAppointment()
+        // public List<Patient> getPatients(){
+        //     var patients = new List<Patient>
+        //     {
+        //         new Patient { PatientId = "PAT001", Name = "Patient 1" },
+        //         new Patient { PatientId = "PAT002", Name = "Patient 2" },
+        //         new Patient { PatientId = "PAT003", Name = "Patient 3" }
+        //     };
+            
+        //     return patients; 
+        // }
+
+        // To Do: In ServiceAppointmentGateway, PreferredNurseStrategy and this class
+        // To Do: Modify HTML to showcase how auto scheduling works
+        // To Do: Add more interface for serviceAppointment db operations
+
+        public async void AutomaticallyScheduleAppointment(List<string> patients)
         {
             // Attach listener only when scheduling is called
             var _serviceBacklogManagement = new ServiceBacklogManagement();
@@ -68,22 +82,7 @@ namespace ClearCare.Models.Control
                 throw new InvalidOperationException("Scheduling strategy has not been set. Use SetAlgorithm() first.");
             }
 
-            // Hardcoded data
-            Query patientQuery = db.Collection("User").WhereEqualTo("Role", "Patient");
-            QuerySnapshot snapshot1 = await patientQuery.GetSnapshotAsync();
-
-            var patients = new List<Patient>();
-
-            foreach(DocumentSnapshot document in snapshot1.Documents)
-            {
-                patients.Add(new Patient
-                {
-                    PatientId = document.Id,
-                    Name = document.GetValue<string>("Name")
-                });
-            }
-
-            // Hardcoded data
+            // To do: Use interface to get services
             Query serviceQuery = db.Collection("service_type");
             QuerySnapshot snapshot2 = await serviceQuery.GetSnapshotAsync();
 
@@ -93,20 +92,53 @@ namespace ClearCare.Models.Control
             {
                 services.Add(document.GetValue<string>("name"));
             }
+            
+            // To Do: Need check whether they're from pre-discharge department
+            // var nurses = new List<Nurse>();
 
-            var nurses = new List<Nurse>();
+            // var AvailableNurse = await _iNurseAvailability.getAllStaffAvailability();
 
-            var AvailableNurse = await _iNurseAvailability.getAllStaffAvailability();
+            // foreach (var nurse in AvailableNurse)
+            // {
+            //     var availabilityDetails = nurse.getAvailabilityDetails();
+            //     if (availabilityDetails.ContainsKey("nurseID"))
+            //     {
+            //         nurses.Add(new Nurse
+            //         {
+            //             NurseId = availabilityDetails["nurseID"].ToString() ?? " "    
+            //         });
+            //     }
+            // }
+            
+            // var serviceSlotTracker = new Dictionary<string, Dictionary<int, int>>();
+            var nurseSlotTracker = new Dictionary<string, List<int>>();
 
-            foreach (var nurse in AvailableNurse)
+            // To do: Use interface for nurse
+            var nurses = new List<Nurse>
             {
-                var availabilityDetails = nurse.getAvailabilityDetails();
-                if (availabilityDetails.ContainsKey("nurseID"))
-                {
-                    nurses.Add(new Nurse
+                new Nurse { NurseId = "NURSE001", Name = "Nurse A" },
+                new Nurse { NurseId = "NURSE002", Name = "Nurse B" },
+                new Nurse { NurseId = "NURSE003", Name = "Nurse C" },
+                new Nurse { NurseId = "NURSE004", Name = "Nurse D" },
+                new Nurse { NurseId = "NURSE005", Name = "Nurse E" },
+                new Nurse { NurseId = "NURSE006", Name = "Nurse F" }
+            };
+
+            foreach(var nurse in nurses){
+                Query nurseSlotList = db.Collection("ServiceAppointments")
+                                    .WhereEqualTo("NurseId", nurse.NurseId);
+                QuerySnapshot patientSnapshot = await nurseSlotList.GetSnapshotAsync();
+                foreach(DocumentSnapshot document in patientSnapshot.Documents){
+                    string nurseID = document.GetValue<string>("NurseId");
+                    int slot = document.GetValue<int>("Slot");
+
+                    // Create list for the nurse if doesn't exists
+                    if (!nurseSlotTracker.ContainsKey(nurseID))
                     {
-                        NurseId = availabilityDetails["nurseID"].ToString() ?? " "    
-                    });
+                        nurseSlotTracker[nurseID] = new List<int>();
+                    }
+                    // Add the slot number into the list.
+                    nurseSlotTracker[nurseID].Add(slot);
                 }
             }
 
@@ -127,12 +159,19 @@ namespace ClearCare.Models.Control
             }
 
             // Call the auto-assignment function
-            var serviceAppointment = _iAutomaticScheduleStrategy.AutomaticallySchedule(nurses, patients, services, backlogEntries);
+            var serviceAppointment = _iAutomaticScheduleStrategy.AutomaticallySchedule(
+                nurses, 
+                patients, 
+                services, 
+                backlogEntries,
+                // patientSlotTracker,
+                nurseSlotTracker);
 
             foreach (var serviceAppt in serviceAppointment)
             {
                 if (serviceAppt.GetAttribute("AppointmentId") != "")
                 {
+                    // For when backlog is successfully rescheduled
                     await _iCreateAppointment.DeleteAppointment(
                         serviceAppt.GetAttribute("AppointmentId")
                     );
@@ -142,7 +181,7 @@ namespace ClearCare.Models.Control
                         serviceAppt.GetAttribute("NurseId"),
                         "Hardcode Doctor",
                         serviceAppt.GetAttribute("ServiceTypeId"),
-                        "Pending",
+                        "Scheduled",
                         DateTime.UtcNow,
                         serviceAppt.GetIntAttribute("Slot"),
                         "Physical"
@@ -152,17 +191,19 @@ namespace ClearCare.Models.Control
                     notify(serviceAppt.GetAttribute("AppointmentId"), "success");
                 }
                 else{
+                    // For new appointments
                     var appointmentId = await _iCreateAppointment.CreateAppointment(
                         serviceAppt.GetAttribute("PatientId"),
                         serviceAppt.GetAttribute("NurseId"),
                         "Hardcode Doctor",
                         serviceAppt.GetAttribute("ServiceTypeId"),
-                        "Pending",
+                        "Backlog",
                         DateTime.UtcNow,
                         serviceAppt.GetIntAttribute("Slot"),
                         "Physical"
                     );
 
+                    // When appointment isn't scheduled
                     if (string.IsNullOrEmpty(serviceAppt.GetAttribute("NurseId")))
                     {
                         Console.WriteLine($"Failed to schedule Appointment: {appointmentId}");
@@ -170,7 +211,6 @@ namespace ClearCare.Models.Control
                     }
                 }
             }
-
         }
 
         public async Task TestInterface()
