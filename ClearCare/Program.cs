@@ -10,6 +10,7 @@ System.Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", cred
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient();
 
 
 // Register your gateway and control
@@ -20,8 +21,14 @@ builder.Services.AddSingleton<EnquiryLoggingObserver>(); // hypothetical observe
 builder.Services.AddSingleton<SideEffectsMapper>();
 builder.Services.AddScoped<SideEffectControl>();
 
+builder.Services.AddScoped<PatientDrugLogControl>();
+
 builder.Services.AddSingleton<PrescriptionMapper>();
 builder.Services.AddScoped<PrescriptionControl>();
+
+builder.Services.AddSingleton<PatientDrugMapper>();
+builder.Services.AddScoped<PatientDrugLogControl>();
+builder.Services.AddScoped<DrugInteractionControl>();
 
 var app = builder.Build();
 

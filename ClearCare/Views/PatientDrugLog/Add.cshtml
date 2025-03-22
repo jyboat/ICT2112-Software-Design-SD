@@ -1,0 +1,48 @@
+@using ClearCare  
+
+@{
+    ViewData["Title"] = "Upload Drug";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Upload Drug</h1>
+
+    <form asp-action="Add" method="post">
+        <div class="mb-3">
+            <label for="PatientId" class="form-label">Patient ID</label>
+            <!-- Use your static class to populate the field -->
+            <input type="text"
+                   class="form-control"
+                   id="PatientId"
+                   name="PatientId"
+                   value="@HardcodedUUIDs.UserUUID"
+                   readonly />
+        </div>
+
+        <div class="mb-3">
+            <label for="DrugName" class="form-label">Drug Name</label>
+            <input type="text" class="form-control" id="DrugName" name="DrugName" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="DrugInformation" class="form-label">Drug Information</label>
+            <textarea class="form-control" id="DrugInformation" name="DrugInformation" rows="3" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="SideEffects" class="form-label">Side Effects</label>
+            <textarea class="form-control" id="SideEffects" name="SideEffects" rows="3" required></textarea>
+        </div>
+    
+        <div class="form-group col-md-4 mb-3 ">
+        <label for="status">Status</label>
+        <select id="status" name = "status" class="form-control">
+            <option selected>Currently Taking</option>
+            <option>Not Taking</option>
+        </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Upload Drug Info</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

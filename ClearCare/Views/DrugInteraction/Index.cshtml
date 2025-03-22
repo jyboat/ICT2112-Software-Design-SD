@@ -1,0 +1,84 @@
+@using ClearCare 
+@{
+    ViewData["Title"] = "Drug Interaction Checker";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Drug Checker</h1>
+
+    <form class = "mb-5" asp-action="Add" method="post">
+        <div class="mt-3">
+            <label for="PatientId" class="form-label">Patient ID</label>
+            <!-- Use your static class to populate the field -->
+            <input type="text"
+                   class="form-control"
+                   id="PatientId"
+                   name="PatientId"
+                   value="@HardcodedUUIDs.UserUUID"
+                   readonly />
+        </div>
+
+        <div class="mb-3">
+            <label for="DrugName" class="form-label">Drug Name</label>
+            <input type="text" class="form-control" id="DrugName" name="DrugName" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Retrieve Drug Info</button>
+    </form>
+
+
+    @if (ViewBag.DrugName != null)
+    {
+        <p><strong>Drug Name:</strong> @ViewBag.DrugName</p>
+
+        <h5>Reported Side Effects:</h5>
+        <div class = "flex flex-wrap" style = "display:flex !important">
+        @foreach (var reaction in ViewBag.Reactions)
+        {
+            <div class="card p-1" style = "width: 200px; border: none; ">
+                <div class="card-body shadow" style = "border:1px solid #FDFAF6; border-radius: 5px">
+                    <h5 class="card-title">@reaction.Term</h5>
+                    <p class="card-text">@reaction.Count cases</p>
+                </div>
+            </div>
+        }
+        </div>
+
+        <h5 class = "mt-3">Warnings & Precautions:</h5>
+        <div class="flex flex-wrap" style="display: flex !important">
+            @if (ViewBag.Labeling.Count > 0)
+            {
+                @foreach (var label in ViewBag.Labeling)
+                {
+                    @if (!string.IsNullOrEmpty(label.Warning))
+                    {
+                        <div class="card p-1 w-50" style="border: none;">
+                            <div class="card-body shadow" style="border: 1px solid #FDFAF6; border-radius: 5px">
+                                <h5 class="card-title">Warning</h5>
+                                <p class="card-text">@label.Warning</p>
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(label.Precautions))
+                    {
+                        <div class="card p-1 w-50" style="border: none;">
+                            <div class="card-body shadow" style="border: 1px solid #FDFAF6; border-radius: 5px">
+                                <h5 class="card-title">Precautions</h5>
+                                <p class="card-text">@label.Precautions</p>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+            else
+            {
+                <p>No labeling information found.</p>
+            }
+        </div>
+        }
+        else
+        {
+            <p>No data available. Please enter a drug name.</p>
+        }
+</div>

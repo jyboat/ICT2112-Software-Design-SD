@@ -29,10 +29,22 @@ namespace ClearCare.Controllers
         }
 
 
-         public IActionResult goToPrescription()
+        public IActionResult goToPrescription()
         {
             // Redirects to the SideEffectsController's index action
             return RedirectToAction("index", "Prescription");
+        }
+
+        public IActionResult goToDrugLog()
+        {
+            // Redirects to the PatientDrugLogController's index action
+            return RedirectToAction("index", "PatientDrugLog");
+        }
+
+        public IActionResult goToDrugInteraction()
+        {
+            // Redirects to the PatientDrugLogController's index action
+            return RedirectToAction("index", "DrugInteraction");
         }
     }
 }
