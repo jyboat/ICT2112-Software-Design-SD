@@ -39,6 +39,8 @@ builder.Services.AddScoped<IMedicalRecord, ViewMedicalRecord>(); // Ensure ViewM
 builder.Services.AddScoped<IUserDetails, ProfileManagement>(); // Ensure ProfileManagement implements IUserDetails
 builder.Services.AddScoped<IMedicalRecordSubject, ManageMedicalRecord>();
 builder.Services.AddScoped<UpdateViewObserver>();
+builder.Services.AddSingleton<NotificationManager>();
+
 
 var app = builder.Build();
 
@@ -74,6 +76,10 @@ app.UseSession();
 
 // Required services
 // Start UpdateViewObserver automatically (ensures observer is created)
+
+// Instantiate NotificationManager and NotificationScheduler using DI
+var notificationManager = app.Services.GetRequiredService<NotificationManager>();
+var notificationScheduler = new NotificationScheduler(notificationManager);
 
 app.MapControllerRoute(
     name: "default",

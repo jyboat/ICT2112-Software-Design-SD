@@ -4,6 +4,6 @@ namespace ClearCare.Interfaces
 {
     public interface INotificationSender
     {
-        Task sendNotification(string email, string content);
+        Task sendNotification(string email, string phone, string content);
     }
 }

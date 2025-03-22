@@ -6,8 +6,13 @@ namespace ClearCare.Controllers
 {
     public class NotificationTestController : Controller
     {
-        // You can instantiate NotificationManager directly here.
-        private readonly NotificationManager _notificationManager = new NotificationManager();
+        private readonly NotificationManager _notificationManager;
+
+        // Constructor injection
+        public NotificationTestController(NotificationManager notificationManager)
+        {
+            _notificationManager = notificationManager;
+        }
 
         // GET: /NotificationTest/
         public IActionResult Index()
@@ -21,7 +26,7 @@ namespace ClearCare.Controllers
         {
             // Hardcoded parameters for testing:
             int testUserId = 1; // Example userId
-            string testContent = "This is a test notification hehehehe.";
+            string testContent = "Test";
 
             // Call the NotificationManager's createNotification method.
             await _notificationManager.createNotification(testUserId, testContent);

@@ -6,7 +6,7 @@ using ClearCare.Interfaces;
 
 public class NotificationEmailService : INotificationSender
 {
-    public async Task sendNotification(string email, string content)
+    public async Task sendNotification(string email, string phone, string content)
     {
         try
         {
