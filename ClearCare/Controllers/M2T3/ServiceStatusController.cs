@@ -13,12 +13,10 @@ namespace ClearCare.Controllers
     public class ServiceStatusController : Controller
     {
         private readonly ServiceAppointmentStatusManagement _manager;
-        private readonly IServiceStatus _iServiceStatus;
 
         public ServiceStatusController()
         {
-            _iServiceStatus = (IServiceStatus) new ServiceAppointmentManagement();
-            _manager = new ServiceAppointmentStatusManagement(_iServiceStatus);
+            _manager = new ServiceAppointmentStatusManagement();
         }
 
         [HttpGet]
