@@ -13,6 +13,87 @@ namespace ClearCare.DataSource.M3T1
             _db = FirebaseService.Initialize();
         }
 
+        // Community Groups
+
+        public async Task<List<CommunityGroup>> fetchCommunityGroups()
+        {
+            try
+            {
+                var snapshot = await _db.Collection("CommunityGroups").GetSnapshotAsync();
+                return snapshot.Documents.Select(doc => doc.ConvertTo<CommunityGroup>()).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching community groups: {ex.Message}");
+                throw new ApplicationException("An error occurred while fetching community groups.", ex);
+            }
+        }
+
+        public async Task<CommunityGroup> fetchGroupById(string id)
+        {
+            try
+            {
+                var docRef = _db.Collection("CommunityGroups").Document(id);
+                var doc = await docRef.GetSnapshotAsync();
+
+                if (doc == null || !doc.Exists)
+                {
+                    Console.WriteLine($"Group with ID {id} not found.");
+                    return null;
+                }
+
+                return doc.ConvertTo<CommunityGroup>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching group by ID: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task insertGroup(CommunityGroup group)
+        {
+            try
+            {
+                var collection = _db.Collection("CommunityGroups");
+                await collection.AddAsync(group);
+                Console.WriteLine($"Community group added: {group.Name}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error inserting community group: {ex.Message}");
+            }
+        }
+
+        public async Task updateCommunityGroup(CommunityGroup group)
+        {
+            try
+            {
+                var docRef = _db.Collection("CommunityGroups").Document(group.Id);
+                await docRef.SetAsync(group, SetOptions.MergeAll);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating community group: {ex.Message}");
+                throw new ApplicationException("An error occurred while updating the community group.", ex);
+            }
+        }
+
+        public async Task deleteGroup(string id)
+        {
+            try
+            {
+                await _db.Collection("CommunityGroups").Document(id).DeleteAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting community group: {ex.Message}");
+                throw new ApplicationException("An error occurred while deleting the community group.", ex);
+            }
+        }
+
+        // Community Posts
+
         public async Task<List<CommunityPost>> fetchCommunityPosts()
         {
             try
@@ -74,25 +155,24 @@ namespace ClearCare.DataSource.M3T1
             }
             catch (Exception ex)
             {
-                // Log the exception
                 Console.WriteLine($"Error inserting community post: {ex.Message}");
-                throw new ApplicationException("An error occurred while inserting the community post.", ex);
+                //throw new ApplicationException("An error occurred while inserting the community post.", ex);
             }
         }
 
-        //public async Task updateCommunityPost(CommunityPost post)
-        //{
-        //    try
-        //    {
-        //        var docRef = _db.Collection("CommunityPosts").Document(post.Id);
-        //        await docRef.SetAsync(post, SetOptions.MergeAll());
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Error updating community post: {ex.Message}");
-        //        throw new ApplicationException("An error occurred while updating the community post.", ex);
-        //    }
-        //}
+        public async Task updateCommunityPost(CommunityPost post)
+        {
+            try
+            {
+                var docRef = _db.Collection("CommunityPosts").Document(post.Id);
+                await docRef.SetAsync(post, SetOptions.MergeAll);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating community post: {ex.Message}");
+                throw new ApplicationException("An error occurred while updating the community post.", ex);
+            }
+        }
 
         public async Task deletePost(string id)
         {
@@ -107,7 +187,9 @@ namespace ClearCare.DataSource.M3T1
             }
         }
 
-        public async Task<List<CommunityComment>> fetchCommunityComments()
+        // Community Comments
+
+        public async Task<List<CommunityComment>> fetchPostComments(string postId)
         {
             try
             {
@@ -121,6 +203,28 @@ namespace ClearCare.DataSource.M3T1
             }
         }
 
+        public async Task<CommunityComment> fetchCommentById(string id)
+        {
+            try
+            {
+                var docRef = _db.Collection("CommunityComments").Document(id);
+                var doc = await docRef.GetSnapshotAsync();
+
+                if (doc == null || !doc.Exists)
+                {
+                    Console.WriteLine($"Comment with ID {id} not found.");
+                    return null;
+                }
+
+                return doc.ConvertTo<CommunityComment>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching comment by ID: {ex.Message}");
+                return null;
+            }
+        }
+
         public async Task insertComment(CommunityComment comment)
         {
             try
@@ -129,101 +233,38 @@ namespace ClearCare.DataSource.M3T1
             }
             catch (Exception ex)
             {
-                // Log the exception
                 Console.WriteLine($"Error inserting community comment: {ex.Message}");
-                throw new ApplicationException("An error occurred while inserting the community comment.", ex);
+                //throw new ApplicationException("An error occurred while inserting the community comment.", ex);
             }
         }
 
-        //public async Task updateCommunityComment(CommunityComment comment)
-        //{
-        //    try
-        //    {
-        //        var docRef = _db.Collection("CommunityComments").Document(comment.Id);
-        //        await docRef.SetAsync(comment, SetOptions.MergeAll());
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Error updating community comment: {ex.Message}");
-        //        throw new ApplicationException("An error occurred while updating the community comment.", ex);
-        //    }
-        //}
-
-        public async Task<List<CommunityGroup>> fetchCommunityGroups()
+        public async Task deleteComment(string id)
         {
             try
             {
-                var snapshot = await _db.Collection("CommunityGroups").GetSnapshotAsync();
-                return snapshot.Documents.Select(doc => doc.ConvertTo<CommunityGroup>()).ToList();
+                await _db.Collection("CommunityComments").Document(id).DeleteAsync();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error fetching community groups: {ex.Message}");
-                throw new ApplicationException("An error occurred while fetching community groups.", ex);
+                Console.WriteLine($"Error deleting community comment: {ex.Message}");
+                //throw new ApplicationException("An error occurred while deleting the comment.", ex);
             }
         }
 
-        public async Task<CommunityGroup> fetchGroupById(string id)
+        public async Task updateCommunityComment(CommunityComment comment)
         {
             try
             {
-                var docRef = _db.Collection("CommunityGroups").Document(id);
-                var doc = await docRef.GetSnapshotAsync();
-
-                if (doc == null || !doc.Exists)
-                {
-                    Console.WriteLine($"Group with ID {id} not found.");
-                    return null;
-                }
-
-                return doc.ConvertTo<CommunityGroup>();
+                var docRef = _db.Collection("CommunityComments").Document(comment.Id);
+                await docRef.SetAsync(comment, SetOptions.MergeAll);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error fetching group by ID: {ex.Message}");
-                return null;
+                Console.WriteLine($"Error updating community comment: {ex.Message}");
+                //throw new ApplicationException("An error occurred while updating the community comment.", ex);
             }
         }
 
-        public async Task insertGroup(CommunityGroup group)
-        {
-            try
-            {
-                var collection = _db.Collection("CommunityGroups");
-                await collection.AddAsync(group);
-                Console.WriteLine($"Community group added: {group.Name}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error inserting community group: {ex.Message}");
-            }
-        }
-
-        //public async Task updateCommunityGroup(CommunityGroup group)
-        //{
-        //    try
-        //    {
-        //        var docRef = _db.Collection("CommunityGroups").Document(group.Id);
-        //        await docRef.SetAsync(group, SetOptions.MergeAll());
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Error updating community group: {ex.Message}");
-        //        throw new ApplicationException("An error occurred while updating the community group.", ex);
-        //    }
-        //}
-
-        public async Task deleteGroup(string id)
-        {
-            try
-            {
-                await _db.Collection("CommunityGroups").Document(id).DeleteAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting community group: {ex.Message}");
-                throw new ApplicationException("An error occurred while deleting the community group.", ex);
-            }
-        }
+        
     }
 }

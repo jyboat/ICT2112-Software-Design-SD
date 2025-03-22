@@ -1,0 +1,184 @@
+﻿@using ClearCare.Models.Control.M3T1
+@using ClearCare.Models.ViewModels.M3T1
+@model CommunityViewModel
+
+@{
+    ViewData["Title"] = Model.CommunityPost.GetTitle();
+    string userId = "123";
+}
+
+<h2>@Model.CommunityPost.GetTitle()</h2>
+<p>@Model.CommunityPost.GetContent()</p>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>@Model.CommunityPost.GetTitle()</title>
+    <style>
+        .comment-container {
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        .comment-section {
+            margin-top: 20px;
+        }
+
+        .comment {
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+        }
+
+            .comment strong {
+                display: block;
+                margin-bottom: 5px;
+            }
+
+        .comment-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .delete-btn, .edit-btn {
+            padding: 5px 10px;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+        }
+
+        .edit-btn {
+            background-color: orange;
+        }
+
+        .delete-btn {
+            background-color: red;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 40%;
+        }
+
+        .modal-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+            .modal-close:hover,
+            .modal-close:focus {
+                color: black;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            resize: none;
+        }
+
+        button {
+            padding: 10px;
+            background-color: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="comment-container">
+        <h3>Comments</h3>
+        <div class="comment-section">
+            @if (Model.Comments.Any())
+            {
+                foreach (var comment in Model.Comments)
+                {
+                    <div class="comment">
+                        <div>
+                            <strong>@comment.GetCreatedBy()</strong>
+                            <p>@comment.GetContent()</p>
+                            <small>Posted on: @comment.GetCreatedAt()</small>
+                        </div>
+                        <div class="comment-actions">
+                            <!-- Edit Button -->
+                            <button type="button" class="edit-btn" onclick="openEditModal('@comment.GetId()', '@comment.GetContent()')">Edit</button>
+
+                            <!-- Delete Button -->
+                            <form method="post" action="@Url.Action("deleteComment", "Community")" onsubmit="return confirm('Are you sure you want to delete this comment?');">
+                                <input type="hidden" name="commentId" value="@comment.GetId()" />
+                                <button type="submit" class="delete-btn">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p style="color: red; text-align: center;">No comments yet. Be the first to comment!</p>
+            }
+        </div>
+        <h3>Add a Comment</h3>
+        <form method="post" action="@Url.Action("submitComment", "Community")">
+            <input type="hidden" name="postId" value="@Model.CommunityPost.GetId()" />
+            <textarea name="content" rows="3" placeholder="Write a comment..." required></textarea>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <!-- Modal for Editing Comment -->
+    <div id="editCommentModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeEditModal()">&times;</span>
+            <h3>Edit Comment</h3>
+            <form method="post" action="@Url.Action("editComment", "Community")">
+                <input type="hidden" name="userId" id="userId" value="@userId" />
+                <input type="hidden" name="commentId" id="editCommentId" />
+                <textarea id="editCommentContent" name="content" rows="3"></textarea>
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Open the modal with the existing comment content
+        function openEditModal(commentId, commentContent) {
+            document.getElementById('editCommentId').value = commentId;
+            document.getElementById('editCommentContent').value = commentContent;
+            document.getElementById('editCommentModal').style.display = 'block';
+        }
+
+        // Close the modal
+        function closeEditModal() {
+            document.getElementById('editCommentModal').style.display = 'none';
+        }
+
+        // Close modal if user clicks outside of it
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('editCommentModal')) {
+                closeEditModal();
+            }
+        }
+    </script>
+</body>
+</html>

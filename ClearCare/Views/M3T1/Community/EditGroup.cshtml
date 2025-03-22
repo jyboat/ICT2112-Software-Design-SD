@@ -1,0 +1,34 @@
+﻿@using ClearCare.Models.ViewModels.M3T1
+@model CommunityViewModel
+
+@{
+    ViewData["Title"] = "Edit Group";
+    string userId = "123";
+}
+
+<h2>Edit Group</h2>
+
+<form method="post" action="@Url.Action("editGroup")">
+    <!-- Hidden input for groupId to identify the group being edited -->
+    <input type="hidden" id="groupId" name="groupId" value="@Model.CommunityGroup.Id" />
+
+    <!-- Hidden input to include userId in form submission -->
+    <input type="hidden" id="userId" name="userId" value="@userId" />
+
+    <div>
+        <label for="name">Group Name:</label>
+        <input type="text" id="name" name="name" value="@Model.CommunityGroup.Name"/>
+    </div>
+
+    <div>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description">@Model.CommunityGroup.Description</textarea>
+    </div>
+
+    <!-- Hidden input to maintain the group members list -->
+    <input type="hidden" id="memberIds" name="memberIds" value="@string.Join(",", Model.CommunityGroup.MemberIds)" />
+
+    <div>
+        <input type="submit" value="Save Changes" />
+    </div>
+</form>

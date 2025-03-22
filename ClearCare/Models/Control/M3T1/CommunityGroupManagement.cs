@@ -20,31 +20,43 @@ namespace ClearCare.Models.Control.M3T1
             await _dataMapper.insertGroup(group);
         }
 
-        //public async Task updateGroup(int groupId, CommunityGroup group)
-        //{
-        //    try
-        //    {
-        //        await _dataMapper.updateGroup(groupId, group);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Error updating group: {ex.Message}");
-        //        throw;
-        //    }
-        //}
+        public async Task updateGroup(string groupId, string name, string description)
+        {
+            try
+            {
+                // Retrieve the existing group by ID
+                var existingGroup = await _dataMapper.fetchGroupById(groupId);
+                if (existingGroup == null)
+                {
+                    throw new Exception("Group not found.");
+                }
 
-        //public async Task deleteGroup(int groupId)
-        //{
-        //    try
-        //    {
-        //        await _dataMapper.deleteGroup(groupId);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Error deleting group: {ex.Message}");
-        //        throw;
-        //    }
-        //}
+                // Update the properties
+                existingGroup.Name = name;
+                existingGroup.Description = description;
+
+                // Save changes
+                await _dataMapper.updateCommunityGroup(existingGroup);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating group: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task deleteGroup(string groupId)
+        {
+            try
+            {
+                await _dataMapper.deleteGroup(groupId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting group: {ex.Message}");
+                throw;
+            }
+        }
 
         public async Task<List<CommunityGroup>> viewGroups()
         {
