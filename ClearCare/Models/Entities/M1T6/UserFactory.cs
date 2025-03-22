@@ -20,7 +20,7 @@ namespace ClearCare.DataSource
                 case "Patient":
                     string assignedCaregiverName = snapshot.GetValue<string>("AssignedCaregiverName");
                     string assignedCaregiverID = snapshot.GetValue<string>("AssignedCaregiverID");
-                    Timestamp dateOfBirth = snapshot.GetValue<Timestamp>("D`ateOfBirth");
+                    Timestamp dateOfBirth = snapshot.GetValue<Timestamp>("DateOfBirth");
                     return new Patient(userID, email, password, name, (int)mobileNumber, address, role, assignedCaregiverName, assignedCaregiverID, dateOfBirth);
 
                 case "Caregiver":
