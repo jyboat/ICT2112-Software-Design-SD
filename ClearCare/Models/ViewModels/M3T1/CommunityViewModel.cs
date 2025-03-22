@@ -4,27 +4,14 @@ namespace ClearCare.Models.ViewModels.M3T1
 {
     public class CommunityViewModel
     {
-        public CommunityGroup CommunityGroup { get; set; }
+        public CommunityGroup? CommunityGroup { get; set; }
 
-        public CommunityPost CommunityPost { get; set; }
-        public IEnumerable<CommunityPost> Posts { get; set; }
-        public IEnumerable<CommunityComment> Comments { get; set; }
+        public CommunityPost? CommunityPost { get; set; }
 
-        // Default constructor (for model binding)
-        public CommunityViewModel() { }
+        public List<Dictionary<string, object>>? AllGroups { get; set; }
+        public List<Dictionary<string, object>>? UserGroups { get; set; }
+        public List<Dictionary<string, object>>? Posts { get; set; }
+        public List<Dictionary<string, object>>? Comments { get; set; }
 
-        // Constructor for community group with posts
-        public CommunityViewModel(CommunityGroup communityGroup, IEnumerable<CommunityPost> posts)
-        {
-            CommunityGroup = communityGroup;
-            Posts = posts;
-        }
-
-        // Constructor for a single post with comments
-        public CommunityViewModel(CommunityPost communityPost, IEnumerable<CommunityComment> comments)
-        {
-            CommunityPost = communityPost;
-            Comments = comments;
-        }
     }
 }

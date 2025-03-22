@@ -29,19 +29,6 @@ namespace ClearCare.Models.Control.M3T1
             return Task.CompletedTask;
         }
 
-        public Task receiveResponseById(FeedbackResponse response)
-        {
-            if (response != null)
-            {
-                Console.WriteLine("Received response");
-            }
-            else
-            {
-                Console.WriteLine("No response received");
-            }
-            return Task.CompletedTask;
-        }
-
         public Task receiveResponseByFeedbackId(FeedbackResponse response)
         {
             if (response != null)
@@ -112,11 +99,6 @@ namespace ClearCare.Models.Control.M3T1
         public async Task<FeedbackResponse> viewResponseByFeedbackId(string feedbackId)
         {
             return await _gateway.fetchResponseByFeedbackId(feedbackId);
-        }
-
-        public async Task<FeedbackResponse> getResponse(string responseId)
-        {
-            return await _gateway.fetchResponseById(responseId);
         }
 
         public async Task<bool> deleteResponse(string responseId)

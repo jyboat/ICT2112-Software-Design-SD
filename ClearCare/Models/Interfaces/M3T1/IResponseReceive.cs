@@ -6,8 +6,6 @@ namespace ClearCare.Models.Interfaces.M3T1
     {
         Task receiveResponses(List<FeedbackResponse> responses);
 
-        Task receiveResponseById(FeedbackResponse response);
-
         Task receiveResponseByFeedbackId(FeedbackResponse response);
 
         Task receiveAddResponse(bool success);

@@ -11,11 +11,9 @@ namespace ClearCare.Models.Control.M3T1
     {
         private CommunityDataMapper _dataMapper = new CommunityDataMapper();
 
-        public async Task createPost(string title, string content, string postedBy, DateTime postedAt, string groupId)
+        public async Task<string> createPost(string title, string content, string postedBy)
         {
-            var post = new CommunityPost(title, content, postedBy, postedAt, groupId);
-            
-            await _dataMapper.insertPost(post);
+            return await _dataMapper.insertPost(title, content, postedBy);
         }
 
         public async Task<List<CommunityPost>> viewPosts()
@@ -28,47 +26,19 @@ namespace ClearCare.Models.Control.M3T1
             return await _dataMapper.fetchGroupPosts(groupId);
         }
 
-        public async Task<CommunityPost> viewPost(string postId)
+        public async Task<CommunityPost> viewPost(string id)
         {
-            return await _dataMapper.fetchPostById(postId);
+            return await _dataMapper.fetchPostById(id);
         }
 
-        public async Task deletePost(string postId)
+        public async Task<bool> deletePost(string postId)
         {
-            try
-            {
-                await _dataMapper.deletePost(postId);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting post: {ex.Message}");
-                throw;
-            }
+            return await _dataMapper.deletePost(postId);
         }
 
-        public async Task updatePost(string postId, string title, string content)
+        public async Task<bool> updatePost(string postId, string title, string content)
         {
-            try
-            {
-                // Retrieve the existing post by ID
-                var existingPost = await _dataMapper.fetchPostById(postId);
-                if (existingPost == null)
-                {
-                    throw new Exception("Post not found.");
-                }
-
-                // Update the properties
-                existingPost.Title = title;
-                existingPost.Content = content;
-
-                // Save changes
-                await _dataMapper.updateCommunityPost(existingPost);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error updating post: {ex.Message}");
-                throw;
-            }
+            return await _dataMapper.updateCommunityPost(postId, title, content);
         }
     }
 }

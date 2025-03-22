@@ -6,8 +6,6 @@ namespace ClearCare.Models.Interfaces.M3T1
     {
         Task<List<FeedbackResponse>> fetchResponses();
 
-        Task<FeedbackResponse> fetchResponseById(string id);
-
         Task<FeedbackResponse> fetchResponseByFeedbackId(string feedbackId);
 
         Task<string> insertResponse(string feedbackId, string response, string userId, string dateResponded);

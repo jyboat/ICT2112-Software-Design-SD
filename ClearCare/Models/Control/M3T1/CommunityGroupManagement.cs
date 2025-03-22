@@ -13,75 +13,29 @@ namespace ClearCare.Models.Control.M3T1
     {
         private CommunityDataMapper _dataMapper = new CommunityDataMapper();
 
-        public async Task createGroup(string userId, string name, DateTime creationDate, string description)
+        public async Task<string> createGroup(string userId, string name, string description, List<string> memberIds)
         {
-            var group = new CommunityGroup(name, description, creationDate, userId);
-
-            await _dataMapper.insertGroup(group);
+            return await _dataMapper.insertGroup(name, description, userId, memberIds);
         }
 
-        public async Task updateGroup(string groupId, string name, string description)
+        public async Task<bool> updateGroup(string groupId, string name, string description, List<string> memberIds)
         {
-            try
-            {
-                // Retrieve the existing group by ID
-                var existingGroup = await _dataMapper.fetchGroupById(groupId);
-                if (existingGroup == null)
-                {
-                    throw new Exception("Group not found.");
-                }
-
-                // Update the properties
-                existingGroup.Name = name;
-                existingGroup.Description = description;
-
-                // Save changes
-                await _dataMapper.updateCommunityGroup(existingGroup);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error updating group: {ex.Message}");
-                throw;
-            }
+            return await _dataMapper.updateCommunityGroup(groupId, name, description, memberIds);
         }
 
-        public async Task deleteGroup(string groupId)
+        public async Task<bool> deleteGroup(string groupId)
         {
-            try
-            {
-                await _dataMapper.deleteGroup(groupId);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting group: {ex.Message}");
-                throw;
-            }
+            return await _dataMapper.deleteGroup(groupId);
         }
 
-        public async Task<List<CommunityGroup>> viewGroups()
+        public async Task<List<CommunityGroup>> getAllgroups()
         {
-            try
-            {
-                return await _dataMapper.fetchCommunityGroups();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching groups: {ex.Message}");
-                throw;
-            }
+            return await _dataMapper.fetchCommunityGroups();
         }
 
         public async Task<CommunityGroup> viewGroupById(string groupId)
         {
-            try
-            {
-                return await _dataMapper.fetchGroupById(groupId);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching groups: {ex.Message}");
-                throw;
-            }
+            return await _dataMapper.fetchGroupById(groupId);
         }
 
         //public async Task addMember(int userId, CommunityGroup group)

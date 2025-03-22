@@ -120,47 +120,6 @@ namespace ClearCare.DataSource.M3T1
             return feedbacks;
         }
 
-        // Fetch a Feedback by its own id
-        public async Task<Feedback> fetchFeedbackById(string id)
-        {
-            DocumentReference docRef = _db.Collection("Feedback").Document(id);
-            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
-
-            if (!snapshot.Exists)
-            {
-                Console.WriteLine($"No feedback found {snapshot.Id}");
-                return null;
-            }
-
-            string content = snapshot.ContainsField("Content") ? snapshot.GetValue<string>("Content") : "";
-            int rating = snapshot.ContainsField("Rating") ? snapshot.GetValue<int>("Rating") : 0;
-            string userId = snapshot.ContainsField("UserId") ? snapshot.GetValue<string>("UserId") : "";
-            string dateCreated = snapshot.ContainsField("DateCreated") ? snapshot.GetValue<string>("DateCreated") : "";
-            bool hasResponded = snapshot.ContainsField("HasResponded") ? snapshot.GetValue<bool>("HasResponded") : false;
-
-            Feedback feedback = new Feedback(id, content, rating, userId, dateCreated, hasResponded);
-            await _feedbackReceiver.receiveFeedbackById(feedback);
-
-            return feedback;
-        }
-
-        // Delete Feedback
-        public async Task<bool> deleteFeedback(string id)
-        {
-            DocumentReference docRef = _db.Collection("Feedback").Document(id);
-            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
-
-            if (!snapshot.Exists)
-            {
-                return false; // Document not found
-            }
-
-            await docRef.DeleteAsync();
-            await _feedbackReceiver.receiveDeleteStatus(true);
-
-            return true;
-        }
-
         // Insert New Response
         public async Task<string> insertResponse(string feedbackId, string response, string userId, string dateResponded)
         {
@@ -265,29 +224,6 @@ namespace ClearCare.DataSource.M3T1
             FeedbackResponse responseData = new FeedbackResponse(id, feedbackId, response, userId, dateResponded);
 
             await _responseReceiver.receiveResponseByFeedbackId(responseData);
-            return responseData;
-        }
-
-        // Fetch a Response by its own id
-        public async Task<FeedbackResponse> fetchResponseById(string id)
-        {
-            DocumentReference docRef = _db.Collection("FeedbackResponse").Document(id);
-            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
-
-            if (!snapshot.Exists)
-            {
-                Console.WriteLine($"No response found {snapshot.Id}");
-                return null;
-            }
-
-            string feedbackId = snapshot.ContainsField("FeedbackId") ? snapshot.GetValue<string>("FeedbackId") : "";
-            string response = snapshot.ContainsField("Response") ? snapshot.GetValue<string>("Response") : "";
-            string userId = snapshot.ContainsField("UserId") ? snapshot.GetValue<string>("UserId") : "";
-            string dateResponded = snapshot.ContainsField("DateResponded") ? snapshot.GetValue<string>("DateResponded") : "";
-
-            FeedbackResponse responseData = new FeedbackResponse(id, feedbackId, response, userId, dateResponded);
-            await _responseReceiver.receiveResponseById(responseData);
-
             return responseData;
         }
 

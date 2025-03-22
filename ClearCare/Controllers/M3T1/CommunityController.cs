@@ -16,144 +16,185 @@ public class CommunityController : Controller
 
     [HttpGet]
     [Route("")]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> List()
     {
-        var groups = await _communityGroup.viewGroups();
-        return View("~/Views/M3T1/Community/Index.cshtml", groups);
-    }
+        string userId = "1"; // Hardcoded user id
 
-    [HttpGet]
-    [Route("CreateGroup")]
-    public IActionResult displayCreateGroupForm()
-    {
-        return View("~/Views/M3T1/Community/CreateGroup.cshtml");
+        List<CommunityPost> posts = await _communityPost.viewPosts();
+        var postList = posts
+        .Select(s => s.getDetails())
+        .ToList();
+
+        var allGroups = (await _communityGroup.getAllgroups()).Select(s => s.getDetails()).ToList();
+        List<Dictionary<string, object>> userGroups = new List<Dictionary<string, object>>();
+
+        foreach (var group in allGroups)
+        {
+            if (group.ContainsKey("MemberIds") && group["MemberIds"] is List<string> memberList)
+            {
+                // Check if the MemberList contains the target ID
+                if (memberList.Contains(userId))
+                {
+                    userGroups.Add(group); // Add the group if the ID is found
+                }
+            }
+        }
+
+        var viewModel = new CommunityViewModel
+        {
+            Posts = postList,
+            AllGroups = allGroups,
+            UserGroups = userGroups
+        };
+
+        return View("~/Views/M3T1/Community/List.cshtml", viewModel);
     }
 
     [HttpPost]
-    [Route("CreateGroup")]
+    [Route("Group/Create")]
     public async Task<IActionResult> submitCreateGroup(string userId, string name, string description)
     {
-        DateTime creationDate = DateTime.UtcNow;
-        await _communityGroup.createGroup(userId, name, creationDate, description);
-        return RedirectToAction("Index");
+        List<string> memberIds = new List<string>();
+        userId = "1"; // Hardcoded user id
+        memberIds.Add(userId);
+
+        string id = await _communityGroup.createGroup(userId, name, description, memberIds);
+
+        if (!string.IsNullOrEmpty(id))
+        {
+            TempData["SuccessMessage"] = "Group created successfully!";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Error in creating group";
+        }
+
+        return RedirectToAction("List");
     }
 
     [HttpGet]
-    [Route("GroupDetail")]
+    [Route("Group/{groupId}")]
     public async Task<IActionResult> displayGroup(string groupId)
     {
-        var group = await _communityGroup.viewGroupById(groupId);
-        if (group == null)
-        {
-            return NotFound();
-        }
-        var posts = await _communityPost.viewGroupPosts(groupId);
-        var viewModel = new CommunityViewModel(group, posts);
-
-        return View("~/Views/M3T1/Community/GroupDetail.cshtml", viewModel);
+        // to display group posts, details
+        return View("~/Views/M3T1/Community/Group.cshtml");
     }
+
+    //[HttpPost]
+    //[Route("Index")]
+    //public async Task<IActionResult> deleteGroup(string groupId)
+    //{
+    //    await _communityGroup.deleteGroup(groupId);
+    //    return RedirectToAction("Index");
+    //}
+
+    //[HttpGet]
+    //[Route("EditGroup")]
+    //public IActionResult displayEditGroupForm()
+    //{
+    //    return View("~/Views/M3T1/Community/EditGroup.cshtml");
+    //}
+
+    //[HttpPost]
+    //[Route("EditGroup")]
+    //public async Task<IActionResult> editGroup(string groupId, string name, string description)
+    //{
+    //    await _communityGroup.updateGroup(groupId, name, description);
+    //    return RedirectToAction("Index");
+    //}
 
     [HttpPost]
-    [Route("Index")]
-    public async Task<IActionResult> deleteGroup(string groupId)
-    {
-        await _communityGroup.deleteGroup(groupId);
-        return RedirectToAction("Index");
-    }
-
-    [HttpGet]
-    [Route("EditGroup")]
-    public IActionResult displayEditGroupForm()
-    {
-        return View("~/Views/M3T1/Community/EditGroup.cshtml");
-    }
-
-    [HttpPost]
-    [Route("EditGroup")]
-    public async Task<IActionResult> editGroup(string groupId, string name, string description)
-    {
-        await _communityGroup.updateGroup(groupId, name, description);
-        return RedirectToAction("Index");
-    }
-
-    [HttpGet]
-    [Route("CreatePost/{groupId}/{userId}")]
-    public IActionResult displayPostForm(string groupId, string userId)
-    {
-        ViewData["GroupId"] = groupId;
-        ViewData["UserId"] = userId;
-        return View("~/Views/M3T1/Community/CreatePost.cshtml");
-    }
-
-    [HttpPost]
-    [Route("CreatePost")]
+    [Route("Post/Create")]
     public async Task<IActionResult> submitPost(string title, string content, string postedBy, string groupId)
     {
-        DateTime postedAt = DateTime.UtcNow;
-        await _communityPost.createPost(title, content, postedBy, postedAt, groupId);
-        return RedirectToAction("displayGroup");
-    }
-
-    [HttpPost]
-    [Route("GroupDetail")]
-    public async Task<IActionResult> deletePost(string postId)
-    {
-        await _communityPost.deletePost(postId);
-        return RedirectToAction("displayGroup");
-    }
-
-    [HttpGet]
-    [Route("EditPost")]
-    public IActionResult displayEditPostForm()
-    {
-        return View("~/Views/M3T1/Community/EditGroup.cshtml");
-    }
-
-    [HttpPost]
-    [Route("EditPost")]
-    public async Task<IActionResult> editPost(string postId, string title, string content)
-    {
-        await _communityPost.updatePost(postId, title, content);
-        return RedirectToAction("displayGroup");
-    }
-
-    [HttpGet]
-    [Route("PostDetail")]
-    public async Task<IActionResult> displayPost(string postId)
-    {
-        var post = await _communityPost.viewPost(postId);
-        if (post == null)
+        string id = await _communityPost.createPost(title, content, postedBy);
+        if (!string.IsNullOrEmpty(id))
         {
-            return NotFound();
+            TempData["SuccessMessage"] = "Post created successfully!";
         }
-        var comments = await _communityComment.viewPostComments(postId);
-        var viewModel = new CommunityViewModel(post, comments);
+        else
+        {
+            TempData["ErrorMessage"] = "Error in creating post";
+        }
 
-        return View("~/Views/M3T1/Community/PostDetail.cshtml", viewModel);
+        return RedirectToAction("List");
+    }
+
+    //[HttpPost]
+    //[Route("GroupDetail")]
+    //public async Task<IActionResult> deletePost(string postId)
+    //{
+    //    await _communityPost.deletePost(postId);
+    //    return RedirectToAction("displayGroup");
+    //}
+
+    //[HttpGet]
+    //[Route("EditPost")]
+    //public IActionResult displayEditPostForm()
+    //{
+    //    return View("~/Views/M3T1/Community/EditGroup.cshtml");
+    //}
+
+    //[HttpPost]
+    //[Route("EditPost")]
+    //public async Task<IActionResult> editPost(string postId, string title, string content)
+    //{
+    //    await _communityPost.updatePost(postId, title, content);
+    //    return RedirectToAction("displayGroup");
+    //}
+
+    [HttpGet]
+    [Route("Post/{id}")]
+    public async Task<IActionResult> displayPost(string id)
+    {
+        // To display post details
+        var post = await _communityPost.viewPost(id);
+        var details = post.getDetails();
+
+        string? postId = details["Id"]?.ToString();
+        if (!string.IsNullOrEmpty(postId))
+        {
+            List<CommunityComment> comments = await _communityComment.viewPostComments(postId);
+            var commentsList = comments.Select(s => s.getDetails()).ToList();
+
+            details["Comments"] = commentsList;
+        }
+
+        return View("~/Views/M3T1/Community/Index.cshtml", details);
     }
 
     [HttpPost]
-    [Route("PostDetail")]
+    [Route("Comment/Create")]
     public async Task<IActionResult> submitComment(string content, string createdBy, string postId)
     {
-        DateTime createdAt = DateTime.UtcNow;
-        await _communityComment.createComment(content, createdBy, postId, createdAt);
-        return RedirectToAction("displayPost");
+        createdBy = "1"; // Hardcoded user id
+        string id = await _communityComment.createComment(content, createdBy, postId);
+
+        if (!string.IsNullOrEmpty(id))
+        {
+            TempData["SuccessMessage"] = "Comment created successfully!";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Error in creating comment";
+        }
+
+        return RedirectToAction("displayPost", postId);
     }
 
-    [HttpPost]
-    [Route("PostDetail")]
-    public async Task<IActionResult> deleteComment(string commentId)
-    {
-        await _communityComment.deleteComment(commentId);
-        return RedirectToAction("displayPost");
-    }
+    //[HttpPost]
+    //[Route("PostDetail")]
+    //public async Task<IActionResult> deleteComment(string commentId)
+    //{
+    //    await _communityComment.deleteComment(commentId);
+    //    return RedirectToAction("displayPost");
+    //}
 
-    [HttpPost]
-    [Route("PostDetail")]
-    public async Task<IActionResult> editComment(string userId, string commentId, string content)
-    {
-        await _communityComment.updateComment(userId, commentId, content);
-        return RedirectToAction("displayPost");
-    }
+    //[HttpPost]
+    //[Route("PostDetail")]
+    //public async Task<IActionResult> editComment(string userId, string commentId, string content)
+    //{
+    //    await _communityComment.updateComment(userId, commentId, content);
+    //    return RedirectToAction("displayPost");
+    //}
 }

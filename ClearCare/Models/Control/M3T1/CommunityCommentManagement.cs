@@ -12,11 +12,9 @@ namespace ClearCare.Models.Control.M3T1
     {
         private CommunityDataMapper _dataMapper = new CommunityDataMapper();
 
-        public async Task createComment(string content, string createdBy, string postId, DateTime createdAt)
+        public async Task<string> createComment(string content, string createdBy, string postId)
         {
-            var comment = new CommunityComment(content, createdBy, postId, createdAt);
-
-            await _dataMapper.insertComment(comment);
+            return await _dataMapper.insertComment(content, postId, createdBy);
         }
 
         public async Task<List<CommunityComment>> viewPostComments(string postId)
@@ -24,47 +22,14 @@ namespace ClearCare.Models.Control.M3T1
             return await _dataMapper.fetchPostComments(postId);
         }
 
-        public async Task deleteComment(string commentId)
+        public async Task<bool> deleteComment(string commentId)
         {
-            try
-            {
-                await _dataMapper.deleteComment(commentId);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting comment: {ex.Message}");
-                throw;
-            }
+            return await _dataMapper.deleteComment(commentId);
         }
 
-        public async Task updateComment(string userId, string commentId, string content)
+        public async Task<bool> updateComment(string commentId, string content)
         {
-            try
-            {
-                // Retrieve the existing comment by ID
-                var existingComment = await _dataMapper.fetchCommentById(commentId);
-                if (existingComment == null)
-                {
-                    throw new Exception("Comment not found.");
-                }
-
-                // Check if the user is authorized to edit this comment (assuming the comment has a CreatedBy property)
-                if (existingComment.CreatedBy != userId)
-                {
-                    throw new Exception("User is not authorized to edit this comment.");
-                }
-
-                // Update the content of the comment
-                existingComment.Content = content;
-
-                // Save the updated comment
-                await _dataMapper.updateCommunityComment(existingComment);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error updating comment: {ex.Message}");
-                throw;
-            }
+            return await _dataMapper.updateCommunityComment(commentId, content);
         }
     }
 }

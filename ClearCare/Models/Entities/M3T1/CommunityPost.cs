@@ -8,28 +8,29 @@ namespace ClearCare.Models.Entities.M3T1
     public class CommunityPost
     {
         [FirestoreDocumentId]
-        public string Id { get; set; }
+        private string Id { get; set; }
 
         [FirestoreProperty]
-        public string Title { get; set; }
+        private string Title { get; set; }
 
         [FirestoreProperty]
-        public string Content { get; set; }
+        private string Content { get; set; }
         //public string FilePath { get; set; }
 
         [FirestoreProperty]
-        public string PostedBy { get; set; }
+        private string PostedBy { get; set; }
 
         [FirestoreProperty]
-        public DateTime PostedAt { get; set; }
+        private string PostedAt { get; set; }
 
         [FirestoreProperty]
-        public string GroupId { get; set; }
+        private string GroupId { get; set; }
 
         public CommunityPost() { }
 
-        public CommunityPost(string title, string content, string postedBy, DateTime postedAt, string groupId)
+        public CommunityPost(string id, string title, string content, string postedBy, string postedAt, string groupId)
         {
+            Id = id;
             Title = title;
             Content = content;
             PostedBy = postedBy;
@@ -37,18 +38,31 @@ namespace ClearCare.Models.Entities.M3T1
             GroupId =  groupId;
         }
 
-        public string GetId() => Id;
-        public string GetTitle() => Title;
-        public string GetContent() => Content;
-        public string GetPostedBy() => PostedBy;
-        public DateTime? GetPostedAt() => PostedAt;
-        public string GetGroupId() => GroupId;
+        private string GetId() => Id;
+        private string GetTitle() => Title;
+        private string GetContent() => Content;
+        private string GetPostedBy() => PostedBy;
+        private string GetPostedAt() => PostedAt;
+        private string GetGroupId() => GroupId;
 
-        public void SetId(string id) => Id = id;
-        public void SetTitle(string title) => Title = title;
-        public void SetContent(string content) => Content = content;
-        public void SetPostedBy(string postedBy) => PostedBy = postedBy;
-        public void SetCreationDate(DateTime postedAt) => PostedAt = postedAt;
-        public void SetGroupId(string groupId) => GroupId = groupId;
+        private void SetId(string id) => Id = id;
+        private void SetTitle(string title) => Title = title;
+        private void SetContent(string content) => Content = content;
+        private void SetPostedBy(string postedBy) => PostedBy = postedBy;
+        private void SetCreationDate(string postedAt) => PostedAt = postedAt;
+        private void SetGroupId(string groupId) => GroupId = groupId;
+
+        public Dictionary<string, object> getDetails()
+        {
+            return new Dictionary<string, object>
+            {
+                { "Id", GetId() },
+                { "Title", GetTitle() },
+                { "Content", GetContent() },
+                { "PostedBy", GetPostedBy() },
+                { "PostedAt", GetPostedAt() },
+                { "GroupId", GetGroupId() }
+            };
+        }
     }
 }

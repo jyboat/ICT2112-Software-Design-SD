@@ -8,36 +8,49 @@ namespace ClearCare.Models.Entities.M3T1
     public class CommunityComment
     {
         [FirestoreDocumentId]
-        public string Id { get; set; }
+        private string Id { get; set; }
         [FirestoreProperty]
-        public string Content { get; set; }
+        private string Content { get; set; }
         [FirestoreProperty]
-        public string CreatedBy { get; set; }
+        private string CreatedBy { get; set; }
         [FirestoreProperty]
-        public string PostId { get; set; }
+        private string PostId { get; set; }
         [FirestoreProperty]
-        public DateTime CreatedAt { get; set; }
+        private string CreatedAt { get; set; }
 
         public CommunityComment() { }
 
-        public CommunityComment(string content, string createdBy, string postId, DateTime createdAt)
+        public CommunityComment(string id, string content, string createdBy, string postId, string createdAt)
         {
+            Id = id;
             Content = content;
             CreatedBy = createdBy;
             PostId = postId;
             CreatedAt = createdAt;
         }
 
-        public string GetId() => Id;
-        public string GetContent() => Content;
-        public string GetCreatedBy() => CreatedBy;
-        public string GetPostId() => PostId;
-        public DateTime? GetCreatedAt() => CreatedAt;
+        private string GetId() => Id;
+        private string GetContent() => Content;
+        private string GetCreatedBy() => CreatedBy;
+        private string GetPostId() => PostId;
+        private string GetCreatedAt() => CreatedAt;
 
-        public void SetId(string id) => Id = id;
-        public void SetContent(string content) => Content = content;
-        public void SetCreatedBy(string createdBy) => CreatedBy = createdBy;
-        public void SetPostId(string postId) => PostId = postId;
-        public void SetCreatedAt(DateTime createdAt) => CreatedAt = createdAt;
+        private void SetId(string id) => Id = id;
+        private void SetContent(string content) => Content = content;
+        private void SetCreatedBy(string createdBy) => CreatedBy = createdBy;
+        private void SetPostId(string postId) => PostId = postId;
+        private void SetCreatedAt(string createdAt) => CreatedAt = createdAt;
+
+        public Dictionary<string, object> getDetails()
+        {
+            return new Dictionary<string, object>
+            {
+                { "Id", GetId() },
+                { "Content", GetContent() },
+                { "CreatedBy", GetCreatedBy() },
+                { "PostId", GetPostId() },
+                { "CreatedAt", GetCreatedAt() }
+            };
+        }
     }
 }

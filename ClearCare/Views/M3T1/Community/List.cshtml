@@ -1,0 +1,168 @@
+﻿@model ClearCare.Models.ViewModels.M3T1.CommunityViewModel
+
+@{
+    ViewData["Title"] = "Community Hub";
+    var myGroups = Model.UserGroups;
+    var posts = Model.Posts;
+    var groups = Model.AllGroups;
+}
+
+<section class="container community">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#joinGroupModal">
+                    <i class="bi bi-people me-1"></i>Join a Group
+                </a>
+                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#addGroupModal">
+                    <i class="bi bi-person-add me-1"></i>Create a new Group
+                </a>
+            </div>
+
+            <div class="dropdown mt-2">
+                <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-folder me-1"></i>My Groups
+                </button>
+                <ul class="dropdown-menu w-100">
+                    @if (myGroups != null && myGroups.Any())
+                    {
+                        @foreach (var group in myGroups)
+                        {
+                            <li>
+                                <a class="dropdown-item" href="/Community/Group/@group["Id"]">
+                                    @group["Name"]
+                                </a>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li><span class="dropdown-item text-muted">No groups joined</span></li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <h2 class="mb-2">Community Posts</h2>
+            <div class="card mb-2 p-3">
+                <h5 class="card-title mb-3">What's on your mind?</h5>
+                <div class="card-body">
+                    <form method="post" action="/Community/Post/Create">
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input type="text" id="title" name="title" class="form-control w-100" required />
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="content">Content</label>
+                            <textarea rows="4" id="content" name="content" class="form-control w-100" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-sm w-100 mt-3">Post</button>
+                    </form>
+                </div>
+            </div>
+            @if (posts != null && posts.Any())
+            {
+                @foreach (var post in posts)
+                {
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">@post["Title"]</h5>
+                            <hr class="w-100" />
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="card-subtitle text-muted"><span class="fst-italic me-1">Posted By:</span>Name of user</h6>
+                                <span class="text-muted small me-3">
+                                    <i class="bi bi-clock me-1"></i>@post["PostedAt"]
+                                </span>
+                            </div>
+
+                            <hr class="w-100" />
+
+                            <p class="card-text mt-2">@post["Content"]</p>
+
+                            <a class="btn btn-outline-primary btn-sm w-100" href="/Community/Post/@post["Id"]">
+                                View Post
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted">No posts available.</p>
+            }
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="joinGroupModal" tabindex="-1" aria-labelledby="joinGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Join a Group</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Search Bar -->
+                <input type="text" id="searchGroups" class="form-control mb-3" placeholder="Search groups...">
+
+                <!-- Groups List -->
+                <div id="groupList">
+                    @if (groups != null && groups.Any())
+                    {
+                        @foreach (var group in groups)
+                        {
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                <span>@group["Name"]</span>
+                                <a href="@Url.Action("JoinGroup", "Community", new { groupId = group["Id"] })" class="btn btn-success btn-sm">Join</a>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No available groups.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addGroupModal" tabindex="-1" aria-labelledby="addGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create a new Group</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/Community/Group/Create" method="post">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" name="name" id="name" class="form-control w-100" required />
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="desc">Description</label>
+                        <textarea rows="3" id="desc" name="description" class="form-control w-100" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-sm w-100 mt-3">Create Group</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simple search filter for groups
+    document.getElementById("searchGroups").addEventListener("input", function () {
+        let filter = this.value.toLowerCase();
+        let groups = document.querySelectorAll("#groupList div");
+
+        groups.forEach(group => {
+            let text = group.textContent.toLowerCase();
+            group.style.display = text.includes(filter) ? "" : "none";
+        });
+    });
+</script>
