@@ -6,6 +6,7 @@ using System.Text.Json;
 using ClearCare.Models.Entities;
 using static Google.Rpc.Context.AttributeContext.Types;
 using ClearCare.Models.Control.M3T1;
+using ClearCare.Models.Entities.M3T1;
 
 // Request Handling
 [Route("Feedback")]
@@ -21,6 +22,10 @@ public class FeedbackController : Controller
         _responseManager = new ResponseManager(feedbackMapper);
         feedbackMapper.feedbackReceiver = _feedbackManager;
         feedbackMapper.responseReceiver = _responseManager;
+
+        // Register Observer
+        var responseObserver = new PatientNotificationObserver();
+        _responseManager.Attach(responseObserver);
     }
 
     [Route("")]
@@ -125,8 +130,14 @@ public class FeedbackController : Controller
         }
 
         string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
+
+        // Obtain feedbackUserId first
+        var feedback = await _feedbackManager.getFeedback(feedbackId);
+        var details = feedback.GetFeedbackDetails();
+        string feedbackUserId = details["UserId"]?.ToString() ?? "";
+
         // Process the response here
-        string id = await _responseManager.respondToFeedback(feedbackId, response, "1", currentDate);
+        string id = await _responseManager.respondToFeedback(feedbackId, response, "1", currentDate, feedbackUserId);
 
         TempData["SuccessMessage"] = "Response added successfully!";
 

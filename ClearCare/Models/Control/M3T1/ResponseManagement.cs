@@ -8,10 +8,9 @@ using ClearCare.Models.Interfaces.M3T1;
 
 namespace ClearCare.Models.Control.M3T1
 {
-    public class ResponseManager : IResponseReceive
+    public class ResponseManager : AbstractResponseNotifier, IResponseReceive
     {
         private readonly IResponseSend _gateway;
-
         public ResponseManager(IResponseSend gateway)
         {
             _gateway = gateway;
@@ -95,9 +94,13 @@ namespace ClearCare.Models.Control.M3T1
             return Task.CompletedTask;
         }
 
-        public async Task<string> respondToFeedback(string feedbackId, string response, string userId, string dateResponded)
+        public async Task<string> respondToFeedback(string feedbackId, string response, string userId, string dateResponded, string feedbackUserId)
         {
-            return await _gateway.insertResponse(feedbackId, response, userId, dateResponded);
+            string responseId = await _gateway.insertResponse(feedbackId, response, userId, dateResponded);
+
+            Notify(feedbackUserId, feedbackId);
+
+            return responseId;
         }
 
         public async Task<bool> updateResponse(string responseId, string response, string userId, string dateResponded)
