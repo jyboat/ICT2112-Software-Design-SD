@@ -1,0 +1,33 @@
+@model ClearCare.Models.Entities.M3T1.Assessment
+
+<h2>Assessment Details</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<div>
+    <p><strong>ID:</strong> @Model.GetId()</p>
+    <p><strong>Risk Level:</strong> @Model.GetRiskLevel()</p>
+    <p><strong>Recommendation:</strong> @Model.GetRecommendation()</p>
+    <p><strong>Created At:</strong> @Model.GetCreatedAt().ToString("yyyy-MM-dd HH:mm:ss")</p>
+    <p><strong>Patient ID:</strong> @Model.GetPatientId()</p>
+
+    <h3>Images</h3>
+    @if (Model.GetImagePath() != null && Model.GetImagePath().Any())
+    {
+        foreach (var imagePath in Model.GetImagePath())
+        {
+            <img src="@imagePath" alt="Assessment Image" width="200" />
+        }
+    }
+    else
+    {
+        <p>No images available.</p>
+    }
+</div>
+
+<a asp-action="List" class="btn btn-secondary">Back to List</a>

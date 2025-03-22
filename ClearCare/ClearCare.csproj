@@ -8,17 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Google.Cloud.Firestore" Version="3.9.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="Views\M3T1\Feedback\Index.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Update="Views\M3T1\Feedback\Edit.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
+    <PackageReference Include="Google.Cloud.Storage.V1" Version="4.11.0" />
   </ItemGroup>
 
 </Project>

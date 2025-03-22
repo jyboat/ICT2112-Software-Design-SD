@@ -73,18 +73,6 @@ namespace ClearCare.Models.Control.M3T1
             return Task.CompletedTask;
         }
 
-        public Task receiveDeleteStatus(bool success)
-        {
-            if (success)
-            {
-                Console.WriteLine("Deleted summary successfully");
-            }
-            else
-            {
-                Console.WriteLine("Failed to delete summary");
-            }
-            return Task.CompletedTask;
-        }
         public async Task<PrescriptionModel?> getPrescription(string patientId)
         {
             List<PrescriptionModel> prescriptions = await _fetchPrescriptions.FetchPrescriptions();
@@ -99,9 +87,9 @@ namespace ClearCare.Models.Control.M3T1
             return patientPrescript;
         }
 
-        public async Task<bool> updateSummary(string id, string details, string instructions, string createdAt, string patientId)
+        public async Task<bool> updateSummary(string id, string details, string instructions, string patientId)
         {
-            return await _gateway.updateSummary(id, details, instructions, createdAt, patientId);
+            return await _gateway.updateSummary(id, details, instructions, patientId);
         }
 
         public async Task<string> generateSummary(string details, string instructions, string createdAt, string patientId)
@@ -119,9 +107,9 @@ namespace ClearCare.Models.Control.M3T1
             return await _gateway.fetchSummaryById(id);
         }
 
-        public async Task<bool> deleteSummary(string id)
+        public async Task<bool> updateSummaryStatus(string id)
         {
-            return await _gateway.deleteSummary(id);
+            return await _gateway.updateSummaryStatus(id);
         }
     }
 }

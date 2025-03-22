@@ -10,8 +10,8 @@ namespace ClearCare.Models.Interfaces.M3T1
 
         Task<string> insertSummary(string details, string instructions, string createdAt, string patientId);
 
-        Task<bool> updateSummary(string id, string details, string instructions, string createdAt, string patientId);
+        Task<bool> updateSummary(string id, string details, string instructions, string patientId);
 
-        Task<bool> deleteSummary(string id);
+        Task<bool> updateSummaryStatus(string id);
     }
 }

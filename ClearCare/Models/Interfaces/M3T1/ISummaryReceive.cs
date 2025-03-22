@@ -8,6 +8,5 @@ namespace ClearCare.Models.Interfaces.M3T1
         Task receiveSummary(DischargeSummary summary);
         Task receiveAddStatus(bool success);
         Task receiveUpdateStatus(bool success);
-        Task receiveDeleteStatus(bool success);
     }
 }

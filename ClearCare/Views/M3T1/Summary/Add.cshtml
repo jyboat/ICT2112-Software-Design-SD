@@ -1,12 +1,10 @@
-﻿
-
-@{
+﻿@{
     ViewData["Title"] = "Add Summary";
 }
 
-<div class="container add-summary">
+<div class="container update-summary">
     <div class="card shadow p-4">
-        <h2 class="text-info mb-3">Adding New Summary for {patient name}</h2>
+        <h2 class="text-info mb-3">Adding Summary for {patient name}</h2>
         <form action="/Summary/Add" method="post">
             <div class="table-responsive">
                 <table class="table table-bordered summary-table">
@@ -18,10 +16,6 @@
                                 <p class="mb-3"><strong>Date of Birth:</strong>{DOB}</p>
                                 <p class="mb-3"><strong>ID:</strong>{ID}</p>
                             </td>
-                        </tr>
-                        <tr>
-                            <th>Date of Discharge:</th>
-                            <td><input name="date" type="date" class="form-control" required /></td>
                         </tr>
                         <tr>
                             <th>Procedures and Details</th>

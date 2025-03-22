@@ -61,24 +61,17 @@ public class SummaryController : Controller
 
     [Route("Add")]
     [HttpPost]
-    public async Task<IActionResult> AddSummary(string details, string instructions, string date)
+    public async Task<IActionResult> AddSummary(string details, string instructions)
     {
-        if (string.IsNullOrEmpty(details) || string.IsNullOrEmpty(instructions) || string.IsNullOrEmpty(date))
+        if (string.IsNullOrEmpty(details) || string.IsNullOrEmpty(instructions))
         {
             TempData["ErrorMessage"] = "Please fill in all required fields";
             return View("~/Views/M3T1/Summary/Add.cshtml");
         }
 
-        DateTime parsedDate;
-        if (!DateTime.TryParse(date, out parsedDate))
-        {
-            TempData["ErrorMessage"] = "Invalid date format";
-            return View("~/Views/M3T1/Summary/Add.cshtml");
-        }
-
-        string formattedDate = parsedDate.ToString("yyyy-MM-dd");
+        string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
         // Process the summary here
-        string id = await _manager.generateSummary(details, instructions, formattedDate, "1");
+        string id = await _manager.generateSummary(details, instructions, currentDate, "1");
 
         TempData["SuccessMessage"] = "Summary added successfully!";
 
@@ -99,23 +92,14 @@ public class SummaryController : Controller
 
     [Route("Edit/{summaryId}")]
     [HttpPost]
-    public async Task<IActionResult> UpdateSummary(string summaryId, string details, string instructions, string date)
+    public async Task<IActionResult> UpdateSummary(string summaryId, string details, string instructions)
     {
         if (string.IsNullOrEmpty(details) || string.IsNullOrEmpty(instructions))
         {
             TempData["ErrorMessage"] = "Please fill in all required fields";
         }
 
-        DateTime parsedDate;
-        if (!DateTime.TryParse(date, out parsedDate))
-        {
-            TempData["ErrorMessage"] = "Invalid date format";
-            return View("~/Views/M3T1/Summary/Add.cshtml");
-        }
-
-        string formattedDate = parsedDate.ToString("yyyy-MM-dd");
-
-        await _manager.updateSummary(summaryId, details, instructions, formattedDate, "1");
+        await _manager.updateSummary(summaryId, details, instructions, "1");
 
         TempData["SuccessMessage"] = "Summary updated successfully!";
 
@@ -124,9 +108,9 @@ public class SummaryController : Controller
 
     [Route("Delete/{summaryId}")]
     [HttpPost]
-   public async Task<IActionResult> DeleteSummary(string summaryId)
+   public async Task<IActionResult> updateSummaryStatus(string summaryId)
     {
-        await _manager.deleteSummary(summaryId);
+        await _manager.updateSummaryStatus(summaryId);
 
         TempData["SuccessMessage"] = "Summary deleted successfully!";
 
