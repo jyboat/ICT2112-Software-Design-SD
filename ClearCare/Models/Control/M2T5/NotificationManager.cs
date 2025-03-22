@@ -27,14 +27,14 @@ namespace ClearCare.Models.Control
         // createNotification: generates a new notification, stores it in the database, then triggers sending.
         public async Task createNotification(int userId, string content)
         {   
-            // string methods = "Email"; // Placeholder for INotificationPreferences
-            string methods = "Email,SMS"; // Placeholder for INotificationPreferences
+            string methods = "Email"; // Placeholder for INotificationPreferences
+            // string methods = "Email,SMS"; // Placeholder for INotificationPreferences
             string email = "example@gmail.com"; // Placeholder
             string phone = "+6500000000"; // Placeholder
             DateTime timing = DateTime.UtcNow;
             // Check doNotDisturb, if current time not inside, sendNow = True
-            // bool sendNow = true; // Placeholder
-            bool sendNow = false; // Placeholder
+            bool sendNow = true; // Placeholder
+            //bool sendNow = false; // Placeholder
 
             if (sendNow) {
                 await sendNotification(methods, email, phone, content);
