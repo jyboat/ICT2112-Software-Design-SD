@@ -75,6 +75,7 @@ namespace ClearCare.Models.Entities
                 "ServiceTypeId" => GetServiceType(),
                 "Status" => GetStatus(),
                 "Datetime" => GetDateTime().ToString(),
+                "Slot" => GetSlot().ToString(),
                 "Location" => GetLocation(),
                 _ => throw new ArgumentException("Invalid attribute name")
             };
@@ -192,7 +193,8 @@ namespace ClearCare.Models.Entities
 
         public bool CheckAndMarkAsMissed()
         {
-            if (Status != "Completed" && DateTime < DateTime.UtcNow && Status != "Missed")
+         
+            if (Status != "Completed" && DateTime < DateTime.Now && Status != "Missed")
             {
                 UpdateStatus("Missed");
                 return true; 
