@@ -23,7 +23,7 @@ namespace ClearCare.Control
                         doctorId: "",
                         serviceTypeId: service,
                         status: "Pending",
-                        dateTime: DateTime.Now,
+                        dateTime: DateTime.UtcNow,
                         slot: 0,
                         location: "Physical"
                     ));
@@ -38,7 +38,7 @@ namespace ClearCare.Control
             List<string> patients,
             List<string> services,
             List<ServiceAppointment> backlogEntries,
-            // Dictionary<string, List<int>> patientSlotTracker,
+            Dictionary<string, Dictionary<int,int>> serviceSlotTracker,
             Dictionary<string, List<int>> nurseSlotTracker)
         {
             var appointments = InitialInsert(patients, services);
@@ -50,17 +50,15 @@ namespace ClearCare.Control
             (!nurseSlotTracker.ContainsKey(n.NurseId) || nurseSlotTracker[n.NurseId].Count == 0) ? 0 : 1)
             .ToList();
 
-
-            // Concatenate backlog entries with the newly created appointments
+            // Concat backlog entries with the newly created appointments
             var combinedAppointments = backlogEntries.Concat(appointments).ToList();
 
-            // Group and sort: backlog groups come first, ordered by the number of services
+            // Group and sort backlog will be scheduled first if any
             var combinedGroups = GetCombinedAppointmentGroups(appointments, backlogEntries);
 
             // Tracking dictionaries
             var patientSlotTracker = new Dictionary<string, List<int>>();
-            var serviceSlotTracker = new Dictionary<string, Dictionary<int, int>>();
-            // var nurseSlotTracker = new Dictionary<string, List<int>>();
+            // var serviceSlotTracker = new Dictionary<string, Dictionary<int, int>>();
 
             foreach (var patientAppointments in combinedGroups)
             {
@@ -136,10 +134,7 @@ namespace ClearCare.Control
             return combinedAppointments;
         }
 
-        /// <summary>
-        /// Groups new appointments and backlog appointments by patient and orders them 
-        /// by the number of services needed, concatenating backlog groups first.
-        /// </summary>
+        // Groups new appointments and backlog appointments, placing backlog infront prioritizing them
         private IEnumerable<IGrouping<string, ServiceAppointment>> GetCombinedAppointmentGroups(
             List<ServiceAppointment> appointments, List<ServiceAppointment> backlogEntries)
         {
@@ -154,10 +149,7 @@ namespace ClearCare.Control
             return groupedBacklog.Concat(groupedAppointments);
         }
 
-        /// <summary>
-        /// Finds the first available slot for the given appointment based on current trackers.
-        /// Returns the slot number if available, or -1 if no slot is found.
-        /// </summary>
+        // Finds the first available slot for the given appointment based on current trackers.
         private int GetFirstAvailableSlot(
             ServiceAppointment appointment,
             AutomaticAppointmentScheduler.Nurse nurse,

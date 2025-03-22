@@ -255,18 +255,30 @@ public class ServiceAppointmentsController : Controller
     // Test Auto Interface
     [HttpPost]
     [Route("TestAutoAppointment")]
-    public IActionResult TestAutoAppointment([FromForm] List<string> PatientIds)
+    public IActionResult TestAutoAppointment([FromForm] List<string> PatientIds, [FromForm] string algorithm)
     {
         Console.WriteLine("Selected Patient IDs: " + string.Join(", ", PatientIds));
-    
-        // Pass the list of patient IDs to your scheduling algorithm.
-        // You might need to modify AutomaticallyScheduleAppointment to accept this list.
-        AutomaticAppointmentScheduler.SetAlgorithm(new PreferredNurseStrategy());
-        AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(PatientIds);
+        Console.WriteLine("Selected Algorithm: " + algorithm);
         
-        // Return a response or redirect as needed.
-        return Ok(new { Message = "Auto appointment scheduling initiated.", SelectedPatients = PatientIds });
+        // Use the selected algorithm to set the scheduling strategy
+        if (algorithm == "Preferred")
+        {
+            AutomaticAppointmentScheduler.SetAlgorithm(new PreferredNurseStrategy());
+            // Pass the list of patient IDs to the scheduling algorithm.
+            AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(PatientIds);
+            return Ok(new { Message = "Auto appointment scheduling Initiated."});
+        }
+        else if (algorithm == "Earliest")
+        {
+            AutomaticAppointmentScheduler.SetAlgorithm(new EarliestsPossibleTimeSlotStrategy());
+            // Pass the list of patient IDs to the scheduling algorithm.
+            AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(PatientIds);
+            return Ok(new { Message = "Auto appointment scheduling Initiated."});
+        }   
+        
+        return Ok(new { Message = "Auto appointment scheduling Completed."});
     }
+
 
     [HttpPost]
     [Route("AddAppt")]

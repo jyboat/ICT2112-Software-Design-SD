@@ -272,7 +272,9 @@ namespace ClearCare.DataSource
                 new Patient { PatientId = "PAT006", Name = "Patient 6" },
                 new Patient { PatientId = "PAT007", Name = "Patient 7" },
                 new Patient { PatientId = "PAT008", Name = "Patient 8" },
-                new Patient { PatientId = "PAT009", Name = "Patient 9" }
+                new Patient { PatientId = "PAT009", Name = "Patient 9" },
+                new Patient { PatientId = "PAT010", Name = "Patient 10" },
+                new Patient { PatientId = "PAT011", Name = "Patient 11" }
             };
             var unscheduledPatients = new List<Patient>();
 

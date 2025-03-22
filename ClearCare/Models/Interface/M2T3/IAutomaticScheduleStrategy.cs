@@ -11,7 +11,7 @@ namespace ClearCare.Interfaces
             List<string> patients,
             List<string> services,
             List<ServiceAppointment> backlogEntries,
-            // Dictionary<string, List<int>> patientSlotTracker,
+            Dictionary<string, Dictionary<int,int>> serviceSlotTracker,
             Dictionary<string, List<int>> nurseSlotTracker);
     }
 }

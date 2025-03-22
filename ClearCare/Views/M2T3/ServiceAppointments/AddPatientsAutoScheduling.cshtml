@@ -18,9 +18,18 @@
             <option value="@patient.PatientId">@patient.Name</option>
         }
     </select>
+    
+    <label for="algorithm">Algorithm:</label>
+    <select id="algorithm" name="algorithm" class="select3" required>
+        <option disabled value="">Select Algorithm</option>
+        <option value="Preferred">Preferred</option>
+        <option value="Earliest">Earliest</option>
+    </select>
+    
     <br><br>
     <button type="submit">Submit</button>
 </form>
+
 
 <script>
     $(document).ready(function () {

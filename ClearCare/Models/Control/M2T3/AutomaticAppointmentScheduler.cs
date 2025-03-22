@@ -85,12 +85,38 @@ namespace ClearCare.Models.Control
             // To do: Use interface to get services
             Query serviceQuery = db.Collection("service_type");
             QuerySnapshot snapshot2 = await serviceQuery.GetSnapshotAsync();
-
+            
             var services = new List<string>();
 
             foreach(DocumentSnapshot document in snapshot2.Documents)
             {
                 services.Add(document.GetValue<string>("name"));
+            }
+
+            var serviceSlotTracker = new Dictionary<string, Dictionary<int, int>>();
+            foreach(var service in services){
+                Query serviceList = db.Collection("ServiceAppointments")
+                                    .WhereEqualTo("ServiceTypeId", service);
+                                    // .WhereArrayContains("DateTime", nurse.NurseId);
+                QuerySnapshot serviceSnapshot = await serviceList.GetSnapshotAsync();
+                foreach(DocumentSnapshot document in serviceSnapshot.Documents){
+                    string serviceName = document.GetValue<string>("ServiceTypeId");
+                    int slot = document.GetValue<int>("Slot");
+
+                    // Create list for the nurse if doesn't exists
+                    if (!serviceSlotTracker.ContainsKey(serviceName))
+                    {
+                        serviceSlotTracker[serviceName] = new Dictionary<int, int>();
+                    }
+                    if (!serviceSlotTracker[serviceName].ContainsKey(slot))
+                    {
+                        // Initialize to 0
+                        serviceSlotTracker[serviceName][slot] = 0; 
+                    }
+                    // Increment the amount of slot
+                    // Each time slot can have 2 patients 
+                    serviceSlotTracker[serviceName][slot]++;
+                }
             }
             
             // To Do: Need check whether they're from pre-discharge department
@@ -127,6 +153,7 @@ namespace ClearCare.Models.Control
             foreach(var nurse in nurses){
                 Query nurseSlotList = db.Collection("ServiceAppointments")
                                     .WhereEqualTo("NurseId", nurse.NurseId);
+                                    // .WhereArrayContains("DateTime", nurse.NurseId);
                 QuerySnapshot patientSnapshot = await nurseSlotList.GetSnapshotAsync();
                 foreach(DocumentSnapshot document in patientSnapshot.Documents){
                     string nurseID = document.GetValue<string>("NurseId");
@@ -164,7 +191,7 @@ namespace ClearCare.Models.Control
                 patients, 
                 services, 
                 backlogEntries,
-                // patientSlotTracker,
+                serviceSlotTracker,
                 nurseSlotTracker);
 
             foreach (var serviceAppt in serviceAppointment)
