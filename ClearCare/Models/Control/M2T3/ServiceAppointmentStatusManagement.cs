@@ -12,8 +12,9 @@ namespace ClearCare.Models.Control
     public class ServiceAppointmentStatusManagement: IAppointmentStatus
     {
         private readonly IServiceStatus _iServiceStatus;
-        public ServiceAppointmentStatusManagement(IServiceStatus iServiceStatus) {
-            _iServiceStatus = iServiceStatus;
+        public ServiceAppointmentStatusManagement() {
+            
+            _iServiceStatus = (IServiceStatus) new ServiceAppointmentManagement();
         }
 
         public async Task<List<ServiceAppointment>> getAppointmentDetails() {
