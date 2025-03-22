@@ -6,6 +6,10 @@
     var userRole = Context.Session.GetString("Role");
 }
 
+@{
+    var userId = Context.Session.GetString("UserID");
+}
+
 <h2>@ViewData["Title"]</h2>
 
 <div class="text-center">
@@ -13,8 +17,63 @@
     <p>User Role from session: @userRole</p>
 </div>
 
+<!-- Display Current Preferences -->
+<div class="container mt-3">
+    <h4>Current Preferences:</h4>
+    <p><strong>Notification Preference:</strong> <span id="currentPreference">Loading...</span></p>
+    <p><strong>Notification Methods:</strong> <span id="currentMethods">Loading...</span></p>
+</div>
+
+<!-- DND Days Selection -->
+<div class="container mt-4">
+    <h4>Select Days for Do Not Disturb:</h4>
+    <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="monday" value="Monday">
+        <label class="form-check-label" for="monday">Monday</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="tuesday" value="Tuesday">
+        <label class="form-check-label" for="tuesday">Tuesday</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="wednesday" value="Wednesday">
+        <label class="form-check-label" for="wednesday">Wednesday</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="thursday" value="Thursday">
+        <label class="form-check-label" for="thursday">Thursday</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="friday" value="Friday">
+        <label class="form-check-label" for="friday">Friday</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="saturday" value="Saturday">
+        <label class="form-check-label" for="saturday">Saturday</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="sunday" value="Sunday">
+        <label class="form-check-label" for="sunday">Sunday</label>
+    </div>
+</div>
+
+
+<!-- DND Time Range -->
+<div class="container mt-4">
+    <h4>Select Time Range for Do Not Disturb:</h4>
+    <div class="form-group">
+        <label for="dndStartTime">Start Time:</label>
+        <input type="time" class="form-control" id="dndStartTime" value="00:00">
+    </div>
+    <div class="form-group">
+        <label for="dndEndTime">End Time:</label>
+        <input type="time" class="form-control" id="dndEndTime" value="23:59">
+    </div>
+</div>
+
+
 <!-- Notification Preference Selection -->
-<div class="container mt-5">
+<div class="container mt-4">
     <div class="mb-3">
         <label class="form-label">Notification Preference:</label>
         <div>
@@ -42,8 +101,80 @@
     <button onclick="saveNotificationPreference()" class="btn btn-primary">Save Preferences</button>
 </div>
 
-<!-- JavaScript to handle preference saving -->
+<!-- JavaScript to handle preference retrieval and saving -->
 <script>
+document.addEventListener("DOMContentLoaded", async function () {
+    await loadNotificationPreference();
+});
+
+    var userIdFromSession = '@userId';  // UserID from the session
+    console.log("UserID from session:", userIdFromSession); // For debugging
+
+async function loadNotificationPreference() {
+    console.log("Fetching saved preferences...");
+
+    try {
+        const response = await fetch(`/NotificationPreference/get-all?userId=${userIdFromSession}`);
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch preferences.");
+        }
+
+        const preferences = await response.json();
+        console.log("Fetched Preferences:", preferences);
+
+        if (!preferences || preferences.length === 0) {
+            document.getElementById("currentPreference").innerText = "No preferences found.";
+            document.getElementById("currentMethods").innerText = "No methods selected.";
+            return;
+        }
+
+        const userPreference = preferences.find(pref => pref.userID === userIdFromSession);
+
+        if (!userPreference) {
+            document.getElementById("currentPreference").innerText = "No preference found for this user.";
+            return;
+        }
+
+        // Display preferences
+        document.getElementById("currentPreference").innerText = userPreference.preference;
+        document.getElementById("currentMethods").innerText = userPreference.methods;
+
+        // Set radio button for preference
+        document.getElementById("enableNotifications").checked = userPreference.preference === "enabled";
+        document.getElementById("disableNotifications").checked = userPreference.preference === "disabled";
+
+        // Set checkboxes for methods
+        document.getElementById("smsNotification").checked = userPreference.methods.includes("sms");
+        document.getElementById("emailNotification").checked = userPreference.methods.includes("email");
+
+        // Set checkboxes for DND days
+        if (userPreference.dndDays) {
+            const dndDaysArray = userPreference.dndDays.split(",");
+            dndDaysArray.forEach(day => {
+                const checkbox = document.getElementById(day.toLowerCase());
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+        }
+
+        // Set DND time range
+        if (userPreference.dndTimeRange) {
+            document.getElementById("dndStartTime").value = userPreference.dndTimeRange.start.slice(0, 5);
+            document.getElementById("dndEndTime").value = userPreference.dndTimeRange.end.slice(0, 5);
+        }
+
+    } catch (error) {
+        console.error("Error loading preferences:", error);
+        document.getElementById("currentPreference").innerText = "Error loading preferences.";
+        document.getElementById("currentMethods").innerText = "Error loading methods.";
+    }
+}
+
+
+
+
 async function saveNotificationPreference() {
     console.log('Preference save triggered');
 
@@ -52,29 +183,57 @@ async function saveNotificationPreference() {
 
     const selectedPreference = document.querySelector('input[name="notificationPreference"]:checked');
     const selectedMethods = [];
-    
-    // Check selected methods
-    if (document.getElementById('smsNotification').checked) {
-        selectedMethods.push('sms');
+    const selectedDndDays = [];
+
+    const startTimeElem = document.getElementById("dndStartTime");
+    const endTimeElem = document.getElementById("dndEndTime");
+
+    if (!startTimeElem || !endTimeElem) {
+        alert("Time range elements are missing in the form.");
+        return;
     }
-    if (document.getElementById('emailNotification').checked) {
-        selectedMethods.push('email');
-    }
+
+    const startTime = startTimeElem.value;
+    const endTime = endTimeElem.value;
+
+    // Collect selected DND days
+    if (document.getElementById('monday').checked) selectedDndDays.push('Monday');
+    if (document.getElementById('tuesday').checked) selectedDndDays.push('Tuesday');
+    if (document.getElementById('wednesday').checked) selectedDndDays.push('Wednesday');
+    if (document.getElementById('thursday').checked) selectedDndDays.push('Thursday');
+    if (document.getElementById('friday').checked) selectedDndDays.push('Friday');
+    if (document.getElementById('saturday').checked) selectedDndDays.push('Saturday');
+    if (document.getElementById('sunday').checked) selectedDndDays.push('Sunday');
+
+    const dndDaysString = selectedDndDays.join(',');
 
     if (!selectedPreference) {
         alert("Please select a preference before saving.");
         return;
     }
 
-    if (selectedMethods.length === 0) {
+    // Collect selected notification methods
+    if (document.getElementById('smsNotification').checked) selectedMethods.push('sms');
+    if (document.getElementById('emailNotification').checked) selectedMethods.push('email');
+
+    const methodsString = selectedMethods.join(',');
+
+    if (methodsString === "") {
         alert("Please select at least one notification method (SMS/Email).");
+        return;
+    }
+
+    if (dndDaysString === "") {
+        alert("Please select at least one day for Do Not Disturb.");
         return;
     }
 
     try {
         const preferenceData = {
-            preference: [selectedPreference.value], // Wrap the preference in an array
-            methods: selectedMethods
+            preference: selectedPreference.value,  // Now a string
+            methods: methodsString,               // Now a string
+            dndDays: dndDaysString,               // Already a string
+            dndTimeRange: `${startTime}-${endTime}` // Now a string
         };
 
         console.log('Data being sent to API:', preferenceData);
@@ -96,6 +255,7 @@ async function saveNotificationPreference() {
 
         if (response.ok) {
             alert('Preference saved successfully!');
+            await loadNotificationPreference(); // Refresh displayed preferences
         } else {
             alert('Error: ' + result.message);
         }
@@ -103,4 +263,6 @@ async function saveNotificationPreference() {
         alert('Failed to save preference: ' + error.message);
     }
 }
+
+
 </script>
