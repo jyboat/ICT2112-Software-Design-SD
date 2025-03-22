@@ -8,7 +8,7 @@ using ClearCare.Models.Interfaces.M3T1;
 
 namespace ClearCare.DataSource.M3T1
 {
-    public class FeedbackMapper : IFeedbackSend, IResponseSend
+    public class FeedbackMapper : AbstractFeedbackNotifier, IFeedbackSend, IResponseSend
     {
         private readonly FirestoreDb _db;
         private IFeedbackReceive _feedbackReceiver;
@@ -180,6 +180,9 @@ namespace ClearCare.DataSource.M3T1
             // Update Feedback HasResponded flag
             DocumentReference feedbackDoc = _db.Collection("Feedback").Document(feedbackId);
             await feedbackDoc.UpdateAsync(new Dictionary<string, object> { { "HasResponded", true } });
+
+            // Notify Observer
+            Notify(feedbackId);
 
             return docRef.Id;
         }

@@ -5,25 +5,25 @@ using ClearCare.DataSource;
 using ClearCare.Models.Entities.M3T1;
 using ClearCare.Models.Interfaces.M3T1;
 
-public abstract class AbstractResponseNotifier
+public abstract class AbstractFeedbackNotifier
 {
-    private readonly List<IResponseObserver> _observers = new List<IResponseObserver>();
+    private readonly List<IFeedbackObserver> _observers = new List<IFeedbackObserver>();
 
-    public void Attach(IResponseObserver observer)
+    public void Attach(IFeedbackObserver observer)
     {
         _observers.Add(observer);
     }
 
-    public void Detach(IResponseObserver observer)
+    public void Detach(IFeedbackObserver observer)
     {
         _observers.Remove(observer);
     }
 
-    protected void Notify(string userId, string feedbackId)
+    protected void Notify(string feedbackId)
     {
         foreach (var observer in _observers)
         {
-            observer.Update(userId, feedbackId);
+            observer.Update(feedbackId);
         }
     }
 }

@@ -23,9 +23,9 @@ public class FeedbackController : Controller
         feedbackMapper.feedbackReceiver = _feedbackManager;
         feedbackMapper.responseReceiver = _responseManager;
 
-        // Register Observer
-        var responseObserver = new PatientNotificationObserver();
-        _responseManager.Attach(responseObserver);
+        // Attach observer
+        var patientObserver = new PatientNotificationObserver();
+        feedbackMapper.Attach(patientObserver);
     }
 
     [Route("")]
@@ -50,6 +50,14 @@ public class FeedbackController : Controller
         else if (ViewBag.UserRole == "Patient")
         {
             String patientId = "1"; // Hardcoded for testing
+
+            // Check if patient has new notifications
+            if (PatientNotificationObserver.NotificationMap.ContainsKey(patientId))
+            {
+                TempData["SuccessMessage"] = "One or more of your feedbacks received a response.";
+                PatientNotificationObserver.NotificationMap.Remove(patientId);
+            }
+
             feedbackList = (await _feedbackManager.viewFeedbackByUserId(patientId))
                 .Select(s => s.GetFeedbackDetails())
                 .ToList();
@@ -131,13 +139,8 @@ public class FeedbackController : Controller
 
         string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
 
-        // Obtain feedbackUserId first
-        var feedback = await _feedbackManager.getFeedback(feedbackId);
-        var details = feedback.GetFeedbackDetails();
-        string feedbackUserId = details["UserId"]?.ToString() ?? "";
-
         // Process the response here
-        string id = await _responseManager.respondToFeedback(feedbackId, response, "1", currentDate, feedbackUserId);
+        string id = await _responseManager.respondToFeedback(feedbackId, response, "1", currentDate);
 
         TempData["SuccessMessage"] = "Response added successfully!";
 

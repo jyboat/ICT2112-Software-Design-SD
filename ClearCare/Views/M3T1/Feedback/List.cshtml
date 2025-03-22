@@ -51,6 +51,16 @@
                 }
             </div>
 
+            <!-- Patient View Response Section -->
+            @if (ViewBag.UserRole == "Patient" && Convert.ToBoolean(feedback["HasResponded"]))
+            {
+                <div class="mt-3 p-3 bg-light border-start border-primary">
+                    <h6 class="text-primary mb-1">Doctor's Response</h6>
+                    <p class="mb-1">@feedback["Response"]</p>
+                    <span class="text-muted small">Responded on @feedback["DateResponded"]</span>
+                </div>
+            }
+
             <!-- Reply Section -->
             @if (ViewBag.UserRole == "Doctor")
                     { /// if user is doctor
