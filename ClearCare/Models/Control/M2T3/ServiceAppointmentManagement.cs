@@ -9,7 +9,7 @@ using ClearCare.Interfaces;
 
 namespace ClearCare.Models.Control
 {
-    public class ServiceAppointmentManagement : IRetrieveAllAppointments, ICreateAppointment, IServiceAppointmentDB_Receive, IAppointmentTime
+    public class ServiceAppointmentManagement : IRetrieveAllAppointments, ICreateAppointment, IServiceAppointmentDB_Receive, IAppointmentTime, IServiceStatus
     {
 
 
