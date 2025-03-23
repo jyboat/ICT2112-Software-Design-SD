@@ -155,7 +155,8 @@ namespace ClearCare.Controllers
         {
             if (string.IsNullOrEmpty(email))
             {
-                ViewBag.Error = "Email cannot be empty.";
+                TempData["ErrorMessage"] = "Email cannot be empty.";
+                //ViewBag.Error = "Email cannot be empty.";
                 return View("ResetPassword");
             }
 
