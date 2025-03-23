@@ -3,6 +3,9 @@ using ClearCare.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Text.Json;
+using System.Web;
+using System.Text.Json.Serialization;
+using System.Text;
 
 namespace ClearCare.Controllers
 {
@@ -22,45 +25,74 @@ namespace ClearCare.Controllers
             return View();
         }
 
-        // Handle form submission
-        [HttpPost]
-        public async Task<IActionResult> Add(string drugName)
+        [HttpGet]
+        public IActionResult add()
         {
-            string reactionsUrl = $"https://api.fda.gov/drug/event.json?search=patient.drug.openfda.substance_name.exact:'{drugName}'&count=patient.reaction.reactionmeddrapt.exact";
-            string labelingUrl = $"https://api.fda.gov/drug/label.json?search=openfda.substance_name:'{drugName}'&limit=1";
+            return View();
+        }
 
+        [HttpPost]
+        public async Task<IActionResult> Add(string drugName1, string drugName2)
+        {
+            string ddinterApi = $"https://portfolio-website-lyart-five-75.vercel.app/api/receive?drug1={drugName1}&drug2={drugName2}";
             try
             {
-                var reactionsTask = _httpClient.GetStringAsync(reactionsUrl);
-                var labelingTask = _httpClient.GetStringAsync(labelingUrl);
-
-                await Task.WhenAll(reactionsTask, labelingTask);
-                ViewBag.DrugName = drugName;
-                var reactionsJson = JsonDocument.Parse(await reactionsTask);
-                var labelingJson = JsonDocument.Parse(await labelingTask);
-
-                // Extract reactions safely
-                ViewBag.Reactions = reactionsJson.RootElement.GetProperty("results").EnumerateArray().Select(r => new
+                var resp = await _httpClient.GetStringAsync(ddinterApi);
+                var result = JsonSerializer.Deserialize<DrugInteractionResponse>(resp);
+                return View("index", result);
+            }
+            catch (HttpRequestException e)
+            {
+                return View("index", new DrugInteractionResponse
                 {
-                    Term = r.GetProperty("term").GetString(),
-                    Count = r.GetProperty("count").GetInt32()
-                }).ToList();
+                    Results = new List<DrugInteraction>
+                    {
+                        new DrugInteraction { Drug1Name = "Error", Drug2Name = "Error", Interaction = $"No known interaction" }
+                    }
+                });
+            }
+        }
 
-                // Extract warnings safely
-                ViewBag.Labeling = labelingJson.RootElement.TryGetProperty("results", out var labelingArray)
-                ? labelingArray.EnumerateArray().Select(r => new
-                {
-                    Warning = r.TryGetProperty("warnings", out var warningProp) ? warningProp.ToString() : "No warnings available",
-                    Precautions = r.TryGetProperty("precautions", out var precautionsProp) ? precautionsProp.ToString() : "No precautions available"
-                }).ToList<dynamic>() // Explicitly cast to List<dynamic>
-                : new List<dynamic>(); // Ensure both branches return the same type
+        [HttpPost]
+        public async Task<IActionResult> Upload(string drugName1, string drugName2, string interaction)
+        {
+            var newInteraction = new {
+                Drug1Name = drugName1,
+                Drug2Name = drugName2,
+                Interaction = interaction
+            };
 
-                    return View("Index"); // Reloads the Index view with data
-                }
-                catch (HttpRequestException e)
-                {
-                    return StatusCode(500, $"Request failed: {e.Message}");
+            string json = JsonSerializer.Serialize(newInteraction);
+            HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            string ddinterApi = $"https://portfolio-website-lyart-five-75.vercel.app/api/receive";
+            try
+            {
+                HttpResponseMessage response = await _httpClient.PostAsync(ddinterApi, content);
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+                TempData["SuccessMessage"] = "Interaction successfully uploaded!"; // Store success message
+
+                return RedirectToAction("Index"); // Redirect to Index action
+            }
+            catch (HttpRequestException e)
+            {
+                TempData["ErrorMessage"] = $"Error: {e.Message}";
+                return RedirectToAction("Index");
             }
         }
     }
+}
+
+public class DrugInteractionResponse
+{
+    [JsonPropertyName("results")]
+    public List<DrugInteraction> Results { get; set; }
+}
+
+public class DrugInteraction
+{
+    public string Drug1Name { get; set; }
+    public string Drug2Name { get; set; }
+    public string Interaction { get; set; }
 }
