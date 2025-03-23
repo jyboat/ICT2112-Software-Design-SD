@@ -49,7 +49,7 @@ public class ServiceAppointmentsController : Controller
     public async Task<IActionResult> RetrieveAllAppointment()
     {
         // await to wait for task complete or data to retrieve before executing
-        var appointment = await ServiceAppointmentManagement.RetrieveAllAppointments();
+        var appointment = await ServiceAppointmentManagement.retrieveAllAppointments();
         // No record exists
         if (appointment != null && appointment.Any())
         {
@@ -63,10 +63,10 @@ public class ServiceAppointmentsController : Controller
 
     [HttpGet]
     [Route("GetAppointmentsForCalendar")]
-    public async Task<JsonResult> GetAppointmentsForCalendar([FromQuery] string? doctorId,
+    public async Task<JsonResult> getAppointmentsForCalendar([FromQuery] string? doctorId,
         [FromQuery] string? patientId, [FromQuery] string? nurseId)
     {
-        return await _calendarManagement.GetAppointmentsForCalendar(doctorId, patientId, nurseId);
+        return await _calendarManagement.getAppointmentsForCalendar(doctorId, patientId, nurseId);
     }
 
 
@@ -85,7 +85,7 @@ public class ServiceAppointmentsController : Controller
     // Implement IRetrieveAll
     public async Task<List<Dictionary<string, object>>> RetrieveAll()
     {
-        return await ServiceAppointmentManagement.RetrieveAllAppointments();
+        return await ServiceAppointmentManagement.retrieveAllAppointments();
     }
 
     [HttpGet]
@@ -97,6 +97,13 @@ public class ServiceAppointmentsController : Controller
         return View("~/Views/M2T3/ServiceAppointments/CreateServiceAppt.cshtml"); // Render the form
     }
 
+    [HttpGet]
+    [Route("AutoScheduling")]
+    public async Task<IActionResult> AddPatients()
+    {
+        ViewBag.Patients = await ServiceAppointmentManagement.getUnscheduledPatients();
+        return View("~/Views/M2T3/ServiceAppointments/AddPatientsAutoScheduling.cshtml");
+    }
 
     // POST: Create a new appointment
     // Route: localhost:5007/api/ServiceAppointments/Create that retriggers POST
@@ -173,6 +180,8 @@ public class ServiceAppointmentsController : Controller
     {
         try
         {
+            Console.WriteLine("Received JSON request body: " + JsonSerializer.Serialize(requestData));
+
             var result = await ServiceAppointmentManagement.UpdateAppointment(
                 requestData["AppointmentId"].GetString() ?? "",
                 requestData["PatientId"].GetString() ?? "",
@@ -244,12 +253,19 @@ public class ServiceAppointmentsController : Controller
     }
 
     // Test Auto Interface
-    [HttpGet]
+    [HttpPost]
     [Route("TestAutoAppointment")]
-    public void TestAutoAppointment()
+    public IActionResult TestAutoAppointment([FromForm] List<string> PatientIds)
     {
+        Console.WriteLine("Selected Patient IDs: " + string.Join(", ", PatientIds));
+    
+        // Pass the list of patient IDs to your scheduling algorithm.
+        // You might need to modify AutomaticallyScheduleAppointment to accept this list.
         AutomaticAppointmentScheduler.SetAlgorithm(new PreferredNurseStrategy());
-        AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment();
+        AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(PatientIds);
+        
+        // Return a response or redirect as needed.
+        return Ok(new { Message = "Auto appointment scheduling initiated.", SelectedPatients = PatientIds });
     }
 
     [HttpPost]
@@ -260,7 +276,7 @@ public class ServiceAppointmentsController : Controller
 
         Console.WriteLine("Received JSON request body: " + jsonRequestBody);
 
-        // string appointmentId = requestData["AppointmentId"].GetString() ?? "";
+        string appointmentId = requestData["AppointmentId"].GetString() ?? "";
         string patientId = requestData["PatientId"].GetString() ?? "";
         string nurseId = requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "";
         string doctorId = requestData["DoctorId"].GetString() ?? "";

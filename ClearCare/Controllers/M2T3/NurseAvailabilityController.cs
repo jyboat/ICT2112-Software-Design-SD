@@ -41,7 +41,7 @@ namespace ClearCare.Controllers
         [Route("GetAvailabilityByNurseIdForCalendar")]
         public async Task<JsonResult> GetAvailabilityByNurseIdForCalendar([FromQuery] string? nurseId)
         {
-            return await _calendarManagement.GetAvailabilityByNurseIdForCalendar("USR003"); // Dummy ID for testing
+            return await _calendarManagement.getAvailabilityByNurseIdForCalendar("USR003"); // Dummy ID for testing
         }
 
         // Displays Nurse Availability View

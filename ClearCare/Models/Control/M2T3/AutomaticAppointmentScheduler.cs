@@ -57,7 +57,7 @@ namespace ClearCare.Models.Control
             public string Name { get; set; } = string.Empty;
         }
 
-        public async void AutomaticallyScheduleAppointment()
+        public async void AutomaticallyScheduleAppointment(List<string> patientIds)
         {
             // Attach listener only when scheduling is called
             var _serviceBacklogManagement = new ServiceBacklogManagement();
