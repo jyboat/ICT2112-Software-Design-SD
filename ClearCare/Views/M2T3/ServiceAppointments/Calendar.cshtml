@@ -38,11 +38,12 @@
         const serviceTypes = @Html.Raw(Json.Serialize(ViewBag.ServiceTypes));
         const DoctorId = @Html.Raw(Json.Serialize(ViewBag.DoctorId));
         
-        function loadCalendar(doctorId = '', patientId = '', nurseId = '') {
+        function loadCalendar(doctorId, patientId, nurseId, location) {
             var queryParams = [];
             if (doctorId) queryParams.push('doctorId=' + doctorId);
             if (patientId) queryParams.push('patientId=' + patientId);
             if (nurseId) queryParams.push('nurseId=' + nurseId);
+            if (location) queryParams.push('location=' + location);
             var queryString = queryParams.length ? '?' + queryParams.join('&') : '';
 
             var calendarEl = document.getElementById('calendar');
@@ -70,8 +71,9 @@
                 var doctorId = document.getElementById('doctorInput').value.trim();
                 var patientId = document.getElementById('patientInput').value.trim();
                 var nurseId = document.getElementById('nurseInput').value.trim();
+                var location = document.getElementById('locationInput').value.trim();
                 document.getElementById('calendar').innerHTML = '';  // clear calendar
-                loadCalendar(doctorId, patientId, nurseId);
+                loadCalendar(doctorId, patientId, nurseId, location);
             });
 
             // reset button
@@ -294,10 +296,10 @@
         <input type="text" id="doctorInput" class="filterInput" placeholder="Enter Doctor ID">
         <input type="text" id="patientInput" class="filterInput" placeholder="Enter Patient ID">
         <input type="text" id="nurseInput" class="filterInput" placeholder="Enter Nurse ID">
-        <input type="text" id="locationInput" class="filterInput" placeholder="Enter Location type">
-        <input type="text" id="serviceTypeInput" class="filterInput" placeholder="Enter Service type">
+        <input type="text" id="locationInput" class="filterInput" placeholder="Enter Location">
+        @* <input type="text" id="serviceTypeInput" class="filterInput" placeholder="Enter Service type">
         <input type="text" id="timeSlotInput" class="filterInput" placeholder="Enter Time Slot">
-        <input type="text" id="statusInput" class="filterInput" placeholder="Enter Status">
+        <input type="text" id="statusInput" class="filterInput" placeholder="Enter Status"> *@
         <button id="filterButton">Filter</button>
         <button id="resetButton">Reset Filters</button>
     </div>
