@@ -55,8 +55,8 @@ public class ServiceAppointmentsController : Controller
         if (appointments != null && appointments.Any())
         {
             // convert to dictionary format for the view
-            var appointmentDicts = appointments.Select(a => a.ToFirestoreDictionary()).ToList();
-            return View("~/Views/M2T3/ServiceAppointments/Index.cshtml", appointmentDicts);
+            // var appointmentDicts = appointments.Select(a => a.ToFirestoreDictionary()).ToList();
+            return View("~/Views/M2T3/ServiceAppointments/Index.cshtml", appointments);
         }
         else
         {
