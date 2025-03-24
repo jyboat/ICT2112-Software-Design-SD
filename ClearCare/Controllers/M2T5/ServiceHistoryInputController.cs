@@ -11,14 +11,13 @@ namespace ClearCare.Controllers
     {
         private readonly ServiceHistoryManager _ServiceHistoryManager;
         private readonly IAppointmentStatus _ApptStatusService;
-        // private readonly ServiceHistoryMapper _ServiceHistoryMapper;
 
         public ServiceHistoryInputController()
         {
             _ApptStatusService = new ServiceAppointmentStatusManagement();
 
             var _ServiceHistoryMapper = new ServiceHistoryMapper();
-            _ServiceHistoryManager = new ServiceHistoryManager(_ServiceHistoryMapper, _ApptStatusService);
+            _ServiceHistoryManager = new ServiceHistoryManager(_ServiceHistoryMapper);
         }
 
         // DISPLAY LIST OF SERVICE HISTORY
@@ -39,7 +38,7 @@ namespace ClearCare.Controllers
             {
                 // Console.WriteLine("Received JSON request body: " + JsonSerializer.Serialize(requestData));
 
-                var serviceHistory = await _ServiceHistoryManager.createServiceHistory(
+                var serviceHistoryId = await _ServiceHistoryManager.createServiceHistory(
                     requestData["appointmentId"].GetString() ?? "",
                     requestData["serviceTypeId"].GetString() ?? "",
                     requestData["patientId"].GetString() ?? "",
@@ -50,9 +49,9 @@ namespace ClearCare.Controllers
                     requestData["serviceOutcomes"].GetString() ?? ""
                 );
 
-                if (!string.IsNullOrEmpty(serviceHistory))
+                if (!string.IsNullOrEmpty(serviceHistoryId))
                 {
-                    return Ok(new { Message = "Service History created successfully", serviceHistoryId = serviceHistory });
+                    return Ok(new { Message = "Service History created successfully" });
                 }
                 else
                 {
@@ -71,13 +70,11 @@ namespace ClearCare.Controllers
         [Route("NurseAppt")]
         public async Task<IActionResult> displayNurseAppt()
         {
-            // var appointments = await _ServiceHistoryManager.getAllAppt();
             var appointments = await _ApptStatusService.getAppointmentDetails();
             var nurseId = HttpContext.Session.GetString("UserID");
             Console.WriteLine($"Session UserID: {nurseId}");
 
             var filteredAppts = appointments
-                // .Where(appt => appt.ContainsKey("NurseId") && appt["NurseId"].ToString() == nurseId)
                 .Where(appt => !string.IsNullOrEmpty(appt.GetAttribute("NurseId")) && appt.GetAttribute("NurseId") == nurseId)
                 .ToList();
 
@@ -98,7 +95,6 @@ namespace ClearCare.Controllers
         {
             try
             {
-                // var result = await _ServiceHistoryManager.updateApptStatus(apptId);
                 await _ApptStatusService.updateAppointmentStatus(apptId);
                 
                 return Ok(new { Success = true, Message = "Appointment updated successfully" });

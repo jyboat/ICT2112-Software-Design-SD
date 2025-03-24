@@ -1,13 +1,12 @@
+@* TEMPORARY FOR TESTING PURPOSES *@
 @using ClearCare.Models.Entities
 @model List<ServiceAppointment>
 
 @{
     ViewData["Title"] = "My Appointments";
-    var userId = Context.Session.GetString("UserID");
 }
 
 <h2>My Appointments</h2>
-<p>UserID: @userId</p>
 
 @if (Model != null && Model.Count > 0)
 {

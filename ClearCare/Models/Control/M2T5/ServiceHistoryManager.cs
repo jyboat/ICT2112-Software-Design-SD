@@ -4,24 +4,22 @@ using ClearCare.Interfaces;
 
 namespace ClearCare.Models.Control
 {
-    // to add IUserList
+    //TODO: add IUserList to display names for patient, nurse doctor?
     public class ServiceHistoryManager : IDatabaseObserver, IServiceHistory
     {
         private readonly ServiceHistoryMapper _ServiceHistoryMapper;
-        private readonly IAppointmentStatus _ApptStatusService;
 
-        public ServiceHistoryManager(ServiceHistoryMapper serviceHistoryMapper, IAppointmentStatus apptStatusService)
+        public ServiceHistoryManager(ServiceHistoryMapper serviceHistoryMapper)
         {
             _ServiceHistoryMapper = serviceHistoryMapper;
-            _ApptStatusService = apptStatusService;
-            // serviceHistoryMapper.attachObserver(this); // Attach Manager as an Observer
+            serviceHistoryMapper.attachObserver(this);
         }
 
         // GET ALL SERVICE HISTORY
         public async Task<List<Dictionary<string, object>>> getAllServiceHistory()
         {
             List<ServiceHistory> serviceHistoryList = await _ServiceHistoryMapper.fetchAllServiceHistory();
-            List<Dictionary<string, object>> serviceHistoryDictionaryList = new List<Dictionary<string, object>>();
+            List<Dictionary<string, object>> serviceHistoryDictionaryList = new();
 
             foreach (ServiceHistory history in serviceHistoryList)
             {
@@ -48,9 +46,16 @@ namespace ClearCare.Models.Control
 
         public void update(Subject subject, object data)
         {
-            if (data is ServiceHistory serviceHistory)
+            if (data is bool isSuccess)
             {
-                Console.WriteLine($"Manage received DB update: {serviceHistory}");
+                if (isSuccess)
+                {
+                    Console.WriteLine("[ServiceHistoryManager] Service History created successfully.");
+                }
+                else
+                {
+                    Console.WriteLine("[ServiceHistoryManager] Service History creation failed.");
+                }
             }
         }
     }
