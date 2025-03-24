@@ -1,0 +1,38 @@
+@model List<ClearCare.Models.DTO.ServiceAppointmentDTO>
+
+<h2>Service Completion</h2>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Appointment ID</th>
+                <th>Patient</th>
+                <th>Nurse</th>
+                <th>Doctor</th>
+                <th>Service Type</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var appointment in Model)
+            {
+                <tr>
+                    <td>@appointment.AppointmentId</td>
+                    <td>@appointment.PatientId</td>
+                    <td>@appointment.NurseId</td>
+                    <td>@appointment.DoctorId</td>
+                    <td>@appointment.ServiceTypeId</td>
+                    <td>@appointment.Status</td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No pending service appointments found.</p>
+}

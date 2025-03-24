@@ -1,8 +1,10 @@
 using ClearCare.Models.Interface; 
 using ClearCare.Models.Control;   
-using ClearCare.Models.Hubs;   
+using ClearCare.Models.Hubs;  
+using ClearCare.Models.DTO;    
 using ClearCare.Controllers;
 using Microsoft.AspNetCore.SignalR;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +41,12 @@ builder.Services.AddScoped<IMedicalRecord, ViewMedicalRecord>(); // Ensure ViewM
 builder.Services.AddScoped<IUserDetails, ProfileManagement>(); // Ensure ProfileManagement implements IUserDetails
 builder.Services.AddScoped<IMedicalRecordSubject, ManageMedicalRecord>();
 builder.Services.AddScoped<UpdateViewObserver>();
+
+
+builder.Services.AddScoped<IAppointmentStatus, ServiceAppointmentStatusManagement>();
+
+
+
 
 var app = builder.Build();
 
