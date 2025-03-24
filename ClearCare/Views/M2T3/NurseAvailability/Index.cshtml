@@ -44,10 +44,30 @@
                 },
 
                 eventClick: function (info) {
+                    const clickedDate = new Date(info.event.startStr);
+                    const today = new Date();
+
+                    // Reset time part of 'today' so we only compare dates
+                    today.setHours(0, 0, 0, 0);
+
+                    if (clickedDate < today) {
+                        alert("You cannot edit unavailability on a past date.");
+                        return;
+                    }
                     openEditModal(info.event.id, info.event.extendedProps.nurseId, info.event.startStr);
                 },
 
                 dateClick: function (info) {
+                    const clickedDate = new Date(info.dateStr);
+                    const today = new Date();
+
+                    // Reset time part of 'today' so we only compare dates
+                    today.setHours(0, 0, 0, 0);
+
+                    if (clickedDate < today) {
+                        alert("You cannot create unavailability on a past date.");
+                        return;
+                    }
                     openAddModal(info.dateStr);
                 }
             });

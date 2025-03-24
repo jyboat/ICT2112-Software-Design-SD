@@ -63,10 +63,14 @@ public class ServiceAppointmentsController : Controller
 
     [HttpGet]
     [Route("GetAppointmentsForCalendar")]
-    public async Task<JsonResult> getAppointmentsForCalendar([FromQuery] string? doctorId,
-        [FromQuery] string? patientId, [FromQuery] string? nurseId)
+    public async Task<JsonResult> getAppointmentsForCalendar(
+        [FromQuery] string? doctorId,
+        [FromQuery] string? patientId,
+        [FromQuery] string? nurseId,
+        [FromQuery] string? location,
+        [FromQuery] string? service)
     {
-        return await _calendarManagement.getAppointmentsForCalendar(doctorId, patientId, nurseId);
+        return await _calendarManagement.getAppointmentsForCalendar(doctorId, patientId, nurseId, location, service);
     }
 
 

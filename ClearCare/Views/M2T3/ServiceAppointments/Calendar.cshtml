@@ -37,28 +37,61 @@
         const nursesData = @Html.Raw(Json.Serialize(ViewBag.Nurses));
         const serviceTypes = @Html.Raw(Json.Serialize(ViewBag.ServiceTypes));
         const DoctorId = @Html.Raw(Json.Serialize(ViewBag.DoctorId));
-        
-        function loadCalendar(doctorId = '', patientId = '', nurseId = '') {
+
+        function loadCalendar(doctorId, patientId, nurseId, location, service) {
             var queryParams = [];
             if (doctorId) queryParams.push('doctorId=' + doctorId);
             if (patientId) queryParams.push('patientId=' + patientId);
             if (nurseId) queryParams.push('nurseId=' + nurseId);
+            if (location) queryParams.push('location=' + location);
+            if (service) queryParams.push('service=' + service);
             var queryString = queryParams.length ? '?' + queryParams.join('&') : '';
 
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 events: '/api/ServiceAppointments/GetAppointmentsForCalendar' + queryString,
-                @* TODO: add serviceType, status, date and time, slot, location *@
+                dayMaxEventRows: 3, // limit how many event rows show
+                eventTimeFormat: {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true // show AM/PM
+                },
                 eventClick: function (info) {
+                    const clickedDate = new Date(info.event.startStr);
+                    const today = new Date();
+
+                    // Reset time part of 'today' so we only compare dates
+                    today.setHours(0, 0, 0, 0);
+
+                    if (clickedDate < today) {
+                        alert("You cannot edit an appointment on a past date.");
+                        return;
+                    }
                     openEditModal(info.event.id, info.event.extendedProps);
+
                 },
 
-                dateClick: function () {
+
+                dateClick: function (info) {
+                    const clickedDate = new Date(info.dateStr);
+                    const today = new Date();
+
+                    // Reset time part of 'today' so we only compare dates
+                    today.setHours(0, 0, 0, 0);
+
+                    if (clickedDate < today) {
+                        alert("You cannot create an appointment on a past date.");
+                        return;
+                    }
+
+                    // If the date is valid, show the add modal
+                    document.getElementById("addDate").value = info.dateStr;
                     openAddModal();
                 }
+
             });
-        calendar.render();
+            calendar.render();
         }
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -66,19 +99,23 @@
             loadCalendar();
 
             // filter button
-            document.getElementById('filterButton').addEventListener('click', function() {
+            document.getElementById('filterButton').addEventListener('click', function () {
                 var doctorId = document.getElementById('doctorInput').value.trim();
                 var patientId = document.getElementById('patientInput').value.trim();
                 var nurseId = document.getElementById('nurseInput').value.trim();
+                var location = document.getElementById('locationInput').value.trim();
+                var service = document.getElementById('serviceInput').value.trim();
                 document.getElementById('calendar').innerHTML = '';  // clear calendar
-                loadCalendar(doctorId, patientId, nurseId);
+                loadCalendar(doctorId, patientId, nurseId, location, service);
             });
 
             // reset button
-            document.getElementById('resetButton').addEventListener('click', function() {
+            document.getElementById('resetButton').addEventListener('click', function () {
                 document.getElementById('doctorInput').value = '';
                 document.getElementById('patientInput').value = '';
                 document.getElementById('nurseInput').value = '';
+                document.getElementById('locationInput').value = '';
+                document.getElementById('serviceInput').value = '';
                 document.getElementById('calendar').innerHTML = '';  // clear calendar
                 loadCalendar(); // reload all appointments
             });
@@ -102,7 +139,7 @@
                 document.getElementById("editPatientId").value = extendedProps.patientId;
                 document.getElementById("editNurseId").value = extendedProps.nurseId;
             }, 300);
-            
+
             $('#editAppointmentModal').modal('show');
         }
 
@@ -155,7 +192,7 @@
                     if (data.success) {
                         alert("Appointment updated successfully!");
                         closeModal();
-                        window.location.reload();
+                        loadCalendar();
                     } else {
                         alert("Error updating appointment: " + data.message);
                     }
@@ -184,20 +221,20 @@
         console.log("Patients data:", patientsData);
         console.log("Nurses data:", nursesData);
         console.log("Services data:", serviceTypes);
-        
-        
-        function generateAppointmentId(length=20) {
-            const chars =  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+
+        function generateAppointmentId(length = 20) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             let result = '';
 
             for (let i = 0; i < length; i++) {
                 const randomIndex = Math.floor(Math.random() * chars.length);
                 result += chars.charAt(randomIndex);
             }
-            
+
             return result;
         }
-        
+
         const populateDropdowns = () => {
             // Populate patient dropdowns
             populateDropdown("addPatientId", patientsData);
@@ -209,11 +246,11 @@
             populateDropdown("editNurseId", nursesData);
             populateDropdown("addServiceType", serviceTypes);
         }
-        
+
         const populateDropdown = (elementId, options) => {
             const dropdown = document.getElementById(elementId);
             dropdown.innerHTML = '<option value="">Select...</option>';
-            
+
             options.forEach(option => {
                 const optionElement = document.createElement("option");
                 optionElement.value = option.id;
@@ -255,7 +292,7 @@
                 Slot: parseInt(selectedTimeSlot),
                 Location: location
             };
-            
+
             fetch("/api/ServiceAppointments/AddAppt", {
                 method: "POST",
                 headers: {
@@ -277,7 +314,7 @@
                     alert("Appointment created successfully!");
                     console.log("Response:", data);
                     $('#addAppointmentModal').modal('hide');
-                    window.location.reload();
+                    loadCalendar();
                 })
                 .catch(error => {
                     alert("Error: " + error.message); // display the error message
@@ -294,6 +331,8 @@
         <input type="text" id="doctorInput" class="filterInput" placeholder="Enter Doctor ID">
         <input type="text" id="patientInput" class="filterInput" placeholder="Enter Patient ID">
         <input type="text" id="nurseInput" class="filterInput" placeholder="Enter Nurse ID">
+        <input type="text" id="locationInput" class="filterInput" placeholder="Enter Location">
+        <input type="text" id="serviceInput" class="filterInput" placeholder="Enter Service">
         <button id="filterButton">Filter</button>
         <button id="resetButton">Reset Filters</button>
     </div>
@@ -402,7 +441,7 @@
                             <label for="addStatus">Status</label>
                             <input type="text" class="form-control" id="addStatus">
                         </div> *@
-                        
+
                         @* Separate Date and Time selection *@
                         <div class="form-group">
                             <label for="addDate">Date:</label>

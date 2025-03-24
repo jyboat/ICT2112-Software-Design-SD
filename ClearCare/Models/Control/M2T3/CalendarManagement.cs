@@ -24,7 +24,12 @@ namespace ClearCare.Models.Control
             _getAvailabilityByStaff = getAvailabilityByStaff;
         }
 
-        public async Task<JsonResult> getAppointmentsForCalendar(string? doctorId, string? patientId, string? nurseId)
+        public async Task<JsonResult> getAppointmentsForCalendar(
+            string? doctorId, 
+            string? patientId, 
+            string? nurseId,
+            string? location,
+            string? service)
         {
             // Get all appointments from IRetrieveAllAppointments (implemented by ServiceAppointmentManagement)
             var appointments = await _retrieveAllAppointments.retrieveAllAppointments();
@@ -47,17 +52,25 @@ namespace ClearCare.Models.Control
             {
                 appointments = appointments.Where(a => a.ContainsKey("NurseId") && a["NurseId"].ToString() == nurseId).ToList();
             }
+            if (!string.IsNullOrEmpty(location))
+            {
+                appointments = appointments.Where(a => a.ContainsKey("Location") && a["Location"].ToString() == location).ToList();
+            }
+            if (!string.IsNullOrEmpty(service))
+            {
+                appointments = appointments.Where(a => a.ContainsKey("ServiceTypeId") && a["ServiceTypeId"].ToString() == service).ToList();
+            }
 
             // Convert filtered data to JSON format required by FullCalendar
             var eventList = appointments.Select(a => new
             {
                 id = a["AppointmentId"],
-                title = "Appointment for " + a["PatientId"],
+                title = a["ServiceTypeId"] + " for " + a["PatientId"],
                 start = ((DateTime)a["DateTime"]).ToString("yyyy-MM-ddTHH:mm:ss"),
                 extendedProps = new
                 {
                     patientId = a["PatientId"],
-                    nurseId = a.ContainsKey("NurseId") ? a["NurseId"] : null,
+                    nurseId = a.ContainsKey("NurseId"),
                     doctorId = a["DoctorId"],
                     status = a["Status"],
                     serviceType = a["ServiceTypeId"],
