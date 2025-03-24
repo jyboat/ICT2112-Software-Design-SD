@@ -7,8 +7,10 @@
 
 <head>
     <title>Appointments Calendar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <style>
         #calendar {
             max-width: 900px;
@@ -65,7 +67,7 @@
                     today.setHours(0, 0, 0, 0);
 
                     if (clickedDate < today) {
-                        alert("You cannot edit an appointment on a past date.");
+                        toastr.error("You cannot edit an appointment on a past date.", "Error");
                         return;
                     }
                     openEditModal(info.event.id, info.event.extendedProps);
@@ -81,7 +83,7 @@
                     today.setHours(0, 0, 0, 0);
 
                     if (clickedDate < today) {
-                        alert("You cannot create an appointment on a past date.");
+                        toastr.error("You cannot edit an appointment on a past date.", "Error");
                         return;
                     }
 
@@ -190,16 +192,18 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert("Appointment updated successfully!");
                         closeModal();
                         loadCalendar();
+                        toastr.success("Appointment updated successfully!", "Success");
                     } else {
-                        alert("Error updating appointment: " + data.message);
+                        toastr.error("Error updating appointment: " + data.message, "Error");
+
                     }
                 })
                 .catch(error => {
                     console.error("Error:", error);
-                    alert("An error occurred while updating the appointment.");
+                    toastr.error("An error occurred while updating the appointment.", "Error");
+
                 });
         }
 
@@ -209,10 +213,11 @@
                     method: "DELETE"
                 }).then(response => {
                     if (response.ok) {
-                        alert("Appointment deleted successfully!");
-                        location.reload();
+                        closeModal();
+                        toastr.success("Appointment deleted successfully!", "Success");
+                        loadCalendar(); // reload all appointments
                     } else {
-                        alert("Error deleting appointment.");
+                        toastr.error("Error deleting appointment.", "Error");
                     }
                 }).catch(error => console.error("Error:", error));
             }
@@ -271,7 +276,7 @@
             let location = document.getElementById("addLocation").value;
 
             if (!selectedDate || selectedTimeSlot === "") {
-                alert("Please select both a date and time slot.")
+                toastr.warning("Please select both a date and time slot.", "Warning");
                 return;
             }
 
@@ -311,13 +316,13 @@
                     return response.json();
                 })
                 .then(data => {
-                    alert("Appointment created successfully!");
+                    toastr.success("Appointment created successfully.", "Success");
                     console.log("Response:", data);
                     $('#addAppointmentModal').modal('hide');
                     loadCalendar();
                 })
                 .catch(error => {
-                    alert("Error: " + error.message); // display the error message
+                    toastr.error("Error: " + error.message, "Error");
                     console.error("Error:", error);
                 });
         }
