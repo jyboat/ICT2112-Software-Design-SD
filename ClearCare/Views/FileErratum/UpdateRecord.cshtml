@@ -20,6 +20,10 @@
                 <strong>Disclaimer:</strong><br>A medical record cannot be amended. An erratum has to be filed.
             </div>
 
+            <!-- Hidden TempData message values -->
+            <input type="hidden" id="ToastrSuccessMessage" value="@TempData["SuccessMessage"]" />
+            <input type="hidden" id="ToastrErrorMessage" value="@TempData["ErrorMessage"]" />
+
             <form method="post" asp-controller="FileErratum" asp-action="fileErratumRecord" enctype="multipart/form-data"
             onsubmit="return showAlert()">
                 <div class="mb-3">
@@ -45,10 +49,3 @@
          </div>
     </div>
 </div>
-
-<script>
-    function showAlert() {
-        alert('Your erratum has been filed successfully. Click OK to view the filed erratum.');
-        return true;
-    }
-</script>

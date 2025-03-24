@@ -50,7 +50,7 @@ namespace ClearCare.Controllers
                 return RedirectToAction("Index", "Home");
             }
                 
-            ViewBag.Error = "Invalid login credentials";
+            TempData["ErrorMessage"] = "Invalid login credentials";
             return View("Login");
         }
 

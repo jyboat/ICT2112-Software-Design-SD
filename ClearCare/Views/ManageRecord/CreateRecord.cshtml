@@ -20,6 +20,10 @@
                 <strong>Disclaimer:</strong><br>Ensure all fields are filled correctly.
             </div>
 
+            <!-- Toastr Message-->
+            <input type="hidden" id="ToastrSuccessMessage" value="@TempData["SuccessMessage"]" />
+            <input type="hidden" id="ToastrErrorMessage" value="@TempData["ErrorMessage"]" />
+
             <form method="post" asp-controller="ManageRecord" asp-action="CreateMedicalRecord"
             enctype="multipart/form-data">
                 <div class="mb-3">

@@ -75,12 +75,12 @@ namespace ClearCare.Controllers
 
             if (result != null)
             {
-                TempData["Success"] = "Medical record added successfully!";
+                TempData["SuccessMessage"] = "Medical record added successfully!";
                 return RedirectToAction("displayViewRecord", "ViewRecord"); // Redirect back to the records page
             }
             else
             {
-                TempData["Error"] = "Failed to add medical record.";
+                TempData["ErrorMessage"] = "Failed to add medical record.";
                 return RedirectToAction("displayCreateRecord");
             }
         }

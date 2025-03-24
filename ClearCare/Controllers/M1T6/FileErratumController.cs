@@ -81,12 +81,15 @@ namespace ClearCare.Controllers
                 fileName ?? string.Empty // Provide default empty string
             );
 
-            if (result == null)
+            if (result != null)
             {
-                return NotFound("Failed to create erratum.");
+                TempData["SuccessMessage"] = "Erratum filed successfully!";
+                return RedirectToAction("displayViewRecord", "ViewRecord", new { recordID = recordID });
             }
-
-            return RedirectToAction("displayViewRecord", "ViewRecord", new { recordID = recordID });
+            else{
+                TempData["ErrorMessage"] = "Failed to file erratum.";
+                 return NotFound("Failed to create erratum.");
+            }
         }
     }
 }
