@@ -10,13 +10,15 @@ namespace ClearCare.Models.Control
     {
         private MedicalRecordGateway MedicalRecordGateway;
         private readonly IEncryption encryptionService;
+        private readonly IAuditLog auditService;
         string encryptedText = string.Empty;
         private static List<IMedicalRecordObserver> MedObservers = new List<IMedicalRecordObserver>();
 
-        public ManageMedicalRecord(IEncryption encryptionService)
+        public ManageMedicalRecord(IEncryption encryptionService, IAuditLog auditService)
         {
             MedicalRecordGateway = new MedicalRecordGateway();
             this.encryptionService = encryptionService;
+            this.auditService = auditService;
         }
 
         public async Task<MedicalRecord> addMedicalRecord(string doctorNote, string patientID, byte[] fileBytes, string fileName, string doctorID)
@@ -25,6 +27,8 @@ namespace ClearCare.Models.Control
 
             // Insert record
             var newRecord = await MedicalRecordGateway.insertMedicalRecord(encryptedText, patientID, fileBytes, fileName, doctorID);
+
+            await auditService.InsertAuditLog("Created new medical record", doctorID);
             
             if (newRecord != null)
             {

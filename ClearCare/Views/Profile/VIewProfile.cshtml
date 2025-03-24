@@ -58,6 +58,22 @@
                         <tr><td class="fw-bold text-primary">Assigned Patient Name:</td><td>@profileData["AssignedPatientName"]</td></tr>
 
                     }
+                    @if (profileData.ContainsKey("AssignedCaregiverID") && !string.IsNullOrEmpty(profileData["AssignedCaregiverID"].ToString()))
+                    {
+                        <tr>
+                            <td class="fw-bold text-primary">Assigned Caregiver ID:</td>
+                            <td>@profileData["AssignedCaregiverID"]</td>
+                        </tr>
+                    }
+                    @if (profileData.ContainsKey("AssignedCaregiverName") && !string.IsNullOrEmpty(profileData["AssignedCaregiverName"].ToString()))
+                    {
+                        <tr>
+                            <td class="fw-bold text-primary">Assigned Caregiver:</td>
+                            <td>@profileData["AssignedCaregiverName"]</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
                     
                     
                 </tbody>

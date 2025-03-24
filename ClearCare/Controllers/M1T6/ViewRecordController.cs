@@ -14,11 +14,14 @@ namespace ClearCare.Controllers
     {
         private readonly ViewMedicalRecord viewMedicalRecord;
         private readonly ErratumManagement erratumManagement;
+        private readonly ViewPersonalMedicalRecord viewPersonalMedicalRecord;
 
-        public ViewRecordController(IEncryption encryptionService)
+        public ViewRecordController(IEncryption encryptionService, IAuditLog auditService)
         {
-            viewMedicalRecord = new ViewMedicalRecord(encryptionService);
-            erratumManagement = new ErratumManagement(encryptionService);
+            this.erratumManagement = new ErratumManagement(encryptionService, auditService);
+            viewMedicalRecord = new ViewMedicalRecord(encryptionService, this.erratumManagement);
+            viewPersonalMedicalRecord = new ViewPersonalMedicalRecord();
+            this.viewPersonalMedicalRecord = new ViewPersonalMedicalRecord();
         }
 
         // View all medical record on 1 page
@@ -78,12 +81,31 @@ namespace ClearCare.Controllers
             return File(fileBytes, "application/octet-stream", fileName);
         }
 
+        [Route("ViewErratumAttachment/{erratumID}")]
+        public async Task<IActionResult> viewErratumAttachment(string erratumID)
+        {
+            var erratum = await erratumManagement.getErratumByID(erratumID);
+            if (erratum == null || !erratum.hasErratumAttachment())
+            {
+                return NotFound("File not found.");
+            }
+
+            var (fileBytes, fileName) = erratum.retrieveErratumAttachment();
+
+            if (fileBytes == null)
+            {
+                return NotFound("File content is empty.");
+            }
+
+            return File(fileBytes, "application/octet-stream", fileName);
+        }
+
         //exportRecord(): void
         [Route("Export/{recordID}")]
-        public async Task<IActionResult> exportRecord(string recordID)
+        public async Task<IActionResult> exportRecord(string recordID, string format = "csv")
         {
             // Call the ExportMedicalRecord method from ViewMedicalRecord to export the medical record
-            string exportResult = await viewMedicalRecord.exportMedicalRecord(recordID);
+            string exportResult = await viewMedicalRecord.exportMedicalRecord(recordID, format);
 
             // Check if the export was successful or if there was an error
             if (exportResult.Contains("exported"))
@@ -93,17 +115,47 @@ namespace ClearCare.Controllers
 
                 // Read the file from the path
                 var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
-                var fileName = $"{recordID}_MedicalRecord.csv"; // Use the recordID in the file name
+                var fileName = $"{recordID}_MedicalRecord.{format}"; // Use the recordID in the file name
 
                 // Delete the file after sending it to the user (optional, to keep the server clean)
                 System.IO.File.Delete(filePath);
 
                 // Return the file as a downloadable response
-                return File(fileBytes, "text/csv", fileName);
+                return File(fileBytes, format == "csv" ? "text/csv" : "application/pdf", fileName);
             }
 
             // If the export failed, return an error message
             return Content(exportResult);
         }
+
+        // M1T4
+        [Route("PatientMedicalRecords")]
+        public async Task<IActionResult> viewPatientMedRecord()
+        {
+            var userID = HttpContext.Session.GetString("UserID");
+
+            if (string.IsNullOrEmpty(userID))
+            {
+                return RedirectToAction("DisplayLogin", "Login");
+            }
+
+            if (viewPersonalMedicalRecord == null)
+            {
+                throw new Exception("viewPersonalMedicalRecord is not initialized.");
+            }
+
+            var medicalRecords = await viewPersonalMedicalRecord.getMedicalRecord(userID);
+
+            if (medicalRecords == null || medicalRecords.Count == 0)
+            {
+                ViewData["MedicalRecords"] = new List<dynamic>();
+                return View("ViewPatientMedRecord");
+            }
+            ViewData["PersonalMedicalRecords"] = medicalRecords;
+
+            return View("ViewPatientMedRecord");
+        }
+
     }
+
 }

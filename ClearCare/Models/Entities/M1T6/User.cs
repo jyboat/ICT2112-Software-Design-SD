@@ -7,7 +7,7 @@ namespace ClearCare.Models.Entities
     {
         // Class properties
         // UserID is assigned from Firestore document ID
-        protected string UserID { get; set; } 
+        protected string UserID { get; set; }
         [FirestoreProperty]
         protected string Email { get; set; }
         [FirestoreProperty]
@@ -20,6 +20,8 @@ namespace ClearCare.Models.Entities
         protected string Address { get; set; }
         [FirestoreProperty]
         protected string Role { get; set; }
+        [FirestoreProperty]
+        protected bool RequirePasswordChange { get; set; }
 
         // Getter and Setter
         protected string getUserID() => UserID;
@@ -38,7 +40,7 @@ namespace ClearCare.Models.Entities
         protected void setAddress(string address) => Address = address;
         protected void setRole(string role) => Role = role;
 
-        public User() {}
+        public User() { }
 
         // Constructor for creating new user records
         public User(string userID, string email, string password, string name, long mobileNumber, string address, string role)
@@ -50,19 +52,20 @@ namespace ClearCare.Models.Entities
             MobileNumber = mobileNumber;
             Address = address;
             Role = role;
+            RequirePasswordChange = false;
         }
 
         // Returns hashed password to compare when User logs in
         public string getHashedPassword()
         {
-            return getPassword(); 
+            return getPassword();
         }
 
 
         // Returns userID and Role to store in Session upon User login
         public (string userID, string role) getSessionData()
         {
-            return (getUserID(), getRole()); 
+            return (getUserID(), getRole());
         }
 
         // Returns all user data to be used in Profile
@@ -75,9 +78,27 @@ namespace ClearCare.Models.Entities
                 { "Name", getName() },
                 { "MobileNumber", getMobileNumber() },
                 { "Address", getAddress() },
-                { "Role", getRole() }
+                { "Role", getRole() },
+                { "RequirePasswordChange", RequirePasswordChange }
             };
         }
 
+        // Setter for profile data
+        public void SetProfileData(Dictionary<string, object> profileData)
+        {
+            if (profileData == null)
+            {
+                throw new ArgumentNullException(nameof(profileData), "Profile data cannot be null.");
+            }
+
+            // Use null-conditional and null-coalescing operators to handle potential null values
+            if (profileData.ContainsKey("UserID")) setUserID(profileData["UserID"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("Email")) setEmail(profileData["Email"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("Password")) setPassword(profileData["Password"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("Name")) setName(profileData["Name"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("MobileNumber")) setMobileNumber(profileData["MobileNumber"] as long? ?? 0);
+            if (profileData.ContainsKey("Address")) setAddress(profileData["Address"]?.ToString() ?? string.Empty);
+            if (profileData.ContainsKey("Role")) setRole(profileData["Role"]?.ToString() ?? string.Empty);
+        }
     }
 }
