@@ -65,7 +65,7 @@ namespace ClearCare.Models.Control
             var eventList = appointments.Select(a => new
             {
                 id = a["AppointmentId"],
-                title = "Appointment for " + a["PatientId"],
+                title = a["ServiceTypeId"] + " for " + a["PatientId"],
                 start = ((DateTime)a["DateTime"]).ToString("yyyy-MM-ddTHH:mm:ss"),
                 extendedProps = new
                 {

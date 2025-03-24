@@ -51,6 +51,8 @@
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 events: '/api/ServiceAppointments/GetAppointmentsForCalendar' + queryString,
+                dayMaxEventRows: 3, // limit how many event rows show
+                height: 'auto',
                 eventClick: function (info) {
                     openEditModal(info.event.id, info.event.extendedProps);
                 },
