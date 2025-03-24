@@ -26,21 +26,6 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> Index()
         {
             var backlogs = await _manager.getAllBacklogDetails();
-            // // if backlogs are not fetched
-            // if (TempData["DataFetched"] == null || !(bool)TempData["DataFetched"])
-            // {
-            //     _manager.getBacklogs();
-            // }
-            
-            // // if backlogs are fetched, 
-            // if (TempData["Backlogs"] != null)
-            // {
-            //     var backlogsJson = TempData["Backlogs"] as string;
-            //     var backlogs = JsonSerializer.Deserialize<List<ServiceBacklog>>(backlogsJson);
-                
-            //     // Pass backlogs to the view
-            //     ViewBag.Backlogs = backlogs;
-            // }
             return View("~/Views/M2T3/ServiceBacklog/Index.cshtml", backlogs);
         }
 
