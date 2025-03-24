@@ -49,7 +49,7 @@ namespace ClearCare.Models.Control
           public async Task<User> retrieveUserByID(string uid) => await _userGateway.findUserByID(uid);
 
           // Method to create a new account
-          public async Task<string> createAccount(User newUser, String password, IAuditSubject auditLog)
+          public async Task<string> createAccount(User newUser, IAuditSubject auditLog)
           {
                var email = newUser.getProfileData()["Email"]?.ToString();
                if (string.IsNullOrEmpty(email))
@@ -66,21 +66,21 @@ namespace ClearCare.Models.Control
 
                // validate that the fields are not empty, then create user
                var name = newUser.getProfileData()["Name"]?.ToString();
-               var mobileNumber = Convert.ToInt64(newUser.getProfileData()["MobileNumber"]);
+               var mobileNumber = Convert.ToInt64(newUser.getProfileData()["MobileNumber"]).ToString();
                var address = newUser.getProfileData()["Address"]?.ToString();
                var role = newUser.getProfileData()["Role"]?.ToString();
 
-               if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || string.IsNullOrEmpty(role))
+               if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || string.IsNullOrEmpty(role) || string.IsNullOrEmpty(mobileNumber))
                {
-                    return "Password, Name, Address and Role is required.";
+                    return "Name, Phone Number, Address and Role is required.";
                }
 
                var newPassword = GeneratePassword();
 
                // Create a new User object with the necessary data
-               string newUserId = await _userGateway.InsertUser(newUser, password);
+               string newUserId = await _userGateway.InsertUser(newUser, newPassword);
 
-                // Insert audit log after account creation
+               // Insert audit log after account creation
                string auditResult = await auditLog.InsertAuditLog("Created new account", newUserId);
 
                var emailBody = $"""
@@ -105,7 +105,7 @@ namespace ClearCare.Models.Control
                     return $"Failed to send email notification for ${newUserId}.";
                }
 
-               return newUserId != null ? "Account created successfully." : "Failed to create account.";         
+               return newUserId != null ? "Account created successfully." : "Failed to create account.";
           }
 
 
@@ -143,7 +143,7 @@ namespace ClearCare.Models.Control
                var newPassword = GeneratePassword();
                // Set the temporary password and mark account for required password change
                var result = await _userGateway.resetPassword(uid, newPassword);
-               
+
                if (result)
                {
                     // Insert audit log after successful password reset
@@ -175,7 +175,7 @@ namespace ClearCare.Models.Control
                          Console.WriteLine("Password reset successful but failed to send email notification.");
                          return "Password reset successful but failed to send email notification.";
                     }
-                    
+
                     Console.WriteLine("Password reset successful. User will be required to change password on next login.");
                     return "Password reset successful. User will be required to change password on next login.";
                }
