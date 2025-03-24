@@ -1,6 +1,16 @@
 @model List<ClearCare.Models.DTO.ServiceAppointmentDTO>
 
 <h2>Service Completion</h2>
+@{
+    var message = ViewBag.Message as string;
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div>
+        <strong>Message:</strong> @message
+    </div>
+}
 
 @if (Model != null && Model.Any())
 {
@@ -26,7 +36,10 @@
                     <td>@appointment.DoctorId</td>
                     <td>@appointment.ServiceTypeId</td>
                     <td>@appointment.Status</td>
-
+                    <td>
+                        <!-- Button to open the popup modal for updating all fields -->
+                        <button class="btn btn-primary" onclick="openEditPopup('@appointment.AppointmentId', '@appointment.PatientId', '@appointment.NurseId', '@appointment.DoctorId', '@appointment.ServiceTypeId', '@appointment.Status')">Update Appointment</button>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -36,3 +49,132 @@ else
 {
     <p>No pending service appointments found.</p>
 }
+
+<!-- Modal for Updating Appointment -->
+<div id="appointmentPopup" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h2>Edit Appointment</h2>
+        <form id="appointmentForm">
+            <input type="hidden" id="appointmentId" />
+            
+            <label for="patientId">Patient ID:</label>
+            <input type="text" id="patientId" class="form-control" />
+
+            <label for="nurseId">Nurse ID:</label>
+            <input type="text" id="nurseId" class="form-control" />
+
+            <label for="doctorId">Doctor ID:</label>
+            <input type="text" id="doctorId" class="form-control" />
+
+            <label for="serviceTypeId">Service Type ID:</label>
+            <input type="text" id="serviceTypeId" class="form-control" />
+
+            <label for="status">Status:</label>
+            <select id="status" class="form-control">
+                <option value="Pending">Pending</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+                <option value="Confirmed">Confirmed</option>
+            </select>
+
+            <button type="button" onclick="submitAppointmentUpdate()">Submit</button>
+            <button type="button" onclick="closePopup()">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<!-- Popup Modal Style -->
+<style>
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        margin: 50px auto;
+        width: 50%;
+    }
+</style>
+
+<!-- JavaScript to handle the popup and appointment update -->
+<script>
+    
+    // Open the modal and populate the current values for all fields
+    function openEditPopup(appointmentId, patientId, nurseId, doctorId, serviceTypeId, currentStatus) {
+        // Check if currentStatus is passed correctly
+        console.log('Current Status:', currentStatus);  // Log it to the console for debugging
+
+        document.getElementById('appointmentId').value = appointmentId;
+        document.getElementById('patientId').value = patientId;
+        document.getElementById('nurseId').value = nurseId;
+        document.getElementById('doctorId').value = doctorId;
+        document.getElementById('serviceTypeId').value = serviceTypeId;
+        
+        // Handle the status dropdown
+        const statusDropdown = document.getElementById('status');
+        statusDropdown.value = currentStatus;  // Set the current status in the dropdown
+
+        // Log status dropdown value to ensure it is being set correctly
+        console.log('Dropdown Value:', statusDropdown.value);
+
+        // Show the popup
+        document.getElementById('appointmentPopup').style.display = 'block';
+    }
+
+
+    // Close the modal
+    function closePopup() {
+        document.getElementById('appointmentPopup').style.display = 'none';
+    }
+
+    // Submit the appointment update
+    function submitAppointmentUpdate() {
+        var appointmentId = document.getElementById('appointmentId').value;
+        var patientId = document.getElementById('patientId').value;
+        var nurseId = document.getElementById('nurseId').value;
+        var doctorId = document.getElementById('doctorId').value;
+        var serviceTypeId = document.getElementById('serviceTypeId').value;
+        var status = document.getElementById('status').value;
+
+        // Create an object to send the updated data
+        var updatedAppointment = {
+            AppointmentId: appointmentId,
+            PatientId: patientId,
+            NurseId: nurseId,
+            DoctorId: doctorId,
+            ServiceTypeId: serviceTypeId,
+            Status: status
+        };
+
+        // Make an AJAX PUT request to update the appointment
+        fetch(`/ServiceCompletionInput/appointments/${appointmentId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedAppointment)
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Appointment updated successfully.');
+                location.reload(); // Reload the page to reflect the updated data
+            } else {
+                alert('Failed to update appointment.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating the appointment.');
+        });
+
+        // Close the popup after submitting
+        closePopup();
+    }
+</script>
