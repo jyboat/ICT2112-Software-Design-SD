@@ -28,14 +28,6 @@ public class ServiceAppointmentsController : Controller
 
 
         _nurseAvailabilityManagement = new NurseAvailabilityManagement();
-        // var nurse_availability_gateway = new NurseAvailabilityGateway();
-        // // Create the manager and pass the gateway
-        // _nurseAvailabilityManagement = new NurseAvailabilityManagement(nurse_availability_gateway);
-        // // Set the gateway's receiver to the manager (which implements IAvailabilityDB_Receive)
-        // nurse_availability_gateway.Receiver = _nurseAvailabilityManagement;
-
-
-
 
         _calendarManagement = new CalendarManagement(ServiceAppointmentManagement, _nurseAvailabilityManagement);
 
@@ -87,13 +79,6 @@ public class ServiceAppointmentsController : Controller
         ViewBag.DoctorId = "DOC001"; // hardcoded for now, will retrieve from session later
 
         return View("~/Views/M2T3/ServiceAppointments/Calendar.cshtml");
-    }
-
-    // Implement IRetrieveAll
-    public async Task<List<Dictionary<string, object>>> RetrieveAll()
-    {
-        var appointments = await ServiceAppointmentManagement.RetrieveAllAppointments();
-        return appointments.Select(a => a.ToFirestoreDictionary()).ToList();
     }
 
     [HttpGet]
@@ -160,27 +145,6 @@ public class ServiceAppointmentsController : Controller
         }
     }
 
-    // [HttpPost]
-    // [Route("Create")]
-    // public async Task<IActionResult> AutoAppointment([FromBody] Dictionary<string, JsonElement> requestData)
-    // {
-    //     // Map JSON data to model
-    //     var appointment = ServiceAppointment.setApptDetails(
-    //         requestData["AppointmentId"].GetString() ?? "",
-    //         requestData["PatientId"].GetString() ?? "",
-    //         requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
-    //         requestData["DoctorId"].GetString() ?? "",
-    //         requestData["ServiceTypeId"].GetString() ?? "",
-    //         requestData["Status"].GetString() ?? "",
-    //         requestData["DateTime"].GetDateTime(),
-    //         requestData["Slot"].GetInt32(),
-    //         requestData["Location"].GetString() ?? ""
-    //     );
-
-    //     string appointmentId = await _gateway.CreateAppointmentAsync(appointment);
-    //     return Ok(new { Message = "Appointment created successfully"});
-    // }
-
     // update appointment
     [HttpPut]
     [Route("Update")]
@@ -242,23 +206,6 @@ public class ServiceAppointmentsController : Controller
 
 
     }
-
-    // // Test Manual's Interface
-    // [HttpGet]
-    // [Route("TestManualAppointment")]
-    // public async Task<IActionResult> TestManualAppointment()
-    // {
-    //     await _manualAppointmentScheduler.TestInterface();
-    //     return View("~/Views/M2T3/ServiceAppointments/TestManualAppointment.cshtml"); // Render the View
-    // }
-    //
-    // [HttpPost]
-    // [Route("TestManualAppointment")]
-    // public async Task<IActionResult> RunTestManualAppointment()
-    // {
-    //     await _manualAppointmentScheduler.TestInterface();
-    //     return RedirectToAction("~/Views/M2T3/ServiceAppointments/TestManualAppointment.cshtml");
-    // }
 
     // Test Auto Interface
     [HttpPost]
