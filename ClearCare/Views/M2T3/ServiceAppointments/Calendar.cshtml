@@ -52,7 +52,11 @@
                 initialView: 'dayGridMonth',
                 events: '/api/ServiceAppointments/GetAppointmentsForCalendar' + queryString,
                 dayMaxEventRows: 3, // limit how many event rows show
-                height: 'auto',
+                eventTimeFormat: { 
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true // show AM/PM
+                },
                 eventClick: function (info) {
                     openEditModal(info.event.id, info.event.extendedProps);
                 },
