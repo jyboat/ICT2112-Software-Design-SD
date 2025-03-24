@@ -10,7 +10,7 @@ namespace ClearCare.Models.Control
     public class NotificationPreferenceManager: IDatabaseObserver
     {
         private readonly NotificationPreferenceGateway _dataGateway;
-        private readonly INotificationPreferences _notificationPreferences; // Add this field
+        private readonly INotificationPreferences _notificationPreferences;
 
         public NotificationPreferenceManager(INotificationPreferences notificationPreferenceRepository)
         {
