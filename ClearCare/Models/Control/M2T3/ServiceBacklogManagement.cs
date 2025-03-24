@@ -42,14 +42,15 @@ namespace ClearCare.Models.Control
         {
             // get all backlogs
             List<ServiceBacklog> serviceBacklogs = await getAllBacklogs();
-            // Get all services
-            var allAppointments = await new ServiceAppointmentManagement().retrieveAllAppointments();
 
-            // Combine data into ServiceBacklogViewModel
             var serviceBacklogViewModels = new List<ServiceBacklogViewModel>();
+            var serviceAppointmentManagement = new ServiceAppointmentManagement();
+
+            // Get details for each service backlog
             foreach (var serviceBacklog in serviceBacklogs)
             {
-                var appointment = allAppointments.FirstOrDefault(a => (string)a["AppointmentId"] == serviceBacklog.getBacklogInformation()["appointmentId"]);
+                var appointmentId = serviceBacklog.getBacklogInformation()["appointmentId"];
+                var appointment = await serviceAppointmentManagement.getAppointmentByID(appointmentId);
                 if (appointment != null)
                 {
                     var viewModel = await createViewModel(serviceBacklog, appointment);
