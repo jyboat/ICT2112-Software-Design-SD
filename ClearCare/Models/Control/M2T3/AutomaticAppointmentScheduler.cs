@@ -7,6 +7,7 @@ using Google.Protobuf.WellKnownTypes;
 using ClearCare.Interfaces;
 using Google.Cloud.Firestore;
 using ClearCare.Models.Interface.M2T3;
+using System.Reflection.Metadata;
 
 namespace ClearCare.Models.Control
 {
@@ -100,22 +101,31 @@ namespace ClearCare.Models.Control
                                     // .WhereArrayContains("DateTime", nurse.NurseId);
                 QuerySnapshot serviceSnapshot = await serviceList.GetSnapshotAsync();
                 foreach(DocumentSnapshot document in serviceSnapshot.Documents){
-                    string serviceName = document.GetValue<string>("ServiceTypeId");
-                    int slot = document.GetValue<int>("Slot");
+                    DateTime appointmentDateTime = document.GetValue<DateTime>("DateTime");
+                    DateTime appointmentDate = appointmentDateTime.Date;
+                    DateTime todayDate = DateTime.Today;
 
-                    // Create list for the nurse if doesn't exists
-                    if (!serviceSlotTracker.ContainsKey(serviceName))
-                    {
-                        serviceSlotTracker[serviceName] = new Dictionary<int, int>();
+                    if(appointmentDate == todayDate){
+                        string serviceName = document.GetValue<string>("ServiceTypeId");
+                        int slot = document.GetValue<int>("Slot");
+
+                        // Create list for the nurse if doesn't exists
+                        if (!serviceSlotTracker.ContainsKey(serviceName))
+                        {
+                            serviceSlotTracker[serviceName] = new Dictionary<int, int>();
+                        }
+                        if (!serviceSlotTracker[serviceName].ContainsKey(slot))
+                        {
+                            // Initialize to 0
+                            serviceSlotTracker[serviceName][slot] = 0; 
+                        }
+                        // Increment the amount of slot
+                        // Each time slot can have 2 patients 
+                        serviceSlotTracker[serviceName][slot]++;
                     }
-                    if (!serviceSlotTracker[serviceName].ContainsKey(slot))
-                    {
-                        // Initialize to 0
-                        serviceSlotTracker[serviceName][slot] = 0; 
+                    else{
+                        continue;
                     }
-                    // Increment the amount of slot
-                    // Each time slot can have 2 patients 
-                    serviceSlotTracker[serviceName][slot]++;
                 }
             }
             
@@ -153,19 +163,29 @@ namespace ClearCare.Models.Control
             foreach(var nurse in nurses){
                 Query nurseSlotList = db.Collection("ServiceAppointments")
                                     .WhereEqualTo("NurseId", nurse.NurseId);
-                                    // .WhereArrayContains("DateTime", nurse.NurseId);
                 QuerySnapshot patientSnapshot = await nurseSlotList.GetSnapshotAsync();
                 foreach(DocumentSnapshot document in patientSnapshot.Documents){
-                    string nurseID = document.GetValue<string>("NurseId");
-                    int slot = document.GetValue<int>("Slot");
+                    DateTime appointmentDateTime = document.GetValue<DateTime>("DateTime");
+                    DateTime appointmentDate = appointmentDateTime.Date;
+                    DateTime todayDate = DateTime.Today;
+                    
+                    if(appointmentDate == todayDate){
+                        string nurseID = document.GetValue<string>("NurseId");
+                        int slot = document.GetValue<int>("Slot");
 
-                    // Create list for the nurse if doesn't exists
-                    if (!nurseSlotTracker.ContainsKey(nurseID))
-                    {
-                        nurseSlotTracker[nurseID] = new List<int>();
+                        // Create list for the nurse if doesn't exists
+                        if (!nurseSlotTracker.ContainsKey(nurseID))
+                        {
+                            nurseSlotTracker[nurseID] = new List<int>();
+                        }
+                        // Add the slot number into the list.
+                        nurseSlotTracker[nurseID].Add(slot);
+                        Console.WriteLine($"Data1: {appointmentDate}");
+                        Console.WriteLine($"Data2: {todayDate}");
                     }
-                    // Add the slot number into the list.
-                    nurseSlotTracker[nurseID].Add(slot);
+                    else{
+                        continue;
+                    }
                 }
             }
 
