@@ -19,8 +19,8 @@ public class FeedbackController : Controller
     {
         var feedbackMapper = new FeedbackMapper();
         _feedbackManager = new FeedbackManager(feedbackMapper);
-        _responseManager = new ResponseManager(feedbackMapper);
         feedbackMapper.feedbackReceiver = _feedbackManager;
+        _responseManager = new ResponseManager(feedbackMapper);
         feedbackMapper.responseReceiver = _responseManager;
 
         // Attach observer
@@ -47,58 +47,26 @@ public class FeedbackController : Controller
                 .Select(r => r.GetResponseDetails())
                 .ToList();
         }
-        else if (ViewBag.UserRole == "Patient")
+        else if (ViewBag.UserRole == "Patient" || ViewBag.UserRole == "Caregiver")
         {
             String patientId = "1"; // Hardcoded for testing
-
-            // Check if patient has new notifications
-            if (PatientNotificationObserver.NotificationMap.ContainsKey(patientId))
-            {
-                TempData["SuccessMessage"] = "One or more of your feedbacks received a response.";
-                PatientNotificationObserver.NotificationMap.Remove(patientId);
-            }
 
             feedbackList = (await _feedbackManager.viewFeedbackByUserId(patientId))
                 .Select(s => s.GetFeedbackDetails())
                 .ToList();
 
-            // Fetch responses only for feedbacks belonging to this patient
-            foreach (var feedback in feedbackList)
+            // Fetch responses only for feedbacks belonging to this patient/caregiver
+            responseList = await _responseManager.GetResponsesForFeedbackList(feedbackList);
+
+            // Check if patient has new notifications
+            if (_feedbackManager.ResponseNotification(patientId))
             {
-                string? feedbackId = feedback["Id"]?.ToString();
-                if (!string.IsNullOrEmpty(feedbackId))
-                {
-                    var response = await _responseManager.viewResponseByFeedbackId(feedbackId);
-                    if (response != null)
-                    {
-                        responseList.Add(response.GetResponseDetails());
-                    }
-                }
+                TempData["SuccessMessage"] = "One or more of your feedbacks received a response.";
             }
         }
-        else
-        {
-            return RedirectToAction("DisplayAllFeedback");
-        }
-
-        // Create lookup dictionary for responses by FeedbackId
-        var responseMap = responseList
-            .Where(r => r.ContainsKey("FeedbackId"))
-            .ToDictionary(r => r["FeedbackId"]?.ToString() ?? "", r => r);
 
         // Combine feedbackList and responseList
-        List<Dictionary<string, object>> combinedList = feedbackList.Select(fb =>
-        {
-            string feedbackId = fb["Id"]?.ToString() ?? "";
-            responseMap.TryGetValue(feedbackId, out var response);
-
-            fb["Response"] = response?["Response"] ?? "";
-            fb["DateResponded"] = response?["DateResponded"] ?? "";
-            fb["ResponseUserId"] = response?["UserId"] ?? "";
-            fb["ResponseId"] = response?["Id"] ?? "";
-
-            return fb;
-        }).ToList();
+        List<Dictionary<string, object>> combinedList = _feedbackManager.CombineFeedbackResponse(feedbackList, responseList);
 
         return View("~/Views/M3T1/Feedback/List.cshtml", combinedList);
     }

@@ -70,5 +70,42 @@ namespace ClearCare.Models.Control.M3T1
         {
             return await _gateway.fetchFeedbacksByUserId(patientId);
         }
+
+        // Response Notification for Patients, for FeedbackController, not implemented in any interfaces
+        public bool ResponseNotification(string patientId)
+        {
+            if (PatientNotificationObserver.NotificationMap.ContainsKey(patientId))
+            {
+                PatientNotificationObserver.NotificationMap.Remove(patientId);
+                return true;
+            }
+            return false;
+        }
+
+        // Combine feedbackList and responseList, for FeedbackController, not implemented in any interfaces
+        public List<Dictionary<string, object>> CombineFeedbackResponse(
+            List<Dictionary<string, object>> feedbackList, 
+            List<Dictionary<string, object>> responseList)
+        {
+            // Create lookup dictionary for responses by FeedbackId
+            var responseMap = responseList
+                .Where(r => r.ContainsKey("FeedbackId"))
+                .ToDictionary(r => r["FeedbackId"]?.ToString() ?? "", r => r);
+
+            List<Dictionary<string, object>> combinedList = feedbackList.Select(fb =>
+            {
+                string feedbackId = fb["Id"]?.ToString() ?? "";
+                responseMap.TryGetValue(feedbackId, out var response);
+
+                fb["Response"] = response?["Response"] ?? "";
+                fb["DateResponded"] = response?["DateResponded"] ?? "";
+                fb["ResponseUserId"] = response?["UserId"] ?? "";
+                fb["ResponseId"] = response?["Id"] ?? "";
+
+                return fb;
+            }).ToList();
+
+            return combinedList;
+        }
     }
 }

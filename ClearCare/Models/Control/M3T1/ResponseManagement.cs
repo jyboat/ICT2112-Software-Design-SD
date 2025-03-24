@@ -105,5 +105,27 @@ namespace ClearCare.Models.Control.M3T1
         {
             return await _gateway.deleteResponse(responseId);
         }
+
+        // Get responses for feedbackList, for FeedbackController, not implemented in any interfaces
+        public async Task<List<Dictionary<string, object>>> GetResponsesForFeedbackList(List<Dictionary<string, object>> feedbackList)
+        {
+            var responseList = new List<Dictionary<string, object>>();
+
+            foreach (var feedback in feedbackList)
+            {
+                string? feedbackId = feedback["Id"]?.ToString();
+                if (!string.IsNullOrEmpty(feedbackId))
+                {
+                    var response = await viewResponseByFeedbackId(feedbackId);
+                    if (response != null)
+                    {
+                        responseList.Add(response.GetResponseDetails());
+                    }
+                }
+            }
+
+            return responseList;
+        }
+
     }
 }
