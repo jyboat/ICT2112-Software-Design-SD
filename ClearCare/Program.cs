@@ -43,7 +43,12 @@ builder.Services.AddScoped<IMedicalRecordSubject, ManageMedicalRecord>();
 builder.Services.AddScoped<UpdateViewObserver>();
 
 
-builder.Services.AddScoped<IAppointmentStatus, ServiceAppointmentStatusManagement>();
+builder.Services.AddScoped<IAppointmentStatus, ServiceAppointmentStatusManagement>();// Ensure ServiceAppointmentStatusManagement implements IAppointmentStatus
+
+builder.Services.AddScoped<INotification, NotificationManager>();
+builder.Services.AddSingleton<NotificationManager>();
+
+
 
 
 
@@ -82,6 +87,10 @@ app.UseSession();
 
 // Required services
 // Start UpdateViewObserver automatically (ensures observer is created)
+
+// Instantiate NotificationManager and NotificationScheduler using DI
+var notificationManager = app.Services.GetRequiredService<NotificationManager>();
+var notificationScheduler = new NotificationScheduler(notificationManager);
 
 app.MapControllerRoute(
     name: "default",
