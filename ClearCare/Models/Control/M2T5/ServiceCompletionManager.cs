@@ -24,5 +24,12 @@ namespace ClearCare.Models.Control
             var appointmentDetails = await _appointmentStatus.getAppointmentDetails();
             return appointmentDetails;
         }
+
+        // Method to update the status of a specific appointment
+        public async Task UpdateAppointmentStatus(string appointmentId)
+        {
+            // Call the updateAppointmentStatus method from IAppointmentStatus
+            await _appointmentStatus.updateAppointmentStatus(appointmentId);
+        }
     }
 }
