@@ -60,14 +60,29 @@
                 dateClick: function (info) {
                     const clickedDate = new Date(info.dateStr);
                     const today = new Date();
-
-                    // Reset time part of 'today' so we only compare dates
                     today.setHours(0, 0, 0, 0);
 
                     if (clickedDate < today) {
                         alert("You cannot create unavailability on a past date.");
                         return;
                     }
+
+                    // Check for existing unavailability on the same date
+                    const events = calendar.getEvents();
+                    const existing = events.find(e => {
+                        const eventDate = new Date(e.start);
+                        return (
+                            eventDate.getFullYear() === clickedDate.getFullYear() &&
+                            eventDate.getMonth() === clickedDate.getMonth() &&
+                            eventDate.getDate() === clickedDate.getDate()
+                        );
+                    });
+
+                    if (existing) {
+                        alert("You cannot add more than 1 unavailability on the same date.");
+                        return;
+                    }
+
                     openAddModal(info.dateStr);
                 }
             });
