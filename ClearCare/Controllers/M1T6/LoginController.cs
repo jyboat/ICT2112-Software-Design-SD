@@ -12,12 +12,15 @@ namespace ClearCare.Controllers
         private readonly LoginManagement LoginManagement;
         private readonly AccountManagement _accountManagement;
 
+        private readonly AuditManagement _auditManagement; // Add AuditManagement
+
         public LoginController(IPassword passwordService, IEmail emailService)
         {
             var userGateway = new UserGateway(); 
 
             LoginManagement = new LoginManagement(passwordService, emailService);
-            _accountManagement = new AccountManagement(userGateway, passwordService);    
+            _accountManagement = new AccountManagement(userGateway, passwordService);   
+            _auditManagement = new AuditManagement(); // ✅ Initialize AuditManagement 
         }
 
         public IActionResult displayLogin()
@@ -66,7 +69,8 @@ namespace ClearCare.Controllers
         {
             if (string.IsNullOrEmpty(email))
             {
-                ViewBag.Error = "Email cannot be empty.";
+                TempData["ErrorMessage"] = "Email cannot be empty.";                
+                //ViewBag.Error = "Email cannot be empty.";
                 return View("ChooseEmail");
             }
 
@@ -86,7 +90,8 @@ namespace ClearCare.Controllers
                 return RedirectToAction("displayVerifyOTP");
             }
 
-            ViewBag.Error = "Failed to send OTP. Please try again.";
+            TempData["ErrorMessage"] = "Failed to send OTP. Please try again.";                
+            //ViewBag.Error = "Failed to send OTP. Please try again.";
             return View("ChooseEmail");
         }
 
@@ -107,7 +112,8 @@ namespace ClearCare.Controllers
             if (!string.IsNullOrEmpty(otpExpiry) && DateTime.UtcNow > DateTime.Parse(otpExpiry))
             {
                 HttpContext.Session.Remove("OTP");
-                ViewBag.Error = "OTP has expired. Please request a new one.";
+                TempData["ErrorMessage"] = "OTP has expired. Please request a new one.";
+                //ViewBag.Error = "OTP has expired. Please request a new one.";
                 return View();
             }
 
@@ -131,8 +137,9 @@ namespace ClearCare.Controllers
 
                 return RedirectToAction("Index", "Home");
             }
-
-            ViewBag.Error = "Invalid OTP or email. Please try again.";
+            
+            TempData["ErrorMessage"] = "Invalid OTP or email. Please try again.";
+            //ViewBag.Error = "Invalid OTP or email. Please try again.";
             return View();
         }
 
@@ -148,7 +155,8 @@ namespace ClearCare.Controllers
         {
             if (string.IsNullOrEmpty(email))
             {
-                ViewBag.Error = "Email cannot be empty.";
+                TempData["ErrorMessage"] = "Email cannot be empty.";
+                //ViewBag.Error = "Email cannot be empty.";
                 return View("ResetPassword");
             }
 
@@ -168,7 +176,8 @@ namespace ClearCare.Controllers
                 return RedirectToAction("displayVerifyResetOTP");
             }
 
-            ViewBag.Error = "Failed to send OTP. Please try again.";
+            TempData["ErrorMessage"] = "Failed to send OTP. Please try again.";
+            //ViewBag.Error = "Failed to send OTP. Please try again.";
             return View("ResetPassword");
         }
 
@@ -203,7 +212,8 @@ namespace ClearCare.Controllers
                 return RedirectToAction("displayNewPassword");
             }
 
-            ViewBag.Error = "Invalid OTP or email. Please try again.";
+            TempData["ErrorMessage"] = "Invalid OTP or email. Please try again.";
+            //ViewBag.Error = "Invalid OTP or email. Please try again.";
             return View("VerifyResetOTP");
         }
 
@@ -220,18 +230,20 @@ namespace ClearCare.Controllers
             // Server-side validation to ensure passwords match
             if (newPassword != confirmPassword)
             {
-                ViewBag.Error = "Passwords do not match. Please try again.";
+                TempData["ErrorMessage"] = "Passwords do not match. Please try again.";
+                //ViewBag.Error = "Passwords do not match. Please try again.";
                 return View("NewPassword");
             }
 
             var resetEmail = HttpContext.Session.GetString("ResetEmail");
             if (string.IsNullOrEmpty(resetEmail))
             {
-                ViewBag.Error = "Session expired. Please try again.";
+                TempData["ErrorMessage"] = "Session expired. Please try again.";
+                //ViewBag.Error = "Session expired. Please try again.";
                 return View("NewPassword");
             }
 
-            bool isReset = await _accountManagement.ResetPassword(resetEmail, newPassword, HttpContext);
+            bool isReset = await _accountManagement.ResetPassword(resetEmail, newPassword, HttpContext, _auditManagement);
             if (isReset)
             {
                 HttpContext.Session.Remove("ResetEmail");
@@ -239,7 +251,8 @@ namespace ClearCare.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            ViewBag.Error = "Failed to reset password. Please try again.";
+            TempData["ErrorMessage"] = "Failed to reset password. Please try again.";
+            //ViewBag.Error = "Failed to reset password. Please try again.";
             return View("NewPassword");
         }
     }

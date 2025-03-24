@@ -57,12 +57,13 @@ namespace ClearCare.Controllers
 
             if (result == "Account created successfully.")
             {
-                ViewBag.SuccessMessage = result;
+                TempData["SuccessMessage"] = result;
                 return RedirectToAction("DisplayLogin", "Login");
             }
             else
             {
                 ViewBag.ErrorMessage = result;
+                TempData["SuccessMessage"] = result;
                 return View("~/Views/Register/Register.cshtml");
             }
         }

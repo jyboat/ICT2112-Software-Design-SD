@@ -119,7 +119,7 @@ namespace ClearCare.Controllers
 
                User newUser = UserFactory.createUser("", email, password, name, (int)mobileNumber, address, role, infoDictionary);
 
-               string result = await _adminManagement.createAccount(newUser!, password);
+               string result = await _adminManagement.createAccount(newUser!, password, _auditManagement);
 
                if (result == "Account created successfully.")
                {
@@ -189,7 +189,7 @@ namespace ClearCare.Controllers
                     updatedUserData.Add("Specialization", specialization);
                }
 
-               string result = await _adminManagement.updateStaffAccount(uid, updatedUserData);
+               string result = await _adminManagement.updateStaffAccount(uid, updatedUserData, _auditManagement);
 
                if (result == "Account updated successfully.")
                {
@@ -212,7 +212,7 @@ namespace ClearCare.Controllers
                     return RedirectToAction("Dashboard");
                }
 
-               string result = await _adminManagement.resetStaffPassword(uid);
+               string result = await _adminManagement.resetStaffPassword(uid, _auditManagement);
 
                if (result == "Failed to reset password.")
                {
@@ -236,7 +236,7 @@ namespace ClearCare.Controllers
                     return RedirectToAction("Dashboard");
                }
 
-               string result = await _adminManagement.deleteAccount(uid);
+               string result = await _adminManagement.deleteAccount(uid, _auditManagement);
 
                if (result == "Account deleted successfully.")
                {
