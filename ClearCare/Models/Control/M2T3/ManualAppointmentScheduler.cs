@@ -69,9 +69,9 @@ namespace ClearCare.Models.Control
 
             foreach (var appointment in nurseAppointments)
             {
-                DateTime apptDateTime = Convert.ToDateTime(appointment["DateTime"]);
-                int apptSlot = Convert.ToInt32(appointment["Slot"]);
-                
+                var apptDateTime = DateTime.Parse(appointment.GetAttribute("Datetime"));
+                var apptSlot = appointment.GetIntAttribute("Slot");
+    
                 // check if same date and slot
                 if (apptDateTime.Date == requestedDate && apptSlot == slot)
                 {
