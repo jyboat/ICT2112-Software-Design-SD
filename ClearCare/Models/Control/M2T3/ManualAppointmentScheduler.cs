@@ -12,19 +12,6 @@ namespace ClearCare.Models.Control
             _iNurseAvailability = INurseAvailability;
         }
 
-        public async Task TestInterface()
-        {
-            //  await _iCreateAppointment.CreateAppointment();
-            var staffAvailability = await _iNurseAvailability.getAllStaffAvailability();
-        }
-
-        public async Task<string> CreateAppointment(string patientId, string nurseId,
-    string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
-        {
-            // Calling CreateAppointment method from the ICreateAppointment interface
-            return await _iCreateAppointment.CreateAppointment(patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location);
-        }
-
         public async Task<bool> ValidateAppointmentSlot(string patientId, string nurseId,
     string doctorId, DateTime dateTime, int slot)
         {

@@ -1,10 +1,9 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using ClearCare.Models.Entities;
 
 namespace ClearCare.Models.Control
 {
     public interface IRetrieveAllAppointments
     {
-        Task<List<Dictionary<string, object>>> retrieveAllAppointments();
+        Task<List<ServiceAppointment>> RetrieveAllAppointments();
     }
 }

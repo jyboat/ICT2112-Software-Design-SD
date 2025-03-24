@@ -18,13 +18,8 @@ namespace ClearCare.Models.Control
         }
 
         public async Task<List<ServiceAppointment>> getAppointmentDetails() {
-            // Fetch all appointments
-            List<Dictionary<string, object>> appointmentDictionaries = await _iServiceStatus.retrieveAllAppointments();
-
-            // Convert to ServiceAppointment objects before filtering
-            List<ServiceAppointment> appointments = appointmentDictionaries
-                .Select(dict => ServiceAppointment.FromFirestoreData(dict["AppointmentId"].ToString(), dict))
-                .ToList();
+            // Fetch all appointments - no need to convert
+            List<ServiceAppointment> appointments = await _iServiceStatus.RetrieveAllAppointments();
 
             // Filter out completed appointments
             List<ServiceAppointment> filteredAppointments = appointments

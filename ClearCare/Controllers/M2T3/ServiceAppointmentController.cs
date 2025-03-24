@@ -48,12 +48,15 @@ public class ServiceAppointmentsController : Controller
     [HttpGet]
     public async Task<IActionResult> RetrieveAllAppointment()
     {
-        // await to wait for task complete or data to retrieve before executing
-        var appointment = await ServiceAppointmentManagement.retrieveAllAppointments();
-        // No record exists
-        if (appointment != null && appointment.Any())
+        // retrieve appointments
+        var appointments = await ServiceAppointmentManagement.RetrieveAllAppointments();
+    
+        // check if appointments exist
+        if (appointments != null && appointments.Any())
         {
-            return View("~/Views/M2T3/ServiceAppointments/Index.cshtml", appointment);
+            // convert to dictionary format for the view
+            var appointmentDicts = appointments.Select(a => a.ToFirestoreDictionary()).ToList();
+            return View("~/Views/M2T3/ServiceAppointments/Index.cshtml", appointmentDicts);
         }
         else
         {
@@ -89,7 +92,8 @@ public class ServiceAppointmentsController : Controller
     // Implement IRetrieveAll
     public async Task<List<Dictionary<string, object>>> RetrieveAll()
     {
-        return await ServiceAppointmentManagement.retrieveAllAppointments();
+        var appointments = await ServiceAppointmentManagement.RetrieveAllAppointments();
+        return appointments.Select(a => a.ToFirestoreDictionary()).ToList();
     }
 
     [HttpGet]
@@ -239,22 +243,22 @@ public class ServiceAppointmentsController : Controller
 
     }
 
-    // Test Manual's Interface
-    [HttpGet]
-    [Route("TestManualAppointment")]
-    public async Task<IActionResult> TestManualAppointment()
-    {
-        await _manualAppointmentScheduler.TestInterface();
-        return View("~/Views/M2T3/ServiceAppointments/TestManualAppointment.cshtml"); // Render the View
-    }
-
-    [HttpPost]
-    [Route("TestManualAppointment")]
-    public async Task<IActionResult> RunTestManualAppointment()
-    {
-        await _manualAppointmentScheduler.TestInterface();
-        return RedirectToAction("~/Views/M2T3/ServiceAppointments/TestManualAppointment.cshtml");
-    }
+    // // Test Manual's Interface
+    // [HttpGet]
+    // [Route("TestManualAppointment")]
+    // public async Task<IActionResult> TestManualAppointment()
+    // {
+    //     await _manualAppointmentScheduler.TestInterface();
+    //     return View("~/Views/M2T3/ServiceAppointments/TestManualAppointment.cshtml"); // Render the View
+    // }
+    //
+    // [HttpPost]
+    // [Route("TestManualAppointment")]
+    // public async Task<IActionResult> RunTestManualAppointment()
+    // {
+    //     await _manualAppointmentScheduler.TestInterface();
+    //     return RedirectToAction("~/Views/M2T3/ServiceAppointments/TestManualAppointment.cshtml");
+    // }
 
     // Test Auto Interface
     [HttpPost]

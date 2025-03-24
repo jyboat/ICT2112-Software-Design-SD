@@ -6,7 +6,7 @@ namespace ClearCare.Interfaces
 {
     public interface IServiceStatus 
     {
-        Task<List<Dictionary<string, object>>> retrieveAllAppointments();
+        Task<List<ServiceAppointment>> RetrieveAllAppointments();
         Task<Dictionary<string, object>> getAppointmentByID(string appointmentId);
         Task<bool> UpdateAppointment(string appointmentId, string patientId, string nurseId, string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location);
     }
