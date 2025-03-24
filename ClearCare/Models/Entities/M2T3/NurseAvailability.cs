@@ -16,6 +16,8 @@ namespace ClearCare.Models.Entities
         [FirestoreProperty]
         private string NurseID { get; set; } = "USR003"; // Dummy NurseID for testing
 
+        // private string NurseID { get; set; } = string.Empty;
+
         [FirestoreProperty]
         private string Date { get; set; } = string.Empty;
 
