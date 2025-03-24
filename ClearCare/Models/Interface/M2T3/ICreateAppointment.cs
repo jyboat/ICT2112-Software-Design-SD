@@ -16,6 +16,8 @@ namespace ClearCare.Interfaces
         // Used by ManualAppointment Management : TBC [TO BE CODED]
         Task<string> CreateAppointment (string patientId, string nurseId,
                 string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location);
+
+        Task<List<Dictionary<string, object>>> RetrieveAllAppointmentsByNurse(string nurseId);
            
         Task<Dictionary<string, object>> getAppointmentByID(string appointmentId);
 

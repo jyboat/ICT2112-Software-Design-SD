@@ -59,6 +59,18 @@ namespace ClearCare.Models.Control
             return Task.CompletedTask;
         }
 
+        public async Task<List<Dictionary<string, object>>> RetrieveAllAppointmentsByNurse(string nurseId)
+        {
+            List<ServiceAppointment> allAppointments = await _dbGateway.fetchAllServiceAppointments();
+            
+            List<Dictionary<string, object>> nurseAppointments = allAppointments
+                .Where(a => a.GetAttribute("NurseId") == nurseId)
+                .Select(a => a.ToFirestoreDictionary())
+                .ToList();
+
+            return nurseAppointments;
+        }
+
         // Create Service Appointment
         public async Task<string> CreateAppointment(string patientId, string nurseId,
                 string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
