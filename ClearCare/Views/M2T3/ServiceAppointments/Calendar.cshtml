@@ -38,19 +38,19 @@
         const serviceTypes = @Html.Raw(Json.Serialize(ViewBag.ServiceTypes));
         const DoctorId = @Html.Raw(Json.Serialize(ViewBag.DoctorId));
         
-        function loadCalendar(doctorId, patientId, nurseId, location) {
+        function loadCalendar(doctorId, patientId, nurseId, location, service) {
             var queryParams = [];
             if (doctorId) queryParams.push('doctorId=' + doctorId);
             if (patientId) queryParams.push('patientId=' + patientId);
             if (nurseId) queryParams.push('nurseId=' + nurseId);
             if (location) queryParams.push('location=' + location);
+            if (service) queryParams.push('service=' + service);
             var queryString = queryParams.length ? '?' + queryParams.join('&') : '';
 
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 events: '/api/ServiceAppointments/GetAppointmentsForCalendar' + queryString,
-                @* TODO: add serviceType, status, slot, location *@
                 eventClick: function (info) {
                     openEditModal(info.event.id, info.event.extendedProps);
                 },
@@ -72,8 +72,9 @@
                 var patientId = document.getElementById('patientInput').value.trim();
                 var nurseId = document.getElementById('nurseInput').value.trim();
                 var location = document.getElementById('locationInput').value.trim();
+                var service = document.getElementById('serviceInput').value.trim();
                 document.getElementById('calendar').innerHTML = '';  // clear calendar
-                loadCalendar(doctorId, patientId, nurseId, location);
+                loadCalendar(doctorId, patientId, nurseId, location, service);
             });
 
             // reset button
@@ -81,6 +82,8 @@
                 document.getElementById('doctorInput').value = '';
                 document.getElementById('patientInput').value = '';
                 document.getElementById('nurseInput').value = '';
+                document.getElementById('locationInput').value = '';
+                document.getElementById('serviceInput').value = '';
                 document.getElementById('calendar').innerHTML = '';  // clear calendar
                 loadCalendar(); // reload all appointments
             });
@@ -297,9 +300,7 @@
         <input type="text" id="patientInput" class="filterInput" placeholder="Enter Patient ID">
         <input type="text" id="nurseInput" class="filterInput" placeholder="Enter Nurse ID">
         <input type="text" id="locationInput" class="filterInput" placeholder="Enter Location">
-        @* <input type="text" id="serviceTypeInput" class="filterInput" placeholder="Enter Service type">
-        <input type="text" id="timeSlotInput" class="filterInput" placeholder="Enter Time Slot">
-        <input type="text" id="statusInput" class="filterInput" placeholder="Enter Status"> *@
+        <input type="text" id="serviceInput" class="filterInput" placeholder="Enter Service">
         <button id="filterButton">Filter</button>
         <button id="resetButton">Reset Filters</button>
     </div>

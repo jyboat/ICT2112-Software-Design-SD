@@ -28,7 +28,8 @@ namespace ClearCare.Models.Control
             string? doctorId, 
             string? patientId, 
             string? nurseId,
-            string? location)
+            string? location,
+            string? service)
         {
             // Get all appointments from IRetrieveAllAppointments (implemented by ServiceAppointmentManagement)
             var appointments = await _retrieveAllAppointments.retrieveAllAppointments();
@@ -54,6 +55,10 @@ namespace ClearCare.Models.Control
             if (!string.IsNullOrEmpty(location))
             {
                 appointments = appointments.Where(a => a.ContainsKey("Location") && a["Location"].ToString() == location).ToList();
+            }
+            if (!string.IsNullOrEmpty(service))
+            {
+                appointments = appointments.Where(a => a.ContainsKey("ServiceTypeId") && a["ServiceTypeId"].ToString() == service).ToList();
             }
 
             // Convert filtered data to JSON format required by FullCalendar

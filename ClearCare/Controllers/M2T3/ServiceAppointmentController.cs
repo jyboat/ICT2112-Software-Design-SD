@@ -67,9 +67,10 @@ public class ServiceAppointmentsController : Controller
         [FromQuery] string? doctorId,
         [FromQuery] string? patientId,
         [FromQuery] string? nurseId,
-        [FromQuery] string? location)
+        [FromQuery] string? location,
+        [FromQuery] string? service)
     {
-        return await _calendarManagement.getAppointmentsForCalendar(doctorId, patientId, nurseId, location);
+        return await _calendarManagement.getAppointmentsForCalendar(doctorId, patientId, nurseId, location, service);
     }
 
 
