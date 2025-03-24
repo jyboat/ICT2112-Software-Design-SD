@@ -75,7 +75,7 @@ namespace ClearCare.Controllers
         // Update user profile (POST request)
         [HttpPost]
         [Route("UpdateProfile")]
-        public async Task<IActionResult> updateProfile([FromForm] string name, [FromForm] string email, [FromForm] long mobileNumber, [FromForm] string address, [FromForm] string password, [FromForm] string dateOfBirth)
+        public async Task<IActionResult> updateProfile([FromForm] string name, [FromForm] string email, [FromForm] long mobileNumber, [FromForm] string address, [FromForm] string newpassword,[FromForm] string confirmpassword , [FromForm] string dateOfBirth)
         {
             // Fetch logged-in user ID from session
             string userID = HttpContext.Session.GetString("UserID");
@@ -92,10 +92,10 @@ namespace ClearCare.Controllers
             if (!string.IsNullOrEmpty(email)) updatedFields["Email"] = email;
             if (mobileNumber > 0) updatedFields["MobileNumber"] = mobileNumber;
             if (!string.IsNullOrEmpty(address)) updatedFields["Address"] = address;
-            if (!string.IsNullOrEmpty(password))
+            if (!string.IsNullOrEmpty(newpassword) && !string.IsNullOrEmpty(confirmpassword) && newpassword == confirmpassword)
             {
                 // Hash the password before updating it in Firestore
-                string hashedPassword = encryptionManagement.hashPassword(password);
+                string hashedPassword = encryptionManagement.hashPassword(confirmpassword);
                 updatedFields["Password"] = hashedPassword;
             }
             if (!string.IsNullOrEmpty(dateOfBirth))
