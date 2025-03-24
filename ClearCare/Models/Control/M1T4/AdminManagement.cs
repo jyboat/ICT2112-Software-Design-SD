@@ -75,7 +75,7 @@ namespace ClearCare.Models.Control
                     return "Password, Name, Address and Role is required.";
                }
 
-              
+               var newPassword = GeneratePassword();
 
                // Create a new User object with the necessary data
                string newUserId = await _userGateway.InsertUser(newUser, password);
@@ -83,7 +83,29 @@ namespace ClearCare.Models.Control
                 // Insert audit log after account creation
                string auditResult = await auditLog.InsertAuditLog("Created new account", newUserId);
 
-               return newUserId != null ? "Account created successfully." : "Failed to create account.";
+               var emailBody = $"""
+                         Hello {newUser.getProfileData()["Name"]},
+
+                         Your {newUser.getProfileData()["Role"]} account with {newUser.getProfileData()["Email"]} has been created.
+
+                         Your temporary password is: {newPassword}
+
+                         For security reasons, you will be required to change this password when you next log in.
+
+                         If you did not request this change, please contact Clear Care Customer Service immediately.
+
+                         Best regards,
+                         ClearCare Support Team
+                    """;
+
+               bool sendStatus = await _emailService.sendEmail(newUser.getProfileData()["Email"].ToString()!, "New Account Created - Action Required", emailBody);
+
+               if (!sendStatus && newUserId != null)
+               {
+                    return $"Failed to send email notification for ${newUserId}.";
+               }
+
+               return newUserId != null ? "Account created successfully." : "Failed to create account.";         
           }
 
 
