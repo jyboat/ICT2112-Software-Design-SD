@@ -67,5 +67,14 @@ namespace ClearCare.Controllers
                 return View("~/Views/Register/Register.cshtml");
             }
         }
+
+        [HttpPost]
+        public IActionResult Logout()
+        {
+            // Clear the session to log out the user
+            HttpContext.Session.Clear();
+            TempData["SuccessMessage"] = "Logged out";
+            return RedirectToAction("DisplayLogin", "Login");  
+        }
     }
 }

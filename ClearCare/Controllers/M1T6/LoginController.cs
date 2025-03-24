@@ -50,6 +50,7 @@ namespace ClearCare.Controllers
                 HttpContext.Session.SetString("UserID", userID);
                 HttpContext.Session.SetString("Role", role);
 
+                TempData["SuccessMessage"] = "Logged in.";
                 return RedirectToAction("Index", "Home");
             }
                 
