@@ -3,12 +3,20 @@
 <h2>Service Completion</h2>
 @{
     var message = ViewBag.Message as string;
+    var notificationMessage = TempData["NotificationMessage"] as string; // Use TempData to pass notification message
 }
 
 @if (!string.IsNullOrEmpty(message))
 {
     <div>
         <strong>Message:</strong> @message
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(notificationMessage))
+{
+    <div>
+        <strong>Notification:</strong> @notificationMessage
     </div>
 }
 
@@ -70,7 +78,10 @@ else
                         success: function (response) {
                             // Optionally, update the row or give feedback to the user
                             alert('Appointment status updated successfully.');
-                            location.reload(); // Reload the page to reflect the change
+
+                            // Display a success message for the notification
+                            TempData["NotificationMessage"] = "Notification sent to the user successfully.";
+                            window.location.reload(); // Reload the page to reflect the change and show the notification message
                         },
                         error: function (xhr, status, error) {
                             alert('An error occurred while updating the appointment status: ' + error);

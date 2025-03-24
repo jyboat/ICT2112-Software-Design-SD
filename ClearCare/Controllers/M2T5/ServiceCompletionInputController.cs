@@ -9,29 +9,31 @@ using ClearCare.Models.DTO;
 
 namespace ClearCare.Controllers
 {
-    [Route("ServiceCompletionInput")] // Removed "api/" to make it an MVC controller
-    public class ServiceCompletionInputController : Controller // Changed from ControllerBase to Controller
+    [Route("ServiceCompletionInput")]
+    public class ServiceCompletionInputController : Controller
     {
         private readonly IAppointmentStatus _appointmentStatus;
+        private readonly INotification _notificationManager;
 
-        public ServiceCompletionInputController(IAppointmentStatus appointmentStatus)
+        // Inject IAppointmentStatus and INotification through the constructor
+        public ServiceCompletionInputController(IAppointmentStatus appointmentStatus, INotification notificationManager)
         {
             _appointmentStatus = appointmentStatus;
+            _notificationManager = notificationManager;
         }
 
-        // Returns an HTML page or JSON based on the 'json' query parameter
         [HttpGet("appointments")]
         public async Task<IActionResult> GetAppointmentDetails(bool json = false)
         {
             // Retrieve userId from the session
             string userId = HttpContext.Session.GetString("UserID");
 
-            // Log or print the session value for debugging
-            Console.WriteLine($"UserId from session: {userId}");  // For debugging
+            Console.WriteLine($"UserId from session: {userId}");  // Log userId from session for debugging
 
             if (string.IsNullOrEmpty(userId))
             {
-                userId = "Not logged in"; // This will let you know if the session is empty
+                userId = "Not logged in";
+                Console.WriteLine("User is not logged in.");
             }
 
             // Fetch the appointment details
@@ -42,7 +44,7 @@ namespace ClearCare.Controllers
                 .Select(appointment => new ServiceAppointmentDTO(appointment))
                 .ToList();
 
-            // Filter the appointments to only show those that match the doctorId from session
+            // Filter appointments based on the doctorId from session
             if (!string.IsNullOrEmpty(userId))
             {
                 appointmentDTOs = appointmentDTOs
@@ -55,23 +57,69 @@ namespace ClearCare.Controllers
 
             if (json)
             {
-                return Json(new { message, appointments = appointmentDTOs }); // Return JSON with message and filtered appointments
+                return Json(new { message, appointments = appointmentDTOs });
             }
 
-            // Pass the message to the view
             ViewBag.Message = message;
 
-            // Explicitly specify the custom path for the View
             return View("~/Views/M2T5/ServiceCompletion.cshtml", appointmentDTOs);
         }
 
-        // Endpoint to update the appointment status
+        // [HttpPut("appointments/{appointmentId}")]
+        // public async Task<IActionResult> UpdateAppointmentStatus(string appointmentId)
+        // {
+        //     try
+        //     {
+        //         // Retrieve userId from the session for notification
+        //         string userId = HttpContext.Session.GetString("UserID");
+
+        //         if (string.IsNullOrEmpty(userId))
+        //         {
+        //             Console.WriteLine("User not logged in, cannot update appointment status.");
+        //             return Unauthorized("User not logged in.");
+        //         }
+
+        //         Console.WriteLine($"Updating appointment status for Appointment ID: {appointmentId}");
+
+        //         // Update the appointment status
+        //         await _appointmentStatus.updateAppointmentStatus(appointmentId);
+
+        //         // Create a notification after the status is updated
+        //         string notificationContent = $"The status of your appointment (ID: {appointmentId}) has been updated.";
+
+        //         Console.WriteLine($"Creating notification for userId: {userId} with content: {notificationContent}");
+
+        //         await _notificationManager.createNotification(int.Parse(userId), notificationContent); // Create the notification using INotification
+
+        //         // Log success
+        //         Console.WriteLine("Notification successfully created.");
+
+        //         return NoContent(); // 204: Successfully updated, no content
+        //     }
+        //     catch (System.Exception ex)
+        //     {
+        //         Console.WriteLine($"Error occurred: {ex.Message}"); // Log the error message
+        //         return StatusCode(500, $"Internal server error: {ex.Message}");
+        //     }
+        // }
+
         [HttpPut("appointments/{appointmentId}")]
         public async Task<IActionResult> UpdateAppointmentStatus(string appointmentId)
         {
             try
             {
+                // Hardcoded integer userId for testing
+                int userId = 12345;  // Use a valid integer value here
+
+                // Update appointment status
                 await _appointmentStatus.updateAppointmentStatus(appointmentId);
+
+                // Create a notification after the status is updated
+                string notificationContent = $"The status of your appointment (ID: {appointmentId}) has been updated.";
+                await _notificationManager.createNotification(userId, notificationContent); // Create the notification using INotification
+
+                TempData["NotificationMessage"] = "Notification sent to the user successfully.";
+
                 return NoContent(); // 204: Successfully updated, no content
             }
             catch (System.Exception ex)
@@ -79,5 +127,6 @@ namespace ClearCare.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
     }
 }

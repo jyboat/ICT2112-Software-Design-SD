@@ -5,16 +5,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using ClearCare.Models.Interface;
 
+
 namespace ClearCare.Models.Control
 {
     public class ServiceCompletionManager
     {
         private readonly IAppointmentStatus _appointmentStatus;
+        private readonly INotification _notificationManager; // Add INotification dependency
 
-        // Inject IAppointmentStatus through the constructor
-        public ServiceCompletionManager(IAppointmentStatus appointmentStatus)
+        // Inject IAppointmentStatus and INotification through the constructor
+        public ServiceCompletionManager(IAppointmentStatus appointmentStatus, INotification notificationManager)
         {
             _appointmentStatus = appointmentStatus;
+            _notificationManager = notificationManager; // Assign the injected INotification instance
         }
 
         // Method to get all appointment details
@@ -30,6 +33,12 @@ namespace ClearCare.Models.Control
         {
             // Call the updateAppointmentStatus method from IAppointmentStatus
             await _appointmentStatus.updateAppointmentStatus(appointmentId);
+
+            // After updating the status, create a notification
+            string notificationContent = $"The status of your appointment (ID: {appointmentId}) has been updated.";
+            int userId = 1; // Example user ID, this should be dynamically determined
+            await _notificationManager.createNotification(userId, notificationContent); // Create the notification
         }
     }
 }
+
