@@ -52,14 +52,26 @@
                 initialView: 'dayGridMonth',
                 events: '/api/ServiceAppointments/GetAppointmentsForCalendar' + queryString,
                 dayMaxEventRows: 3, // limit how many event rows show
-                eventTimeFormat: { 
+                eventTimeFormat: {
                     hour: 'numeric',
                     minute: '2-digit',
                     hour12: true // show AM/PM
                 },
                 eventClick: function (info) {
+                    const clickedDate = new Date(info.event.startStr);
+                    const today = new Date();
+
+                    // Reset time part of 'today' so we only compare dates
+                    today.setHours(0, 0, 0, 0);
+
+                    if (clickedDate < today) {
+                        alert("You cannot edit an appointment on a past date.");
+                        return;
+                    }
                     openEditModal(info.event.id, info.event.extendedProps);
+
                 },
+
 
                 dateClick: function (info) {
                     const clickedDate = new Date(info.dateStr);
