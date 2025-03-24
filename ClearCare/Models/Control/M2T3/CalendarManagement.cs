@@ -24,10 +24,10 @@ namespace ClearCare.Models.Control
             _getAvailabilityByStaff = getAvailabilityByStaff;
         }
 
-        public async Task<JsonResult> GetAppointmentsForCalendar(string? doctorId, string? patientId, string? nurseId)
+        public async Task<JsonResult> getAppointmentsForCalendar(string? doctorId, string? patientId, string? nurseId)
         {
             // Get all appointments from IRetrieveAllAppointments (implemented by ServiceAppointmentManagement)
-            var appointments = await _retrieveAllAppointments.RetrieveAllAppointments();
+            var appointments = await _retrieveAllAppointments.retrieveAllAppointments();
 
             if (appointments == null || !appointments.Any())
             {
@@ -52,7 +52,7 @@ namespace ClearCare.Models.Control
             var eventList = appointments.Select(a => new
             {
                 id = a["AppointmentId"],
-                title = "Appointment with " + a["DoctorId"],
+                title = "Appointment for " + a["PatientId"],
                 start = ((DateTime)a["DateTime"]).ToString("yyyy-MM-ddTHH:mm:ss"),
                 extendedProps = new
                 {
@@ -60,14 +60,17 @@ namespace ClearCare.Models.Control
                     nurseId = a.ContainsKey("NurseId") ? a["NurseId"] : null,
                     doctorId = a["DoctorId"],
                     status = a["Status"],
-                    location = a["Location"]
+                    serviceType = a["ServiceTypeId"],
+                    slot = a["Slot"],
+                    location = a["Location"],
+                    dateTime = ((DateTime)a["DateTime"]).ToString("yyyy-MM-ddTHH:mm:ss"),
                 }
             }).ToList();
 
             return new JsonResult(eventList);
         }
 
-        public async Task<JsonResult> GetAvailabilityByNurseIdForCalendar(string? currentNurseId)
+        public async Task<JsonResult> getAvailabilityByNurseIdForCalendar(string? currentNurseId)
         {
             var nurseAvailabilityList = await _getAvailabilityByStaff.getAvailabilityByStaff(currentNurseId);
 

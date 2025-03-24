@@ -25,7 +25,7 @@ namespace ClearCare.Controllers
         [Route("Index")]
         public async Task<IActionResult> Index()
         {
-            var backlogs = await _manager.getBacklogs();
+            var backlogs = await _manager.getAllBacklogDetails();
             // // if backlogs are not fetched
             // if (TempData["DataFetched"] == null || !(bool)TempData["DataFetched"])
             // {

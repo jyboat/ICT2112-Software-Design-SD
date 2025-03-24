@@ -33,8 +33,12 @@ namespace ClearCare.DataSource
         {
             List<NurseAvailability> availabilityList = new List<NurseAvailability>();
 
-            CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
-            QuerySnapshot snapshot = await availabilitiesRef.GetSnapshotAsync();
+            DateTime currentDate = DateTime.Now; // Gets the current date and time
+            var currentDateString = currentDate.ToString("yyyy-MM-dd");
+
+            Query availabilitiesQuery = _db.Collection("NurseAvailability")
+                                       .WhereEqualTo("date", currentDateString);
+            QuerySnapshot snapshot = await availabilitiesQuery.GetSnapshotAsync();
 
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
@@ -61,6 +65,26 @@ namespace ClearCare.DataSource
 
             await Task.Delay(1000);
             QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                if (document.Exists)
+                {
+                    var data = document.ToDictionary();
+                    NurseAvailability availability = NurseAvailability.FromFirestoreData(data);
+                    availabilityList.Add(availability);
+                }
+            }
+            await _receiver.receiveAvailabilityList(availabilityList);
+            return availabilityList;
+        }
+
+        public async Task<List<NurseAvailability>> fetchAvailability()
+        {
+            List<NurseAvailability> availabilityList = new List<NurseAvailability>();
+
+            CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
+            QuerySnapshot snapshot = await availabilitiesRef.GetSnapshotAsync();
 
             foreach (DocumentSnapshot document in snapshot.Documents)
             {

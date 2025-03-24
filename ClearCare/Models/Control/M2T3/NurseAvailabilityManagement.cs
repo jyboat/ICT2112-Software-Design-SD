@@ -2,6 +2,7 @@ using ClearCare.Interfaces;
 using ClearCare.Models.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ClearCare.DataSource;
 
 namespace ClearCare.Models.Control
 {
@@ -9,9 +10,10 @@ namespace ClearCare.Models.Control
     {
         private readonly IAvailabilityDB_Send _dbGateway;
 
-        public NurseAvailabilityManagement(IAvailabilityDB_Send dbGateway)
+        public NurseAvailabilityManagement()
         {
-            _dbGateway = dbGateway;
+            _dbGateway = (IAvailabilityDB_Send)new NurseAvailabilityGateway();
+            _dbGateway.Receiver = this;
         }
 
         // Implementing INurseAvailability Interface - used by ServiceAppointments not the DB Interfaces!!
@@ -19,7 +21,7 @@ namespace ClearCare.Models.Control
         // Get all availabilities for all nurses - implemented in INurseAvailability 
         public async Task<List<NurseAvailability>> getAllStaffAvailability()
         {
-            List<NurseAvailability> availabilities = await _dbGateway.fetchAllStaffAvailability();
+            List<NurseAvailability> availabilities = await _dbGateway.fetchAvailability();
 
             // returning availabilities as a List cuz ServiceAppointments need it
             return availabilities;
@@ -96,7 +98,7 @@ namespace ClearCare.Models.Control
         public async Task addAvailability(string nurseID, string date)
         {
             // Retrieve all existing availabilities to find the highest ID
-            List<NurseAvailability> allAvailabilities = await _dbGateway.fetchAllStaffAvailability();
+            List<NurseAvailability> allAvailabilities = await _dbGateway.fetchAvailability();
 
             // Find the highest availability ID in the existing records
             int maxAvailabilityId = 0;
@@ -134,8 +136,8 @@ namespace ClearCare.Models.Control
         // Delete an availability - not implemented in any intefaces; used in NurseAvailabilityController (DeleteAvailability)
         public async Task deleteAvailability(int availabilityId)
         {
-             await _dbGateway.removeAvailability(availabilityId);
+            await _dbGateway.removeAvailability(availabilityId);
         }
     }
-    
+
 }

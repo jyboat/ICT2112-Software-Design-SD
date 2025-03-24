@@ -4,6 +4,7 @@
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Appointments Calendar</title>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
@@ -13,21 +14,30 @@
             max-width: 900px;
             margin: 40px auto;
         }
+
         #filterContainer {
             text-align: center;
             margin: 20px auto;
         }
+
         .filterInput {
             width: 180px;
             padding: 10px;
             margin-right: 10px;
         }
-        #filterButton, #resetButton {
+
+        #filterButton,
+        #resetButton {
             padding: 10px;
             cursor: pointer;
         }
     </style>
     <script>
+        const patientsData = @Html.Raw(Json.Serialize(ViewBag.Patients));
+        const nursesData = @Html.Raw(Json.Serialize(ViewBag.Nurses));
+        const serviceTypes = @Html.Raw(Json.Serialize(ViewBag.ServiceTypes));
+        const DoctorId = @Html.Raw(Json.Serialize(ViewBag.DoctorId));
+        
         function loadCalendar(doctorId = '', patientId = '', nurseId = '') {
             var queryParams = [];
             if (doctorId) queryParams.push('doctorId=' + doctorId);
@@ -39,39 +49,244 @@
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 events: '/api/ServiceAppointments/GetAppointmentsForCalendar' + queryString,
-                eventClick: function(info) {
-                    alert('Appointment ID: ' + info.event.id + '\n' +
-                          'Patient ID: ' + info.event.extendedProps.patientId + '\n' +
-                          'Nurse ID: ' + info.event.extendedProps.nurseId + '\n' +
-                          'Doctor ID: ' + info.event.extendedProps.doctorId);
+                @* TODO: add serviceType, status, date and time, slot, location *@
+                eventClick: function (info) {
+                    openEditModal(info.event.id, info.event.extendedProps);
+                },
+
+                dateClick: function () {
+                    openAddModal();
                 }
             });
-            calendar.render();
+        calendar.render();
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            loadCalendar(); // Load all appointments by default
+            // init calendar
+            loadCalendar();
 
-            // Filter button
-            $('#filterButton').on('click', function () {
-                var doctorId = $('#doctorInput').val().trim();
-                var patientId = $('#patientInput').val().trim();
-                var nurseId = $('#nurseInput').val().trim();
-                $('#calendar').html('');  // Clear the existing calendar
+            // filter button
+            document.getElementById('filterButton').addEventListener('click', function() {
+                var doctorId = document.getElementById('doctorInput').value.trim();
+                var patientId = document.getElementById('patientInput').value.trim();
+                var nurseId = document.getElementById('nurseInput').value.trim();
+                document.getElementById('calendar').innerHTML = '';  // clear calendar
                 loadCalendar(doctorId, patientId, nurseId);
             });
 
-            // Reset button
-            $('#resetButton').on('click', function () {
-                $('#doctorInput').val('');
-                $('#patientInput').val('');
-                $('#nurseInput').val('');
-                $('#calendar').html('');  // Clear the existing calendar
-                loadCalendar(); // Reload all appointments
+            // reset button
+            document.getElementById('resetButton').addEventListener('click', function() {
+                document.getElementById('doctorInput').value = '';
+                document.getElementById('patientInput').value = '';
+                document.getElementById('nurseInput').value = '';
+                document.getElementById('calendar').innerHTML = '';  // clear calendar
+                loadCalendar(); // reload all appointments
             });
         });
+
+        function openEditModal(id, extendedProps) {
+            document.getElementById("editAppointmentId").value = id;
+            console.log(document.getElementById("editAppointmentId").value)
+            document.getElementById("editDateAndTime").value = extendedProps.dateTime;
+            document.getElementById("editDoctorId").value = extendedProps.doctorId;
+            document.getElementById("editLocation").value = extendedProps.location;
+            document.getElementById("editNurseId").value = extendedProps.nurseId;
+            document.getElementById("editPatientId").value = extendedProps.patientId;
+            document.getElementById("editServiceType").value = extendedProps.serviceType;
+            document.getElementById("editSlot").value = extendedProps.slot;
+            document.getElementById("editStatus").value = extendedProps.status;
+
+            populateDropdowns();
+
+            setTimeout(() => {
+                document.getElementById("editPatientId").value = extendedProps.patientId;
+                document.getElementById("editNurseId").value = extendedProps.nurseId;
+            }, 300);
+            
+            $('#editAppointmentModal').modal('show');
+        }
+
+        function openAddModal() {
+            // clear the form fields
+            document.getElementById("addDate").value = "";
+            document.getElementById("addTimeSlot").value = "";
+            document.getElementById("addLocation").value = "";
+
+            populateDropdowns();
+
+            // show the modal
+            $('#addAppointmentModal').modal('show');
+        }
+
+        function closeModal() {
+            $('.modal').modal('hide');
+        }
+
+        function updateAppointment() {
+            let id = document.getElementById("editAppointmentId").value;
+            let doctorId = document.getElementById("editDoctorId").value;
+            let nurseId = document.getElementById("editNurseId").value;
+            let patientId = document.getElementById("editPatientId").value;
+            let dateTime = document.getElementById("editDateAndTime").value;
+            let location = document.getElementById("editLocation").value;
+            let serviceType = document.getElementById("editServiceType").value;
+            let slot = document.getElementById("editSlot").value;
+            let status = document.getElementById("editStatus").value;
+
+            let requestData = {
+                AppointmentId: id,
+                PatientId: patientId,
+                NurseId: nurseId,
+                DoctorId: doctorId,
+                ServiceTypeId: serviceType,
+                Status: status,
+                DateTime: new Date(dateTime).toISOString(),  // Ensure ISO format
+                Slot: parseInt(slot),  // Ensure integer format
+                Location: location
+            };
+
+            fetch("/api/ServiceAppointments/Update", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Appointment updated successfully!");
+                        closeModal();
+                        window.location.reload();
+                    } else {
+                        alert("Error updating appointment: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while updating the appointment.");
+                });
+        }
+
+        function deleteAppointment(id) {
+            if (confirm("Are you sure you want to delete this appointment?")) {
+                fetch("/api/ServiceAppointments/Delete/" + id, {
+                    method: "DELETE"
+                }).then(response => {
+                    if (response.ok) {
+                        alert("Appointment deleted successfully!");
+                        location.reload();
+                    } else {
+                        alert("Error deleting appointment.");
+                    }
+                }).catch(error => console.error("Error:", error));
+            }
+        }
+
+        console.log("Patients data:", patientsData);
+        console.log("Nurses data:", nursesData);
+        console.log("Services data:", serviceTypes);
+        
+        
+        function generateAppointmentId(length=20) {
+            const chars =  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * chars.length);
+                result += chars.charAt(randomIndex);
+            }
+            
+            return result;
+        }
+        
+        const populateDropdowns = () => {
+            // Populate patient dropdowns
+            populateDropdown("addPatientId", patientsData);
+            populateDropdown("editPatientId", patientsData);
+            populateDropdown("editServiceType", serviceTypes);
+
+            // Populate nurse dropdowns
+            populateDropdown("addNurseId", nursesData);
+            populateDropdown("editNurseId", nursesData);
+            populateDropdown("addServiceType", serviceTypes);
+        }
+        
+        const populateDropdown = (elementId, options) => {
+            const dropdown = document.getElementById(elementId);
+            dropdown.innerHTML = '<option value="">Select...</option>';
+            
+            options.forEach(option => {
+                const optionElement = document.createElement("option");
+                optionElement.value = option.id;
+                optionElement.text = option.name;
+                dropdown.appendChild(optionElement);
+            })
+        }
+
+        function addAppointment() {
+            let id = generateAppointmentId(20);
+            let patientId = document.getElementById("addPatientId").value;
+            let nurseId = document.getElementById("addNurseId").value;
+            let doctorId = document.getElementById("addDoctorID").value;
+            let serviceType = document.getElementById("addServiceType").value;
+            let status = "PENDING" // default status
+            let selectedDate = document.getElementById("addDate").value;
+            let selectedTimeSlot = document.getElementById("addTimeSlot").value;
+            let location = document.getElementById("addLocation").value;
+
+            if (!selectedDate || selectedTimeSlot === "") {
+                alert("Please select both a date and time slot.")
+                return;
+            }
+
+            // calc hour based on the selected time slot
+            let hour = 8 + parseInt(selectedTimeSlot);
+
+            // manually construct the ISO DateTime string
+            let isoDateTime = `${selectedDate}T${hour.toString().padStart(2, '0')}:00:00.000Z`;
+
+            let formData = {
+                AppointmentId: id || "dummy123",
+                PatientId: patientId,
+                NurseId: nurseId,
+                DoctorId: doctorId || "1",
+                ServiceTypeId: serviceType,
+                Status: status,
+                DateTime: isoDateTime,
+                Slot: parseInt(selectedTimeSlot),
+                Location: location
+            };
+            
+            fetch("/api/ServiceAppointments/AddAppt", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            // Log the entire error response for debugging
+                            console.error("Error response:", err.message);
+                            throw new Error(err.message || "An error occurred");
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert("Appointment created successfully!");
+                    console.log("Response:", data);
+                    $('#addAppointmentModal').modal('hide');
+                    window.location.reload();
+                })
+                .catch(error => {
+                    alert("Error: " + error.message); // display the error message
+                    console.error("Error:", error);
+                });
+        }
     </script>
 </head>
+
 <body>
     <h2 style="text-align: center;">Service Appointments Calendar</h2>
 
@@ -82,7 +297,149 @@
         <button id="filterButton">Filter</button>
         <button id="resetButton">Reset Filters</button>
     </div>
-
     <div id="calendar"></div>
+
+    <!-- Edit Appointment Modal -->
+    <div id="editAppointmentModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Appointment</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editAppointmentForm">
+                        <input type="hidden" id="editAppointmentId">
+                        <div class="form-group">
+                            <label for="editDoctorId">Doctor ID</label>
+                            <input type="text" class="form-control" id="editDoctorId" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editPatientId">Patient ID</label>
+                            <input type="text" class="form-control" id="editPatientId">
+                        </div>
+                        <div class="form-group">
+                            <label for="editNurseId">Nurse ID</label>
+                            <input type="text" class="form-control" id="editNurseId">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editDateAndTime">Date and time</label>
+                            <input type="datetime-local" class="form-control" id="editDateAndTime">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editSlot">Slot</label>
+                            <input type="text" class="form-control" id="editSlot">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editLocation">Location</label>
+                            <input type="text" class="form-control" id="editLocation">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editServiceType">Service Type</label>
+                            <input type="text" class="form-control" id="editServiceType">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editStatus">Status</label>
+                            <input type="text" class="form-control" id="editStatus">
+                        </div>
+
+                        <button type="button" class="btn btn-primary" onclick="updateAppointment()">Save
+                            Changes</button>
+                        <button type="button" class="btn btn-danger"
+                            onclick="deleteAppointment(document.getElementById('editAppointmentId').value)">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Modal -->
+    <div id="addAppointmentModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Appointment</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addAppointment">
+                        <input type="hidden" id="addAppointmentId">
+
+                        <div class="form-group">
+                            <label for="addPatientId">Select Patient</label>
+                            <select class="form-select" id="addPatientId">
+                                <option value="">Select Patient...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="addNurseId">Select Nurse</label>
+                            <select class="form-select" id="addNurseId">
+                                <option value="">Select Nurse...</option>
+                            </select>
+                        </div>
+                        @* Need to be retrieved from session *@
+                        <input type="hidden" id="addDoctorID" value="DOC001">
+                        @* This one need to be pulled from management control class *@
+                        <div class="form-group">
+                            <label for="addServiceType">Select Service Type</label>
+                            <select class="form-select" id="addServiceType">
+                                <option value="">Select Service Type...</option>
+                            </select>
+                        </div>
+
+                        @* This one by default should be pending when the appointment just created
+                        <div class="form-group">
+                            <label for="addStatus">Status</label>
+                            <input type="text" class="form-control" id="addStatus">
+                        </div> *@
+                        
+                        @* Separate Date and Time selection *@
+                        <div class="form-group">
+                            <label for="addDate">Date:</label>
+                            <input type="date" id="addDate" name="Date" required>
+
+                            <label for="addTimeSlot">Time Slot:</label>
+                            <select id="addTimeSlot" name="TimeSlot" required>
+                                <option value="">Select Time Slot</option>
+                                <option value="0">08:00 - 09:00</option>
+                                <option value="1">09:00 - 10:00</option>
+                                <option value="2">10:00 - 11:00</option>
+                                <option value="3">11:00 - 12:00</option>
+                                <option value="4">12:00 - 13:00</option>
+                                <option value="5">13:00 - 14:00</option>
+                                <option value="6">14:00 - 15:00</option>
+                                <option value="7">15:00 - 16:00</option>
+                            </select><br><br>
+                        </div>
+
+                        @* Location only set for 2 options, phsyical OR virtual *@
+                        <div class="form-group">
+                            <label for="addLocation">Location</label>
+                            <select class="form-select" id="addLocation">
+                                <option value="">Select Location...</option>
+                                <option value="PHYSICAL">Physical</option>
+                                <option value="VIRTUAL">Virtual</option>
+                            </select>
+                        </div>
+
+                        <button type="button" class="btn btn-primary" onclick="addAppointment()">Add
+                            Appointment</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>

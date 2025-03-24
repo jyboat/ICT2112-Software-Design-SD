@@ -7,14 +7,13 @@
 <h2>All Service Appointments</h2>
 
 <a href="/api/ServiceAppointments/CreatePage" class="btn btn-primary">Manual Assign Appointment</a>
-<a href="/api/ServiceAppointments/TestAutoAppointment" class="btn btn-primary">Auto Assign Appointment</a>
+<a href="/api/ServiceAppointments/AutoScheduling" class="btn btn-primary">Auto Assign Appointment</a>
 
 @if (Model != null && Model.Count > 0)
 {
     <table border="1">
         <thead>
             <tr>
-                <th>Appointment ID</th>
                 <th>Patient ID</th>
                 <th>Nurse ID</th>
                 <th>Doctor ID</th>
@@ -29,7 +28,6 @@
             @foreach (var appointment in Model)
             {
                 <tr>
-                    <td>@appointment["AppointmentId"]</td>
                     <td>@appointment["PatientId"]</td>
                     <td>@appointment["NurseId"]</td>
                     <td>@appointment["DoctorId"]</td>

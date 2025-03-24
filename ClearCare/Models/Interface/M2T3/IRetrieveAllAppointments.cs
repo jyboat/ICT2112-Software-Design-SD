@@ -5,6 +5,6 @@ namespace ClearCare.Models.Control
 {
     public interface IRetrieveAllAppointments
     {
-        Task<List<Dictionary<string, object>>> RetrieveAllAppointments();
+        Task<List<Dictionary<string, object>>> retrieveAllAppointments();
     }
 }

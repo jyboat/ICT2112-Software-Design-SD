@@ -1,188 +1,276 @@
-    using System.Threading.Tasks;
-    using ClearCare.DataSource;
-    using ClearCare.Models;
-    using ClearCare.Models.Control;
-    using ClearCare.Models.Entities;
-    using Google.Protobuf.WellKnownTypes;
-    using ClearCare.Interfaces;
+using System.Threading.Tasks;
+using ClearCare.DataSource;
+using ClearCare.Models;
+using ClearCare.Models.Control;
+using ClearCare.Models.Entities;
+using Google.Protobuf.WellKnownTypes;
+using ClearCare.Interfaces;
 
 
-    namespace ClearCare.Models.Control
+namespace ClearCare.Models.Control
+{
+    public class ServiceAppointmentManagement : IRetrieveAllAppointments, ICreateAppointment, IServiceAppointmentDB_Receive, IAppointmentTime, IServiceStatus
     {
-        public class ServiceAppointmentManagement : IRetrieveAllAppointments,  ICreateAppointment
+
+
+        private readonly IServiceAppointmentDB_Send _dbGateway;
+        public ServiceAppointmentManagement()
         {
-            // Declare the field at the class level
-            private readonly ServiceAppointmentGateway _serviceAppointmentGateway;
+            _dbGateway = (IServiceAppointmentDB_Send)new ServiceAppointmentGateway();
+            _dbGateway.Receiver = this;
+        }
 
-            // Constructor initializes the field
-            public ServiceAppointmentManagement()
+
+        // Get All Service Appointment
+        public async Task<List<Dictionary<string, object>>> retrieveAllAppointments()
+        {
+            List<ServiceAppointment> appointments = await _dbGateway.fetchAllServiceAppointments();
+            List<Dictionary<string, object>> appointmentList = appointments
+               .Select(a => a.ToFirestoreDictionary())
+               .ToList();
+
+            return appointmentList;
+        }
+
+        public Task receiveServiceAppointmentList(List<ServiceAppointment> allServiceAppointments)
+        {
+            if (allServiceAppointments.Count == 0)
             {
-                _serviceAppointmentGateway = new ServiceAppointmentGateway();
+                Console.WriteLine("No service appointment found.");
+            }
+            else
+            {
+                Console.WriteLine($"Received {allServiceAppointments.Count} service appointment found.");
+            }
+            return Task.CompletedTask;
+        }
+
+        // Get Service Appointment By ID
+        public async Task<Dictionary<string, object>> getAppointmentByID(string appointmentId)
+        {
+            Dictionary<string, object> appointment = await _dbGateway.fetchServiceAppointmentByID(appointmentId);
+
+            return appointment;
+        }
+
+        public Task receiveServiceAppointmentById(Dictionary<string, object> serviceAppointment)
+        {
+            Console.WriteLine("1 Service Appointment Found.");
+            return Task.CompletedTask;
+        }
+
+        // Create Service Appointment
+        public async Task<string> CreateAppointment(string patientId, string nurseId,
+                string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
+        {
+            // Map JSON data to model
+            var appointment = ServiceAppointment.setApptDetails(
+                patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
+            );
+
+            string appointmentID = await _dbGateway.CreateAppointment(appointment);
+            return appointmentID;
+        }
+
+        public Task receiveCreatedServiceAppointmentId(string serviceAppointmentId)
+        {
+            if (serviceAppointmentId != "")
+            {
+                Console.WriteLine("1 Service Appointment Created.");
+            }
+            else
+            {
+                Console.WriteLine("Service Appointment Creation failed.");
+            }
+            return Task.CompletedTask;
+        }
+
+        // Update Service Appointment
+        public async Task<bool> UpdateAppointment(string appointmentId, string patientId, string nurseId,
+    string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
+        {
+            try
+            {
+                // convert UTC time to Singapore time (UTC+8)
+                DateTime sgDateTime = dateTime.AddHours(8);
+
+                Console.WriteLine($"Original UTC time: {dateTime}");
+                Console.WriteLine($"Singapore time (UTC+8): {sgDateTime}");
+
+                // retrieve existing appt
+                var existingAppointment = await this.getAppointmentByID(appointmentId);
+                if (existingAppointment == null)
+                {
+                    return false;
+                }
+
+                // create updated appt
+                var updatedAppointment = new ServiceAppointment();
+
+                // set appointment id first
+                typeof(ServiceAppointment)
+                    .GetProperty("AppointmentId", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                    ?.SetValue(updatedAppointment, appointmentId);
+
+                // set other properties using the existing method with singapore time
+                updatedAppointment = ServiceAppointment.setApptDetails(
+                    patientId, nurseId, doctorId, serviceTypeId, status, sgDateTime, slot, location
+                );
+
+                // set appointment id again since it gets overwritten
+                typeof(ServiceAppointment)
+                    .GetProperty("AppointmentId", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                    ?.SetValue(updatedAppointment, appointmentId);
+
+                // call gateway to update
+                return await _dbGateway.UpdateAppointment(updatedAppointment);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"error updating appointment: {e.Message}");
+                return false;
+            }
+        }
+        public Task receiveUpdatedServiceAppointmentStatus(bool updateStatus)
+        {
+            if (updateStatus)
+            {
+                Console.WriteLine("1 Service Appointment Updated.");
+            }
+            else
+            {
+                Console.WriteLine("Service Appointment update failed.");
+            }
+            return Task.CompletedTask;
+        }
+
+        // Delete Service Appointment
+        public async Task<bool> DeleteAppointment(string appointmentId)
+        {
+            try
+            {
+                return await _dbGateway.DeleteAppointment(appointmentId);
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"error deleting appointment: {e.Message}");
+                return false;
+            }
+        }
+
+        public Task receiveDeletedServiceAppointmentStatus(bool deleteStatus)
+        {
+            if (deleteStatus)
+            {
+                Console.WriteLine("1 Service Appointment Successfully Deleted.");
+            }
+            else
+            {
+                Console.WriteLine("Service Appointment deletion failed.");
+            }
+            return Task.CompletedTask;
+        }
+
+        public async Task<DateTime?> getAppointmentTime(string appointmentId)
+        {
+            if (string.IsNullOrEmpty(appointmentId))
+            {
+                Console.WriteLine("Error: No AppointmentID");
+                return null;
             }
 
-            public async Task<List<Dictionary<string, object>>> RetrieveAllAppointments()
+            try
             {
-                var appointment = await _serviceAppointmentGateway.GetAllAppointmentsAsync();
-                var appointmentList = appointment.Select(a => a.ToFirestoreDictionary()).ToList();
-
-                if (appointmentList != null)
-                {
-                    return appointmentList;
-                }
-                else
-                {
-                    // Return Empty List
-                    return new List<Dictionary<string, object>>();
-                }
+                DateTime? datetime = await _dbGateway.fetchAppointmentTime(appointmentId);
+                return datetime;
             }
 
-            // i hardcode the "retrieval" of nurse and patirents first, later once get from mod 1, will update
-            public List<Dictionary<string, string>> GetAllPatients()
+            catch (Exception e)
             {
-                return new List<Dictionary<string, string>>
+                Console.WriteLine($"Error finding service appointment time: {e.Message}");
+                return null;
+            }
+
+            return null;
+        }
+
+        public Task receiveServiceAppointmentTimeById(DateTime? dateTime)
+        {
+            if (dateTime != null)
+            {
+                Console.WriteLine("1 Service Appointment Time Successfully Retrieved.");
+            }
+            else
+            {
+                Console.WriteLine("Service Appointment Time retrival failed.");
+            }
+            return Task.CompletedTask;
+        }
+
+        // i hardcode the "retrieval" of services, nurse and patients first, later once get from mod 1, will update
+        public List<Dictionary<string, string>> GetAllPatients()
+        {
+            return new List<Dictionary<string, string>>
                 {
                     new Dictionary<string, string> {{"id", "1"}, {"name", "John Doe"}},
                     new Dictionary<string, string> {{"id", "2"}, {"name", "Jane Doe"}},
                 };
-            }
+        }
 
-            public List<Dictionary<string, string>> GetAllNurses()
-            {
-                return new List<Dictionary<string, string>>
+        public List<Dictionary<string, string>> GetAllNurses()
+        {
+            return new List<Dictionary<string, string>>
                 {
                     new Dictionary<string, string> {{"id", "1"}, {"name", "Mike Tyson"}},
                     new Dictionary<string, string> {{"id", "2"}, {"name", "Rocky Balboa"}},
+                    new Dictionary<string, string> {{"id", "USR003"}, {"name", "USR003"}},
                 };
-            }
-
-            public async Task<string> CreateAppt(string appointmentId, string patientId, string nurseId,
-                string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
-            {
-                // Map JSON data to model
-                var appointment = ServiceAppointment.setApptDetails(
-                    appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
-                );
-
-                string appointmentID = await _serviceAppointmentGateway.CreateAppointmentAsync(appointment);
-
-                if (appointmentID != "")
-                {
-                    return appointmentID;
-                }
-                else
-                {
-                    return "";
-                }
-            }
-            
-            // update appointment here
-
-            public async Task<Dictionary<string, object>> GetAppt(string appointmentId)
-            {
-                // Pass the ID to the gateway
-                // Appointment is data from firestore that is converted into Model instance
-                var appointment = await _serviceAppointmentGateway.GetAppointmentByIdAsync(appointmentId);
-
-                if (appointment != null)
-                {
-                    return appointment.ToFirestoreDictionary();
-                }
-                else
-                {
-                    // Return Empty List
-                    return new Dictionary<string, object>();
-                }
-            }
-
-            public async Task<List<object>> GetAppointmentsForCalendar(string? doctorId, string? patientId, string? nurseId)
-            {
-                var appointments = await _serviceAppointmentGateway.GetAllAppointmentsAsync();
-
-                if (appointments == null || !appointments.Any())
-                {
-                    return new List<object>(); // Return an empty list if no appointments exist
-                }
-
-                // Apply filtering
-                if (!string.IsNullOrEmpty(doctorId))
-                {
-                    appointments = appointments.Where(a => a.ToFirestoreDictionary()["DoctorId"].ToString() == doctorId).ToList();
-                }
-                if (!string.IsNullOrEmpty(patientId))
-                {
-                    appointments = appointments.Where(a => a.ToFirestoreDictionary()["PatientId"].ToString() == patientId).ToList();
-                }
-                if (!string.IsNullOrEmpty(nurseId))
-                {
-                    appointments = appointments.Where(a => a.ToFirestoreDictionary()["NurseId"].ToString() == nurseId).ToList();
-                }
-
-                var eventList = appointments.Select(a => new
-                {
-                    id = a.ToFirestoreDictionary()["AppointmentId"],
-                    title = "Appointment with " + a.ToFirestoreDictionary()["DoctorId"],
-                    start = ((DateTime)a.ToFirestoreDictionary()["DateTime"]).ToString("yyyy-MM-ddTHH:mm:ss"),
-                    extendedProps = new
-                    {
-                        patientId = a.ToFirestoreDictionary()["PatientId"],
-                        nurseId = a.ToFirestoreDictionary()["NurseId"],
-                        doctorId = a.ToFirestoreDictionary()["DoctorId"],
-                        status = a.ToFirestoreDictionary()["Status"],
-                        location = a.ToFirestoreDictionary()["Location"]
-                    }
-                }).Cast<Object>().ToList();
-
-                return eventList;
-            }
-            
-            // update existing appointment
-            public async Task<bool> UpdateAppt(string appointmentId, string patientId, string nurseId,
-                string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
-            {
-                try
-                {
-                    // retrieve existing appt
-                    var existingAppointment = await _serviceAppointmentGateway.GetAppointmentByIdAsync(appointmentId);
-
-                    if (existingAppointment == null)
-                    {
-                        return false;
-                    }
-                    
-                    // create updated appt
-                    var updatedAppointment = ServiceAppointment.setApptDetails(
-                        appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
-                    );
-                    
-                    // call gateway to update
-                    return await _serviceAppointmentGateway.UpdateAppointmentAsync(updatedAppointment);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"error updating appointment: {e.Message}");
-                    return false;
-                }
-            }
-            
-            // delete appointment
-            public async Task<bool> DeleteAppt(string appointmentId)
-            {
-                try
-                {
-                    return await _serviceAppointmentGateway.DeleteAppointmentAsync(appointmentId);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"error deleting appointment: {e.Message}");
-                    return false;
-                }
-            }
-            
-            public Task CreateAppointment() {
-                Console.WriteLine("Hello Create Appointment Interface");
-                return Task.CompletedTask;
-            }
-            
         }
 
+
+
+        public List<Dictionary<string, string>> GetAllServiceTypes()
+        {
+            return new List<Dictionary<string, string>>
+                {
+                    new Dictionary<string, string> {{"id", "1"}, {"name", "FINANCIAL COUNSELING"}},
+                    new Dictionary<string, string> {{"id", "2"}, {"name", "PHYSICAL THERAPY"}},
+                    new Dictionary<string, string> {{"id", "3"}, {"name", "WOUND CARE"}},
+                };
+        }
+
+        public Task getUnscheduledPatients(List<ServiceAppointment> allServiceAppointments)
+        {
+            if (allServiceAppointments.Count == 0)
+            {
+                Console.WriteLine("No service appointment found.");
+            }
+            else
+            {
+                Console.WriteLine($"Received {allServiceAppointments.Count} service appointment found.");
+            }
+            return Task.CompletedTask;
+        }
+
+        public class Patient
+        {
+            public string PatientId { get; set; } = string.Empty;
+            public string Name { get; set; } = string.Empty;
+        }
+
+        public async Task<List<ServiceAppointmentGateway.Patient>> getUnscheduledPatients()
+        {
+            // Call the gateway to get the unscheduled patients.
+            List<ServiceAppointmentGateway.Patient> patients = await _dbGateway.fetchAllUnscheduledPatients();
+            return patients;
+        }
+
+
+        // public Task CreateAppointment() {
+        //     Console.WriteLine("Hello Create Appointment Interface");
+        //     return Task.CompletedTask;
+        // }
     }
+
+}

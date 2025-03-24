@@ -22,14 +22,16 @@ namespace ClearCare.Controllers
         {
             // did this so to resolve the circular dependency and fix the error by ensuring that the gateway has a receiver set before any callbacks are invoked otherwise this shit doesnt load lmao
 
-            // Create the gateway first using the parameterless constructor
-            var gateway = new NurseAvailabilityGateway();
-            // Create the manager and pass the gateway
-            _manager = new NurseAvailabilityManagement(gateway);
-            // Set the gateway's receiver to the manager (which implements IAvailabilityDB_Receive)
-            gateway.Receiver = _manager;
+            // // Create the gateway first using the parameterless constructor
+            // var gateway = new NurseAvailabilityGateway();
+            // // Create the manager and pass the gateway
+            // _manager = new NurseAvailabilityManagement(gateway);
+            // // Set the gateway's receiver to the manager (which implements IAvailabilityDB_Receive)
+            // gateway.Receiver = _manager;
 
-            _serviceAppointmentManagement =  new ServiceAppointmentManagement();
+            _manager = new NurseAvailabilityManagement();
+            _serviceAppointmentManagement = new ServiceAppointmentManagement();
+         
 
             _calendarManagement = new CalendarManagement((IRetrieveAllAppointments)_serviceAppointmentManagement, (INurseAvailability) _manager);
         }
@@ -39,7 +41,7 @@ namespace ClearCare.Controllers
         [Route("GetAvailabilityByNurseIdForCalendar")]
         public async Task<JsonResult> GetAvailabilityByNurseIdForCalendar([FromQuery] string? nurseId)
         {
-            return await _calendarManagement.GetAvailabilityByNurseIdForCalendar("USR003"); // Dummy ID for testing
+            return await _calendarManagement.getAvailabilityByNurseIdForCalendar("USR003"); // Dummy ID for testing
         }
 
         // Displays Nurse Availability View
