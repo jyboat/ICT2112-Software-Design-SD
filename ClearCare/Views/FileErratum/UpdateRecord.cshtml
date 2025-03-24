@@ -8,44 +8,52 @@
     <link rel="stylesheet" href="~/css/medicalRecords.css">
 </head>
 
-<div class="container py-5">
-    <div class="mx-auto bg-white rounded-3 shadow p-4" style="max-width: 600px;">
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-3"> 
+                <div class="card-header bg-gradient bg-primary text-white p-4">
+                    <h2 class="text-center mb-0">@ViewData["Title"]</h2>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-warning text-center mb-4">
+                        <strong>Disclaimer:</strong><br>A medical record cannot be amended. An erratum has to be filed.
+                    </div>
 
-        <div class="text-dark p-4">
-            <h2 class="text-center mb-0">@ViewData["Title"]</h2>
-        </div>
+                    <!-- Hidden TempData message values -->
+                    <input type="hidden" id="ToastrSuccessMessage" value="@TempData["SuccessMessage"]" />
+                    <input type="hidden" id="ToastrErrorMessage" value="@TempData["ErrorMessage"]" />
 
-         <div class="card-body p-4">
-            <div class="alert alert-warning text-center mb-4">
-                <strong>Disclaimer:</strong><br>A medical record cannot be amended. An erratum has to be filed.
+                    <form method="post" asp-controller="FileErratum" asp-action="fileErratumRecord" enctype="multipart/form-data"
+                    onsubmit="return showAlert()">
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control shadow-sm" id="recordID" name="recordID"
+                                    value="@ViewBag.MedicalRecordID" readonly>
+                                <label for="recordID" class="bi bi-file-medical me-1"> Record ID</label>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-floating mb-3">
+                                <textarea class="form-control shadow-sm" id="erratumDetails" name="erratumDetails" rows="3"
+                                    placeholder="Describe the amendment here..." required></textarea>
+                                <label for="erratumDetails" class="bi bi-card-text me-1"> Erratum Details</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="erratumAttachment" class="bi bi-file-earmark-image me-1"> Attachment (Optional)</label>
+                            <input type="file" class="form-control shadow-sm" id="erratumAttachment" name="erratumAttachment"
+                            accept="image/*,application/pdf">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill shadow">File Erratum</button>
+                    </div>
+                    </form>
+                </div>
             </div>
-
-            <!-- Hidden TempData message values -->
-            <input type="hidden" id="ToastrSuccessMessage" value="@TempData["SuccessMessage"]" />
-            <input type="hidden" id="ToastrErrorMessage" value="@TempData["ErrorMessage"]" />
-
-            <form method="post" asp-controller="FileErratum" asp-action="fileErratumRecord" enctype="multipart/form-data"
-            onsubmit="return showAlert()">
-                <div class="mb-3">
-                    <label for="recordID" class="form-label fw-semibold">Record ID</label>
-                    <input type="text" class="form-control rounded-pill shadow-sm" id="recordID" name="recordID"
-                        value="@ViewBag.MedicalRecordID" readonly>
-                </div>
-
-                <div class="mb-3">
-                    <label for="erratumDetails" class="form-label fw-semibold">Erratum Details</label>
-                    <textarea class="form-control rounded-3 shadow-sm" id="erratumDetails" name="erratumDetails" rows="3"
-                        placeholder="Describe the amendment here..." required></textarea>
-                </div>
-
-                <div class="mb-3">
-                    <label for="erratumAttachment" class="form-label fw-semibold">Attachment (Optional)</label>
-                    <input type="file" class="form-control rounded-pill shadow-sm" id="erratumAttachment" name="erratumAttachment"
-                        accept="image/*,application/pdf">
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill shadow">File Erratum</button>
-            </form>
-         </div>
+        </div>
     </div>
 </div>

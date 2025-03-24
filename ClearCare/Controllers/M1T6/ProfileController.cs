@@ -80,6 +80,7 @@ namespace ClearCare.Controllers
             // Fetch logged-in user ID from session
             string userID = HttpContext.Session.GetString("UserID");
 
+            // Ensure UserID exists
             if (string.IsNullOrEmpty(userID))
             {
                 return RedirectToAction("displayLogin", "Login");
@@ -88,16 +89,49 @@ namespace ClearCare.Controllers
             // Prepare updated fields dictionary
             Dictionary<string, object> updatedFields = new Dictionary<string, object>();
 
+            // Name
             if (!string.IsNullOrEmpty(name)) updatedFields["Name"] = name;
-            if (!string.IsNullOrEmpty(email)) updatedFields["Email"] = email;
-            if (mobileNumber > 0) updatedFields["MobileNumber"] = mobileNumber;
-            if (!string.IsNullOrEmpty(address)) updatedFields["Address"] = address;
-            if (!string.IsNullOrEmpty(newpassword) && !string.IsNullOrEmpty(confirmpassword) && newpassword == confirmpassword)
+            
+            // Email Validation (Cant use email that exists)
+            if (!string.IsNullOrEmpty(email))
             {
+                bool emailExists = await _profileManagement.emailExists(email, userID); // Exclude current user
+                if (emailExists)
+                {
+                    TempData["ErrorMessage"] = "Email is already in use.";
+                    return RedirectToAction("displayProfile");
+                }
+            }
+
+            // Mobile Number Validation (Cant use mobile number that exists)
+            if (mobileNumber > 0)
+            {
+                bool mobileExists = await _profileManagement.mobileExists(mobileNumber, userID); // Exclude current user
+                if (mobileExists)
+                {
+                    TempData["ErrorMessage"] = "Mobile number is already in use.";
+                    return RedirectToAction("displayProfile");
+                }
+            }
+
+            // Address
+            if (!string.IsNullOrEmpty(address)) updatedFields["Address"] = address;
+
+            // Validate password match
+            if (!string.IsNullOrEmpty(newpassword) && !string.IsNullOrEmpty(confirmpassword))
+            {
+                if (newpassword != confirmpassword)
+                {
+                    TempData["ErrorMessage"] = "Passwords do not match.";
+                    return RedirectToAction("displayProfile");
+                }
+                    
                 // Hash the password before updating it in Firestore
                 string hashedPassword = encryptionManagement.hashPassword(confirmpassword);
                 updatedFields["Password"] = hashedPassword;
             }
+
+            // Date Of Birth Validation
             if (!string.IsNullOrEmpty(dateOfBirth))
             {
                 try

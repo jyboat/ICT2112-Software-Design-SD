@@ -487,5 +487,42 @@ namespace ClearCare.DataSource
                 return false;
             }
         }
+
+        public async Task<bool> checkDuplicateEmail(string email, string userID)
+        {
+            Query query = db.Collection("User")
+                            .WhereEqualTo("Email", email);
+
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+            foreach (var doc in snapshot.Documents)
+            {
+                if (doc.Id != userID)
+                {
+                    return true; // Email exists and belongs to someone else
+                }
+            }
+
+            return false; // Email is either not used, or only used by the same user
+        }
+
+        public async Task<bool> checkDuplicateMobile(long mobileNumber, string userID)
+        {
+            Query query = db.Collection("User")
+                            .WhereEqualTo("MobileNumber", mobileNumber);
+
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+            foreach (var doc in snapshot.Documents)
+            {
+                if (doc.Id != userID)
+                {
+                    return true; // Mobile number exists and belongs to someone else
+                }
+            }
+
+            return false;
+        }
+
     }
 }

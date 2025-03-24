@@ -26,5 +26,14 @@ namespace ClearCare.Models.Control
             return await _userGateway.updateUser(userID, updatedFields);
         }
 
+        public async Task<bool> emailExists(string email, string userID) 
+        {
+            return await _userGateway.checkDuplicateEmail(email, userID);
+        }
+        public async Task<bool> mobileExists(long mobileNumber, string userID)
+        {
+            return await _userGateway.checkDuplicateMobile(mobileNumber, userID);
+        }
+
     }
 }
