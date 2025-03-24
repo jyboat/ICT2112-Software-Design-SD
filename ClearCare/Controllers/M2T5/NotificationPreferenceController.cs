@@ -41,36 +41,44 @@ public async Task<IActionResult> SaveNotificationPreference([FromBody] Dictionar
     {
         if (preferenceData == null || !preferenceData.ContainsKey("preference") || !preferenceData.ContainsKey("methods") || !preferenceData.ContainsKey("dndDays") || !preferenceData.ContainsKey("dndTimeRange"))
         {
-            return BadRequest(new { message = "Invalid request body. Missing preference, methods, DND days or DND time range." });
+            return BadRequest(new { message = "Invalid request body. Missing preference, methods, DND days, or DND time range." });
         }
 
         var preference = preferenceData["preference"];
-        var methods = preferenceData["methods"]; // This is a comma-separated string
-        var dndDays = preferenceData["dndDays"]; // This is also a comma-separated string
+        var methods = preferenceData["methods"]; // Comma-separated methods
+        var dndDays = preferenceData["dndDays"]; // Comma-separated days
         var dndTimeRange = preferenceData["dndTimeRange"];
 
-        if (string.IsNullOrEmpty(preference) || string.IsNullOrEmpty(methods) || string.IsNullOrEmpty(dndDays))
+        if (string.IsNullOrEmpty(preference) || string.IsNullOrEmpty(methods) || string.IsNullOrEmpty(dndDays) || string.IsNullOrEmpty(dndTimeRange))
         {
-            return BadRequest(new { message = "Invalid preference, methods, or DND days." });
+            return BadRequest(new { message = "Preference, methods, DND days, and DND time range cannot be empty." });
         }
 
         // Convert methods string to a list (comma-separated values)
         var methodsList = methods.Split(',').ToList();
+        var methodsString = string.Join(",", methodsList); // Convert back to string
 
-        // DND Days - already a comma-separated string, so just use it as it is
-        var dndDaysString = dndDays;
+        // Parse DND Time Range safely
+        var timeRangeParts = dndTimeRange.Split('-');
+        if (timeRangeParts.Length != 2)
+        {
+            return BadRequest(new { message = "Invalid time range format. Use HH:mm-HH:mm (e.g., 08:00-22:00)." });
+        }
 
-        // Parse DND Time Range
-        var timeRangeParts = dndTimeRange?.Split('-');
-        var startTime = TimeSpan.Parse(timeRangeParts[0]);
-        var endTime = TimeSpan.Parse(timeRangeParts[1]);
+        if (!TimeSpan.TryParse(timeRangeParts[0], out TimeSpan startTime) || !TimeSpan.TryParse(timeRangeParts[1], out TimeSpan endTime))
+        {
+            return BadRequest(new { message = "Invalid time format. Use HH:mm (e.g., 08:00-22:00)." });
+        }
+
+        if (startTime >= endTime)
+        {
+            return BadRequest(new { message = "Invalid time range. Start time must be before end time." });
+        }
+
         var dndTimeRangeObj = new TimeRange(startTime, endTime);
 
-        // Convert methodsList to a comma-separated string for passing to SaveNotificationPreferenceAsync
-        var methodsString = string.Join(",", methodsList);
-
-        // Save preferences using the manager (methodsString is string, dndDaysString is string)
-        await _manager.SaveNotificationPreferenceAsync(userID, preference, methodsString, dndDaysString, dndTimeRangeObj);
+        // Save preferences
+        await _manager.SaveNotificationPreferenceAsync(userID, preference, methodsString, dndDays, dndTimeRangeObj);
 
         return Ok(new { message = "Preference saved successfully!" });
     }
@@ -79,6 +87,7 @@ public async Task<IActionResult> SaveNotificationPreference([FromBody] Dictionar
         return StatusCode(500, new { message = "Error saving preference.", error = ex.Message });
     }
 }
+
 
 
 
@@ -96,11 +105,18 @@ public async Task<IActionResult> GetUserNotificationPreference()
 
     try
     {
-        // Call manager to get notification preferences for the user
         var preferences = await _manager.GetNotificationPreferenceAsync(userId);
+        var response = preferences.Select(p => new 
+        {
+            UserID = p.GetUserID(),
+            Preference = p.GetPreference(),
+            Methods = p.GetMethods(),
+            DndDays = p.GetDndDays(),
+            DndTimeRange = $"{p.GetDndTimeRange().GetStartTime()}-{p.GetDndTimeRange().GetEndTime()}"
+        }).ToList();
 
-        // Return the preferences as JSON
-        return Ok(preferences);
+        return Ok(response);
+
     }
     catch (Exception ex)
     {

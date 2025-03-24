@@ -22,17 +22,18 @@ namespace ClearCare.DataSource
 
             try{
             var preferenceCollection = _db.Collection("notification_preferences");
-            DocumentReference docRef = preferenceCollection.Document(preference.UserID);
+            DocumentReference docRef = preferenceCollection.Document(preference.GetUserID());
+
 
             var data = new Dictionary<string, object>
             {
-                { "UserID", preference.UserID },
-                { "Preference", preference.Preference },
-                { "Methods", preference.Methods },
-                { "DndDays", preference.DndDays },
-                { "DndTimeRange", $"{preference.DndTimeRange.Start}-{preference.DndTimeRange.End}" } // Store time range as a string (start-end)
-            };
+                { "UserID", preference.GetUserID() },
+                { "Preference", preference.GetPreference() },
+                { "Methods", preference.GetMethods() },
+                { "DndDays", preference.GetDndDays() },
+                { "DndTimeRange", $"{preference.GetDndTimeRange().GetStartTime()}-{preference.GetDndTimeRange().GetEndTime()}" }
 
+            };
             await docRef.SetAsync(data);
                 notifyObservers(true);
 
@@ -77,3 +78,4 @@ namespace ClearCare.DataSource
         }
     }
 }
+ 

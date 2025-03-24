@@ -4,25 +4,32 @@
 
 @{
     var userRole = Context.Session.GetString("Role");
-}
-
-@{
     var userId = Context.Session.GetString("UserID");
 }
 
 <h2>@ViewData["Title"]</h2>
 
-<div class="text-center">
-    <h1 class="display-4">Update Your Notification Preferences</h1>
-    <p>User Role from session: @userRole</p>
+<div class="container mt-4">
+    <div class="mb-3">
+        <input type="radio" id="enableNotifications" name="notificationPreference" value="enabled">
+        <label for="enableNotifications">Enable Notifications</label>
+    </div>
+    <div class="mb-3">
+        <input type="radio" id="disableNotifications" name="notificationPreference" value="disabled">
+        <label for="disableNotifications">Disable Notifications</label>
+    </div>
+
+    <h4>Preferred Notification Methods:</h4>
+    <div class="mb-3">
+        <input type="checkbox" id="smsNotification" name="notificationMethod" value="sms">
+        <label for="smsNotification">SMS</label>
+    </div>
+    <div class="mb-3">
+        <input type="checkbox" id="emailNotification" name="notificationMethod" value="email">
+        <label for="emailNotification">Email</label>
+    </div>
 </div>
 
-<!-- Display Current Preferences -->
-<div class="container mt-3">
-    <h4>Current Preferences:</h4>
-    <p><strong>Notification Preference:</strong> <span id="currentPreference">Loading...</span></p>
-    <p><strong>Notification Methods:</strong> <span id="currentMethods">Loading...</span></p>
-</div>
 
 <!-- DND Days Selection -->
 <div class="container mt-4">
@@ -57,7 +64,6 @@
     </div>
 </div>
 
-
 <!-- DND Time Range -->
 <div class="container mt-4">
     <h4>Select Time Range for Do Not Disturb:</h4>
@@ -71,35 +77,7 @@
     </div>
 </div>
 
-
-<!-- Notification Preference Selection -->
-<div class="container mt-4">
-    <div class="mb-3">
-        <label class="form-label">Notification Preference:</label>
-        <div>
-            <input type="radio" id="enableNotifications" name="notificationPreference" value="enabled">
-            <label for="enableNotifications">Enable Notifications</label>
-        </div>
-        <div>
-            <input type="radio" id="disableNotifications" name="notificationPreference" value="disabled">
-            <label for="disableNotifications">Disable Notifications</label>
-        </div>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Choose your preferred method of notification:</label>
-        <div>
-            <input type="checkbox" id="smsNotification" name="notificationMethod" value="sms">
-            <label for="smsNotification">SMS</label>
-        </div>
-        <div>
-            <input type="checkbox" id="emailNotification" name="notificationMethod" value="email">
-            <label for="emailNotification">Email</label>
-        </div>
-    </div>
-
-    <button onclick="saveNotificationPreference()" class="btn btn-primary">Save Preferences</button>
-</div>
+<button onclick="saveNotificationPreference()" class="btn btn-primary mt-3">Save Preferences</button>
 
 <!-- JavaScript to handle preference retrieval and saving -->
 <script>
@@ -136,10 +114,6 @@ async function loadNotificationPreference() {
             return;
         }
 
-        // Display preferences
-        document.getElementById("currentPreference").innerText = userPreference.preference;
-        document.getElementById("currentMethods").innerText = userPreference.methods;
-
         // Set radio button for preference
         document.getElementById("enableNotifications").checked = userPreference.preference === "enabled";
         document.getElementById("disableNotifications").checked = userPreference.preference === "disabled";
@@ -161,8 +135,15 @@ async function loadNotificationPreference() {
 
         // Set DND time range
         if (userPreference.dndTimeRange) {
-            document.getElementById("dndStartTime").value = userPreference.dndTimeRange.start.slice(0, 5);
-            document.getElementById("dndEndTime").value = userPreference.dndTimeRange.end.slice(0, 5);
+            const [startTime, endTime] = userPreference.dndTimeRange.split('-');
+            
+            // Ensure the start and end times are in HH:mm format
+            if (startTime && endTime) {
+                document.getElementById("dndStartTime").value = startTime.slice(0, 5); // Extract HH:mm
+                document.getElementById("dndEndTime").value = endTime.slice(0, 5); // Extract HH:mm
+            } else {
+                console.error("Invalid DND time range format");
+            }
         }
 
     } catch (error) {
@@ -171,6 +152,7 @@ async function loadNotificationPreference() {
         document.getElementById("currentMethods").innerText = "Error loading methods.";
     }
 }
+
 
 
 

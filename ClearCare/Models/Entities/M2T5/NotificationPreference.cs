@@ -6,49 +6,51 @@ namespace ClearCare.Models.Entities
 {
     public class NotificationPreference
     {
-        public string UserID { get; set; }
-        public string Preference { get; set; }
-        public string Methods { get; set; }
-        
-        // DND Settings - stored as comma-separated string
-        public string DndDays { get; set; }    // Comma-separated days (e.g., "Monday,Tuesday,Wednesday")
-        public TimeRange DndTimeRange { get; set; }      // Time range for DND (start time, end time)
+        private string UserID { get; set; }
+        private string Preference { get; set; }
+        private string Methods { get; set; }
+        private string DndDays { get; set; }
+        private TimeRange DndTimeRange { get; set; }
 
-        // Constructor to accept both UserID, Preference, Methods, and DND settings
         public NotificationPreference(string userId, string preference, string methods, string dndDays = "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday", TimeRange dndTimeRange = null)
         {
             UserID = userId;
             Preference = preference;
             Methods = methods;
-            DndDays = string.IsNullOrEmpty(dndDays) ? "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday" : dndDays; // Default DND days to Monday to Sunday
-            DndTimeRange = dndTimeRange ?? new TimeRange(TimeSpan.Zero, TimeSpan.FromHours(24)); // Default time range 24 hours
+            DndDays = string.IsNullOrEmpty(dndDays) ? "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday" : dndDays;
+            DndTimeRange = dndTimeRange ?? new TimeRange(TimeSpan.Zero, TimeSpan.FromHours(24));
         }
+
+        public string GetUserID() => UserID;
+        public string GetPreference() => Preference;
+        public string GetMethods() => Methods;
+        public string GetDndDays() => DndDays;
+        public TimeRange GetDndTimeRange() => DndTimeRange;
     }
 
-    // TimeRange class to represent the DND time range (start time and end time)
     public class TimeRange
     {
-        public TimeSpan Start { get; set; }
-        public TimeSpan End { get; set; }
+        private TimeSpan Start { get; set; }
+        private TimeSpan End { get; set; }
 
         public TimeRange()
         {
             Start = TimeSpan.Zero;
-            End = TimeSpan.FromHours(24); // Default to 24 hours (00:00 to 23:59)
+            End = TimeSpan.FromHours(24);
         }
 
-        // Constructor to set specific time range
         public TimeRange(TimeSpan start, TimeSpan end)
         {
             Start = start;
             End = end;
         }
 
-        // Helper method to check if a given time is within the DND range
+        public TimeSpan GetStartTime() => Start;
+        public TimeSpan GetEndTime() => End;
+
         public bool IsTimeInRange(TimeSpan currentTime)
         {
             return currentTime >= Start && currentTime <= End;
         }
     }
 }
-

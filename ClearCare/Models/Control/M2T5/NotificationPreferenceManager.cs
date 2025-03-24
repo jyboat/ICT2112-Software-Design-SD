@@ -37,7 +37,8 @@ namespace ClearCare.Models.Control
             var preferences = await _notificationPreferences.GetNotificationPreferencesAsync();
 
             // Filter by userId to return the relevant preference
-            var userPreference = preferences.Where(p => p.UserID == userId).ToList();
+            var userPreference = preferences.Where(p => p.GetUserID() == userId).ToList();
+
 
             Console.WriteLine($"Fetched {userPreference.Count} preferences for UserID {userId}");
             return userPreference;
