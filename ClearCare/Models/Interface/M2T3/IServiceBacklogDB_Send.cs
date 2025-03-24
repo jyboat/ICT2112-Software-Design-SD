@@ -13,6 +13,6 @@ namespace ClearCare.Interfaces
         Task<Dictionary<string,string>> fetchServiceBacklogById(string backlogId);
         Task createServiceBacklog(ServiceBacklog backlog);
 
-        Task deleteServiceBacklog(string backlogId);
+        Task<bool> deleteServiceBacklog(string backlogId);
     }
 }

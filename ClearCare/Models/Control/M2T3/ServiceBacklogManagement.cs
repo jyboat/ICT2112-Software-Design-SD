@@ -85,35 +85,49 @@ namespace ClearCare.Models.Control
             return serviceBacklogViewModel;
         }
 
-        public bool reassignBacklog(ServiceBacklogViewModel viewModel)
+        public async Task<bool> reassignBacklog(
+            string BacklogId,
+            string AppointmentId,
+            string PatientId,
+            string DoctorId,
+            string ServiceType,
+            int NurseId,
+            DateTime DateTime,
+            int Slot,
+            string Location
+        )
         {
             try
             {
-                // Print the view model data
-                Console.WriteLine("Reassigning Backlog:");
-                Console.WriteLine($"BacklogId: {viewModel.BacklogId}");
-                Console.WriteLine($"AppointmentId: {viewModel.AppointmentId}");
-                Console.WriteLine($"DateTime: {viewModel.DateTime}");
-                Console.WriteLine($"PatientId: {viewModel.PatientId}");
-                Console.WriteLine($"DoctorId: {viewModel.DoctorId}");
-                Console.WriteLine($"NurseId: {viewModel.NurseId}");
-                Console.WriteLine($"ServiceType: {viewModel.ServiceType}");
-
-                // Perform reassignment logic here
-                // For example, update the database or call another service
-
-                // If reassignment fails, return false
-                // return false;
+                // TODO change to manual scheduler's method once it's up
+                bool updateSuccess = await new ServiceAppointmentManagement().UpdateAppointment(
+                    appointmentId:AppointmentId,
+                    patientId: PatientId,
+                    nurseId: NurseId.ToString(),
+                    doctorId: DoctorId,
+                    serviceTypeId: ServiceType,
+                    status: "Scheduled",
+                    dateTime: DateTime.ToUniversalTime(),
+                    slot: Slot,
+                    location: Location
+                );
+                bool deleteSuccess = false;
+                if (updateSuccess)
+                {
+                    deleteSuccess = await _dbGateway.deleteServiceBacklog(BacklogId);
+                }
+                if (updateSuccess && deleteSuccess)
+                {
+                    return true;
+                }
+                return false;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error reassigning backlog: {ex.Message}");
                 return false;
             }
-            // if there was an error / cannot schedule, return false
 
-            // if assignment successful
-            return true;
         }
 
         public async Task addBacklog(string serviceAppointmentId)
@@ -122,9 +136,10 @@ namespace ClearCare.Models.Control
             await _dbGateway.createServiceBacklog(backlog);
         }
 
-        public async Task deleteBacklog(string backlogId)
+        public async Task<bool> deleteBacklog(string backlogId)
         {
             await _dbGateway.deleteServiceBacklog(backlogId);
+            return true;
         }
 
         public Task receiveBacklogList(List<Dictionary<string, string>> backlogList)

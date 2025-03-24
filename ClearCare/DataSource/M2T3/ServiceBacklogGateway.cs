@@ -92,7 +92,7 @@ namespace ClearCare.DataSource
             return backlog;
         }
 
-        public async Task deleteServiceBacklog(string backlogId)
+        public async Task<bool> deleteServiceBacklog(string backlogId)
         {
             DocumentReference docRef = _dbCollection.Document(backlogId);
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
@@ -100,11 +100,12 @@ namespace ClearCare.DataSource
             if (!snapshot.Exists)
             {
                 await _receiver.receiveDeleteStatus("Failed: backlog not found");
-                return;
+                return false;
             }
 
             await docRef.DeleteAsync();
             await _receiver.receiveDeleteStatus("Success");
+            return true;
         }
 
 

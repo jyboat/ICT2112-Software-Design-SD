@@ -18,7 +18,8 @@
 
 <form id="appointmentForm" method="post" asp-action="ReassignManual">
     <!-- Disabled or hidden fields for unchangeable data -->
-    <input type="hidden" name="BacklogId" value="@Model.BacklogId">
+    <label for="backlogId">Appointment ID:</label>
+    <input type="text" id="backlogId" name="BacklogId" value="@Model.BacklogId" readonly style="background-color: #e9ecef;"><br><br>
 
     <label for="appointmentId">Appointment ID:</label>
     <input type="text" id="appointmentId" name="AppointmentId" value="@Model.AppointmentId" readonly style="background-color: #e9ecef;"><br><br>

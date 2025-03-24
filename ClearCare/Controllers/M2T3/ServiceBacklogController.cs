@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using ClearCare.Interfaces;
 using System.Text.Json;
+using System.Linq.Expressions;
 
 namespace ClearCare.Controllers
 {
@@ -47,20 +48,47 @@ namespace ClearCare.Controllers
             return View("~/Views/M2T3/ServiceBacklog/Reassign.cshtml", backlog);
         }
 
-        public IActionResult ReassignManual(
-            int BacklogId,
-            string AppointmentId,
-            string PatientId,
-            string DoctorId,
-            string ServiceType,
-            int NurseId,
-            DateTime DateTime,
-            int Slot,
-            string Location)
+        [HttpPost]
+        public async Task<IActionResult> ReassignManual([FromForm] string BacklogId,
+                        [FromForm] string AppointmentId,
+                        [FromForm] string PatientId,
+                        [FromForm] string DoctorId,
+                        [FromForm] string ServiceType,
+                        [FromForm] int NurseId,
+                        [FromForm] DateTime DateTime,
+                        [FromForm] int Slot,
+                        [FromForm] string Location)
         {
-            Console.WriteLine($"Backlog ID: {BacklogId}, Appointment ID: {AppointmentId}, Nurse ID: {NurseId}");
+            Console.WriteLine($"BacklogId: {BacklogId}");
+            Console.WriteLine($"AppointmentId: {AppointmentId}");
+            Console.WriteLine($"PatientId: {PatientId}");
+            Console.WriteLine($"DoctorId: {DoctorId}");
+            Console.WriteLine($"ServiceType: {ServiceType}");
+            Console.WriteLine($"NurseId: {NurseId}");
+            Console.WriteLine($"DateTime: {DateTime}");
+            Console.WriteLine($"Slot: {Slot}");
+            Console.WriteLine($"Location: {Location}");
             
-            return RedirectToAction("Index");
+            bool success = await _manager.reassignBacklog(
+                BacklogId:BacklogId,
+                AppointmentId:AppointmentId,
+                PatientId:PatientId,
+                DoctorId:DoctorId,
+                ServiceType:ServiceType,
+                NurseId:NurseId,
+                DateTime:DateTime,
+                Slot:Slot,
+                Location: Location
+            );
+            
+            if (success)
+            {
+                return RedirectToAction("Index");
+            }
+            else {
+                // might swap to ajax to handle fail on the same page
+                return RedirectToAction("Reassign");
+            }
         }
     }
 }
