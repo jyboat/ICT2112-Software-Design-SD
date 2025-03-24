@@ -1,0 +1,68 @@
+@model List<Dictionary<string, object>>
+
+@{
+    ViewData["Title"] = "All Service History";
+}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>All Service History</title>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <div class="container"></div>
+        <h1 class="my-4">@ViewData["Title"]</h1>
+
+        @if (Model != null && Model.Count > 0)
+        {
+            <table class="table table-striped mt-3">
+                <thead>
+                    <tr>
+                        <th>Service History ID</th>
+                        <th>Service Type ID</th>
+                        <th>Patient</th>
+                        <th>Nurse</th>
+                        <th>Doctor</th>
+                        <th>Service Date</th>
+                        @* <th>Status</th> *@
+                        <th>Location</th>
+                        <th>Service Outcomes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var history in Model)
+                    {
+                        <tr>
+                            <td>@history["ServiceHistoryId"]</td>
+                            <td>@history["ServiceTypeId"]</td>
+                            <td>@history["PatientId"]</td>
+                            <td>@history["NurseId"]</td>
+                            <td>@history["DoctorId"]</td>
+                            <td>@history["ServiceDate"]</td>
+                            <td>@history["Location"]</td>
+                            @* <td>@history["Status"]</td> *@
+                            <td>@history["ServiceOutcomes"]</td>
+                            @* <td>
+                                <form method="post" asp-action="Delete" asp-route-id="@backlog.BacklogId" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete the backlog with ID @backlog.BacklogId?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                                <form method="get" asp-action="Reassign" asp-route-id="@backlog.BacklogId" style="display:inline;" onsubmit="return confirm('Are you sure you want to reassign the backlog with ID @backlog.BacklogId?');">
+                                    <button type="submit" class="btn btn-warning btn-sm">Reassign</button>
+                                </form>
+                            </td> *@
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="alert alert-warning mt-3">No service history found.</div>
+        }
+    </div>
+</body>
+</html>
