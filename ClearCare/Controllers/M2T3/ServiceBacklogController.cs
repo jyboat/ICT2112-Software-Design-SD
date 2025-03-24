@@ -62,11 +62,20 @@ namespace ClearCare.Controllers
             return View("~/Views/M2T3/ServiceBacklog/Reassign.cshtml", backlog);
         }
 
-        // [HttpPost]
-        // public async Task<IActionResult> ReassignManual(string id)
-        // {
-            // call manual scheduler
-            // delete old once successfully scheduled
-        // }
+        public IActionResult ReassignManual(
+            int BacklogId,
+            string AppointmentId,
+            string PatientId,
+            string DoctorId,
+            string ServiceType,
+            int NurseId,
+            DateTime DateTime,
+            int Slot,
+            string Location)
+        {
+            Console.WriteLine($"Backlog ID: {BacklogId}, Appointment ID: {AppointmentId}, Nurse ID: {NurseId}");
+            
+            return RedirectToAction("Index");
+        }
     }
 }
