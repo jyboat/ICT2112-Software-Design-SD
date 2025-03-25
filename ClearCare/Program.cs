@@ -3,6 +3,9 @@ using ClearCare.Models.Control;
 using ClearCare.Models.Hubs;   
 using ClearCare.Controllers;
 using Microsoft.AspNetCore.SignalR;
+using ClearCare.DataSource;
+using ClearCare.Interfaces;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,7 +43,8 @@ builder.Services.AddScoped<IUserDetails, ProfileManagement>(); // Ensure Profile
 builder.Services.AddScoped<IMedicalRecordSubject, ManageMedicalRecord>();
 builder.Services.AddScoped<UpdateViewObserver>();
 builder.Services.AddSingleton<NotificationManager>();
-
+builder.Services.AddScoped<NotificationPreferenceManager>();
+builder.Services.AddScoped<INotificationPreferences, NotificationPreferenceGateway>();
 
 var app = builder.Build();
 

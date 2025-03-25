@@ -19,16 +19,15 @@
                 @* Check if user is admin *@
                 @if (userRole == "Admin"){
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy"><i class="bi bi-person me-1"></i>Manage users</a>
+                        <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy"><i class="bi bi-person me-1"></i>Manage Users</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Log" asp-action=""><i class="bi bi-journal-text me-1"></i>Audit Log</a>
                     </li>
                 }
-                @* Check if user is doctor or nurse *@
                 @if (userRole == "Doctor"){
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="ViewRecord" asp-action="DisplayViewRecord"><i class="bi bi-file-earmark-medical me-1"></i>Patient Medical Records</a>
+                        <a class="nav-link" asp-area="" asp-controller="ViewRecord" asp-action="DisplayViewRecord"><i class="bi bi-file-earmark-medical me-1"></i>Patient Records</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Assessment" asp-action="Privacy"><i class="bi bi-house-check me-1"></i>Home Assessment</a>
@@ -39,19 +38,17 @@
                         </a>
                     </li>
                 }
-                @* Check if user is nurse *@
                 @if (userRole == "Nurse"){
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="ViewRecord" asp-action="DisplayViewRecord"><i class="bi bi-file-earmark-medical me-1"></i>Patient Medical Records</a>
+                        <a class="nav-link" asp-area="" asp-controller="ViewRecord" asp-action="DisplayViewRecord"><i class="bi bi-file-earmark-medical me-1"></i>Patient Records</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Assessment" asp-action="Privacy"><i class="bi bi-house-check me-1"></i>Home Assessment</a>
                     </li>
                     <li class="nav-item">
-                    <a class="nav-link" asp-controller="NurseAvailability" asp-action="Index">Nurse Availability</a>
+                        <a class="nav-link" asp-controller="NurseAvailability" asp-action="Index">Nurse Availability</a>
                     </li>
                 }
-                @* Check if user is patient *@
                 @if (userRole == "Patient"){
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Community" asp-action="Privacy"><i class="bi bi-person-heart me-1"></i>Community</a>
@@ -62,30 +59,27 @@
                 }
             </ul>
             <ul class="navbar-nav ms-auto">
-                @* Check if user is patient *@
                 @if (userRole == "Patient"){
-                <li class="nav-item">
-                    <a class="nav-link" asp-area="" asp-controller="Resource" asp-action="Index"><i class="bi bi-folder me-1"></i>Resources</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-area="" asp-controller="Feedback" asp-action="Index"><i class="bi bi-receipt me-1"></i>Feedback</a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Resource" asp-action="Index"><i class="bi bi-folder me-1"></i>Resources</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Feedback" asp-action="Index"><i class="bi bi-receipt me-1"></i>Feedback</a>
+                    </li>
+                }
                 <li class="nav-item dropdown my-auto">
                     <a class="btn text-white dropdown-toggle" href="#" id="profile-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-person me-1"></i>Profile
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-primary mt-1" aria-labelledby="profile-dropdown" style="z-index: 1050;">
-                        <a class="dropdown-item" asp-area="" asp-controller="Profile" asp-action="displayProfile"><i class="bi bi-person-badge me-1"></i>My Profile</a>
-                        <a class="dropdown-item" asp-action="" asp-controller="Records" asp-action=""><i class="bi bi-clipboard-pulse me-1"></i>Medical Record</a>
-                        <a class="dropdown-item" asp-action="" asp-controller="Records" asp-action=""><i class="bi bi-people-fill me-1"></i>Assign Caregiver</a>
+                        @if (userRole == "Patient"){
+                            <a class="dropdown-item" asp-area="" asp-controller="Profile" asp-action="displayProfile"><i class="bi bi-person-badge me-1"></i>My Profile</a>
+                            <a class="dropdown-item" asp-controller="Records" asp-action=""><i class="bi bi-clipboard-pulse me-1"></i>Medical Record</a>
+                            <a class="dropdown-item" asp-controller="Records" asp-action=""><i class="bi bi-people-fill me-1"></i>Assign Caregiver</a>
+                        }
+                        <a class="dropdown-item" asp-controller="NotificationPreference" asp-action="Index"><i class="bi bi-gear me-1"></i>Settings</a>
                     </div>
                 </li>
-                }
-                else{
-                    <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Profile" asp-action="displayProfile"><i class="bi bi-person-vcard me-1"></i>My Profile</a>
-                    </li>
-                }
             </ul>
         </div>
     </div>
