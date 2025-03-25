@@ -48,7 +48,10 @@
                                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                 </form>
                                 <form method="get" asp-action="Reassign" asp-route-id="@backlog.BacklogId" style="display:inline;" onsubmit="return confirm('Are you sure you want to reassign the backlog with ID @backlog.BacklogId?');">
-                                    <button type="submit" class="btn btn-warning btn-sm">Reassign</button>
+                                    <button type="button" class="btn btn-warning btn-sm"
+                                        onclick="openReassignPopup('@backlog.BacklogId', '@backlog.AppointmentId', '@backlog.PatientId', '@backlog.DoctorId', '@backlog.NurseId', '@backlog.DateTime.ToString("yyyy-MM-ddTHH:mm")', '@backlog.ServiceType')">
+                                        Reassign
+                                    </button>                                
                                 </form>
                             </td>
                         </tr>
@@ -60,6 +63,125 @@
         {
             <div class="alert alert-warning mt-3">No backlogs found.</div>
         }
+
+        <!-- Reassign Modal -->
+        <div id="reassignModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reassign Service Backlog</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="modalBacklogId">Backlog ID</label>
+                            <input type="text" class="form-control" id="modalBacklogId" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="modalAppointmentId">Appointment ID</label>
+                            <input type="text" class="form-control" id="modalAppointmentId" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editDoctorId">Doctor ID</label>
+                            <input type="text" class="form-control" id="editDoctorId" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editPatientId">Patient ID</label>
+                            <input type="text" class="form-control" id="editPatientId" readonly >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editNurseId">Nurse ID</label>
+                            <input type="text" class="form-control" id="editNurseId">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editDateAndTime">Date and Time</label>
+                            <input type="datetime-local" class="form-control" id="editDateAndTime">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editSlot">Slot</label>
+                            <input type="text" class="form-control" id="editSlot">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editLocation">Location</label>
+                            <input type="text" class="form-control" id="editLocation">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editServiceType">Service Type</label>
+                            <input type="text" class="form-control" id="editServiceType" readonly>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirmReassign">Confirm Reassign</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
+    <script>
+        function openReassignPopup(backlogId, appointmentId, patientId, doctorId, nurseId, dateTime, serviceType) {
+            // Populate modal fields
+            document.getElementById("modalBacklogId").value = backlogId;
+            document.getElementById("modalAppointmentId").value = appointmentId;
+            document.getElementById("editPatientId").value = patientId;
+            document.getElementById("editDoctorId").value = doctorId;
+            document.getElementById("editNurseId").value = nurseId;
+            document.getElementById("editDateAndTime").value = dateTime;
+            @* document.getElementById("editSlot").value = slot;
+            document.getElementById("editLocation").value = location; *@
+            document.getElementById("editServiceType").value = serviceType;
+            @* document.getElementById("editStatus").value = status; *@
+
+            // Show the modal
+            $("#reassignModal").modal("show");
+        }
+
+        function closeModal() {
+            $("#reassignModal").modal("hide");
+        }
+
+        // Handle Reassignment via POST Request
+        $("#confirmReassign").click(function() {
+            var backlogId = $("#modalBacklogId").val();
+            var patientId = $("#editPatientId").val();
+            var nurseId = $("#editNurseId").val();
+            var dateTime = $("#editDateAndTime").val();
+            var slot = $("#editSlot").val();
+            var location = $("#editLocation").val();
+            var status = $("#editStatus").val();
+
+            $.post('/ReassignManual', {
+                BacklogId: backlogId,
+                PatientId: patientId,
+                NurseId: nurseId,
+                DateTime: dateTime,
+                Slot: slot,
+                Location: location,
+                Status: status
+            })
+            .done(() => {
+                alert('Reassignment successful!');
+                closeModal();
+                location.reload();
+            })
+            .fail(() => {
+                alert('Failed to reassign!');
+            });
+        });
+    </script>
+
+
 </body>
 </html>

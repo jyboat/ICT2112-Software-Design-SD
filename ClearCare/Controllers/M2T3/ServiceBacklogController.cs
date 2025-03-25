@@ -86,9 +86,16 @@ namespace ClearCare.Controllers
                 return RedirectToAction("Index");
             }
             else {
-                // might swap to ajax to handle fail on the same page
-                return RedirectToAction("Reassign");
+                // might swap to js to handle fail on the same page
+                return RedirectToAction("Reassign", BacklogId);
             }
         }
+
+        // [HttpPost]
+        // public bool GenerateDummyBacklogs()
+        // {
+        //     ServiceAppointmentManagement svcMgr = new ServiceAppointmentManagement();
+        //     return true;
+        // }
     }
 }
