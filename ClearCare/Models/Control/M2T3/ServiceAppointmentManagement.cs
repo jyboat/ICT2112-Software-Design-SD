@@ -42,14 +42,14 @@ namespace ClearCare.Models.Control
         }
 
         // Get Service Appointment By ID
-        public async Task<Dictionary<string, object>> getAppointmentByID(string appointmentId)
+        public async Task<ServiceAppointment> getAppointmentByID(string appointmentId)
         {
-            Dictionary<string, object> appointment = await _dbGateway.fetchServiceAppointmentByID(appointmentId);
+            ServiceAppointment appointment = await _dbGateway.fetchServiceAppointmentByID(appointmentId);
 
             return appointment;
         }
 
-        public Task receiveServiceAppointmentById(Dictionary<string, object> serviceAppointment)
+        public Task receiveServiceAppointmentById(ServiceAppointment serviceAppointment)
         {
             Console.WriteLine("1 Service Appointment Found.");
             return Task.CompletedTask;

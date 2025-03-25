@@ -133,11 +133,11 @@ public class ServiceAppointmentsController : Controller
     [Route("Retrieve/{documentId}")]
     public async Task<IActionResult> GetAppointment(string documentId)
     {
-        var appointmentDetail = await ServiceAppointmentManagement.getAppointmentByID(documentId);
+        ServiceAppointment appointment = await ServiceAppointmentManagement.getAppointmentByID(documentId);
 
-        if (appointmentDetail != null && appointmentDetail.Any())
+        if (appointment != null)
         {
-            return View("~/Views/M2T3/ServiceAppointments/AppointmentDetails.cshtml", appointmentDetail);
+            return View("~/Views/M2T3/ServiceAppointments/AppointmentDetails.cshtml", appointment);
         }
         else
         {

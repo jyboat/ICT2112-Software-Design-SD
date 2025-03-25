@@ -31,23 +31,21 @@ namespace ClearCare.Models.Control
 
 
         public async Task updateAppointmentStatus(string appointmentId) {
-             Dictionary<string, object> appointmentDict = await _iServiceStatus.getAppointmentByID(appointmentId);
-            if (appointmentDict == null) {
+            ServiceAppointment appointment = await _iServiceStatus.getAppointmentByID(appointmentId);
+            if (appointment == null) {
                 Console.WriteLine("Failed to get appointment");
                 return;
             }
             
-            ServiceAppointment appointment = ServiceAppointment.FromFirestoreData(appointmentId, appointmentDict);
+            // Ensure DateTime is properly converted
+            // const string DateTimeFormat = "d/M/yyyy h:mm:ss tt";
 
-              // Ensure DateTime is properly converted
-            const string DateTimeFormat = "d/M/yyyy h:mm:ss tt";
-
-            DateTime localTime = DateTime.ParseExact(
-                appointment.GetAttribute("Datetime"),  // Ensure correct key
-                DateTimeFormat,
-                System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.AdjustToUniversal // Ensures UTC conversion
-            );
+            // DateTime localTime = DateTime.ParseExact(
+            //     appointment.GetAttribute("Datetime"),  // Ensure correct key
+            //     DateTimeFormat,
+            //     System.Globalization.CultureInfo.InvariantCulture,
+            //     System.Globalization.DateTimeStyles.AdjustToUniversal // Ensures UTC conversion
+            // );
 
 
             await _iServiceStatus.UpdateAppointment(
@@ -57,7 +55,8 @@ namespace ClearCare.Models.Control
                 appointment.GetAttribute("DoctorId"), 
                 appointment.GetAttribute("ServiceTypeId"), 
                 "Completed", 
-                localTime.ToUniversalTime(), 
+                // localTime.ToUniversalTime(), 
+                appointment.GetAppointmentDateTime(appointment),
                 Convert.ToInt32(appointment.GetAttribute("Slot")), 
                 appointment.GetAttribute("Location"));
         }
