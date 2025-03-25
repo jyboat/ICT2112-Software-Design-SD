@@ -5,6 +5,7 @@ using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 using Google.Protobuf.WellKnownTypes;
 using ClearCare.Interfaces;
+using System.Text.Json;
 
 
 namespace ClearCare.Models.Control
@@ -91,11 +92,14 @@ namespace ClearCare.Models.Control
             return Task.CompletedTask;
         }
 
-    // Update Service Appointment
+        // Update Service Appointment
         public async Task<bool> UpdateAppointment(ServiceAppointment appointment)
         {
             try
-            {
+            {   
+                // Logging appointment data
+                Console.WriteLine($"attempting to update appointment with data: {JsonSerializer.Serialize(appointment)}");
+                
                 // call gateway to update
                 return await _dbGateway.UpdateAppointment(appointment);
             }
@@ -105,6 +109,7 @@ namespace ClearCare.Models.Control
                 return false;
             }
         }
+        
         public Task receiveUpdatedServiceAppointmentStatus(bool updateStatus)
         {
             if (updateStatus)
@@ -201,17 +206,30 @@ namespace ClearCare.Models.Control
                     new Dictionary<string, string> {{"id", "USR003"}, {"name", "USR003"}},
                 };
         }
-
-
-
+        
+        public List<string> GetServiceTypeNames()
+        {
+            return new List<string>
+            {
+                "FINANCIAL COUNSELING",
+                "PHYSICAL THERAPY",
+                "WOUND CARE"
+            };
+        }
+        
+        // backwards compatibility
         public List<Dictionary<string, string>> GetAllServiceTypes()
         {
-            return new List<Dictionary<string, string>>
-                {
-                    new Dictionary<string, string> {{"id", "1"}, {"name", "FINANCIAL COUNSELING"}},
-                    new Dictionary<string, string> {{"id", "2"}, {"name", "PHYSICAL THERAPY"}},
-                    new Dictionary<string, string> {{"id", "3"}, {"name", "WOUND CARE"}},
-                };
+            // convert your simple strings to the format expected by the caller
+            var serviceTypes = GetServiceTypeNames();
+            var result = new List<Dictionary<string, string>>();
+    
+            foreach (var type in serviceTypes)
+            {
+                result.Add(new Dictionary<string, string> {{"id", type}, {"name", type}});
+            }
+    
+            return result;
         }
 
         public Task getUnscheduledPatients(List<ServiceAppointment> allServiceAppointments)
