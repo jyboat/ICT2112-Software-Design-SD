@@ -1,6 +1,6 @@
 using ClearCare.DataSource.M3T1;
 
-public class ArticleUrlStrategy : IResourceStrategy
+public class YouTubeStrategy : IResourceStrategy
 {
     private readonly ResourceGateway _gateway = new ResourceGateway();
 
@@ -12,10 +12,10 @@ public class ArticleUrlStrategy : IResourceStrategy
         byte[] image,
         string coverImageName,
         string? url
-                )
+        )
     {
-        if (string.IsNullOrWhiteSpace(url))
-            throw new ArgumentException("Article URL is required.");
+        if (string.IsNullOrWhiteSpace(url) || !url.Contains("youtube.com") && !url.Contains("youtu.be"))
+            throw new ArgumentException("A valid YouTube URL is required.");
 
         return await _gateway.insertResource(title, description, uploadedBy, dateCreated, image, coverImageName, url);
     }

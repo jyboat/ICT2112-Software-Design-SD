@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Add Resource";
+	ViewData["Title"] = "Add Resource";
 }
 
 <div class="container add-resource">
@@ -16,13 +16,18 @@
 						<label for="description">Description</label>
 						<textarea class="form-control" id="description" name="description" rows="7" required></textarea>
 					</div>
-					<div class="md-form md-outline">
-						<label for="targetUrl">Article link</label>
-						<input class="form-control w-50" type="url" name="targetUrl" id="targetUrl" />
+
+					<div class="mb-3">
+						<label>Resource Type</label>
+						<select name="resourceType" class="form-control" required>
+							<option value="">-- Select Type --</option>
+							<option value="article">Article</option>
+							<option value="youtube">YouTube</option>
+						</select>
 					</div>
-					<div class="mt-2">
-						<label for="videoFile">Upload a Video</label>
-						<input type="file" name="videoFile" accept="video/mp4,video/wav" id="videoFile" />
+					<div class="mb-3">
+						<label>URL</label>
+						<input type="url" name="articleUrl" class="form-control" required />
 					</div>
 				</div>
 				<div class="col-lg-3">

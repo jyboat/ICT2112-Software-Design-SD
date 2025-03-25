@@ -21,8 +21,10 @@ public class ResourceController : Controller
     [HttpGet]
     public async Task<IActionResult> List()
     {
+        // Fetch resource from db and convert to dictionary
         List<Dictionary<string, object>> resourceList = (await _manager.viewResource())
-            .Select(r => {
+            .Select(r =>
+            {
                 var details = r.GetDetails();
                 if (details.ContainsKey("CoverImage") && details["CoverImage"] is byte[] fileBytes && fileBytes.Length > 0)
                 {
@@ -98,36 +100,51 @@ public class ResourceController : Controller
     IFormFile coverImage,
     string title,
     string description,
-    IFormFile resourceFile,
-    string? articleUrl,
-    IFormFile? videoFile,
+    string? url, 
     string resourceType,
     int uploadedBy)
     {
-        byte[] fileBytes = Array.Empty<byte>();
-        string fileName = string.Empty;
+        // Convert image into bytes and get image name
+        byte[] imageFileBytes = Array.Empty<byte>();
+        string imageFileName = string.Empty;
 
-        if (resourceFile != null && resourceFile.Length > 0)
+        if (coverImage != null && coverImage.Length > 0)
         {
             try
             {
                 using (var memoryStream = new MemoryStream())
                 {
-                    await resourceFile.CopyToAsync(memoryStream);
-                    fileBytes = memoryStream.ToArray();
+                    await coverImage.CopyToAsync(memoryStream);
+                    imageFileBytes = memoryStream.ToArray();
                 }
-                fileName = resourceFile.FileName;
+                imageFileName = coverImage.FileName;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                TempData["ErrorMessage"] = "Failed to process image";
+                TempData["ErrorMessage"] = "Failed to process cover image.";
                 return RedirectToAction("List");
             }
         }
 
-        await _manager.addResource(title, description, uploadedBy, DateTime.Now.ToString("yyyy-MM-dd"), fileBytes, fileName, articleUrl);
+        try
+        {
+            await _manager.ProcessResourceWithStrategy(
+                title,
+                description,
+                uploadedBy,
+                DateTime.Now.ToString("yyyy-MM-dd"),
+                imageFileBytes,
+                imageFileName,
+                url,
+                resourceType
+            );
 
-        TempData["SuccessMessage"] = "Resource added successfully!";
+            TempData["SuccessMessage"] = "Resource added successfully!";
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = "Failed to add resource: " + ex.Message;
+        }
 
         return RedirectToAction("List");
     }

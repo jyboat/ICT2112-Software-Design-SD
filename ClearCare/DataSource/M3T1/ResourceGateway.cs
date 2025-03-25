@@ -15,7 +15,7 @@ namespace ClearCare.DataSource.M3T1
             _db = FirebaseService.Initialize();
         }
 
-        public async Task<string> insertResource(string title, string description, int uploadedBy, string dateCreated, byte[] image, string coverImageName, string? targetUrl)
+        public async Task<string> insertResource(string title, string description, int uploadedBy, string dateCreated, byte[] image, string coverImageName, string? url)
         {
             DocumentReference docRef = _db.Collection("Resource").Document();
 
@@ -27,7 +27,7 @@ namespace ClearCare.DataSource.M3T1
         { "DateCreated", dateCreated },
         { "CoverImage", image },
         { "CoverImageName", coverImageName },
-        { "TargetUrl", targetUrl }
+        { "Url", url }
     };
 
             await docRef.SetAsync(resource);
@@ -50,7 +50,7 @@ namespace ClearCare.DataSource.M3T1
                     string dateCreated = doc.ContainsField("DateCreated") ? doc.GetValue<string>("DateCreated") : "";
                     byte[] coverImage = doc.ContainsField("CoverImage") ? doc.GetValue<byte[]>("CoverImage") : Array.Empty<byte>();
                     string coverImageName = doc.ContainsField("CoverImageName") ? doc.GetValue<string>("CoverImageName") : "";
-                    string targetUrl = doc.ContainsField("TargetUrl") ? doc.GetValue<string>("TargetUrl") : "";
+                    string url = doc.ContainsField("Url") ? doc.GetValue<string>("Url") : "";
 
                     resources.Add(new Resource(
                         doc.Id,
@@ -60,7 +60,7 @@ namespace ClearCare.DataSource.M3T1
                         dateCreated,
                         coverImage,
                         coverImageName,
-                        targetUrl
+                       url
                     ));
                 }
             }
@@ -97,7 +97,7 @@ namespace ClearCare.DataSource.M3T1
 
 
 
-        public async Task<bool> updateResource(string id, string title, string description, int uploadedBy, byte[] image, string coverImageName, string targetUrl)
+        public async Task<bool> updateResource(string id, string title, string description, int uploadedBy, byte[] image, string coverImageName, string url)
         {
             DocumentReference docRef = _db.Collection("Resource").Document(id);
 
@@ -108,7 +108,7 @@ namespace ClearCare.DataSource.M3T1
                 { "UploadedBy", uploadedBy },
                 { "CoverImage", image },
                 { "CoverImageName", coverImageName },
-                { "TargetUrl", targetUrl }
+                { "Url",url }
             };
 
             await docRef.UpdateAsync(updatedData);

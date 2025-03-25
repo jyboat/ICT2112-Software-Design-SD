@@ -20,7 +20,7 @@ namespace ClearCare.Models.Entities.M3T1
         [FirestoreProperty]
         private string CoverImageName { get; set; }
         [FirestoreProperty]
-        private string TargetUrl { get; set; }
+        private string Url { get; set; }
 
         private string GetId() => Id;
         private string GetTitle() => Title;
@@ -29,7 +29,7 @@ namespace ClearCare.Models.Entities.M3T1
         private string GetDateCreated() => DateCreated;
         private byte[] GetCoverImage() => CoverImage;
         private string GetCoverImageName() => CoverImageName;
-        private string GetTargetUrl() => TargetUrl;
+        private string GetTargetUrl() => Url;
 
         private void SetId(string id) => Id = id;
         private void SetTitle(string title) => Title = title;
@@ -38,11 +38,11 @@ namespace ClearCare.Models.Entities.M3T1
         private void SetDateCreated(string dateCreated) => DateCreated = dateCreated;
         private void SetCoverImage(byte[] image) => CoverImage = image;
         private void SetCoverImageName(string coverImageName) => CoverImageName = coverImageName;
-        private void SetTargetUrl(string targetUrl) => TargetUrl = targetUrl;
+        private void SetTargetUrl(string targetUrl) => Url = url;
 
         public Resource() { }
 
-        public Resource(string id, string title, string description, int uploadedBy, string dateCreated, byte[] image, string coverImageName, string targetUrl)
+        public Resource(string id, string title, string description, int uploadedBy, string dateCreated, byte[] image, string coverImageName, string url)
         {
             Id = id;
             Title = title;
@@ -51,7 +51,7 @@ namespace ClearCare.Models.Entities.M3T1
             DateCreated = dateCreated;
             CoverImage = image;
             CoverImageName = coverImageName;
-            TargetUrl = targetUrl;
+            Url = url;
         }
 
         public Dictionary<string, object> GetDetails()
@@ -65,7 +65,7 @@ namespace ClearCare.Models.Entities.M3T1
                 { "DateCreated", GetDateCreated() },
                 { "CoverImage", GetCoverImage() },
                 { "CoverImageUrl", GetCoverImageName() },
-                { "TargetUrl", GetTargetUrl() }
+                { "Url", GetTargetUrl() }
             };
         }
     }

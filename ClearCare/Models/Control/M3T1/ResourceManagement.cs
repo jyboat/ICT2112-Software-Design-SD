@@ -15,10 +15,37 @@ namespace ClearCare.Models.Control.M3T1
         {
             _gateway = new ResourceGateway();
         }
-
-        public async Task<string> addResource(string title, string description, int uploadedBy, string dateCreated, byte[] image, string coverImageName, string? targetUrl)
+        public async Task<string> ProcessResourceWithStrategy(
+            string title,
+            string description,
+            int uploadedBy,
+            string dateCreated,
+            byte[] image,
+            string coverImageName,
+            string? url,
+            string resourceType)
         {
-            return await _gateway.insertResource(title, description, uploadedBy, dateCreated, image, coverImageName, targetUrl);
+            IResourceStrategy strategy = resourceType.ToLower() switch
+            {
+                "article" => new ArticleUrlStrategy(),
+                "youtube" => new YouTubeStrategy(),
+                _ => throw new ArgumentException("Unsupported resource type")
+            };
+
+            return await strategy.UploadAsync(
+                title,
+                description,
+                uploadedBy,
+                dateCreated,
+                image,
+                coverImageName,
+                url,
+            );
+        }
+
+        public async Task<string> addResource(string title, string description, int uploadedBy, string dateCreated, byte[] image, string coverImageName, string? url)
+        {
+            return await _gateway.insertResource(title, description, uploadedBy, dateCreated, image, coverImageName, url);
         }
 
 
@@ -32,9 +59,9 @@ namespace ClearCare.Models.Control.M3T1
             return await _gateway.fetchResourceById(id);
         }
 
-        public async Task<bool> updateResource(string id, string title, string description, int uploadedBy, byte[] image, string coverImageName, string targetUrl)
+        public async Task<bool> updateResource(string id, string title, string description, int uploadedBy, byte[] image, string coverImageName, string? url)
         {
-            return await _gateway.updateResource(id, title, description, uploadedBy, image, coverImageName, targetUrl);
+            return await _gateway.updateResource(id, title, description, uploadedBy, image, coverImageName, url);
         }
 
         public async Task<bool> deleteResource(string id)
