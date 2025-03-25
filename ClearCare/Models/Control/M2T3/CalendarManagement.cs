@@ -70,7 +70,7 @@ namespace ClearCare.Models.Control
                 extendedProps = new
                 {
                     patientId = a["PatientId"],
-                    nurseId = a.ContainsKey("NurseId"),
+                    nurseId = a["NurseId"],
                     doctorId = a["DoctorId"],
                     status = a["Status"],
                     serviceType = a["ServiceTypeId"],
