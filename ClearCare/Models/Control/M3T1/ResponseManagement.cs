@@ -119,7 +119,7 @@ namespace ClearCare.Models.Control.M3T1
                     var response = await viewResponseByFeedbackId(feedbackId);
                     if (response != null)
                     {
-                        responseList.Add(response.GetResponseDetails());
+                        responseList.Add(response.getResponseDetails());
                     }
                 }
             }

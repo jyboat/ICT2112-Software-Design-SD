@@ -31,7 +31,7 @@ public class FeedbackController : Controller
 
     [Route("")]
     [HttpGet]
-    public async Task<IActionResult> DisplayAllFeedback(
+    public async Task<IActionResult> displayAllFeedback(
         int page = 1,
         int pageSize = 10,
         string search = "",
@@ -47,11 +47,11 @@ public class FeedbackController : Controller
         if (ViewBag.UserRole == "Doctor" || ViewBag.UserRole == "Nurse") {
             
             feedbackList = (await _feedbackManager.viewFeedback())
-                .Select(s => s.GetFeedbackDetails())
+                .Select(s => s.getFeedbackDetails())
                 .ToList();
 
             responseList = (await _responseManager.viewResponse())
-                .Select(r => r.GetResponseDetails())
+                .Select(r => r.getResponseDetails())
                 .ToList();
         }
         else if (ViewBag.UserRole == "Patient" || ViewBag.UserRole == "Caregiver")
@@ -59,7 +59,7 @@ public class FeedbackController : Controller
             String patientId = "1"; // Hardcoded for testing
 
             feedbackList = (await _feedbackManager.viewFeedbackByUserId(patientId))
-                .Select(s => s.GetFeedbackDetails())
+                .Select(s => s.getFeedbackDetails())
                 .ToList();
 
             // Fetch responses only for feedbacks belonging to this patient/caregiver
@@ -91,7 +91,7 @@ public class FeedbackController : Controller
 
     [Route("Submission")]
     [HttpGet]
-    public IActionResult DisplayAddForm()
+    public IActionResult displayAddForm()
     {
         return View("~/Views/M3T1/Feedback/Submission.cshtml");
     }
@@ -116,7 +116,7 @@ public class FeedbackController : Controller
 
     [Route("Response/{feedbackId}")]
     [HttpPost]
-    public async Task<IActionResult> PostRespondFeedback(string feedbackId, string response)
+    public async Task<IActionResult> postRespondFeedback(string feedbackId, string response)
     {
         if (string.IsNullOrEmpty(response))
         {
@@ -135,7 +135,7 @@ public class FeedbackController : Controller
 
     [Route("ResponseEdit/{responseId}")]
     [HttpPost]
-    public async Task<IActionResult> UpdateResponse(string responseId, string response)
+    public async Task<IActionResult> updateResponse(string responseId, string response)
     {
         if (string.IsNullOrEmpty(response))
         {
@@ -160,7 +160,7 @@ public class FeedbackController : Controller
 
     [Route("ResponseDelete/{responseId}")]
     [HttpPost]
-    public async Task<IActionResult> DeleteResponse(string responseId)
+    public async Task<IActionResult> deleteResponse(string responseId)
     {
         await _responseManager.deleteResponse(responseId);
 
