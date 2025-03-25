@@ -154,16 +154,21 @@ public class ServiceAppointmentsController : Controller
         {
             Console.WriteLine("Received JSON request body: " + JsonSerializer.Serialize(requestData));
 
-            var result = await ServiceAppointmentManagement.UpdateAppointment(
-                requestData["AppointmentId"].GetString() ?? "",
-                requestData["PatientId"].GetString() ?? "",
-                requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
-                requestData["DoctorId"].GetString() ?? "",
-                requestData["ServiceTypeId"].GetString() ?? "",
-                requestData["Status"].GetString() ?? "",
-                requestData["DateTime"].GetDateTime(),
-                requestData["Slot"].GetInt32(),
-                requestData["Location"].GetString() ?? "");
+            ServiceAppointment appointment = await ServiceAppointmentManagement.getAppointmentByID(requestData["AppointmentId"].GetString());
+            // Entity Method 
+            ServiceAppointment appt = appointment.updateServiceAppointementById(
+                    appointment,
+                    requestData["PatientId"].GetString() ?? "",
+                    requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
+                    requestData["DoctorId"].GetString() ?? "",
+                    requestData["ServiceTypeId"].GetString() ?? "",
+                    requestData["Status"].GetString() ?? "",
+                    requestData["DateTime"].GetDateTime(),
+                    requestData["Slot"].GetInt32(),
+                    requestData["Location"].GetString() ?? ""
+                    );
+            var result = await ServiceAppointmentManagement.UpdateAppointment(appt);
+
 
             // TODO - Should we strictly return a view or can we return a JSON response? - dinie
             if (result)

@@ -11,7 +11,7 @@ namespace ClearCare.Models.Entities
     public class ServiceAppointment
     {
         // string.Empty = set empty default or else it will throw error FCK U ASP.NET
-        [FirestoreProperty]
+        // [FirestoreProperty]
         private string AppointmentId { get; set; } = string.Empty;
 
         [FirestoreProperty]
@@ -101,7 +101,7 @@ namespace ClearCare.Models.Entities
                 System.Globalization.DateTimeStyles.AdjustToUniversal // Ensures UTC conversion
             );
 
-            return localTime.ToUniversalTime();
+            return localTime;
 
         }
 
@@ -200,7 +200,7 @@ namespace ClearCare.Models.Entities
         {
             return new Dictionary<string, object>
             {
-                { "AppointmentId", AppointmentId },
+                // { "AppointmentId", AppointmentId },
                 { "PatientId", PatientId },
                 { "NurseId", NurseId },
                 { "DoctorId", DoctorId },

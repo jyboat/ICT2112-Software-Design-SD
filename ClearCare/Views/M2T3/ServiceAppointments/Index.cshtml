@@ -34,7 +34,9 @@
                     <td>@appointment.GetAttribute("DoctorId")</td>
                     <td>@appointment.GetAttribute("ServiceTypeId")</td>
                     <td>@appointment.GetAttribute("Status")</td>
-                    <td>@Convert.ToDateTime(appointment.GetAttribute("Datetime")).ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>
+                    @appointment.GetAppointmentDateTime(appointment)
+                    </td>
                     <td>@appointment.GetAttribute("Slot")</td>
                     <td>@appointment.GetAttribute("Location")</td>
                     <td>

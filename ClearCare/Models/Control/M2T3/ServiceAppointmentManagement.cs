@@ -58,12 +58,6 @@ namespace ClearCare.Models.Control
         public async Task<List<ServiceAppointment>> RetrieveAllAppointmentsByNurse(string nurseId)
         {
             List<ServiceAppointment> allAppointments = await _dbGateway.fetchAllServiceAppointments();
-            
-            // List<Dictionary<string, object>> nurseAppointments = allAppointments
-            //     .Where(a => a.GetAttribute("NurseId") == nurseId)
-            //     .Select(a => a.ToFirestoreDictionary())
-            //     .ToList();
-
             List<ServiceAppointment> nurseAppointments = allAppointments
                 .Where(a => a.GetAttribute("NurseId") == nurseId)
                 .ToList();
@@ -97,45 +91,13 @@ namespace ClearCare.Models.Control
             return Task.CompletedTask;
         }
 
-        // Update Service Appointment
-        public async Task<bool> UpdateAppointment(string appointmentId, string patientId, string nurseId,
-    string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
+    // Update Service Appointment
+        public async Task<bool> UpdateAppointment(ServiceAppointment appointment)
         {
             try
             {
-                // convert UTC time to Singapore time (UTC+8)
-                DateTime sgDateTime = dateTime.AddHours(8);
-
-                Console.WriteLine($"Original UTC time: {dateTime}");
-                Console.WriteLine($"Singapore time (UTC+8): {sgDateTime}");
-
-                // retrieve existing appt
-                var existingAppointment = await this.getAppointmentByID(appointmentId);
-                if (existingAppointment == null)
-                {
-                    return false;
-                }
-
-                // create updated appt
-                var updatedAppointment = new ServiceAppointment();
-
-                // set appointment id first
-                typeof(ServiceAppointment)
-                    .GetProperty("AppointmentId", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                    ?.SetValue(updatedAppointment, appointmentId);
-
-                // set other properties using the existing method with singapore time
-                updatedAppointment = ServiceAppointment.setApptDetails(
-                    patientId, nurseId, doctorId, serviceTypeId, status, sgDateTime, slot, location
-                );
-
-                // set appointment id again since it gets overwritten
-                typeof(ServiceAppointment)
-                    .GetProperty("AppointmentId", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                    ?.SetValue(updatedAppointment, appointmentId);
-
                 // call gateway to update
-                return await _dbGateway.UpdateAppointment(updatedAppointment);
+                return await _dbGateway.UpdateAppointment(appointment);
             }
             catch (Exception e)
             {
