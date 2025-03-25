@@ -36,29 +36,21 @@ namespace ClearCare.Models.Control
                 Console.WriteLine("Failed to get appointment");
                 return;
             }
-            
-            // Ensure DateTime is properly converted
-            // const string DateTimeFormat = "d/M/yyyy h:mm:ss tt";
 
-            // DateTime localTime = DateTime.ParseExact(
-            //     appointment.GetAttribute("Datetime"),  // Ensure correct key
-            //     DateTimeFormat,
-            //     System.Globalization.CultureInfo.InvariantCulture,
-            //     System.Globalization.DateTimeStyles.AdjustToUniversal // Ensures UTC conversion
-            // );
-
-
-            await _iServiceStatus.UpdateAppointment(
-                appointmentId, 
+            ServiceAppointment appt = appointment.updateServiceAppointementById(
+                appointment,
                 appointment.GetAttribute("PatientId"), 
                 appointment.GetAttribute("NurseId"), 
                 appointment.GetAttribute("DoctorId"), 
                 appointment.GetAttribute("ServiceTypeId"), 
                 "Completed", 
-                // localTime.ToUniversalTime(), 
                 appointment.GetAppointmentDateTime(appointment),
                 Convert.ToInt32(appointment.GetAttribute("Slot")), 
-                appointment.GetAttribute("Location"));
+                appointment.GetAttribute("Location")
+            );
+            
+            await _iServiceStatus.UpdateAppointment(appt);
+
         }
 
        
