@@ -18,7 +18,8 @@ namespace ClearCare.Models.Control
         }
 
         public static bool IsWithinCurrentInterval(DateTime scheduledTime)
-        {
+        {   
+            Console.WriteLine($"NotificationCache: scheduledTime: {scheduledTime}, CurrentIntervalEnd: {CurrentIntervalEnd}");
             return scheduledTime <= CurrentIntervalEnd;
         }
 
@@ -30,7 +31,19 @@ namespace ClearCare.Models.Control
 
         public static List<Notification> GetDueNotifications(DateTime now)
         {
-            return _cache.FindAll(n => n.GetTiming() <= now);
+            Console.WriteLine($"[NotificationCache]: Fetching notifications due before {now}");
+
+            // Fetch notifications that are due
+            var dueNotifications = _cache.FindAll(n => n.GetTiming() <= now);
+
+            // Print details of each notification in the cache
+            foreach (var notification in dueNotifications)
+            {
+                // Assuming Notification has properties like Id, Timing, Content, etc.
+                Console.WriteLine($"Timing: {notification.GetTiming()}");
+            }
+
+            return dueNotifications;
         }
 
         public static void RemoveNotifications(List<Notification> notifications)

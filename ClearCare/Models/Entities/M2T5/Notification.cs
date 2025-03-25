@@ -9,7 +9,7 @@ namespace ClearCare.Models.Entities
     {
         // Firestore properties
         [FirestoreProperty]
-        private int UserId { get; set; }
+        private string UserId { get; set; }
 
         [FirestoreProperty]
         private string Method { get; set; }
@@ -27,14 +27,14 @@ namespace ClearCare.Models.Entities
         private string Phone { get; set; }
 
         // Getter and Setter Methods
-        private int GetUserId() => UserId;
-        private void SetUserId(int id) => UserId = id;
+        private string GetUserId() => UserId;
+        private void SetUserId(string id) => UserId = id;
 
         private string GetMethod() => Method;
         private void SetMethod(string method) => Method = method;
 
-        public DateTime GetTiming() => Timing;
-        private void SetTiming(DateTime timing) => Timing = timing;
+        public DateTime GetTiming() => DateTime.SpecifyKind(Timing, DateTimeKind.Utc);
+        private void SetTiming(DateTime timing) => Timing = timing.ToUniversalTime();
 
         private string GetContent() => Content;
         private void SetContent(string content) => Content = content;
@@ -61,7 +61,7 @@ namespace ClearCare.Models.Entities
         }
 
         // Static method to create a new Notification object with details
-        public static Notification SetNotificationDetails(int userId, string method, DateTime timing, string content, string email, string phone)
+        public static Notification SetNotificationDetails(string userId, string method, DateTime timing, string content, string email, string phone)
         {
             // Create a new Notification object
             Notification notification = new Notification();

@@ -24,8 +24,9 @@ namespace ClearCare.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateNotification()
         {
+            string userId = HttpContext.Session.GetString("UserID");
             // Hardcoded parameters for testing:
-            int testUserId = 1; // Example userId
+            string testUserId = userId; // Example userId
             string testContent = "Test";
 
             // Call the NotificationManager's createNotification method.

@@ -49,33 +49,50 @@ public async Task<IActionResult> SaveNotificationPreference([FromBody] Dictionar
         var dndDays = preferenceData["dndDays"]; // Comma-separated days
         var dndTimeRange = preferenceData["dndTimeRange"];
 
-        if (string.IsNullOrEmpty(preference) || string.IsNullOrEmpty(methods) || string.IsNullOrEmpty(dndDays) || string.IsNullOrEmpty(dndTimeRange))
+        if (string.IsNullOrEmpty(methods))
         {
-            return BadRequest(new { message = "Preference, methods, DND days, and DND time range cannot be empty." });
+            return BadRequest(new { message = "methods." });
         }
 
         // Convert methods string to a list (comma-separated values)
         var methodsList = methods.Split(',').ToList();
         var methodsString = string.Join(",", methodsList); // Convert back to string
 
-        // Parse DND Time Range safely
-        var timeRangeParts = dndTimeRange.Split('-');
-        if (timeRangeParts.Length != 2)
-        {
-            return BadRequest(new { message = "Invalid time range format. Use HH:mm-HH:mm (e.g., 08:00-22:00)." });
-        }
+// Declare dndTimeRangeObj as a nullable TimeRange
+TimeRange? dndTimeRangeObj = null;
 
-        if (!TimeSpan.TryParse(timeRangeParts[0], out TimeSpan startTime) || !TimeSpan.TryParse(timeRangeParts[1], out TimeSpan endTime))
-        {
-            return BadRequest(new { message = "Invalid time format. Use HH:mm (e.g., 08:00-22:00)." });
-        }
+// Check if dndTimeRange is empty or null
+if (!string.IsNullOrWhiteSpace(dndTimeRange))
+{
+    // Trim any spaces around the input values
+    var timeRangeParts = dndTimeRange.Split('-').Select(part => part.Trim()).ToArray();
 
-        if (startTime >= endTime)
-        {
-            return BadRequest(new { message = "Invalid time range. Start time must be before end time." });
-        }
+    // Validate we have exactly two time components
+    if (timeRangeParts.Length != 2)
+    {
+        return BadRequest(new { message = "Invalid time range format. Use HH:mm-HH:mm (e.g., 08:00-22:00)." });
+    }
 
-        var dndTimeRangeObj = new TimeRange(startTime, endTime);
+    // Parse start and end times using TimeSpan
+    if (!TimeSpan.TryParse(timeRangeParts[0], out TimeSpan startTime) || !TimeSpan.TryParse(timeRangeParts[1], out TimeSpan endTime))
+    {
+        return BadRequest(new { message = "Invalid time format. Use HH:mm (e.g., 08:00-22:00)." });
+    }
+
+    // Ensure the start time is before the end time
+    if (startTime == endTime)
+    {
+        return BadRequest(new { message = "Invalid time range. Start time cannot be same as end time." });
+    }
+
+    // Assign the parsed time range to the variable
+    dndTimeRangeObj = new TimeRange(startTime, endTime);
+}
+else
+{
+    // If both times are empty, don't send a dash ("-"), send null or empty string instead
+    dndTimeRangeObj = null;  // or you can use string.Empty or another placeholder if needed
+}
 
         // Save preferences
         await _manager.SaveNotificationPreferenceAsync(userID, preference, methodsString, dndDays, dndTimeRangeObj);

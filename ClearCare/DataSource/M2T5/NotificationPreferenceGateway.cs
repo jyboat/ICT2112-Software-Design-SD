@@ -8,7 +8,7 @@ namespace ClearCare.DataSource
 {
 
     
-    public class NotificationPreferenceGateway: AbstractDatabaseSubject, INotificationPreferences
+    public class NotificationPreferenceGateway: AbstractDatabaseSubject
     {
         private readonly FirestoreDb _db;
 

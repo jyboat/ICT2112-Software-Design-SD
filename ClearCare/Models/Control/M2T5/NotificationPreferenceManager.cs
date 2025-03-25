@@ -7,16 +7,14 @@ using ClearCare.Interfaces;
 
 namespace ClearCare.Models.Control
 {
-    public class NotificationPreferenceManager: IDatabaseObserver
+    public class NotificationPreferenceManager: IDatabaseObserver, INotificationPreferences
     {
         private readonly NotificationPreferenceGateway _dataGateway;
-        private readonly INotificationPreferences _notificationPreferences;
 
-        public NotificationPreferenceManager(INotificationPreferences notificationPreferenceRepository)
+        public NotificationPreferenceManager()
         {
             _dataGateway = new NotificationPreferenceGateway();
             _dataGateway.attachObserver(this);
-            _notificationPreferences = notificationPreferenceRepository; // Assign the interface implementation
         }
 
         public async Task SaveNotificationPreferenceAsync(string userId, string preference, string methods, string dndDays, TimeRange dndTimeRange)
@@ -34,7 +32,7 @@ namespace ClearCare.Models.Control
             Console.WriteLine($"Fetching notification preferences for UserID {userId}");
 
             // Call the interface method to get preferences for the user
-            var preferences = await _notificationPreferences.GetNotificationPreferencesAsync();
+            var preferences = await _dataGateway.GetNotificationPreferencesAsync();
 
             // Filter by userId to return the relevant preference
             var userPreference = preferences.Where(p => p.GetUserID() == userId).ToList();

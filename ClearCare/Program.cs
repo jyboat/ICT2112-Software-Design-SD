@@ -43,9 +43,7 @@ builder.Services.AddScoped<IUserDetails, ProfileManagement>(); // Ensure Profile
 builder.Services.AddScoped<IMedicalRecordSubject, ManageMedicalRecord>();
 builder.Services.AddScoped<UpdateViewObserver>();
 builder.Services.AddSingleton<NotificationManager>();
-builder.Services.AddScoped<NotificationPreferenceManager>();
-builder.Services.AddScoped<INotificationPreferences, NotificationPreferenceGateway>();
-
+builder.Services.AddSingleton<NotificationPreferenceManager>();
 var app = builder.Build();
 
 // // Ensure UpdateViewObserver is created and added to the ObserverManager

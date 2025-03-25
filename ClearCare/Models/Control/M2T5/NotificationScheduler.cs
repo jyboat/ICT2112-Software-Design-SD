@@ -32,6 +32,8 @@ namespace ClearCare.Models.Control
                 Console.WriteLine("[NotificationScheduler] Hourly interval reached. Flushing cache.");
                 await _notificationManager.flushCache();
 
+                // Fetch notifications for the next hourly interval and add them to the cache.
+                await _notificationManager.getNotifications();
                 // Optionally, reload cache from the database for notifications due before the next hourly expiry.
                 // (This part can be added if required.)
             }
