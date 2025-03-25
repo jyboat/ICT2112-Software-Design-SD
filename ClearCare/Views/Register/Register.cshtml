@@ -26,12 +26,24 @@
             margin: 0 auto;
         }
     </style>
+    <script>
+        function validatePasswords() {
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match. Please try again.");
+                return false;
+            }
+            return true;
+        }
+    </script>
 </head>
 <body class="bg-light">
     <div class="container py-5">
         <div class="register-form card shadow p-4">
             <h2 class="text-center">Register</h2>
-            <form method="post" action="/Account/Register">
+            <form method="post" action="/Account/Register" onsubmit="return validatePasswords()">
                 <div class="mb-3">
                     <label for="email" class="form-label">Email:</label>
                     <input type="email" id="email" name="email" class="form-control" required>
@@ -39,6 +51,10 @@
                 <div class="mb-3">
                     <label for="password" class="form-label">Password:</label>
                     <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Confirm Password:</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
                 </div>
                 <div class="mb-3">
                     <label for="name" class="form-label">Name:</label>
