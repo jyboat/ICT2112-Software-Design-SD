@@ -107,7 +107,7 @@ namespace ClearCare.Models.Control.M3T1
         }
 
         // Get responses for feedbackList, for FeedbackController, not implemented in any interfaces
-        public async Task<List<Dictionary<string, object>>> GetResponsesForFeedbackList(List<Dictionary<string, object>> feedbackList)
+        public async Task<List<Dictionary<string, object>>> getResponsesForFeedbackList(List<Dictionary<string, object>> feedbackList)
         {
             var responseList = new List<Dictionary<string, object>>();
 

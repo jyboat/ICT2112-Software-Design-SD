@@ -141,7 +141,7 @@ namespace ClearCare.DataSource.M3T1
             await feedbackDoc.UpdateAsync(new Dictionary<string, object> { { "HasResponded", true } });
 
             // Notify Observer
-            Notify(feedbackId);
+            notify(feedbackId);
 
             return docRef.Id;
         }

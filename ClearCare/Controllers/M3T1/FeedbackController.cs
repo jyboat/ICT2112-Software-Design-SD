@@ -7,6 +7,7 @@ using ClearCare.Models.Entities;
 using static Google.Rpc.Context.AttributeContext.Types;
 using ClearCare.Models.Control.M3T1;
 using ClearCare.Models.Entities.M3T1;
+using System.Collections.Generic;
 
 // Request Handling
 [Route("Feedback")]
@@ -25,12 +26,18 @@ public class FeedbackController : Controller
 
         // Attach observer
         var patientObserver = new PatientNotificationObserver();
-        feedbackMapper.Attach(patientObserver);
+        feedbackMapper.attach(patientObserver);
     }
 
     [Route("")]
     [HttpGet]
-    public async Task<IActionResult> DisplayAllFeedback()
+    public async Task<IActionResult> DisplayAllFeedback(
+        int page = 1,
+        int pageSize = 10,
+        string search = "",
+        string responseFilter = "All",
+        int ratingFilter = 0)
+
     {
         List<Dictionary<string, object>> feedbackList = new List<Dictionary<string, object>>();
         List<Dictionary<string, object>> responseList = new List<Dictionary<string, object>>();
@@ -56,17 +63,28 @@ public class FeedbackController : Controller
                 .ToList();
 
             // Fetch responses only for feedbacks belonging to this patient/caregiver
-            responseList = await _responseManager.GetResponsesForFeedbackList(feedbackList);
+            responseList = await _responseManager.getResponsesForFeedbackList(feedbackList);
 
             // Check if patient has new notifications
-            if (_feedbackManager.ResponseNotification(patientId))
+            if (_feedbackManager.responseNotification(patientId))
             {
                 TempData["SuccessMessage"] = "One or more of your feedbacks received a response.";
             }
         }
 
         // Combine feedbackList and responseList
-        List<Dictionary<string, object>> combinedList = _feedbackManager.CombineFeedbackResponse(feedbackList, responseList);
+        List<Dictionary<string, object>> combinedList = _feedbackManager.combineFeedbackResponse(feedbackList, responseList);
+
+        combinedList = _feedbackManager.applySearchFilter(combinedList, search);
+        combinedList = _feedbackManager.applyResponseFilter(combinedList, responseFilter);
+        combinedList = _feedbackManager.applyRatingFilter(combinedList, ratingFilter);
+        combinedList = _feedbackManager.applyPagination(combinedList, page, pageSize);
+
+        // Pass state to ViewBag
+        ViewBag.CurrentPage = page;
+        ViewBag.PageSize = pageSize;
+        ViewBag.TotalPages = (combinedList.Count + pageSize - 1)/pageSize;
+        ViewBag.TotalItems = combinedList.Count;
 
         return View("~/Views/M3T1/Feedback/List.cshtml", combinedList);
     }

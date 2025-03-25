@@ -72,7 +72,7 @@ namespace ClearCare.Models.Control.M3T1
         }
 
         // Response Notification for Patients, for FeedbackController, not implemented in any interfaces
-        public bool ResponseNotification(string patientId)
+        public bool responseNotification(string patientId)
         {
             if (PatientNotificationObserver.NotificationMap.ContainsKey(patientId))
             {
@@ -83,7 +83,7 @@ namespace ClearCare.Models.Control.M3T1
         }
 
         // Combine feedbackList and responseList, for FeedbackController, not implemented in any interfaces
-        public List<Dictionary<string, object>> CombineFeedbackResponse(
+        public List<Dictionary<string, object>> combineFeedbackResponse(
             List<Dictionary<string, object>> feedbackList, 
             List<Dictionary<string, object>> responseList)
         {
@@ -107,5 +107,57 @@ namespace ClearCare.Models.Control.M3T1
 
             return combinedList;
         }
+
+        // Search Filter, for FeedbackController, not implemented in any interfaces
+        public List<Dictionary<string, object>> applySearchFilter(List<Dictionary<string, object>> list, string search)
+        {
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                return list.Where(fb =>
+                    (fb["Content"]?.ToString()?.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                    (fb["Response"]?.ToString()?.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0)
+                ).ToList();
+            }
+
+            return list;
+        }
+
+        // Response Filter, for FeedbackController, not implemented in any interfaces
+        public List<Dictionary<string, object>> applyResponseFilter(List<Dictionary<string, object>> list, string responseFilter)
+        {
+            if (responseFilter == "Responded")
+            {
+                return list.Where(fb => Convert.ToBoolean(fb["HasResponded"])).ToList();
+            }
+            else if (responseFilter == "Unresponded")
+            {
+                return list.Where(fb => !Convert.ToBoolean(fb["HasResponded"])).ToList();
+            }
+
+            return list;
+        }
+
+        // Rating Filter, for FeedbackController, not implemented in any interfaces
+        public List<Dictionary<string, object>> applyRatingFilter(List<Dictionary<string, object>> list, int ratingFilter)
+        {
+            if (ratingFilter >= 1 && ratingFilter <= 5)
+            {
+                return list.Where(fb => Convert.ToInt32(fb["Rating"]) == ratingFilter).ToList();
+            }
+
+            return list;
+        }
+
+        // Pagination, for FeedbackController, not implemented in any interfaces
+        public List<Dictionary<string, object>> applyPagination(List<Dictionary<string, object>> list, int page, int pageSize)
+        {
+            var paginatedList = list
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            return (paginatedList);
+        }
+
     }
 }

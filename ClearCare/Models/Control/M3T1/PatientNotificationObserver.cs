@@ -12,7 +12,7 @@ public class PatientNotificationObserver : IFeedbackObserver
     // Used for temp notif storage until patient visits feedback page
     public static Dictionary<string, List<string>> NotificationMap = new Dictionary<string, List<string>>();
 
-    public void Update(string feedbackId)
+    public void update(string feedbackId)
     {
         FirestoreDb db = FirebaseService.Initialize();
         var feedbackDoc = db.Collection("Feedback").Document(feedbackId).GetSnapshotAsync().Result;
