@@ -36,7 +36,7 @@ namespace ClearCare.Models.Control
 
             // After updating the status, create a notification
             string notificationContent = $"The status of your appointment (ID: {appointmentId}) has been updated.";
-            int userId = 1; // Example user ID, this should be dynamically determined
+            string userId = "USR2"; // Example user ID, this should be dynamically determined
             await _notificationManager.createNotification(userId, notificationContent); // Create the notification
         }
     }

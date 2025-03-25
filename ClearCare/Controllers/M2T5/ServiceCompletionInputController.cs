@@ -6,20 +6,21 @@ using System.Linq;
 using System.Threading.Tasks;
 using ClearCare.Models.Interface;
 using ClearCare.Models.DTO;
+using ClearCare.Models.Control;
 
 namespace ClearCare.Controllers
 {
     [Route("ServiceCompletionInput")]
     public class ServiceCompletionInputController : Controller
     {
-        private readonly IAppointmentStatus _appointmentStatus;
-        private readonly INotification _notificationManager;
+        private readonly ServiceCompletionManager _appointmentStatus;
+        // private readonly INotification _notificationManager;
 
         // Inject IAppointmentStatus and INotification through the constructor
-        public ServiceCompletionInputController(IAppointmentStatus appointmentStatus, INotification notificationManager)
+        public ServiceCompletionInputController(ServiceCompletionManager appointmentStatus)
         {
             _appointmentStatus = appointmentStatus;
-            _notificationManager = notificationManager;
+            // _notificationManager = notificationManager;
         }
 
         [HttpGet("appointments")]
@@ -37,7 +38,7 @@ namespace ClearCare.Controllers
             }
 
             // Fetch the appointment details
-            List<ServiceAppointment> appointments = await _appointmentStatus.getAppointmentDetails();
+            List<ServiceAppointment> appointments = await _appointmentStatus.GetAllAppointmentDetails();
 
             // Map appointments to DTOs
             List<ServiceAppointmentDTO> appointmentDTOs = appointments
@@ -48,7 +49,7 @@ namespace ClearCare.Controllers
             if (!string.IsNullOrEmpty(userId))
             {
                 appointmentDTOs = appointmentDTOs
-                    .Where(dto => dto.DoctorId == userId) // Only appointments for this doctor
+                    .Where(dto => dto.NurseId == userId) // Only appointments for this doctor
                     .ToList();
             }
 
@@ -109,16 +110,15 @@ namespace ClearCare.Controllers
             try
             {
                 // Hardcoded integer userId for testing
-                int userId = 12345;  // Use a valid integer value here
+                string userId = "USR2";  // Use a valid integer value here
 
                 // Update appointment status
-                await _appointmentStatus.updateAppointmentStatus(appointmentId);
+                await _appointmentStatus.UpdateAppointmentStatus(appointmentId);
 
-                // Create a notification after the status is updated
-                string notificationContent = $"The status of your appointment (ID: {appointmentId}) has been updated.";
-                await _notificationManager.createNotification(userId, notificationContent); // Create the notification using INotification
-
-                TempData["NotificationMessage"] = "Notification sent to the user successfully.";
+                // // Create a notification after the status is updated
+                // string notificationContent = $"The status of your appointment (ID: {appointmentId}) has been updated.";
+                // await _notificationManager.createNotification(userId, notificationContent); // Create the notification using INotification
+                // TempData["NotificationMessage"] = "Notification sent to the user successfully.";
 
                 return NoContent(); // 204: Successfully updated, no content
             }

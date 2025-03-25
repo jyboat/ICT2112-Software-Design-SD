@@ -56,7 +56,9 @@ builder.Services.AddScoped<ErratumManagement>();
 builder.Services.AddScoped<IAppointmentStatus, ServiceAppointmentStatusManagement>();// Ensure ServiceAppointmentStatusManagement implements IAppointmentStatus
 
 builder.Services.AddScoped<INotification, NotificationManager>();
+builder.Services.AddScoped<NotificationManager>(); // Registers the concrete type
 builder.Services.AddSingleton<NotificationPreferenceManager>();
+builder.Services.AddScoped<ServiceCompletionManager>();
 
 
 var app = builder.Build();
@@ -66,6 +68,8 @@ using (var scope = app.Services.CreateScope())
 {
     var observer = scope.ServiceProvider.GetRequiredService<UpdateViewObserver>();
     var auditobserver = scope.ServiceProvider.GetRequiredService<UpdateAuditLogObserver>();
+    var notificationManager = scope.ServiceProvider.GetRequiredService<NotificationManager>();
+    var notificationScheduler = new NotificationScheduler(notificationManager);
 }
 
 // Configure the HTTP request pipeline.
@@ -98,10 +102,6 @@ app.UseSession();
 
 // Required services
 // Start UpdateViewObserver automatically (ensures observer is created)
-
-// Instantiate NotificationManager and NotificationScheduler using DI
-var notificationManager = app.Services.GetRequiredService<NotificationManager>();
-var notificationScheduler = new NotificationScheduler(notificationManager);
 
 app.MapControllerRoute(
     name: "default",
