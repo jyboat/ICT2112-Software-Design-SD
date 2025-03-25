@@ -4,20 +4,22 @@
 <nav class="navbar navbar-expand-lg navbar-toggleable-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
     <div class="container-fluid">
         <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ClearCare</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="navbar-collapse collapse">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-house me-1"></i>Home</a>
+                    <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index"><i
+                            class="bi bi-house me-1"></i>Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="NotificationTest" asp-action="Index">Test Notifications</a>
                 </li>
                 @* Check if user is admin *@
-                @if (userRole == "Admin"){
+                @if (userRole == "Admin")
+                {
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy"><i class="bi bi-person me-1"></i>Manage Users</a>
                     </li>
@@ -34,7 +36,8 @@
                         <a class="nav-link" asp-area="" asp-controller="ViewRecord" asp-action="DisplayViewRecord"><i class="bi bi-file-earmark-medical me-1"></i>Patient Records</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Assessment" asp-action="Privacy"><i class="bi bi-house-check me-1"></i>Home Assessment</a>
+                        <a class="nav-link" asp-area="" asp-controller="Assessment" asp-action="Privacy"><i
+                                class="bi bi-house-check me-1"></i>Home Assessment</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="ServiceAppointments" asp-action="RetrieveAllAppointment">
@@ -57,12 +60,18 @@
                         </a>
                     </li>
                 }
+                @if (userRole == 'Doctor'){
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="ServiceTypePage" asp-action="Index">Service Type</a>
+                    </li>
+                }
                 @if (userRole == "Nurse"){
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="ViewRecord" asp-action="DisplayViewRecord"><i class="bi bi-file-earmark-medical me-1"></i>Patient Records</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Assessment" asp-action="Privacy"><i class="bi bi-house-check me-1"></i>Home Assessment</a>
+                        <a class="nav-link" asp-area="" asp-controller="Assessment" asp-action="Privacy"><i
+                                class="bi bi-house-check me-1"></i>Home Assessment</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="NurseAvailability" asp-action="Index">Nurse Availability</a>
@@ -81,7 +90,8 @@
                         <a class="nav-link" asp-area="" asp-controller="Community" asp-action="Privacy"><i class="bi bi-person-heart me-1"></i>Community</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Enquiry" asp-action="Privacy"><i class="bi bi-chat-dots me-1"></i>Enquiry</a>
+                        <a class="nav-link" asp-area="" asp-controller="Enquiry" asp-action="Privacy"><i
+                                class="bi bi-chat-dots me-1"></i>Enquiry</a>
                     </li>
                 }
             </ul>
