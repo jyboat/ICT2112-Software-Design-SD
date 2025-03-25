@@ -49,7 +49,7 @@ namespace ClearCare.Models.Control
           public async Task<User> retrieveUserByID(string uid) => await _userGateway.findUserByID(uid);
 
           // Method to create a new account
-          public async Task<string> createAccount(User newUser, IAuditSubject auditLog)
+          public async Task<string> createAccount(User newUser, string password, IAuditSubject auditLog)
           {
                var email = newUser.getProfileData()["Email"]?.ToString();
                if (string.IsNullOrEmpty(email))
@@ -70,40 +70,16 @@ namespace ClearCare.Models.Control
                var address = newUser.getProfileData()["Address"]?.ToString();
                var role = newUser.getProfileData()["Role"]?.ToString();
 
-               if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || string.IsNullOrEmpty(role) || string.IsNullOrEmpty(mobileNumber))
+               if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || string.IsNullOrEmpty(role) || string.IsNullOrEmpty(mobileNumber))
                {
-                    return "Name, Phone Number, Address and Role is required.";
+                    return "Password, Name, Phone Number, Address and Role is required.";
                }
 
-               var newPassword = GeneratePassword();
-
                // Create a new User object with the necessary data
-               string newUserId = await _userGateway.InsertUser(newUser, newPassword);
+               string newUserId = await _userGateway.InsertUser(newUser, password);
 
                // Insert audit log after account creation
                string auditResult = await auditLog.InsertAuditLog("Created new account", newUserId);
-
-               var emailBody = $"""
-                         Hello {newUser.getProfileData()["Name"]},
-
-                         Your {newUser.getProfileData()["Role"]} account with {newUser.getProfileData()["Email"]} has been created.
-
-                         Your temporary password is: {newPassword}
-
-                         For security reasons, you will be required to change this password when you next log in.
-
-                         If you did not request this change, please contact Clear Care Customer Service immediately.
-
-                         Best regards,
-                         ClearCare Support Team
-                    """;
-
-               bool sendStatus = await _emailService.sendEmail(newUser.getProfileData()["Email"].ToString()!, "New Account Created - Action Required", emailBody);
-
-               if (!sendStatus && newUserId != null)
-               {
-                    return $"Failed to send email notification for ${newUserId}.";
-               }
 
                return newUserId != null ? "Account created successfully." : "Failed to create account.";
           }

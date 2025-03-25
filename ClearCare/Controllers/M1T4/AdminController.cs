@@ -138,7 +138,7 @@ namespace ClearCare.Controllers
 
           // POST: /Admin/createAccount
           [HttpPost]
-          public async Task<IActionResult> createAccount(string email, string name, string role, string address, long? mobileNumber, string? department, string? specialization)
+          public async Task<IActionResult> createAccount(string email, string password, string name, string role, string address, long? mobileNumber, string? department, string? specialization)
           {
                // Check for userRole
                var userRole = HttpContext.Session.GetString("Role");
@@ -150,7 +150,7 @@ namespace ClearCare.Controllers
                     return RedirectToAction("displayLogin", "Login");
                }
 
-               if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || mobileNumber == null || (string.IsNullOrEmpty(department) && string.IsNullOrEmpty(specialization)))
+               if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || mobileNumber == null || (string.IsNullOrEmpty(department) && string.IsNullOrEmpty(specialization)))
                {
                     TempData["ErrorMessage"] = "Please fill in all required fields.";
                     return RedirectToAction("LoadRoleForm", new { role = role });
@@ -167,19 +167,13 @@ namespace ClearCare.Controllers
                     infoDictionary.Add("Specialization", specialization);
                }
 
-               User newUser = UserFactory.createUser("", email, "", name, (int)mobileNumber, address, role, infoDictionary);
+               User newUser = UserFactory.createUser("", email, password, name, (int)mobileNumber, address, role, infoDictionary);
 
-               string result = await _adminManagement.createAccount(newUser!, _auditManagement);
+               string result = await _adminManagement.createAccount(newUser!, password, _auditManagement);
 
                if (result == "Account created successfully.")
                {
-                    TempData["SuccessMessage"] = "Account created successfully. Email has been sent!";
-                    return RedirectToAction("Dashboard");
-               }
-               else if (result.Contains("Failed to send email notification"))
-               {
-                    TempData["SuccessMessage"] = "Account created successfully.";
-                    TempData["ErrorMessage"] = result;
+                    TempData["SuccessMessage"] = result;
                     return RedirectToAction("Dashboard");
                }
                else
@@ -202,7 +196,7 @@ namespace ClearCare.Controllers
                     Console.WriteLine("You do not have permission to access this page.");
                     return RedirectToAction("displayLogin", "Login");
                }
-               
+
                if (string.IsNullOrEmpty(uid))
                {
                     TempData["ErrorMessage"] = "User ID is required.";
