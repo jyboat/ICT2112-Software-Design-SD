@@ -11,9 +11,9 @@ namespace ClearCare.Models.Control.M3T1
     {
         private CommunityDataMapper _dataMapper = new CommunityDataMapper();
 
-        public async Task<string> createPost(string title, string content, string postedBy)
+        public async Task<string> createPost(string title, string content, string postedBy, string? groupId)
         {
-            return await _dataMapper.insertPost(title, content, postedBy);
+            return await _dataMapper.insertPost(title, content, postedBy, groupId);
         }
 
         public async Task<List<CommunityPost>> viewPosts()
@@ -28,6 +28,27 @@ namespace ClearCare.Models.Control.M3T1
         public async Task<List<CommunityPost>> viewUserPosts(string userId)
         {
             return await _dataMapper.fetchUserPosts(userId);
+        }
+
+        public async Task<List<CommunityPost>> viewUserGroupPosts(string userId, string groupId)
+        {
+            List<CommunityPost> userPosts = await _dataMapper.fetchUserPosts(userId);
+
+            List<CommunityPost> userGroupPosts = new List<CommunityPost>();
+
+            foreach (var post in userPosts)
+            {
+                var postDetails = post.getDetails();
+                if (postDetails.ContainsKey("GroupId"))
+                {
+                    // Check if the MemberList contains the target ID
+                    if (!string.IsNullOrEmpty(postDetails["GroupId"].ToString()) && postDetails["GroupId"].ToString() == groupId)
+                    {
+                        userGroupPosts.Add(post); // Add the group if the ID is found
+                    }
+                }
+            }
+            return userGroupPosts;
         }
 
         public async Task<CommunityPost> viewPost(string id)

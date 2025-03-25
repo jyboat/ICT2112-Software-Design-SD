@@ -18,9 +18,63 @@ namespace ClearCare.Models.Control.M3T1
             return await _dataMapper.insertGroup(name, description, userId, memberIds);
         }
 
-        public async Task<bool> updateGroup(string groupId, string name, string description, List<string> memberIds)
+        public async Task<bool> updateGroup(string groupId, string name, string description)
         {
-            return await _dataMapper.updateCommunityGroup(groupId, name, description, memberIds);
+            return await _dataMapper.updateGroup(groupId, name, description);
+        }
+
+        public async Task<bool> addMember(string groupId, string userId)
+        {
+            CommunityGroup group = await _dataMapper.fetchGroupById(groupId);
+            var groupDetails = group.getDetails();
+
+            List<string> currentMembers = new List<string>();
+
+            if (group != null && groupDetails.ContainsKey("MemberIds") && groupDetails["MemberIds"] is List<string> memberList)
+            {
+                currentMembers = memberList;
+                if (!currentMembers.Contains(userId))
+                {
+                    currentMembers.Add(userId);
+                }
+                else
+                {
+                    return false;
+                }
+
+                return await _dataMapper.updateGroupMembers(groupId, userId, currentMembers);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> removeMember(string groupId, string userId)
+        {
+            CommunityGroup group = await _dataMapper.fetchGroupById(groupId);
+            var groupDetails = group.getDetails();
+
+            List<string> currentMembers = new List<string>();
+
+            if (group != null && groupDetails.ContainsKey("MemberIds") && groupDetails["MemberIds"] is List<string> memberList)
+            {
+                currentMembers = memberList;
+                if (currentMembers.Contains(userId))
+                {
+                    currentMembers.Remove(userId);
+                }
+                else
+                {
+                    return false;
+                }
+
+                return await _dataMapper.updateGroupMembers(groupId, userId, currentMembers);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public async Task<bool> deleteGroup(string groupId)
@@ -28,33 +82,50 @@ namespace ClearCare.Models.Control.M3T1
             return await _dataMapper.deleteGroup(groupId);
         }
 
-        public async Task<List<CommunityGroup>> getAllgroups()
+        public async Task<List<CommunityGroup>> getUserGroups(string userId)
         {
-            return await _dataMapper.fetchCommunityGroups();
+            var allGroups = await _dataMapper.fetchCommunityGroups();
+            List<CommunityGroup> userGroups = new List<CommunityGroup>();
+
+            foreach (var group in allGroups)
+            {
+                var groupDetails = group.getDetails();
+                if (groupDetails.ContainsKey("MemberIds") && groupDetails["MemberIds"] is List<string> memberList)
+                {
+                    // Check if the MemberList contains the target ID
+                    if (memberList.Contains(userId))
+                    {
+                        userGroups.Add(group); // Add the group if the ID is found
+                    }
+                }
+            }
+            return userGroups;
+        }
+
+        public async Task<List<CommunityGroup>> getNonUserGroups(string userId)
+        {
+            var allGroups = await _dataMapper.fetchCommunityGroups();
+            List<CommunityGroup> nonUserGroups = new List<CommunityGroup>();
+
+            foreach (var group in allGroups)
+            {
+                var groupDetails = group.getDetails();
+                if (groupDetails.ContainsKey("MemberIds") && groupDetails["MemberIds"] is List<string> memberList)
+                {
+                    // Check if the MemberList does contain the target ID
+                    if (!memberList.Contains(userId))
+                    {
+                        nonUserGroups.Add(group); // Add the group if the ID is found
+                    }
+                }
+            }
+            return nonUserGroups;
         }
 
         public async Task<CommunityGroup> viewGroupById(string groupId)
         {
             return await _dataMapper.fetchGroupById(groupId);
         }
-
-        //public async Task addMember(int userId, CommunityGroup group)
-        //{
-        //    if (!group.Members.Contains(userId))
-        //    {
-        //        group.Members.Add(userId);
-        //        await _dataMapper.updateGroup(group.Id, group);
-        //    }
-        //}
-
-        //public async Task removeMember(int userId, CommunityGroup group)
-        //{
-        //    if (group.Members.Contains(userId))
-        //    {
-        //        group.Members.Remove(userId);
-        //        await _dataMapper.updateGroup(group.Id, group);
-        //    }
-        //}
 
     }
 }
