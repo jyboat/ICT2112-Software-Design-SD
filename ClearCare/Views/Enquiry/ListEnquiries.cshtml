@@ -13,12 +13,9 @@
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        @* <th>Document ID</th> *@
-                        @* <th>ID</th> *@
                         <th>Name</th>
-                        <th>Email</th>
                         <th>Message</th>
-                        @* <th>User UUID</th> *@
+                        <th>Doctor</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -26,12 +23,9 @@
                     @foreach(var e in Model)
                     {
                         <tr>
-                            @* <td>@e.FirestoreId</td> *@
-                            @* <td>@e.Id</td> *@
                             <td>@e.Name</td>
-                            <td>@e.Email</td>
                             <td>@e.Message</td>
-                            @* <td>@e.UserUUID</td> *@
+                            <td>@e.DoctorUUID</td>
                             <td>
                                 <a href="@Url.Action("Reply", "Enquiry", new { id = e.FirestoreId })" class="btn btn-success btn-sm">Reply</a>
                             </td>

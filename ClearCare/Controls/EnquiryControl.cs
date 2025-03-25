@@ -72,14 +72,21 @@ namespace ClearCare.Controls
         //=============================================================
         // Business Logic Methods
         //=============================================================
-        public async Task createEnquiryAsync(Enquiry enquiry)
+        public async Task createEnquiryAsync(Enquiry enquiry, string userUUID, string doctorUUID)
         {
-            _logger.LogInformation($"Creating enquiry from {enquiry.Name} with email {enquiry.Email}.");
+            _logger.LogInformation($"Creating enquiry from {enquiry.Name} for user {userUUID} and doctor {doctorUUID}.");
+
+            // Set both user and doctor UUIDs on the enquiry instance.
+            enquiry.UserUUID = userUUID;
+            enquiry.DoctorUUID = doctorUUID;
 
             Enquiries.Add(enquiry);
             await _enquiryGateway.saveEnquiryAsync(enquiry);
             notifyCreated(enquiry);
         }
+
+
+
 
         public async Task saveReplyAsync(string enquiryId, Reply reply)
         {

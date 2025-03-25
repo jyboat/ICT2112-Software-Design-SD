@@ -39,18 +39,20 @@ namespace ClearCare.Controllers
             return View("ListEnquiries", userEnquiries);
         }
 
-        // Submit an enquiry (POST)
         [HttpPost]
-        public async Task<IActionResult> submitEnquiry(Enquiry enquiry)
-        {
-            await _enquiryControl.createEnquiryAsync(enquiry);
+public async Task<IActionResult> submitEnquiry(Enquiry enquiry, string userUUID, string doctorUUID)
+{
+    // Pass both userUUID and doctorUUID to the control.
+    await _enquiryControl.createEnquiryAsync(enquiry, userUUID, doctorUUID);
 
-            ViewData["Name"] = enquiry.Name;
-            ViewData["Email"] = enquiry.Email;
-            ViewData["Message"] = enquiry.Message;
+    ViewData["Name"] = enquiry.Name;
+    ViewData["Message"] = enquiry.Message;
+    ViewData["UserUUID"] = userUUID;
+    ViewData["DoctorUUID"] = doctorUUID;
 
-            return View("EnquiryResult");
-        }
+    return View("EnquiryResult");
+}
+
 
         [HttpPost]
         public async Task<IActionResult> sendReply(

@@ -1,6 +1,17 @@
-@using ClearCare 
+@using ClearCare
+@using Microsoft.AspNetCore.Mvc.Rendering
+
 @{
     ViewData["Title"] = "Enquiry";
+
+    // Example list of doctors; in a real scenario, you might pass this list
+    // via a model from your controller (e.g., as Model.Doctors).
+    var doctorList = new List<SelectListItem>
+    {
+        new SelectListItem { Text = "Dr. Alice", Value = "uuid-alice" },
+        new SelectListItem { Text = "Dr. Bob",   Value = "uuid-bob"   },
+        new SelectListItem { Text = "Dr. Carol", Value = "uuid-carol" }
+    };
 }
 
 <div class="container mt-5">
@@ -10,7 +21,7 @@
         </div>
         <div class="card-body">
             <form asp-controller="Enquiry" asp-action="SubmitEnquiry" method="post">
-                <!-- Use your static class constant here -->
+                <!-- Hardcoded User UUID -->
                 <input type="hidden" name="UserUUID" value="@HardcodedUUIDs.UserUUID" />
 
                 <div class="mb-3">
@@ -19,13 +30,20 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" name="Email" required />
-                </div>
-
-                <div class="mb-3">
                     <label for="message" class="form-label">Message</label>
                     <textarea class="form-control" id="message" name="Message" rows="3" required></textarea>
+                </div>
+
+                <!-- Dropdown for Doctor selection -->
+                <div class="mb-3">
+                    <label for="doctor" class="form-label">Select Doctor</label>
+                    <select class="form-select" id="doctor" name="DoctorUUID" required>
+                        <option value="">-- Select a Doctor --</option>
+                        @foreach (var doctor in doctorList)
+                        {
+                            <option value="@doctor.Value">@doctor.Text</option>
+                        }
+                    </select>
                 </div>
 
                 <div class="d-flex justify-content-between">
