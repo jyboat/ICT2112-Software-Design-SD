@@ -1,0 +1,224 @@
+@{
+    var analytics = ViewData["AppointmentAnalytics"] as Dictionary<string, object>;
+    var appointmentsPerType = analytics?["AppointmentsPerType"] as Dictionary<string, int>;
+    var appointmentsPerDoctor = analytics?["AppointmentsPerDoctor"] as Dictionary<string, int>;
+    var appointmentsPerMonth = analytics?["AppointmentsPerMonth"] as Dictionary<string, int>;
+}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Dashboard Header -->
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="fw-bold">📅 Service Appointments Dashboard</h2>
+        <h5 class="text-muted">March 2025</h5>
+    </div>
+
+    <!-- Summary Metrics -->
+    <div class="row text-center mt-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white shadow-lg p-3">
+                <h6>📊 Total Appointments</h6>
+                <h3 class="fw-bold">@analytics?["TotalAppointments"]</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow-lg p-3">
+                <h6>✅ Completed Appointments</h6>
+                <h3 class="fw-bold">@analytics?["CompletedAppointments"]</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark shadow-lg p-3">
+                <h6>⏳ Pending Appointments</h6>
+                <h3 class="fw-bold">@analytics?["PendingAppointments"]</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white shadow-lg p-3">
+                <h6>❌ Cancelled Appointments</h6>
+                <h3 class="fw-bold">@analytics?["CancelledAppointments"]</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row mt-4">
+        <!-- Line Chart: Appointments Over Time -->
+        <div class="col-md-8">
+            <div class="card shadow-lg p-4">
+                <h5 class="text-center">📈 Appointments Over Time</h5>
+                <div class="chart-container">
+                    <canvas id="appointmentsOverTimeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doughnut Chart: Appointment Status Breakdown -->
+        <div class="col-md-4">
+            <div class="card shadow-lg p-4">
+                <h5 class="text-center">📊 Status Breakdown</h5>
+                <div class="chart-container">
+                    <canvas id="appointmentStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bar Charts -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4">
+                <h5 class="text-center">🩺 Appointments Per Service Type</h5>
+                <div class="chart-container">
+                    <canvas id="appointmentsPerServiceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4">
+                <h5 class="text-center">👨‍⚕️ Appointments Per Doctor</h5>
+                <div class="chart-container">
+                    <canvas id="appointmentsPerDoctorChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Tables -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h4 class="text-center">📊 Appointments Per Service Type</h4>
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Service Type</th>
+                        <th>Total Appointments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (appointmentsPerType != null)
+                    {
+                        @foreach (var type in appointmentsPerType)
+                        {
+                            <tr>
+                                <td>@type.Key</td>
+                                <td>@type.Value</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-md-6">
+            <h4 class="text-center">📊 Appointments Per Doctor</h4>
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Doctor ID</th>
+                        <th>Total Appointments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (appointmentsPerDoctor != null)
+                    {
+                        @foreach (var doctor in appointmentsPerDoctor)
+                        {
+                            <tr>
+                                <td>@doctor.Key</td>
+                                <td>@doctor.Value</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Scripts -->
+<script>
+    // Doughnut Chart: Appointment Status Breakdown
+    var ctx1 = document.getElementById('appointmentStatusChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+            labels: ['Completed', 'Pending', 'Cancelled'],
+            datasets: [{
+                data: [@analytics?["CompletedAppointments"], @analytics?["PendingAppointments"], @analytics?["CancelledAppointments"]],
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Line Chart: Appointments Over Time
+    var ctx2 = document.getElementById('appointmentsOverTimeChart').getContext('2d');
+    var appointmentsPerMonth = @Html.Raw(Json.Serialize(appointmentsPerMonth ?? new Dictionary<string, int>()));
+    new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: Object.keys(appointmentsPerMonth),
+            datasets: [{
+                label: 'Total Appointments',
+                data: Object.values(appointmentsPerMonth),
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Bar Chart: Appointments Per Service Type
+    var ctx3 = document.getElementById('appointmentsPerServiceChart').getContext('2d');
+    var appointmentsPerType = @Html.Raw(Json.Serialize(appointmentsPerType ?? new Dictionary<string, int>()));
+    new Chart(ctx3, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(appointmentsPerType),
+            datasets: [{
+                label: 'Appointments',
+                data: Object.values(appointmentsPerType),
+                backgroundColor: '#17a2b8'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Bar Chart: Appointments Per Doctor
+    var ctx4 = document.getElementById('appointmentsPerDoctorChart').getContext('2d');
+    var appointmentsPerDoctor = @Html.Raw(Json.Serialize(appointmentsPerDoctor ?? new Dictionary<string, int>()));
+    new Chart(ctx4, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(appointmentsPerDoctor),
+            datasets: [{
+                label: 'Appointments',
+                data: Object.values(appointmentsPerDoctor),
+                backgroundColor: '#ff9800'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
