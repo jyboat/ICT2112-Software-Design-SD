@@ -100,23 +100,22 @@ namespace ClearCare.Models.Control
             try
             {
                 // TODO change to manual scheduler's method once it's up
-                var serviceAppointmentManager = new ServiceAppointmentManagement();
-                ServiceAppointment appointment = await serviceAppointmentManager.getAppointmentByID(AppointmentId);
-                   
-                ServiceAppointment appt = appointment.updateServiceAppointementById(
-                    appointment,
-                    PatientId,
-                    NurseId.ToString(),
-                    DoctorId,
-                    ServiceType,
-                    "Scheduled",
-                    DateTime.ToUniversalTime(),
-                    Slot,
-                    Location
-                    );
-                
-                bool updateSuccess = await serviceAppointmentManager.UpdateAppointment(appt);
-            
+                var svcMgr = new ServiceAppointmentManagement();
+                var svc = await svcMgr.getAppointmentByID(AppointmentId);
+                svc.updateServiceAppointementById(
+                    appointment:svc,
+                    patientId: PatientId,
+                    nurseId: NurseId,
+                    doctorId: DoctorId,
+                    serviceTypeId: ServiceType,
+                    status: "Scheduled",
+                    dateTime: DateTime.ToUniversalTime(),
+                    slot: Slot,
+                    location: Location
+                );
+                bool updateSuccess = await svcMgr.UpdateAppointment(svc);
+
+                // Delete service backlog if updating is successful
                 bool deleteSuccess = false;
                 if (updateSuccess)
                 {
