@@ -25,7 +25,7 @@
             <p><strong>Service Type:</strong> <span id="serviceTypeIdDisplay">@Model.GetAttribute("ServiceTypeId")</span></p>
             <p><strong>Status:</strong> <span id="statusDisplay">@Model.GetAttribute("Status")</span></p>
             <p><strong>Date & Time:</strong> <span
-                    id="dateTimeDisplay">@Model.GetAppointmentDateTime(appointment)</span></p>
+                    id="dateTimeDisplay">@Model.GetAppointmentDateTime(Model)</span></p>
             <p><strong>Slot:</strong> <span id="slotDisplay">@Model.GetAttribute("Slot")</span></p>
             <p><strong>Location:</strong> <span id="locationDisplay">@Model.GetAttribute("Location")</span></p>
         </div>
@@ -82,7 +82,7 @@
                         <div class="mb-3">
                             <label for="dateTime" class="form-label">Date & Time</label>
                             <input type="datetime-local" class="form-control" id="dateTime"
-                                   value="@Model.GetAppointmentDateTime(appointment)">
+                                   value="@Model.GetAppointmentDateTime(Model)">
                         </div>
 
                         <div class="mb-3">
