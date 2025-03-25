@@ -64,8 +64,8 @@
     </div>
 
     <div class="table-responsive">
-        <table class="table table-striped table-hover table-bordered shadow-sm" id="recordsTable">
-            <thead class="table-dark">
+        <table class="table table-striped table-hover table-bordered" id="recordsTable">
+            <thead class="table-primary">
                 <tr>
                     <th scope="col" class="text-nowrap">User ID</th>
                     <th scope="col">Name</th>
@@ -90,16 +90,16 @@
                                 <div class="btn-group">
                                     @if (!string.IsNullOrEmpty(user?.getProfileData()["UserID"] as String))
                                     {
-                                        <button data-bs-toggle="modal" data-bs-target="#viewUserModal_@user?.getProfileData()["UserID"]" class="btn btn-sm btn-outline-info px-3 py-1 me-2" title="View Details">
+                                        <button data-bs-toggle="modal" data-bs-target="#viewUserModal_@user?.getProfileData()["UserID"]" class="btn btn-warning btn-md me-2" title="View Details">
                                             <i class="bi bi-eye"></i><span class="d-none d-md-inline"> View</span>
                                         </button>
-                                        <a href="/UpdateProfilePage/@user?.getProfileData()["UserID"]" class="btn btn-sm btn-outline-warning px-3 py-1 me-2" title="Edit Account">
+                                        <a href="/UpdateProfilePage/@user?.getProfileData()["UserID"]" class="btn btn-warning btn-md me-2" title="Edit Account">
                                             <i class="bi bi-pencil-square"></i><span class="d-none d-md-inline"> Edit</span>
                                         </a>
-                                        <button data-bs-toggle="modal" data-bs-target="#resetPassword_@user?.getProfileData()["UserID"]" class="btn btn-sm btn-outline-info px-3 py-1 me-2" title="View Details">
+                                        <button data-bs-toggle="modal" data-bs-target="#resetPassword_@user?.getProfileData()["UserID"]" class="btn btn-warning btn-md me-2" title="View Details">
                                             <i class="bi bi-arrow-repeat"></i><span class="d-none d-md-inline"> Reset Password</span>
                                         </button>
-                                        <button data-bs-toggle="modal" data-bs-target="#deleteAccount_@user?.getProfileData()["UserID"]" class="btn btn-sm btn-outline-danger px-3 py-1 me-2" title="View Details">
+                                        <button data-bs-toggle="modal" data-bs-target="#deleteAccount_@user?.getProfileData()["UserID"]" class="btn btn-warning btn-md me-2" title="View Details">
                                             <i class="fa-solid fa-trash"></i><span class="d-none d-md-inline"> Delete Account</span>
                                         </button>
                                     }

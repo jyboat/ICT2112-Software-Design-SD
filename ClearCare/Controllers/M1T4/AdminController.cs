@@ -24,6 +24,16 @@ namespace ClearCare.Controllers
           [HttpGet]
           public async Task<IActionResult> Dashboard(string currentView = "medical")
           {
+               // Check for userRole
+               var userRole = HttpContext.Session.GetString("Role");
+
+               // Restrict access to only Admin
+               if (userRole != "Admin")
+               {
+                    Console.WriteLine("You do not have permission to access this page.");
+                    return RedirectToAction("displayLogin", "Login");
+               }
+
                var users = await _adminManagement.retrieveAllUsers();
 
                if (users != null)
@@ -58,6 +68,16 @@ namespace ClearCare.Controllers
           [HttpGet]
           public async Task<IActionResult> AuditView()
           {
+               // Check for userRole
+               var userRole = HttpContext.Session.GetString("Role");
+
+               // Restrict access to only Admin
+               if (userRole != "Admin")
+               {
+                    Console.WriteLine("You do not have permission to access this page.");
+                    return RedirectToAction("displayLogin", "Login");
+               }
+
                List<AuditLog> auditLogs = await _auditManagement.GetAllAuditLogsAsync();
 
                // Ensure ViewData is not null
@@ -70,6 +90,16 @@ namespace ClearCare.Controllers
           [HttpGet]
           public IActionResult LoadCreateNurseAccount()
           {
+               // Check for userRole
+               var userRole = HttpContext.Session.GetString("Role");
+
+               // Restrict access to only Admin
+               if (userRole != "Admin")
+               {
+                    Console.WriteLine("You do not have permission to access this page.");
+                    return RedirectToAction("displayLogin", "Login");
+               }
+
                return View("~/Views/Admin/CreateNurseAccount.cshtml");
           }
 
@@ -77,6 +107,16 @@ namespace ClearCare.Controllers
           [HttpGet]
           public IActionResult LoadCreateDoctorAccount()
           {
+               // Check for userRole
+               var userRole = HttpContext.Session.GetString("Role");
+
+               // Restrict access to only Admin
+               if (userRole != "Admin")
+               {
+                    Console.WriteLine("You do not have permission to access this page.");
+                    return RedirectToAction("displayLogin", "Login");
+               }
+
                return View("~/Views/Admin/CreateDoctorAccount.cshtml");
           }
 
@@ -100,6 +140,16 @@ namespace ClearCare.Controllers
           [HttpPost]
           public async Task<IActionResult> createAccount(string email, string name, string role, string address, long? mobileNumber, string? department, string? specialization)
           {
+               // Check for userRole
+               var userRole = HttpContext.Session.GetString("Role");
+
+               // Restrict access to only Admin
+               if (userRole != "Admin")
+               {
+                    Console.WriteLine("You do not have permission to access this page.");
+                    return RedirectToAction("displayLogin", "Login");
+               }
+
                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || mobileNumber == null || (string.IsNullOrEmpty(department) && string.IsNullOrEmpty(specialization)))
                {
                     TempData["ErrorMessage"] = "Please fill in all required fields.";
@@ -143,6 +193,16 @@ namespace ClearCare.Controllers
           [HttpGet("/UpdateProfilePage/{uid}")]
           public async Task<IActionResult> manageUsers(string uid)
           {
+               // Check for userRole
+               var userRole = HttpContext.Session.GetString("Role");
+
+               // Restrict access to only Admin
+               if (userRole != "Admin")
+               {
+                    Console.WriteLine("You do not have permission to access this page.");
+                    return RedirectToAction("displayLogin", "Login");
+               }
+               
                if (string.IsNullOrEmpty(uid))
                {
                     TempData["ErrorMessage"] = "User ID is required.";

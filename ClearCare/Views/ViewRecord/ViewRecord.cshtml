@@ -13,11 +13,17 @@
 
     <!-- Search and Create Button Section -->
     <div class="d-flex justify-content-between mb-3">
-        <input type="text" id="searchInput" class="form-control w-25" placeholder="Search records...">
+        <div class="input-group">
+                <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text" id="searchInput" class="form-control border-start-0 ps-0"
+                    placeholder="Search by Medical Record ID, Patient Name, Doctor Name..." aria-label="Search users">
+            </div>
         
         @if (userRole == "Doctor")
         {
-            <a class="btn btn-primary" asp-controller="ManageRecord" asp-action="DisplayCreateRecord">
+            <a class="btn btn-success" asp-controller="ManageRecord" asp-action="DisplayCreateRecord">
                 <i class="bi bi-plus-circle"></i> Create Medical Record
             </a>
         }
