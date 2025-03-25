@@ -5,6 +5,7 @@ using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 using Google.Protobuf.WellKnownTypes;
 using ClearCare.Interfaces;
+using ClearCare.Models.Interface;
 
 
 namespace ClearCare.Models.Control

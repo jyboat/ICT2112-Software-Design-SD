@@ -4,6 +4,7 @@ using ClearCare.Models.Hubs;
 using ClearCare.DataSource;
 using ClearCare.Controllers;
 using Microsoft.AspNetCore.SignalR;
+using ClearCare.Models.Interface.M2T3;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +51,11 @@ builder.Services.AddScoped<ErratumManagement>();
 // ✅ Register observer and SignalR context for Audit Logging
 
 
+builder.Services.AddScoped<IAppointmentStatus, ServiceAppointmentStatusManagement>();// Ensure ServiceAppointmentStatusManagement implements IAppointmentStatus
+
+builder.Services.AddScoped<INotification, NotificationManager>();
+builder.Services.AddSingleton<NotificationManager>();
+
 
 var app = builder.Build();
 
@@ -90,6 +96,11 @@ app.UseSession();
 
 // Required services
 // Start UpdateViewObserver automatically (ensures observer is created)
+
+// Instantiate NotificationManager and NotificationScheduler using DI
+var notificationManager = app.Services.GetRequiredService<NotificationManager>();
+var notificationScheduler = new NotificationScheduler(notificationManager);
+
 
 app.MapControllerRoute(
     name: "default",

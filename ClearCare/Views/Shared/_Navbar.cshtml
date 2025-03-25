@@ -13,6 +13,10 @@
                 <li class="nav-item">
                     <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-house me-1"></i>Home</a>
                 </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="NotificationTest" asp-action="Index">Test Notifications</a>
+                </li>
                 @* Check if user is admin *@
                 @if (userRole == "Admin"){
                     <li class="nav-item">
@@ -37,6 +41,10 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="ServiceHistory" asp-action="Index">Service History</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="ServiceCompletionInput" asp-action="GetAppointmentDetails"><i class="bi bi-check-circle me-1"></i>Service Completion</a>
                     </li>
                 }
                 @if (userRole == "Nurse"){

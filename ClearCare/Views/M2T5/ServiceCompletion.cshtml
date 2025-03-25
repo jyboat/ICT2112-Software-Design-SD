@@ -1,0 +1,94 @@
+@model List<ClearCare.Models.DTO.ServiceAppointmentDTO>
+
+<h2>Service Completion</h2>
+@{
+    var message = ViewBag.Message as string;
+    var notificationMessage = TempData["NotificationMessage"] as string; // Use TempData to pass notification message
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div>
+        <strong>Message:</strong> @message
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(notificationMessage))
+{
+    <div>
+        <strong>Notification:</strong> @notificationMessage
+    </div>
+}
+
+@if (Model != null && Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Appointment ID</th>
+                <th>Patient</th>
+                <th>Nurse</th>
+                <th>Doctor</th>
+                <th>Service Type</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var appointment in Model)
+            {
+                <tr>
+                    <td>@appointment.AppointmentId</td>
+                    <td>@appointment.PatientId</td>
+                    <td>@appointment.NurseId</td>
+                    <td>@appointment.DoctorId</td>
+                    <td>@appointment.ServiceTypeId</td>
+                    <td>@appointment.Status</td>
+                    <td>
+                        <!-- Update Button -->
+                        <button class="btn btn-primary update-btn" data-appointment-id="@appointment.AppointmentId">
+                            Update Status
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No pending service appointments found.</p>
+}
+
+@section Scripts {
+    <script>
+        // Handle the update button click
+        $(document).ready(function () {
+            $('.update-btn').click(function () {
+                var appointmentId = $(this).data('appointment-id');
+
+                // Confirm the action (optional)
+                var confirmation = confirm('Are you sure you want to update the status of this appointment?');
+
+                if (confirmation) {
+                    // Make an AJAX request to the PUT endpoint
+                    $.ajax({
+                        url: '/ServiceCompletionInput/appointments/' + appointmentId,
+                        type: 'PUT',
+                        success: function (response) {
+                            // Optionally, update the row or give feedback to the user
+                            //alert('Appointment status updated successfully.');
+
+                            // Display a success message for the notification
+                            //TempData["NotificationMessage"] = "Notification sent to the user successfully.";
+                            window.location.reload(); // Reload the page to reflect the change and show the notification message
+                        },
+                        error: function (xhr, status, error) {
+                            alert('An error occurred while updating the appointment status: ' + error);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

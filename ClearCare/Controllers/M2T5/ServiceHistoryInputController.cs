@@ -4,6 +4,15 @@ using ClearCare.Models.Control;
 using ClearCare.Interfaces;
 using System.Text.Json;
 
+using ClearCare.Interfaces;
+using ClearCare.Models.Entities;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using ClearCare.Models.Interface;
+using ClearCare.Models.DTO;
+
 namespace ClearCare.Controllers
 {
     [Route("ServiceHistory")] // Set base route for controller
