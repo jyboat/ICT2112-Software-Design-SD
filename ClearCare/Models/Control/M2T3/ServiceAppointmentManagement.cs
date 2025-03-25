@@ -22,14 +22,10 @@ namespace ClearCare.Models.Control
 
 
         // Get All Service Appointment
-        public async Task<List<Dictionary<string, object>>> retrieveAllAppointments()
+        public async Task<List<ServiceAppointment>> RetrieveAllAppointments()
         {
             List<ServiceAppointment> appointments = await _dbGateway.fetchAllServiceAppointments();
-            List<Dictionary<string, object>> appointmentList = appointments
-               .Select(a => a.ToFirestoreDictionary())
-               .ToList();
-
-            return appointmentList;
+            return appointments;
         }
 
         public Task receiveServiceAppointmentList(List<ServiceAppointment> allServiceAppointments)
@@ -46,14 +42,14 @@ namespace ClearCare.Models.Control
         }
 
         // Get Service Appointment By ID
-        public async Task<Dictionary<string, object>> getAppointmentByID(string appointmentId)
+        public async Task<ServiceAppointment> getAppointmentByID(string appointmentId)
         {
-            Dictionary<string, object> appointment = await _dbGateway.fetchServiceAppointmentByID(appointmentId);
+            ServiceAppointment appointment = await _dbGateway.fetchServiceAppointmentByID(appointmentId);
 
             return appointment;
         }
 
-        public Task receiveServiceAppointmentById(Dictionary<string, object> serviceAppointment)
+        public Task receiveServiceAppointmentById(ServiceAppointment serviceAppointment)
         {
             Console.WriteLine("1 Service Appointment Found.");
             return Task.CompletedTask;
@@ -281,12 +277,6 @@ namespace ClearCare.Models.Control
             List<ServiceAppointmentGateway.Patient> patients = await _dbGateway.fetchAllUnscheduledPatients();
             return patients;
         }
-
-
-        // public Task CreateAppointment() {
-        //     Console.WriteLine("Hello Create Appointment Interface");
-        //     return Task.CompletedTask;
-        // }
     }
 
 }

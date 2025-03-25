@@ -45,7 +45,7 @@ namespace ClearCare.DataSource
             return appointmentList;
         }
 
-        public async Task<Dictionary<string, object>> fetchServiceAppointmentByID(string documentId)
+        public async Task<ServiceAppointment> fetchServiceAppointmentByID(string documentId)
         {
             DocumentReference docRef = _db.Collection("ServiceAppointments").Document(documentId);
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
@@ -63,12 +63,9 @@ namespace ClearCare.DataSource
 
             // ✅ Pass appointment (not snapshot) to CheckAndUpdateStatusAsync()
             appointment = await CheckAndUpdateStatusAsync(appointment);
-
-            // Convert updated appointment back to a dictionary
-            var updatedData = appointment.ToFirestoreDictionary();
-
-            await _receiver.receiveServiceAppointmentById(updatedData);
-            return updatedData;
+            
+            await _receiver.receiveServiceAppointmentById(appointment);
+            return appointment;
         }
 
         public async Task<string> CreateAppointment(ServiceAppointment appointment)

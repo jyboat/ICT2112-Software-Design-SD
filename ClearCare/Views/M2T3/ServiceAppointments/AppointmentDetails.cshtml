@@ -1,4 +1,5 @@
-@model Dictionary<string, object>
+@using ClearCare.Models.Entities
+@model ServiceAppointment
 
 @{
     ViewData["Title"] = "Appointment Details";
@@ -17,16 +18,16 @@
 
     <div class="card">
         <div class="card-body">
-            <p><strong>Appointment ID:</strong> <span id="appointmentIdDisplay">@Model["AppointmentId"]</span></p>
-            <p><strong>Patient ID:</strong> <span id="patientIdDisplay">@Model["PatientId"]</span></p>
-            <p><strong>Nurse ID:</strong> <span id="nurseIdDisplay">@Model["NurseId"]</span></p>
-            <p><strong>Doctor ID:</strong> <span id="doctorIdDisplay">@Model["DoctorId"]</span></p>
-            <p><strong>Service Type:</strong> <span id="serviceTypeIdDisplay">@Model["ServiceTypeId"]</span></p>
-            <p><strong>Status:</strong> <span id="statusDisplay">@Model["Status"]</span></p>
+            <p><strong>Appointment ID:</strong> <span id="appointmentIdDisplay">@Model.GetAttribute("AppointmentId")</span></p>
+            <p><strong>Patient ID:</strong> <span id="patientIdDisplay">@Model.GetAttribute("PatientId")</span></p>
+            <p><strong>Nurse ID:</strong> <span id="nurseIdDisplay">@Model.GetAttribute("NurseId")</span></p>
+            <p><strong>Doctor ID:</strong> <span id="doctorIdDisplay">@Model.GetAttribute("DoctorId")</span></p>
+            <p><strong>Service Type:</strong> <span id="serviceTypeIdDisplay">@Model.GetAttribute("ServiceTypeId")</span></p>
+            <p><strong>Status:</strong> <span id="statusDisplay">@Model.GetAttribute("Status")</span></p>
             <p><strong>Date & Time:</strong> <span
-                    id="dateTimeDisplay">@Convert.ToDateTime(Model["DateTime"]).ToString("yyyy-MM-dd HH:mm")</span></p>
-            <p><strong>Slot:</strong> <span id="slotDisplay">@Model["Slot"]</span></p>
-            <p><strong>Location:</strong> <span id="locationDisplay">@Model["Location"]</span></p>
+                    id="dateTimeDisplay">@Convert.ToDateTime(Model.GetAttribute("Datetime")).ToString("yyyy-MM-dd HH:mm")</span></p>
+            <p><strong>Slot:</strong> <span id="slotDisplay">@Model.GetAttribute("Slot")</span></p>
+            <p><strong>Location:</strong> <span id="locationDisplay">@Model.GetAttribute("Location")</span></p>
         </div>
         <div class="card-footer d-flex justify-content-between">
             <button type="button" class="btn btn-primary" onclick="showEditModal()">Edit Appointment</button>
@@ -45,55 +46,55 @@
                 </div>
                 <div class="modal-body">
                     <form id="editAppointmentForm">
-                        <input type="hidden" id="appointmentId" value="@Model["AppointmentId"]">
+                        <input type="hidden" id="appointmentId" value="@Model.GetAttribute("AppointmentId")">
                         
                         @* patient id read only for now *@
                         <div class="mb-3">
                             <label for="patientId" class="form-label">Patient ID</label>
-                            <input type="text" class="form-control" id="patientId" value="@Model["PatientId"]" readonly>
+                            <input type="text" class="form-control" id="patientId" value="@Model.GetAttribute("PatientId")" readonly>
                         </div>
 
                         <div class="mb-3">
                             <label for="nurseId" class="form-label">Nurse ID</label>
-                            <input type="text" class="form-control" id="nurseId" value="@Model["NurseId"]">
+                            <input type="text" class="form-control" id="nurseId" value="@Model.GetAttribute("NurseId")">
                         </div>
 
                         <div class="mb-3">
                             <label for="doctorId" class="form-label">Doctor ID</label>
-                            <input type="text" class="form-control" id="doctorId" value="@Model["DoctorId"]">
+                            <input type="text" class="form-control" id="doctorId" value="@Model.GetAttribute("DoctorId")">
                         </div>
 
                         <div class="mb-3">
                             <label for="serviceTypeId" class="form-label">Service Type</label>
-                            <input type="text" class="form-control" id="serviceTypeId" value="@Model["ServiceTypeId"]">
+                            <input type="text" class="form-control" id="serviceTypeId" value="@Model.GetAttribute("ServiceTypeId")">
                         </div>
 
                         <div class="mb-3">
                             <label for="status" class="form-label">Status</label>
                             <select class="form-control" id="status">
-                                <option value="Pending" selected="@(Model["Status"].ToString() == "Pending")">Pending</option>
-                                <option value="Confirmed" selected="@(Model["Status"].ToString() == "Confirmed")">Confirmed</option>
-                                <option value="Completed" selected="@(Model["Status"].ToString() == "Completed")">Completed</option>
-                                <option value="Cancelled" selected="@(Model["Status"].ToString() == "Cancelled")">Cancelled</option>
+                                <option value="Pending" selected="@(Model.GetAttribute("Status").ToString() == "Backlog")">Backlog</option>
+                                <option value="Confirmed" selected="@(Model.GetAttribute("Status").ToString() == "Confirmed")">Confirmed</option>
+                                <option value="Completed" selected="@(Model.GetAttribute("Status").ToString() == "Completed")">Completed</option>
+                                <option value="Cancelled" selected="@(Model.GetAttribute("Status").ToString() == "Cancelled")">Cancelled</option>
                             </select>
                         </div>
 
                         <div class="mb-3">
                             <label for="dateTime" class="form-label">Date & Time</label>
                             <input type="datetime-local" class="form-control" id="dateTime"
-                                   value="@Convert.ToDateTime(Model["DateTime"]).ToString("yyyy-MM-ddTHH:mm")">
+                                   value="@Convert.ToDateTime(Model.GetAttribute("Datetime")).ToString("yyyy-MM-ddTHH:mm")">
                         </div>
 
                         <div class="mb-3">
                             <label for="slot" class="form-label">Slot</label>
-                            <input type="number" class="form-control" id="slot" value="@Model["Slot"]">
+                            <input type="number" class="form-control" id="slot" value="@Model.GetAttribute("Slot")">
                         </div>
 
                         <div class="mb-3">
                             <label for="location" class="form-label">Location</label>
                             <select class="form-control" id="location">
-                                <option value="PHYSICAL" selected="@(Model["Location"].ToString() == "PHYSICAL")">Physical</option>
-                                <option value="VIRTUAL" selected="@(Model["Location"].ToString() == "VIRTUAL")">Virtual</option>
+                                <option value="PHYSICAL" selected="@(Model.GetAttribute("Location").ToString() == "PHYSICAL")">Physical</option>
+                                <option value="VIRTUAL" selected="@(Model.GetAttribute("Location").ToString() == "VIRTUAL")">Virtual</option>
                             </select>
                         </div>
                     </form>

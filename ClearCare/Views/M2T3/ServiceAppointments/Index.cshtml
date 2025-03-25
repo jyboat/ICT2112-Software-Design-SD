@@ -1,4 +1,5 @@
-@model List<Dictionary<string, object>>
+@using ClearCare.Models.Entities
+@model List<ServiceAppointment>
 
 @{
     ViewData["Title"] = "All Service Appointments";
@@ -28,16 +29,16 @@
             @foreach (var appointment in Model)
             {
                 <tr>
-                    <td>@appointment["PatientId"]</td>
-                    <td>@appointment["NurseId"]</td>
-                    <td>@appointment["DoctorId"]</td>
-                    <td>@appointment["ServiceTypeId"]</td>
-                    <td>@appointment["Status"]</td>
-                    <td>@Convert.ToDateTime(appointment["DateTime"]).ToString("yyyy-MM-dd HH:mm")</td>
-                    <td>@appointment["Slot"]</td>
-                    <td>@appointment["Location"]</td>
+                    <td>@appointment.GetAttribute("PatientId")</td>
+                    <td>@appointment.GetAttribute("NurseId")</td>
+                    <td>@appointment.GetAttribute("DoctorId")</td>
+                    <td>@appointment.GetAttribute("ServiceTypeId")</td>
+                    <td>@appointment.GetAttribute("Status")</td>
+                    <td>@Convert.ToDateTime(appointment.GetAttribute("Datetime")).ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@appointment.GetAttribute("Slot")</td>
+                    <td>@appointment.GetAttribute("Location")</td>
                     <td>
-                        <a href="/api/ServiceAppointments/Retrieve/@appointment["AppointmentId"]">Edit</a> |
+                        <a href="/api/ServiceAppointments/Retrieve/@appointment.GetAttribute("AppointmentId")">Edit</a> |
                     </td>
                 </tr>
             }

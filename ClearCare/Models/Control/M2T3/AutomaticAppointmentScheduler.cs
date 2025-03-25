@@ -198,9 +198,20 @@ namespace ClearCare.Models.Control
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
                 string appointmentId = document.GetValue<string>("appointmentId");
-                Dictionary<string, object> entry = await _iCreateAppointment.getAppointmentByID(appointmentId);
-                entry["DateTime"] = DateTime.Now; 
-                ServiceAppointment appointment = ServiceAppointment.FromFirestoreData(appointmentId, entry);
+                ServiceAppointment appointment = await _iCreateAppointment.getAppointmentByID(appointmentId);
+                appointment.updateServiceAppointementById(
+                    appointment, 
+                    appointment.GetAttribute("PatientId"), 
+                    appointment.GetAttribute("NurseId"), 
+                    appointment.GetAttribute("DoctorId"), 
+                    appointment.GetAttribute("ServiceTypeId"), 
+                    appointment.GetAttribute("Status"), 
+                    DateTime.Now, 
+                    Convert.ToInt32(appointment.GetAttribute("Slot")), 
+                    appointment.GetAttribute("Location")
+                );
+                // entry["DateTime"] = DateTime.Now; 
+                // ServiceAppointment appointment = ServiceAppointment.FromFirestoreData(appointmentId, entry);
 
                 backlogEntries.Add(appointment);
             }

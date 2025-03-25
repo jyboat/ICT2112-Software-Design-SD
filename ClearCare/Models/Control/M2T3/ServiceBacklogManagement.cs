@@ -211,17 +211,17 @@ namespace ClearCare.Models.Control
         }
     
 
-        private Task<ServiceBacklogViewModel> createViewModel(ServiceBacklog serviceBacklog, Dictionary<string, object> appointment)
+        private Task<ServiceBacklogViewModel> createViewModel(ServiceBacklog serviceBacklog, ServiceAppointment appointment)
         {
             return Task.FromResult(new ServiceBacklogViewModel {
                 BacklogId = serviceBacklog.getBacklogInformation()["backlogId"],
                 AppointmentId = serviceBacklog.getBacklogInformation()["appointmentId"],
-                DateTime = (DateTime)appointment["DateTime"],
+                DateTime = (DateTime)appointment.GetAppointmentDateTime(appointment),
                 // DateTimeFormatted = ((DateTime)appointment["DateTime"]).ToString("yyyy-MM-dd HH:mm:ss"),
-                PatientId = (string)appointment["PatientId"],
-                DoctorId = (string)appointment["DoctorId"],
-                NurseId = (string)appointment["NurseId"],
-                ServiceType = (string)appointment["ServiceTypeId"]
+                PatientId = (string)appointment.GetAttribute("PatientId"),
+                DoctorId = (string)appointment.GetAttribute("DoctorId"),
+                NurseId = (string)appointment.GetAttribute("NurseId"),
+                ServiceType = (string)appointment.GetAttribute("ServiceTypeId")
             });
         }
 

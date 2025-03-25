@@ -18,7 +18,7 @@ namespace ClearCare.Interfaces
             string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location);
         Task<List<ServiceAppointment>> RetrieveAllAppointmentsByNurse(string nurseId);
            
-        Task<Dictionary<string, object>> getAppointmentByID(string appointmentId);
+        Task<ServiceAppointment> getAppointmentByID(string appointmentId);
 
         Task<bool> DeleteAppointment (string appointmentId);
     }
