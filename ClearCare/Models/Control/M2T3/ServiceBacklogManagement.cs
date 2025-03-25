@@ -91,7 +91,7 @@ namespace ClearCare.Models.Control
             string PatientId,
             string DoctorId,
             string ServiceType,
-            int NurseId,
+            string NurseId,
             DateTime DateTime,
             int Slot,
             string Location

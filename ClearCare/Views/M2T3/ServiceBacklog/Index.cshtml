@@ -153,33 +153,52 @@
         }
 
         // Handle Reassignment via POST Request
-        $("#confirmReassign").click(function() {
-            var backlogId = $("#modalBacklogId").val();
-            var patientId = $("#editPatientId").val();
-            var nurseId = $("#editNurseId").val();
-            var dateTime = $("#editDateAndTime").val();
-            var slot = $("#editSlot").val();
-            var location = $("#editLocation").val();
-            var status = $("#editStatus").val();
+    $("#confirmReassign").click(function () {
+        var backlogId = $("#modalBacklogId").val();
+        var appointmentId = $("#modalAppointmentId").val();
+        var patientId = $("#editPatientId").val();
+        var doctorId = $("#editDoctorId").val();
+        var serviceType = $("#editServiceType").val();
+        var nurseId = $("#editNurseId").val();
+        var dateTime = $("#editDateAndTime").val();
+        var slot = $("#editSlot").val();
+        var location = $("#editLocation").val();
 
-            $.post('/ReassignManual', {
+        console.log("Sending data to server:");
+        console.log({ backlogId, appointmentId, doctorId, patientId, nurseId, dateTime, slot, location, serviceType });
+
+        fetch("/ServiceBacklog/ReassignManual", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
                 BacklogId: backlogId,
+                AppointmentId: appointmentId,
                 PatientId: patientId,
+                DoctorId: doctorId,
+                ServiceType: serviceType,
                 NurseId: nurseId,
-                DateTime: dateTime,
+                _DateTime: dateTime,
                 Slot: slot,
-                Location: location,
-                Status: status
+                Location: location
             })
-            .done(() => {
-                alert('Reassignment successful!');
-                closeModal();
-                location.reload();
-            })
-            .fail(() => {
-                alert('Failed to reassign!');
-            });
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Error reassigning backlog.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            toastr.success(data.message, "Success");
+            closeModal();
+            setTimeout(() => { location.reload(); }, 2000);
+        })
+        .catch(error => {
+            toastr.error(error.message, "Error");
+            console.error("Error:", error);
         });
+
+    });
     </script>
 
 

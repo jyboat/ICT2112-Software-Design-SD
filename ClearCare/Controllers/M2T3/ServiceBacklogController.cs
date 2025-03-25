@@ -49,45 +49,36 @@ namespace ClearCare.Controllers
         }
 
         [HttpPost]
+        [Route("ReassignManual")] 
         public async Task<IActionResult> ReassignManual([FromForm] string BacklogId,
-                        [FromForm] string AppointmentId,
-                        [FromForm] string PatientId,
-                        [FromForm] string DoctorId,
-                        [FromForm] string ServiceType,
-                        [FromForm] int NurseId,
-                        [FromForm] DateTime DateTime,
-                        [FromForm] int Slot,
-                        [FromForm] string Location)
-        {
-            Console.WriteLine($"BacklogId: {BacklogId}");
-            Console.WriteLine($"AppointmentId: {AppointmentId}");
-            Console.WriteLine($"PatientId: {PatientId}");
-            Console.WriteLine($"DoctorId: {DoctorId}");
-            Console.WriteLine($"ServiceType: {ServiceType}");
-            Console.WriteLine($"NurseId: {NurseId}");
-            Console.WriteLine($"DateTime: {DateTime}");
-            Console.WriteLine($"Slot: {Slot}");
-            Console.WriteLine($"Location: {Location}");
-            
+                [FromForm] string AppointmentId,
+                [FromForm] string PatientId,
+                [FromForm] string DoctorId,
+                [FromForm] string ServiceType,
+                [FromForm] string NurseId,
+                [FromForm] string _DateTime,
+                [FromForm] string Slot,
+                [FromForm] string Location)
+        {   
             bool success = await _manager.reassignBacklog(
-                BacklogId:BacklogId,
-                AppointmentId:AppointmentId,
-                PatientId:PatientId,
-                DoctorId:DoctorId,
-                ServiceType:ServiceType,
-                NurseId:NurseId,
-                DateTime:DateTime,
-                Slot:Slot,
-                Location: Location
+                    BacklogId:BacklogId,
+                    AppointmentId:AppointmentId,
+                    PatientId:PatientId,
+                    DoctorId:DoctorId,
+                    ServiceType:ServiceType,
+                    NurseId:NurseId,
+                    DateTime:DateTime.Parse(_DateTime),
+                    Slot:int.Parse(Slot),
+                    Location: Location
             );
             
             if (success)
             {
-                return RedirectToAction("Index");
+                return Ok(new { message = "Backlog successfully rescheduled!" });
             }
-            else {
-                // might swap to js to handle fail on the same page
-                return RedirectToAction("Reassign", BacklogId);
+            else
+            {
+                return BadRequest(new { message = "Failed to reschedule backlog." });
             }
         }
 
