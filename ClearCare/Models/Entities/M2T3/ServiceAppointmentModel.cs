@@ -101,7 +101,7 @@ namespace ClearCare.Models.Entities
                 System.Globalization.DateTimeStyles.AdjustToUniversal // Ensures UTC conversion
             );
 
-            return localTime.ToUniversalTime();
+            return localTime;
 
         }
 
