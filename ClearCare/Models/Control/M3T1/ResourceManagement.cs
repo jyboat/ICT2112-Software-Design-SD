@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ClearCare.DataSource.M3T1;
 using ClearCare.Models.Entities.M3T1;
+using ClearCare.Interfaces.M3T1;
+
 
 
 namespace ClearCare.Models.Control.M3T1
@@ -39,7 +41,7 @@ namespace ClearCare.Models.Control.M3T1
                 dateCreated,
                 image,
                 coverImageName,
-                url,
+                url
             );
         }
 

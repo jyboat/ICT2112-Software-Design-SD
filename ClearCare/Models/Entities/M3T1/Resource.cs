@@ -38,7 +38,7 @@ namespace ClearCare.Models.Entities.M3T1
         private void SetDateCreated(string dateCreated) => DateCreated = dateCreated;
         private void SetCoverImage(byte[] image) => CoverImage = image;
         private void SetCoverImageName(string coverImageName) => CoverImageName = coverImageName;
-        private void SetTargetUrl(string targetUrl) => Url = url;
+        private void SetTargetUrl(string url) => Url = url;
 
         public Resource() { }
 

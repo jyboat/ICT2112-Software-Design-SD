@@ -1,4 +1,7 @@
 using ClearCare.DataSource.M3T1;
+using ClearCare.Interfaces.M3T1;
+
+
 
 public class ArticleUrlStrategy : IResourceStrategy
 {
