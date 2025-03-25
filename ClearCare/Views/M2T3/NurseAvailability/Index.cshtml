@@ -10,9 +10,7 @@
 <head>
     <title>My Calendar</title>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <style>
         #calendar {
             max-width: 900px;
@@ -94,6 +92,10 @@
         });
 
         function openEditModal(id, nurseId, date) {
+            // Set the min attribute to today's date (YYYY-MM-DD)
+            var todayStr = new Date().toISOString().split("T")[0];
+            document.getElementById("editDate").setAttribute("min", todayStr);
+            
             document.getElementById("editAvailabilityId").value = id;
             document.getElementById("editNurseID").value = nurseId;
             document.getElementById("editDate").value = date;
@@ -266,7 +268,7 @@
 
                         <div class="form-group">
                             <label for="addNurseID">Nurse ID</label>
-                            <input type="text" class="form-control" id="addNurseID" value="USR003" readonly>
+                            <input type="text" class="form-control" id="addNurseID" value="USR001" readonly>
                         </div>
                         <div class="form-group">
                             <label for="addDate">Date</label>
