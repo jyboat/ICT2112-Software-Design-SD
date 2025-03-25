@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ClearCare.Models.Entities;
-using ClearCare.Firebase;
+using ClearCare.DataSource;
 
 namespace ClearCare.Models.Control
 {
