@@ -77,7 +77,7 @@ namespace ClearCare.DataSource
             string emailAddress = snapshot.GetValue<string>("Email");
             string password = snapshot.GetValue<string>("Password");
             string name = snapshot.GetValue<string>("Name");
-            int mobileNumber = (int)snapshot.GetValue<long>("MobileNumber");
+            long mobileNumber = snapshot.GetValue<long>("MobileNumber"); //debugged here
             string address = snapshot.GetValue<string>("Address");
 
             // Determine which object to return based on Role

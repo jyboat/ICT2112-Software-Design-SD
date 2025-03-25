@@ -75,7 +75,7 @@ namespace ClearCare.Controllers
         // Update user profile (POST request)
         [HttpPost]
         [Route("UpdateProfile")]
-        public async Task<IActionResult> updateProfile([FromForm] string name, [FromForm] string email, [FromForm] long mobileNumber, [FromForm] string address, [FromForm] string newpassword,[FromForm] string confirmpassword , [FromForm] string dateOfBirth)
+        public async Task<IActionResult> updateProfile([FromForm] string name, [FromForm] string email, [FromForm] long mobileNumber, [FromForm] string address, [FromForm] string newpassword,[FromForm] string confirmpassword , [FromForm] string dateOfBirth, [FromForm] long countryCode)
         {
             // Fetch logged-in user ID from session
             string userID = HttpContext.Session.GetString("UserID");
@@ -101,6 +101,10 @@ namespace ClearCare.Controllers
                     TempData["ErrorMessage"] = "Email is already in use.";
                     return RedirectToAction("displayProfile");
                 }
+                else
+                {
+                    updatedFields["Email"] = email; // debugged code
+                }
             }
 
             // Mobile Number Validation (Cant use mobile number that exists)
@@ -111,6 +115,13 @@ namespace ClearCare.Controllers
                 {
                     TempData["ErrorMessage"] = "Mobile number is already in use.";
                     return RedirectToAction("displayProfile");
+                }
+                else
+                {
+                    // Combine country code and mobile number NEW CODE ADDED for country code
+                    string mobileStr = mobileNumber.ToString();
+                    string fullMobileNumber = countryCode.ToString() + mobileStr;
+                    updatedFields["MobileNumber"] = long.Parse(fullMobileNumber);
                 }
             }
 

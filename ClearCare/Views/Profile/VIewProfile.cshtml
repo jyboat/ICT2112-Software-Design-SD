@@ -23,7 +23,8 @@
                     </tr>
                     <tr>
                         <td class="fw-bold text-primary">Mobile Number:</td>
-                        <td>@profileData["MobileNumber"]</td>
+                        @* <td>@profileData["MobileNumber"]</td> *@
+                        <td>@($"+{profileData["CountryCode"]} {profileData["MobileNumber"]}")</td>
                     </tr>
                     <tr>
                         <td class="fw-bold text-primary">Address:</td>

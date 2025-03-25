@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Edit Profile";
     var profileData = Model.getProfileData();
+    var countryCodes = new List<string> { "65", "60", "66", "62" }; // new code added for country code
+    var selectedCode = profileData["CountryCode"]?.ToString(); // new code added for country code
 }
 
 <head>
@@ -43,12 +45,60 @@
                                 </div>
                             </div>
 
-                            <div class="col-12">
+                            @* <div class="col-12">
+                                <div class="form-floating mb-3">
+                                    <input type="number" name="countryCode" class="form-control shadow-sm" value="@profileData["CountryCode"]" required /> 
+                                    <label class="bi bi-telephone me-1"> Country Code</label>
+                                </div>
                                 <div class="form-floating mb-3">
                                     <input type="number" name="mobileNumber" class="form-control shadow-sm" value="@profileData["MobileNumber"]" required />
                                     <label class="bi bi-telephone me-1"> Mobile Number</label>
                                 </div>
+                            </div> *@
+
+                            @* <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-floating mb-3">
+                                    <input type="number" name="countryCode" class="form-control shadow-sm"
+                                            value="@profileData["CountryCode"]" required />
+                                    <label class="bi bi-telephone me-1">Country Code</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <div class="form-floating mb-3">
+                                    <input type="number" name="mobileNumber" class="form-control shadow-sm"
+                                            value="@profileData["MobileNumber"]" required />
+                                    <label class="bi bi-telephone me-1">Mobile Number</label>
+                                    </div>
+                                </div>
+                            </div> *@
+
+                            <!-- bew Code form countryCode -->
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-floating mb-3">
+                                        <select name="countryCode" class="form-select shadow-sm" required>
+                                            @foreach (var code in countryCodes)
+                                            {
+                                                var selectedAttr = code == selectedCode ? "selected" : "";
+                                                @:<option value="@code" @selectedAttr>@code</option>
+                                            }
+                                        </select>
+
+                                        <label class="bi bi-telephone me-1">Country Code</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <div class="form-floating mb-3">
+                                        <input type="number" name="mobileNumber" class="form-control shadow-sm"
+                                            value="@profileData["MobileNumber"]" required />
+                                        <label class="bi bi-telephone me-1">Mobile Number</label>
+                                    </div>
+                                </div>
                             </div>
+                            <!-- bew Code form countryCode -->
 
                             <div class="col-12">
                                 <div class="form-floating mb-3">
