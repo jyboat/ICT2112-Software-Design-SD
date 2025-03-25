@@ -14,9 +14,9 @@ namespace ClearCare.Controllers
     {
         private ManageMedicalRecord ManageMedicalRecord;
 
-        public ManageRecordController(IEncryption encryptionService, IMedicalRecordSubject medRecordSubject)
+        public ManageRecordController(IEncryption encryptionService, IMedicalRecordSubject medRecordSubject, IAuditLog auditService)
         {
-            ManageMedicalRecord = new ManageMedicalRecord(encryptionService);
+            ManageMedicalRecord = new ManageMedicalRecord(encryptionService, auditService);
         }
 
 

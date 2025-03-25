@@ -1,6 +1,7 @@
 using ClearCare.Models.Interface; 
 using ClearCare.Models.Control;   
 using ClearCare.Models.Hubs;   
+using ClearCare.DataSource;
 using ClearCare.Controllers;
 using Microsoft.AspNetCore.SignalR;
 using ClearCare.DataSource;
@@ -36,20 +37,35 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();  
 
 builder.Services.AddScoped<IEmail, EmailService>(); // Ensure EmailService implements IEmail
+builder.Services.AddScoped<IAuditLog, AuditManagement>();
 builder.Services.AddScoped<IPassword, EncryptionManagement>(); // Ensure EncryptionManagement implements IPassword
 builder.Services.AddScoped<IEncryption, EncryptionManagement>(); // Ensure EncryptionManagement implements IEncryption
 builder.Services.AddScoped<IMedicalRecord, ViewMedicalRecord>(); // Ensure ViewMedicalRecord implements IMedicalRecord
 builder.Services.AddScoped<IUserDetails, ProfileManagement>(); // Ensure ProfileManagement implements IUserDetails
 builder.Services.AddScoped<IMedicalRecordSubject, ManageMedicalRecord>();
+builder.Services.AddScoped<IUserList, AdminManagement>();
+builder.Services.AddScoped<IAuditSubject, AuditManagement>();
+builder.Services.AddScoped<AccountManagement>();
 builder.Services.AddScoped<UpdateViewObserver>();
-builder.Services.AddSingleton<NotificationManager>();
+builder.Services.AddScoped<UserGateway>(); // Add this line
+builder.Services.AddScoped<UpdateAuditLogObserver>();
+builder.Services.AddScoped<ErratumManagement>();
+// ✅ Register observer and SignalR context for Audit Logging
+
+
+builder.Services.AddScoped<IAppointmentStatus, ServiceAppointmentStatusManagement>();// Ensure ServiceAppointmentStatusManagement implements IAppointmentStatus
+
+builder.Services.AddScoped<INotification, NotificationManager>();
 builder.Services.AddSingleton<NotificationPreferenceManager>();
+
+
 var app = builder.Build();
 
 // // Ensure UpdateViewObserver is created and added to the ObserverManager
 using (var scope = app.Services.CreateScope())
 {
     var observer = scope.ServiceProvider.GetRequiredService<UpdateViewObserver>();
+    var auditobserver = scope.ServiceProvider.GetRequiredService<UpdateAuditLogObserver>();
 }
 
 // Configure the HTTP request pipeline.
@@ -72,6 +88,10 @@ app.UseAuthorization();
 
 // Map the SignalR Hub to the "/medicalRecordHub" URL
 app.MapHub<MedicalRecordHub>("/medicalRecordHub");
+
+// Map the SignalR Hub to the "/auditLogHub" URL
+app.MapHub<AuditLogHub>("/auditLogHub"); // ✅ Map the SignalR hub
+
 
 // To allow app to use session
 app.UseSession();

@@ -11,13 +11,15 @@ namespace ClearCare.Models.Control
         private ErratumGateway ErratumGateway;
         private readonly UserGateway UserGateway;
         private readonly IEncryption encryptionService;
+        private readonly IAuditLog auditService;
         string encryptedErratumDetails = string.Empty;
 
-        public ErratumManagement(IEncryption encryptionService)
+        public ErratumManagement(IEncryption encryptionService, IAuditLog auditService)
         {
             ErratumGateway = new ErratumGateway();
             UserGateway = new UserGateway();
             this.encryptionService = encryptionService;
+            this.auditService = auditService;
         }
 
         public async Task<List<dynamic>> getAllErratum()
@@ -39,22 +41,28 @@ namespace ClearCare.Models.Control
                     MedicalRecordID = erratumDetails["MedicalRecordID"],
                     Date = erratumDetails["Date"],
                     CreatedBy = doctorName,
-                    ErratumDetails = decryptedErratumDetails
+                    ErratumDetails = decryptedErratumDetails,
+                    ErratumAttachmentName = erratumDetails["ErratumAttachmentName"],
+                    HasErratumAttachment = erratumDetails["HasErratumAttachment"]
                 });
             }
             return processedErratum;
         }
 
-        public async Task<Erratum> createErratum(string medicalRecordID, string erratumDetails, string doctorID)
+        public async Task<Erratum> getErratumByID(string erratumID)
+        {
+            var erratum = await ErratumGateway.getErratumByID(erratumID) ?? throw new InvalidOperationException($"Erratum with ID {erratumID} not found.");
+            return erratum;
+        }
+
+        public async Task<Erratum> createErratum(string medicalRecordID, string erratumDetails, string doctorID, byte[] fileBytes, string fileName)
         {
             encryptedErratumDetails = encryptionService.encryptMedicalData(erratumDetails);
 
-            var result = await ErratumGateway.insertErratum(medicalRecordID, encryptedErratumDetails, doctorID);
+            var result = await ErratumGateway.insertErratum(medicalRecordID, encryptedErratumDetails, doctorID, fileBytes, fileName) ?? throw new InvalidOperationException("Failed to create erratum.");
 
-            if (result == null)
-            {
-                throw new InvalidOperationException("Failed to create erratum.");
-            }
+            await auditService.InsertAuditLog("Filed new erratum", doctorID);
+
             return result;
         }
     }

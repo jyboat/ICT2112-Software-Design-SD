@@ -1,0 +1,149 @@
+@* TEMPORARY FOR TESTING PURPOSES *@
+@using ClearCare.Models.Entities
+@model List<ServiceAppointment>
+
+@{
+    ViewData["Title"] = "My Appointments";
+}
+
+<h2>My Appointments</h2>
+
+@if (Model != null && Model.Count > 0)
+{
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Appointment ID</th>
+                <th>Patient ID</th>
+                <th>Nurse ID</th>
+                <th>Doctor ID</th>
+                <th>Service Type</th>
+                <th>Status</th>
+                <th>Date & Time</th>
+                <th>Slot</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var appointment in Model)
+            {
+                <tr>
+                    <td>@appointment.GetAttribute("AppointmentId")</td>
+                    <td>@appointment.GetAttribute("PatientId")</td>
+                    <td>@appointment.GetAttribute("NurseId")</td>
+                    <td>@appointment.GetAttribute("DoctorId")</td>
+                    <td>@appointment.GetAttribute("ServiceTypeId")</td>
+                    <td>@appointment.GetAttribute("Status")</td>
+                    <td>@Convert.ToDateTime(appointment.GetAttribute("Datetime")).ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@appointment.GetAttribute("Slot")</td>
+                    <td>@appointment.GetAttribute("Location")</td>
+                    <td>
+                        <button type="button" class="btn btn-primary" onclick="updateApptStatus(this)">
+                            Mark as Complete
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No appointments found.</p>
+}
+
+<script>
+    async function updateApptStatus(button) {
+        try {
+            // Find the parent row (`<tr>`) of the clicked button
+            const row = button.closest("tr");
+
+            // Extract values from the corresponding columns
+            const apptId = row.cells[0].innerText;  // Assuming "Appt ID" is in the 1st column
+            const patientId = row.cells[1].innerText;  // Assuming "Patient ID" is in the 2nd column
+            const nurseId = row.cells[2].innerText;    // Assuming "Nurse ID" is in the 3rd column
+            const doctorId = row.cells[3].innerText;   // Assuming "Doctor ID" is in the 4th column
+            const serviceTypeId = row.cells[4].innerText; // Assuming "Service Type ID" is in the 5th column
+            const location = row.cells[8].innerText;   // Assuming "Location" is in the 9th column
+
+            // Extract Date & Time safely (Check if it exists)
+            const dateTimeText = row.cells[6]?.innerText.trim();  // Using `?.` to avoid undefined error
+
+            /*
+            if (!dateTimeText) {
+                alert("Error: Date & Time field is empty.");
+                return;
+            }
+            */
+
+            // Convert to a valid ISO string
+            const serviceDate = convertToISODate(dateTimeText);
+            if (!serviceDate) {
+                alert("Invalid date format. Unable to create service history.");
+                return;
+            }
+
+            // Update Appt Status
+            const updateResponse = await fetch(`/ServiceHistory/Update/${apptId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" }
+            });
+
+            const updateData = await updateResponse.json(); // Read response as text first
+            if (!updateResponse.ok) {
+                throw new Error(updateData.message || "Failed to update appointment status.");
+            }
+            alert(updateData.message);
+
+            // Create service history after successful status update
+            const createResponse = await fetch(`/ServiceHistory/Create`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    appointmentId: apptId,
+                    serviceTypeId: serviceTypeId,
+                    patientId: patientId,
+                    nurseId: nurseId,
+                    doctorId: doctorId,
+                    serviceDate: serviceDate,
+                    location: location,
+                    serviceOutcomes: "Service completed successfully"
+                })
+            });
+
+            const createData = await createResponse.json();
+            if (!createResponse.ok) {
+                throw new Error(createData.message || "Failed to create service history.");
+            }
+
+            alert(createData.message);
+
+
+        } catch (error) {
+            console.error("Error: " + error);
+            alert("An error occured: " + error.message);
+        }
+    }
+
+    // Helper function to convert "yyyy-MM-dd HH:mm" to an ISO string
+    function convertToISODate(dateTimeText) {
+        try {
+            const [datePart, timePart] = dateTimeText.split(" ");
+            const [year, month, day] = datePart.split("-").map(Number);
+            const [hour, minute] = timePart.split(":").map(Number);
+
+            // Create a new Date object (assuming local timezone)
+            const localDateObject = new Date(year, month - 1, day, hour, minute);
+
+            // Convert to UTC
+            const utcDateObject = new Date(localDateObject.toISOString()); // `toISOString()` gives UTC time
+
+            // Return the ISO string in UTC
+            return utcDateObject.toISOString();
+        } catch (error) {
+            console.error("Error parsing date:", error);
+            return null;
+        }
+    }
+
+</script>
