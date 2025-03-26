@@ -8,28 +8,17 @@
 <head>
     <title>Appointments Calendar</title>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> 
     <style>
         #calendar {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 40px auto;
-        }
-
-        #filterContainer {
-            text-align: center;
-            margin: 20px auto;
-        }
-
-        .filterInput {
-            width: 180px;
-            padding: 10px;
-            margin-right: 10px;
-        }
-
-        #filterButton,
-        #resetButton {
-            padding: 10px;
-            cursor: pointer;
         }
     </style>
     <script>
@@ -37,28 +26,61 @@
         const nursesData = @Html.Raw(Json.Serialize(ViewBag.Nurses));
         const serviceTypes = @Html.Raw(Json.Serialize(ViewBag.ServiceTypes));
         const DoctorId = @Html.Raw(Json.Serialize(ViewBag.DoctorId));
-        
-        function loadCalendar(doctorId = '', patientId = '', nurseId = '') {
+
+        function loadCalendar(doctorId, patientId, nurseId, location, service) {
             var queryParams = [];
             if (doctorId) queryParams.push('doctorId=' + doctorId);
             if (patientId) queryParams.push('patientId=' + patientId);
             if (nurseId) queryParams.push('nurseId=' + nurseId);
+            if (location) queryParams.push('location=' + location);
+            if (service) queryParams.push('service=' + service);
             var queryString = queryParams.length ? '?' + queryParams.join('&') : '';
 
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 events: '/api/ServiceAppointments/GetAppointmentsForCalendar' + queryString,
-                @* TODO: add serviceType, status, date and time, slot, location *@
+                dayMaxEventRows: 3, // limit how many event rows show
+                eventTimeFormat: {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true // show AM/PM
+                },
                 eventClick: function (info) {
+                    const clickedDate = new Date(info.event.startStr);
+                    const today = new Date();
+
+                    // Reset time part of 'today' so we only compare dates
+                    today.setHours(0, 0, 0, 0);
+
+                    if (clickedDate < today) {
+                        toastr.error("You cannot edit an appointment on a past date.", "Error");
+                        return;
+                    }
                     openEditModal(info.event.id, info.event.extendedProps);
+
                 },
 
-                dateClick: function () {
+
+                dateClick: function (info) {
+                    const clickedDate = new Date(info.dateStr);
+                    const today = new Date();
+
+                    // Reset time part of 'today' so we only compare dates
+                    today.setHours(0, 0, 0, 0);
+
+                    if (clickedDate < today) {
+                        toastr.error("You cannot edit an appointment on a past date.", "Error");
+                        return;
+                    }
+
+                    // If the date is valid, show the add modal
+                    document.getElementById("addDate").value = info.dateStr;
                     openAddModal();
                 }
+
             });
-        calendar.render();
+            calendar.render();
         }
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -66,19 +88,23 @@
             loadCalendar();
 
             // filter button
-            document.getElementById('filterButton').addEventListener('click', function() {
+            document.getElementById('filterButton').addEventListener('click', function () {
                 var doctorId = document.getElementById('doctorInput').value.trim();
                 var patientId = document.getElementById('patientInput').value.trim();
                 var nurseId = document.getElementById('nurseInput').value.trim();
+                var location = document.getElementById('locationInput').value.trim();
+                var service = document.getElementById('serviceInput').value.trim();
                 document.getElementById('calendar').innerHTML = '';  // clear calendar
-                loadCalendar(doctorId, patientId, nurseId);
+                loadCalendar(doctorId, patientId, nurseId, location, service);
             });
 
             // reset button
-            document.getElementById('resetButton').addEventListener('click', function() {
+            document.getElementById('resetButton').addEventListener('click', function () {
                 document.getElementById('doctorInput').value = '';
                 document.getElementById('patientInput').value = '';
                 document.getElementById('nurseInput').value = '';
+                document.getElementById('locationInput').value = '';
+                document.getElementById('serviceInput').value = '';
                 document.getElementById('calendar').innerHTML = '';  // clear calendar
                 loadCalendar(); // reload all appointments
             });
@@ -102,7 +128,7 @@
                 document.getElementById("editPatientId").value = extendedProps.patientId;
                 document.getElementById("editNurseId").value = extendedProps.nurseId;
             }, 300);
-            
+
             $('#editAppointmentModal').modal('show');
         }
 
@@ -153,16 +179,18 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert("Appointment updated successfully!");
                         closeModal();
-                        window.location.reload();
+                        loadCalendar();
+                        toastr.success("Appointment updated successfully!", "Success");
                     } else {
-                        alert("Error updating appointment: " + data.message);
+                        toastr.error("Error updating appointment: " + data.message, "Error");
+
                     }
                 })
                 .catch(error => {
                     console.error("Error:", error);
-                    alert("An error occurred while updating the appointment.");
+                    toastr.error("An error occurred while updating the appointment.", "Error");
+
                 });
         }
 
@@ -172,10 +200,11 @@
                     method: "DELETE"
                 }).then(response => {
                     if (response.ok) {
-                        alert("Appointment deleted successfully!");
-                        location.reload();
+                        closeModal();
+                        toastr.success("Appointment deleted successfully!", "Success");
+                        loadCalendar(); // reload all appointments
                     } else {
-                        alert("Error deleting appointment.");
+                        toastr.error("Error deleting appointment.", "Error");
                     }
                 }).catch(error => console.error("Error:", error));
             }
@@ -184,20 +213,20 @@
         console.log("Patients data:", patientsData);
         console.log("Nurses data:", nursesData);
         console.log("Services data:", serviceTypes);
-        
-        
-        function generateAppointmentId(length=20) {
-            const chars =  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+
+        function generateAppointmentId(length = 20) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             let result = '';
 
             for (let i = 0; i < length; i++) {
                 const randomIndex = Math.floor(Math.random() * chars.length);
                 result += chars.charAt(randomIndex);
             }
-            
+
             return result;
         }
-        
+
         const populateDropdowns = () => {
             // Populate patient dropdowns
             populateDropdown("addPatientId", patientsData);
@@ -209,11 +238,11 @@
             populateDropdown("editNurseId", nursesData);
             populateDropdown("addServiceType", serviceTypes);
         }
-        
+
         const populateDropdown = (elementId, options) => {
             const dropdown = document.getElementById(elementId);
             dropdown.innerHTML = '<option value="">Select...</option>';
-            
+
             options.forEach(option => {
                 const optionElement = document.createElement("option");
                 optionElement.value = option.id;
@@ -234,7 +263,7 @@
             let location = document.getElementById("addLocation").value;
 
             if (!selectedDate || selectedTimeSlot === "") {
-                alert("Please select both a date and time slot.")
+                toastr.warning("Please select both a date and time slot.", "Warning");
                 return;
             }
 
@@ -255,7 +284,7 @@
                 Slot: parseInt(selectedTimeSlot),
                 Location: location
             };
-            
+
             fetch("/api/ServiceAppointments/AddAppt", {
                 method: "POST",
                 headers: {
@@ -274,13 +303,13 @@
                     return response.json();
                 })
                 .then(data => {
-                    alert("Appointment created successfully!");
+                    toastr.success("Appointment created successfully.", "Success");
                     console.log("Response:", data);
                     $('#addAppointmentModal').modal('hide');
-                    location.reload();
+                    loadCalendar();
                 })
                 .catch(error => {
-                    alert("Error: " + error.message); // display the error message
+                    toastr.error("Error: " + error.message, "Error");
                     console.error("Error:", error);
                 });
         }
@@ -290,17 +319,37 @@
 <body>
     <h2 style="text-align: center;">Service Appointments Calendar</h2>
 
-    <div id="filterContainer">
-        <input type="text" id="doctorInput" class="filterInput" placeholder="Enter Doctor ID">
-        <input type="text" id="patientInput" class="filterInput" placeholder="Enter Patient ID">
-        <input type="text" id="nurseInput" class="filterInput" placeholder="Enter Nurse ID">
-        <button id="filterButton">Filter</button>
-        <button id="resetButton">Reset Filters</button>
-    </div>
+    <form>
+        <div class="form-row">
+            <div class="col">
+                <input type="text" id="doctorInput" class="form-control" placeholder="Enter Doctor ID">
+            </div>
+            <div class="col">
+                <input type="text" id="patientInput" class="form-control" placeholder="Enter Patient ID">
+
+            </div>
+            <div class="col">
+                <input type="text" id="nurseInput" class="form-control" placeholder="Enter Nurse ID">
+
+            </div>
+            <div class="col">
+                <input type="text" id="locationInput" class="form-control" placeholder="Enter Location">
+
+            </div>
+
+            <div class="col">
+                <input type="text" id="serviceInput" class="form-control" placeholder="Enter Service">
+            </div>
+
+            <button id="filterButton" class="btn btn-success">Filter</button>
+            <button id="resetButton" class="btn btn-primary">Reset Filters</button>
+        </div>
+    </form>
+
     <div id="calendar"></div>
 
     <!-- Edit Appointment Modal -->
-    <div id="editAppointmentModal" class="modal fade" tabindex="-1" role="dialog">
+    <div id="editAppointmentModal" class="modal fade" tabi ndex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -402,7 +451,7 @@
                             <label for="addStatus">Status</label>
                             <input type="text" class="form-control" id="addStatus">
                         </div> *@
-                        
+
                         @* Separate Date and Time selection *@
                         <div class="form-group">
                             <label for="addDate">Date:</label>

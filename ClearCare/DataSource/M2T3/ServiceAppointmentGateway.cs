@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using ClearCare.Interfaces;
+using Google.Api;
+using System.ComponentModel;
 
 namespace ClearCare.DataSource
 {
@@ -25,7 +27,8 @@ namespace ClearCare.DataSource
             set { _receiver = value; }
         }
 
-         public async Task<List<ServiceAppointment>> fetchAllServiceAppointments() {
+        public async Task<List<ServiceAppointment>> fetchAllServiceAppointments()
+        {
             CollectionReference appointmentsRef = _db.Collection("ServiceAppointments");
             QuerySnapshot snapshot = await appointmentsRef.GetSnapshotAsync();
             List<ServiceAppointment> appointmentList = new List<ServiceAppointment>();
@@ -39,11 +42,13 @@ namespace ClearCare.DataSource
                     appointmentList.Add(appointment);
                 }
             }
+            await CheckAndUpdateStatusAsync(appointmentList);
             await _receiver.receiveServiceAppointmentList(appointmentList);
             return appointmentList;
-         }
+        }
 
-         public async Task<Dictionary<string, object>> fetchServiceAppointmentByID(string documentId) {
+        public async Task<Dictionary<string, object>> fetchServiceAppointmentByID(string documentId)
+        {
             DocumentReference docRef = _db.Collection("ServiceAppointments").Document(documentId);
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
@@ -52,16 +57,23 @@ namespace ClearCare.DataSource
                 Console.WriteLine($"Firestore Document Not Found: {documentId}");
                 return null;
             }
-
-            // Convert to Dictionary from firebase key-value format
+            // Convert snapshot to dictionary
             var data = snapshot.ToDictionary();
-            
-            var appt = ServiceAppointment.FromFirestoreData(documentId, data).ToFirestoreDictionary();
-            await _receiver.receiveServiceAppointmentById(appt);
-            return appt;
-         }
 
-         public async Task<string> CreateAppointment(ServiceAppointment appointment)
+            // Convert Firestore document to a ServiceAppointment object
+            ServiceAppointment appointment = ServiceAppointment.FromFirestoreData(documentId, data);
+
+            // ✅ Pass appointment (not snapshot) to CheckAndUpdateStatusAsync()
+            appointment = await CheckAndUpdateStatusAsync(appointment);
+
+            // Convert updated appointment back to a dictionary
+            var updatedData = appointment.ToFirestoreDictionary();
+
+            await _receiver.receiveServiceAppointmentById(updatedData);
+            return updatedData;
+        }
+
+        public async Task<string> CreateAppointment(ServiceAppointment appointment)
         {
             // Get Collection in Firebase
             DocumentReference docRef = _db.Collection("ServiceAppointments").Document();
@@ -79,38 +91,69 @@ namespace ClearCare.DataSource
 
         public async Task<bool> UpdateAppointment(ServiceAppointment appointment)
         {
+            // debug the incoming data
+            string appointmentJson = JsonConvert.SerializeObject(appointment);
+            Console.WriteLine($"attempting to update appointment with data: {appointmentJson}");
+
+            // safely get the appointment id and validate it
+            string appointmentId = appointment?.GetAttribute("AppointmentId");
+            Console.WriteLine($"extracted appointmentId: '{appointmentId}'");
+
+            if (string.IsNullOrEmpty(appointmentId))
+            {
+                Console.WriteLine("failed: appointmentId is null or empty");
+                _receiver.receiveUpdatedServiceAppointmentStatus(false);
+                return false;
+            }
+
             try
             {
-                DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointment.GetAttribute("AppointmentId"));
-        
+                // validate document reference creation
+                DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointmentId);
+                Console.WriteLine($"document path: {docRef.Path}");
+
                 // check if document exists
                 DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
                 if (!snapshot.Exists)
                 {
+                    Console.WriteLine($"document with id '{appointmentId}' doesn't exist");
+                    _receiver.receiveUpdatedServiceAppointmentStatus(false);
                     return false;
                 }
-        
+
                 // update with the new data
                 Dictionary<string, object> appointmentData = appointment.ToFirestoreDictionary();
+                Console.WriteLine($"converted data for firestore: {JsonConvert.SerializeObject(appointmentData)}");
                 await docRef.SetAsync(appointmentData);
                 _receiver.receiveUpdatedServiceAppointmentStatus(true);
-        
+                Console.WriteLine("update successful");
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"error updating appointment in firestore: {ex.Message}");
+                // detailed error logging
+                string errorDetails = $"error updating appointment '{appointmentId}' in firestore: {ex.Message}";
+                errorDetails += $"\nstack trace: {ex.StackTrace}";
+
+                if (ex.InnerException != null)
+                {
+                    errorDetails += $"\ninner exception: {ex.InnerException.Message}";
+                }
+
+                errorDetails += $"\nappointment data: {appointmentJson}";
+
+                Console.WriteLine(errorDetails);
                 _receiver.receiveUpdatedServiceAppointmentStatus(false);
                 return false;
             }
         }
 
-        public async Task<bool> DeleteAppointment (string appointmentId)
+        public async Task<bool> DeleteAppointment(string appointmentId)
         {
-             try
+            try
             {
                 DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointmentId);
-                
+
                 // check if document exists
                 DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
                 if (!snapshot.Exists)
@@ -118,10 +161,10 @@ namespace ClearCare.DataSource
                     await _receiver.receiveDeletedServiceAppointmentStatus(false);
                     return false;
                 }
-                
+
                 // delete doc
                 await docRef.DeleteAsync();
-               
+
                 await _receiver.receiveDeletedServiceAppointmentStatus(true);
 
                 return true;
@@ -133,7 +176,7 @@ namespace ClearCare.DataSource
                 throw;
             }
         }
-       public async Task<DateTime?> fetchAppointmentTime(string appointmentId)
+        public async Task<DateTime?> fetchAppointmentTime(string appointmentId)
         {
             // Get Firestore document reference
             DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointmentId);
@@ -171,10 +214,133 @@ namespace ClearCare.DataSource
             }
         }
 
-    
-        
+        private async Task<List<ServiceAppointment>> CheckAndUpdateStatusAsync(List<ServiceAppointment> appointments)
+        {
+            if (appointments == null || appointments.Count == 0) return new List<ServiceAppointment>();
+
+            foreach (var appointment in appointments)
+            {
+                if (appointment.CheckAndMarkAsMissed())
+                {
+                    Console.WriteLine($"🔍 Appointment ID: {appointment.GetAttribute("AppointmentId")}, Status: {appointment.GetAttribute("Status")}, DateTime: {appointment.GetAttribute("Datetime")}");
+
+                    bool success = await UpdateAppointment(appointment); // 🔥 Await the async method
+                    if (!success)
+                    {
+                        Console.WriteLine($"Failed to update appointment status to missed: {appointment.GetAttribute("AppointmentId")}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"updated {appointment.GetAttribute("AppointmentId")} to {appointment.GetAttribute("Status")}");
+                    }
+
+                }
+
+            }
+
+            return appointments;
+        }
+
+        private async Task<ServiceAppointment> CheckAndUpdateStatusAsync(ServiceAppointment appointment)
+        {
+            if (appointment.CheckAndMarkAsMissed())
+            {
+                bool success = await UpdateAppointment(appointment);
+                if (!success)
+                {
+                    Console.WriteLine($"Failed to update appointment status to missed: {appointment.GetAttribute("AppointmentId")}");
+                }
+                else
+                {
+                    Console.WriteLine($"updated {appointment.GetAttribute("AppointmentId")} to {appointment.GetAttribute("Status")}");
+                }
+            }
+            return appointment;
+        }
+
+        public class Patient
+        {
+            public string PatientId { get; set; } = string.Empty;
+            public string Name { get; set; } = string.Empty;
+        }
+
+        // To be changed delete once got interface from other teams
+        public async Task<List<string>> getAllServices()
+        {
+            Query serviceQuery = _db.Collection("service_type");
+            QuerySnapshot snapshot2 = await serviceQuery.GetSnapshotAsync();
+
+            var services = new List<string>();
+
+            foreach (DocumentSnapshot document in snapshot2.Documents)
+            {
+                services.Add(document.GetValue<string>("name"));
+            }
+            return services;
+        }
+
+        // To do: Retrieve from firebase/interface
+        public async Task<List<Dictionary<string, object>>> fetchAllUnscheduledPatients()
+        {
+            var patients = new List<Patient>
+            {
+                new Patient { PatientId = "PAT001", Name = "Patient 1" },
+                new Patient { PatientId = "PAT002", Name = "Patient 2" },
+                new Patient { PatientId = "PAT003", Name = "Patient 3" },
+                new Patient { PatientId = "PAT004", Name = "Patient 4" },
+                new Patient { PatientId = "PAT005", Name = "Patient 5" },
+                new Patient { PatientId = "PAT006", Name = "Patient 6" },
+                new Patient { PatientId = "PAT007", Name = "Patient 7" },
+                new Patient { PatientId = "PAT008", Name = "Patient 8" },
+                new Patient { PatientId = "PAT009", Name = "Patient 9" },
+                new Patient { PatientId = "PAT010", Name = "Patient 10" },
+                new Patient { PatientId = "PAT011", Name = "Patient 11" }
+            };
+
+            var unscheduledPatients = new List<ServiceAppointment>();
+            var services = await getAllServices();
+
+            foreach (var patient in patients)
+            {
+                // Query to get all the appointments of this patient
+                Query appointmentsRef = _db.Collection("ServiceAppointments")
+                                            .WhereEqualTo("PatientId", patient.PatientId);
+                QuerySnapshot snapshot = await appointmentsRef.GetSnapshotAsync();
+
+                // Get all services this patient already has
+                var existingServices = snapshot.Documents
+                                               .Select(doc => doc.GetValue<string>("ServiceTypeId"))
+                                               .ToList();
+
+                // Find missing services (those that exist in the service list but not in the existing appointments)
+                var missingServices = services.Where(service => !existingServices.Contains(service)).ToList();
+
+                // For each missing service, create a new service appointment
+                foreach (var service in missingServices)
+                {
+                    unscheduledPatients.Add(ServiceAppointment.setApptDetails(
+                        patientId: patient.PatientId,
+                        nurseId: "",
+                        doctorId: "",
+                        serviceTypeId: service,
+                        status: "Pending",
+                        dateTime: DateTime.UtcNow,
+                        slot: 0,
+                        location: "Physical"
+                    ));
+                }
+            }
+
+            // Convert the appointments to Firestore dictionaries
+            List<Dictionary<string, object>> result = unscheduledPatients
+                .Select(appointment => appointment.ToFirestoreDictionary())
+                .ToList();
+
+            return result;
+        }
+
     }
-    
+
     // {
     //     private readonly FirestoreDb _db;
 
@@ -238,25 +404,25 @@ namespace ClearCare.DataSource
     //         var data = snapshot.ToDictionary();
     //         return ServiceAppointment.FromFirestoreData(appointmentId, data);
     //     }
-        
+
     //     // update an existing appointment
     //     public async Task<bool> UpdateAppointmentAsync(ServiceAppointment appointment)
     //     {
     //         try
     //         {
     //             DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointment.GetAttribute("AppointmentId"));
-        
+
     //             // check if document exists
     //             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
     //             if (!snapshot.Exists)
     //             {
     //                 return false;
     //             }
-        
+
     //             // update with the new data
     //             Dictionary<string, object> appointmentData = appointment.ToFirestoreDictionary();
     //             await docRef.SetAsync(appointmentData);
-        
+
     //             return true;
     //         }
     //         catch (Exception ex)
@@ -265,21 +431,21 @@ namespace ClearCare.DataSource
     //             return false;
     //         }
     //     }
-        
+
     //     // delete an existing appointment
     //     public async Task<bool> DeleteAppointmentAsync(string appointmentId)
     //     {
     //         try
     //         {
     //             DocumentReference docRef = _db.Collection("ServiceAppointments").Document(appointmentId);
-                
+
     //             // check if document exists
     //             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
     //             if (!snapshot.Exists)
     //             {
     //                 return false;
     //             }
-                
+
     //             // delete doc
     //             await docRef.DeleteAsync();
 

@@ -18,9 +18,10 @@
         }
     </style>
     <script>
+        var calendar;
         document.addEventListener('DOMContentLoaded', function () {
             var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
+            calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 selectable: true, // Allows clicking empty dates
                 events: function (fetchInfo, successCallback, failureCallback) {
@@ -44,10 +45,45 @@
                 },
 
                 eventClick: function (info) {
+                    const clickedDate = new Date(info.event.startStr);
+                    const today = new Date();
+
+                    // Reset time part of 'today' so we only compare dates
+                    today.setHours(0, 0, 0, 0);
+
+                    if (clickedDate < today) {
+                        toastr.error("You cannot edit an unavailability on a past date.", "Error");
+                        return;
+                    }
                     openEditModal(info.event.id, info.event.extendedProps.nurseId, info.event.startStr);
                 },
 
                 dateClick: function (info) {
+                    const clickedDate = new Date(info.dateStr);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    if (clickedDate < today) {
+                        toastr.error("You cannot create an unavailability on a past date.", "Error");
+                        return;
+                    }
+
+                    // Check for existing unavailability on the same date
+                    const events = calendar.getEvents();
+                    const existing = events.find(e => {
+                        const eventDate = new Date(e.start);
+                        return (
+                            eventDate.getFullYear() === clickedDate.getFullYear() &&
+                            eventDate.getMonth() === clickedDate.getMonth() &&
+                            eventDate.getDate() === clickedDate.getDate()
+                        );
+                    });
+
+                    if (existing) {
+                        toastr.error("You cannot add more than 1 unavailability on the same date.", "Error");
+                        return;
+                    }
+
                     openAddModal(info.dateStr);
                 }
             });
@@ -56,6 +92,10 @@
         });
 
         function openEditModal(id, nurseId, date) {
+            // Set the min attribute to today's date (YYYY-MM-DD)
+            var todayStr = new Date().toISOString().split("T")[0];
+            document.getElementById("editDate").setAttribute("min", todayStr);
+            
             document.getElementById("editAvailabilityId").value = id;
             document.getElementById("editNurseID").value = nurseId;
             document.getElementById("editDate").value = date;
@@ -78,21 +118,47 @@
             let startTime = "08:00:00";
             let endTime = "16:00:00";
 
+            const clickedDate = new Date(date);
+            const events = calendar.getEvents();
+
+            const conflict = events.find(e => {
+                const eventDate = new Date(e.start);
+                return (
+                    e.id != id && // skip the one being updated
+                    eventDate.getFullYear() === clickedDate.getFullYear() &&
+                    eventDate.getMonth() === clickedDate.getMonth() &&
+                    eventDate.getDate() === clickedDate.getDate()
+                );
+            });
+
+            if (conflict) {
+                toastr.error("An availability already exists on this date.", "Error");
+                return;
+            }
+
             fetch("/NurseAvailability/Update", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: new URLSearchParams({
-                    availabilityId: id, nurseID: nurseID, date: date, startTime: startTime, endTime: endTime
+                    availabilityId: id,
+                    nurseID: nurseID,
+                    date: date,
+                    startTime: startTime,
+                    endTime: endTime
                 })
             }).then(response => {
-                if (response.ok) {
-                    alert("Availability updated successfully!");
-                    closeModal();
-                    location.reload();
-                } else {
-                    alert("Error updating availability.");
+                if (!response.ok) {
+                    throw new Error("Error updating availability.");
                 }
-            }).catch(error => console.error("Error:", error));
+                return response.json();
+            }).then(data => {
+                toastr.success(data.message, "Success");
+                closeModal();
+                setTimeout(() => { location.reload(); }, 2000);
+            }).catch(error => {
+                toastr.error(error.message, "Error");
+                console.error("Error:", error);
+            });
         }
 
         function deleteAvailability(id) {
@@ -100,13 +166,18 @@
                 fetch("/NurseAvailability/Delete/" + id, {
                     method: "POST"
                 }).then(response => {
-                    if (response.ok) {
-                        alert("Availability deleted successfully!");
-                        location.reload();
-                    } else {
-                        alert("Error deleting availability.");
+                    if (!response.ok) {
+                        throw new Error("Error deleting availability.");
                     }
-                }).catch(error => console.error("Error:", error));
+                    return response.json();
+                }).then(data => {
+                    toastr.success(data.message, "Success");
+                    closeModal();
+                    setTimeout(() => { location.reload(); }, 2000);
+                }).catch(error => {
+                    toastr.error(error.message, "Error");
+                    console.error("Error:", error);
+                });
             }
         }
 
@@ -123,14 +194,18 @@
                     nurseID: nurseID, date: date, startTime: startTime, endTime: endTime
                 })
             }).then(response => {
-                if (response.ok) {
-                    alert("Availability added successfully!");
-                    closeModal();
-                    location.reload();
-                } else {
-                    alert("Error adding availability.");
+                if (!response.ok) {
+                    throw new Error("Error adding availability.");
                 }
-            }).catch(error => console.error("Error:", error));
+                return response.json();
+            }).then(data => {
+                toastr.success(data.message, "Success");
+                closeModal();
+                setTimeout(() => { location.reload(); }, 2000);
+            }).catch(error => {
+                toastr.error(error.message, "Error");
+                console.error("Error:", error);
+            });
         }
     </script>
 

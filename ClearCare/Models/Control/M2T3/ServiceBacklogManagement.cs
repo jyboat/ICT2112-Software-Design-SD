@@ -10,7 +10,6 @@ namespace ClearCare.Models.Control
     public class ServiceBacklogManagement: IServiceBacklogDB_Receive, ISchedulingListener
     {
         private readonly IServiceBacklogDB_Send _dbGateway;
-        private readonly ServiceAppointmentManagement serviceManager = new ServiceAppointmentManagement();
         private ServiceBacklogController? _controller;
         
         public ServiceBacklogManagement()
@@ -38,19 +37,20 @@ namespace ClearCare.Models.Control
             return serviceBacklogs;
         }
 
-        // Get all backlogs including details of each
+        // Get all backlogs including details of each service
         public async Task<List<ServiceBacklogViewModel>> getAllBacklogDetails()
         {
             // get all backlogs
             List<ServiceBacklog> serviceBacklogs = await getAllBacklogs();
-            // Get all services
-            var allAppointments = await serviceManager.RetrieveAllAppointments();
 
-            // Combine data into ServiceBacklogViewModel
             var serviceBacklogViewModels = new List<ServiceBacklogViewModel>();
+            var serviceAppointmentManagement = new ServiceAppointmentManagement();
+
+            // Get details for each service backlog
             foreach (var serviceBacklog in serviceBacklogs)
             {
-                var appointment = allAppointments.FirstOrDefault(a => (string)a["AppointmentId"] == serviceBacklog.getBacklogInformation()["appointmentId"]);
+                var appointmentId = serviceBacklog.getBacklogInformation()["appointmentId"];
+                var appointment = await serviceAppointmentManagement.getAppointmentByID(appointmentId);
                 if (appointment != null)
                 {
                     var viewModel = await createViewModel(serviceBacklog, appointment);
@@ -78,19 +78,56 @@ namespace ClearCare.Models.Control
             ServiceBacklog serviceBacklog = new ServiceBacklog();
             serviceBacklog.setBacklogInformation(backlogDTO["backlogId"], backlogDTO["appointmentId"]);
 
-            var appointment = await serviceManager.getAppointmentByID(serviceBacklog.getBacklogInformation()["appointmentId"]);
+            var appointment = await  new ServiceAppointmentManagement().getAppointmentByID(serviceBacklog.getBacklogInformation()["appointmentId"]);
 
             var serviceBacklogViewModel = await createViewModel(serviceBacklog, appointment);
 
             return serviceBacklogViewModel;
         }
 
-        public bool reassignBacklog()
+        public async Task<bool> reassignBacklog(
+            string BacklogId,
+            string AppointmentId,
+            string PatientId,
+            string DoctorId,
+            string ServiceType,
+            int NurseId,
+            DateTime DateTime,
+            int Slot,
+            string Location
+        )
         {
-            // if there was an error / cannot schedule, return false
+            try
+            {
+                // TODO change to manual scheduler's method once it's up
+                bool updateSuccess = await new ServiceAppointmentManagement().UpdateAppointment(
+                    appointmentId:AppointmentId,
+                    patientId: PatientId,
+                    nurseId: NurseId.ToString(),
+                    doctorId: DoctorId,
+                    serviceTypeId: ServiceType,
+                    status: "Scheduled",
+                    dateTime: DateTime.ToUniversalTime(),
+                    slot: Slot,
+                    location: Location
+                );
+                bool deleteSuccess = false;
+                if (updateSuccess)
+                {
+                    deleteSuccess = await _dbGateway.deleteServiceBacklog(BacklogId);
+                }
+                if (updateSuccess && deleteSuccess)
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error reassigning backlog: {ex.Message}");
+                return false;
+            }
 
-            // if assignment successful
-            return true;
         }
 
         public async Task addBacklog(string serviceAppointmentId)
@@ -99,9 +136,10 @@ namespace ClearCare.Models.Control
             await _dbGateway.createServiceBacklog(backlog);
         }
 
-        public async Task deleteBacklog(string backlogId)
+        public async Task<bool> deleteBacklog(string backlogId)
         {
             await _dbGateway.deleteServiceBacklog(backlogId);
+            return true;
         }
 
         public Task receiveBacklogList(List<Dictionary<string, string>> backlogList)
@@ -179,7 +217,7 @@ namespace ClearCare.Models.Control
                 BacklogId = serviceBacklog.getBacklogInformation()["backlogId"],
                 AppointmentId = serviceBacklog.getBacklogInformation()["appointmentId"],
                 DateTime = (DateTime)appointment["DateTime"],
-                DateTimeFormatted = ((DateTime)appointment["DateTime"]).ToString("yyyy-MM-dd HH:mm:ss"),
+                // DateTimeFormatted = ((DateTime)appointment["DateTime"]).ToString("yyyy-MM-dd HH:mm:ss"),
                 PatientId = (string)appointment["PatientId"],
                 DoctorId = (string)appointment["DoctorId"],
                 NurseId = (string)appointment["NurseId"],

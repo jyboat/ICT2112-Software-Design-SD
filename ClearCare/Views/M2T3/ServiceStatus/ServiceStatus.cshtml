@@ -1,0 +1,123 @@
+@using ClearCare.Models.Entities
+@model List<ServiceAppointment>
+
+@{
+    ViewData["Title"] = "Service Appointments";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-3">Service Appointments Statuses</h2>
+
+    <!-- 🔹 Bootstrap Filters: Search Bars + Dropdowns -->
+    <div class="row g-2 mb-3">
+        <div class="col-md-3">
+            <input type="text" id="searchPatient" class="form-control" onkeyup="filterTable()" placeholder="Search by Patient ID">
+        </div>
+        <div class="col-md-3">
+            <input type="text" id="searchNurse" class="form-control" onkeyup="filterTable()" placeholder="Search by Nurse ID">
+        </div>
+        <div class="col-md-3">
+            <input type="text" id="searchDoctor" class="form-control" onkeyup="filterTable()" placeholder="Search by Doctor ID">
+        </div>
+        <div class="col-md-3">
+            <select id="filterStatus" class="form-select" onchange="filterTable()">
+                <option value="">Filter by Status</option>
+                <option value="Missed">Missed</option>
+                <option value="Scheduled">Scheduled</option>
+                <option value="Completed">Completed</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="filterServiceType" class="form-select" onchange="filterTable()">
+                <option value="">Filter by Service Type</option>
+                <option value="service1">Service 1</option>
+                <option value="service2">Service 2</option>
+                <option value="service3">Service 3</option>
+            </select>
+        </div>
+        <div class="text-end mb-1">
+            <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+        </div>
+    </div>
+
+    <!-- 🔹 Bootstrap Table -->
+    <div class="table-responsive">
+        <table id="appointmentsTable" class="table table-striped table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Patient ID</th>
+                    <th>Nurse ID</th>
+                    <th>Doctor ID</th>
+                    <th>Service Type</th>
+                    <th>Status</th>
+                    <th>Date & Time</th>
+                    <th>Slot</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var appointment in Model)
+                {
+                    <tr>
+                        <td>@appointment.GetAttribute("PatientId")</td>
+                        <td>@appointment.GetAttribute("NurseId")</td>
+                        <td>@appointment.GetAttribute("DoctorId")</td>
+                        <td>@appointment.GetAttribute("ServiceTypeId")</td>
+                        <td>@appointment.GetAttribute("Status")</td>
+                        <td>@Convert.ToDateTime(appointment.GetAttribute("Datetime")).ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@appointment.GetAttribute("Slot")</td>
+                        <td>@appointment.GetAttribute("Location")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 🔹 JavaScript for Searching & Filtering -->
+@section Scripts {
+    <script>
+        function filterTable() {
+            let patientInput = document.getElementById("searchPatient").value.toLowerCase();
+            let nurseInput = document.getElementById("searchNurse").value.toLowerCase();
+            let doctorInput = document.getElementById("searchDoctor").value.toLowerCase();
+            let statusFilter = document.getElementById("filterStatus").value.toLowerCase();
+            let serviceTypeFilter = document.getElementById("filterServiceType").value.toLowerCase();
+
+            let table = document.getElementById("appointmentsTable");
+            let rows = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < rows.length; i++) { // Skip header row
+                let patientCell = rows[i].getElementsByTagName("td")[0]; // Patient ID Column
+                let nurseCell = rows[i].getElementsByTagName("td")[1];   // Nurse ID Column
+                let doctorCell = rows[i].getElementsByTagName("td")[2];  // Doctor ID Column
+                let serviceTypeCell = rows[i].getElementsByTagName("td")[3]; // Service Type Column
+                let statusCell = rows[i].getElementsByTagName("td")[4]; // Status Column
+
+                let patientId = patientCell ? patientCell.innerText.toLowerCase() : "";
+                let nurseId = nurseCell ? nurseCell.innerText.toLowerCase() : "";
+                let doctorId = doctorCell ? doctorCell.innerText.toLowerCase() : "";
+                let serviceType = serviceTypeCell ? serviceTypeCell.innerText.toLowerCase() : "";
+                let status = statusCell ? statusCell.innerText.toLowerCase() : "";
+
+                let matchPatient = patientId.includes(patientInput);
+                let matchNurse = nurseId.includes(nurseInput);
+                let matchDoctor = doctorId.includes(doctorInput);
+                let matchStatus = statusFilter === "" || status === statusFilter;
+                let matchServiceType = serviceTypeFilter === "" || serviceType === serviceTypeFilter;
+
+                // Show row if all filters match
+                rows[i].style.display = (matchPatient && matchNurse && matchDoctor && matchStatus && matchServiceType) ? "" : "none";
+            }
+        }
+
+        function clearFilters() {
+        document.getElementById("searchPatient").value = "";
+        document.getElementById("searchNurse").value = "";
+        document.getElementById("searchDoctor").value = "";
+        document.getElementById("filterStatus").value = "";
+        document.getElementById("filterServiceType").value = "";
+        filterTable();
+    }
+    </script>
+}

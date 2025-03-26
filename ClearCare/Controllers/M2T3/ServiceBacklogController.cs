@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using ClearCare.Interfaces;
 using System.Text.Json;
+using System.Linq.Expressions;
 
 namespace ClearCare.Controllers
 {
@@ -26,21 +27,6 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> Index()
         {
             var backlogs = await _manager.getAllBacklogDetails();
-            // // if backlogs are not fetched
-            // if (TempData["DataFetched"] == null || !(bool)TempData["DataFetched"])
-            // {
-            //     _manager.getBacklogs();
-            // }
-            
-            // // if backlogs are fetched, 
-            // if (TempData["Backlogs"] != null)
-            // {
-            //     var backlogsJson = TempData["Backlogs"] as string;
-            //     var backlogs = JsonSerializer.Deserialize<List<ServiceBacklog>>(backlogsJson);
-                
-            //     // Pass backlogs to the view
-            //     ViewBag.Backlogs = backlogs;
-            // }
             return View("~/Views/M2T3/ServiceBacklog/Index.cshtml", backlogs);
         }
 
@@ -63,11 +49,46 @@ namespace ClearCare.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ReassignManual()
+        public async Task<IActionResult> ReassignManual([FromForm] string BacklogId,
+                        [FromForm] string AppointmentId,
+                        [FromForm] string PatientId,
+                        [FromForm] string DoctorId,
+                        [FromForm] string ServiceType,
+                        [FromForm] int NurseId,
+                        [FromForm] DateTime DateTime,
+                        [FromForm] int Slot,
+                        [FromForm] string Location)
         {
-            // call manual scheduler
-            // delete old once successfully scheduled
-            return RedirectToAction("Index");
+            Console.WriteLine($"BacklogId: {BacklogId}");
+            Console.WriteLine($"AppointmentId: {AppointmentId}");
+            Console.WriteLine($"PatientId: {PatientId}");
+            Console.WriteLine($"DoctorId: {DoctorId}");
+            Console.WriteLine($"ServiceType: {ServiceType}");
+            Console.WriteLine($"NurseId: {NurseId}");
+            Console.WriteLine($"DateTime: {DateTime}");
+            Console.WriteLine($"Slot: {Slot}");
+            Console.WriteLine($"Location: {Location}");
+            
+            bool success = await _manager.reassignBacklog(
+                BacklogId:BacklogId,
+                AppointmentId:AppointmentId,
+                PatientId:PatientId,
+                DoctorId:DoctorId,
+                ServiceType:ServiceType,
+                NurseId:NurseId,
+                DateTime:DateTime,
+                Slot:Slot,
+                Location: Location
+            );
+            
+            if (success)
+            {
+                return RedirectToAction("Index");
+            }
+            else {
+                // might swap to ajax to handle fail on the same page
+                return RedirectToAction("Reassign");
+            }
         }
     }
 }

@@ -4,6 +4,7 @@
 using ClearCare.Models.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ClearCare.DataSource;
 
 namespace ClearCare.Interfaces
 {
@@ -18,5 +19,9 @@ namespace ClearCare.Interfaces
     Task<bool> DeleteAppointment (string appointmentId);
     Task<DateTime?> fetchAppointmentTime(string appointmentId);
     
+    Task<List<Dictionary<string, object>>> fetchAllUnscheduledPatients();
+    
+    // To be changed delete once got interface from other teams
+    Task<List<string>> getAllServices();
    }
 }

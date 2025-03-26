@@ -9,6 +9,7 @@ using System.Linq;
 using ClearCare.Interfaces;
 using ClearCare.Control;
 
+
 // Request Handling
 [Route("api/[controller]")]
 [ApiController]
@@ -49,7 +50,7 @@ public class ServiceAppointmentsController : Controller
     public async Task<IActionResult> RetrieveAllAppointment()
     {
         // await to wait for task complete or data to retrieve before executing
-        var appointment = await ServiceAppointmentManagement.RetrieveAllAppointments();
+        var appointment = await ServiceAppointmentManagement.retrieveAllAppointments();
         // No record exists
         if (appointment != null && appointment.Any())
         {
@@ -63,10 +64,14 @@ public class ServiceAppointmentsController : Controller
 
     [HttpGet]
     [Route("GetAppointmentsForCalendar")]
-    public async Task<JsonResult> GetAppointmentsForCalendar([FromQuery] string? doctorId,
-        [FromQuery] string? patientId, [FromQuery] string? nurseId)
+    public async Task<JsonResult> getAppointmentsForCalendar(
+        [FromQuery] string? doctorId,
+        [FromQuery] string? patientId,
+        [FromQuery] string? nurseId,
+        [FromQuery] string? location,
+        [FromQuery] string? service)
     {
-        return await _calendarManagement.GetAppointmentsForCalendar(doctorId, patientId, nurseId);
+        return await _calendarManagement.getAppointmentsForCalendar(doctorId, patientId, nurseId, location, service);
     }
 
 
@@ -85,7 +90,7 @@ public class ServiceAppointmentsController : Controller
     // Implement IRetrieveAll
     public async Task<List<Dictionary<string, object>>> RetrieveAll()
     {
-        return await ServiceAppointmentManagement.RetrieveAllAppointments();
+        return await ServiceAppointmentManagement.retrieveAllAppointments();
     }
 
     [HttpGet]
@@ -97,6 +102,14 @@ public class ServiceAppointmentsController : Controller
         return View("~/Views/M2T3/ServiceAppointments/CreateServiceAppt.cshtml"); // Render the form
     }
 
+    [HttpGet]
+    [Route("AutoScheduling")]
+    public async Task<IActionResult> AddPatients()
+    {
+        ViewBag.Appointment = await ServiceAppointmentManagement.getUnscheduledPatients();
+        // ViewBag.Services = await ServiceAppointmentManagement.getAllServices();
+        return View("~/Views/M2T3/ServiceAppointments/AddPatientsAutoScheduling.cshtml");
+    }
 
     // POST: Create a new appointment
     // Route: localhost:5007/api/ServiceAppointments/Create that retriggers POST
@@ -173,6 +186,8 @@ public class ServiceAppointmentsController : Controller
     {
         try
         {
+            Console.WriteLine("Received JSON request body: " + JsonSerializer.Serialize(requestData));
+
             var result = await ServiceAppointmentManagement.UpdateAppointment(
                 requestData["AppointmentId"].GetString() ?? "",
                 requestData["PatientId"].GetString() ?? "",
@@ -244,13 +259,63 @@ public class ServiceAppointmentsController : Controller
     }
 
     // Test Auto Interface
-    [HttpGet]
+    [HttpPost]
     [Route("TestAutoAppointment")]
-    public void TestAutoAppointment()
+    public IActionResult TestAutoAppointment([FromForm] string appointmentsJson, [FromForm] string algorithm)
     {
-        AutomaticAppointmentScheduler.SetAlgorithm(new PreferredNurseStrategy());
-        AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment();
+        // Deserialize the JSON into a list of dictionaries
+        var rawData = JsonSerializer.Deserialize<List<Dictionary<string, object>>>(appointmentsJson);
+
+        if (rawData == null || !rawData.Any())
+        {
+            return BadRequest(new { Message = "No appointments received." });
+        }
+
+        var appointments = new List<ServiceAppointment>();
+
+        foreach (var item in rawData)
+        {
+            var patient = item["patientId"]?.ToString();
+            var service = item["serviceTypeId"]?.ToString();
+
+            if (!string.IsNullOrEmpty(patient) && !string.IsNullOrEmpty(service))
+            {
+                appointments.Add(ServiceAppointment.setApptDetails(
+                    patientId: patient,
+                    nurseId: "",
+                    doctorId: "",
+                    serviceTypeId: service,
+                    status: "Pending",
+                    dateTime: DateTime.UtcNow,
+                    slot: 0,
+                    location: "Physical"
+                ));
+            }
+        }
+
+        Console.WriteLine("Selected Algorithm: " + algorithm);
+        foreach (var appt in appointments)
+        {
+            Console.WriteLine($"Patient ID: {appt.GetAttribute("PatientId")}, Service: {appt.GetAttribute("ServiceTypeId")}, DateTime: {appt.GetAttribute("Datetime")}");
+        }
+
+        if (algorithm == "Preferred")
+        {
+            AutomaticAppointmentScheduler.SetAlgorithm(new PreferredNurseStrategy());
+        }
+        else if (algorithm == "Earliest")
+        {
+            AutomaticAppointmentScheduler.SetAlgorithm(new EarliestsPossibleTimeSlotStrategy());
+        }
+
+        // Pass this full appointment list to your scheduler
+        AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(appointments);
+
+        return Ok(new { Message = "Auto appointment scheduling initiated." });
     }
+
+
+
 
     [HttpPost]
     [Route("AddAppt")]
@@ -260,7 +325,7 @@ public class ServiceAppointmentsController : Controller
 
         Console.WriteLine("Received JSON request body: " + jsonRequestBody);
 
-        // string appointmentId = requestData["AppointmentId"].GetString() ?? "";
+        string appointmentId = requestData["AppointmentId"].GetString() ?? "";
         string patientId = requestData["PatientId"].GetString() ?? "";
         string nurseId = requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "";
         string doctorId = requestData["DoctorId"].GetString() ?? "";
