@@ -61,19 +61,22 @@
 
 
                 dateClick: function (info) {
+                    console.log("Clicked date:", info.dateStr);
+                    
                     const clickedDate = new Date(info.dateStr);
                     const today = new Date();
-
-                    // Reset time part of 'today' so we only compare dates
-                    today.setHours(0, 0, 0, 0);
+                    
+                    today.setHours(0, 0, 0, 0); // Reset time part of 'today' so we only compare dates
 
                     if (clickedDate < today) {
                         toastr.error("You cannot edit an appointment on a past date.", "Error");
                         return;
                     }
 
-                    // If the date is valid, show the add modal
+                    // set the date value in the modal form & make the date field read-only
                     document.getElementById("addDate").value = info.dateStr;
+                    document.getElementById("addDate").readOnly = true;
+                    
                     openAddModal();
                 }
 
@@ -110,21 +113,26 @@
 
         function openEditModal(id, extendedProps) {
             document.getElementById("editAppointmentId").value = id;
-            console.log(document.getElementById("editAppointmentId").value)
-            document.getElementById("editDateAndTime").value = extendedProps.dateTime;
-            document.getElementById("editDoctorId").value = extendedProps.doctorId;
-            document.getElementById("editLocation").value = extendedProps.location;
-            document.getElementById("editNurseId").value = extendedProps.nurseId;
-            document.getElementById("editPatientId").value = extendedProps.patientId;
-            document.getElementById("editServiceType").value = extendedProps.serviceType;
-            document.getElementById("editSlot").value = extendedProps.slot;
-            document.getElementById("editStatus").value = extendedProps.status;
 
+            // Populate the dropdowns first
             populateDropdowns();
 
+            // Set the date from the appointment's datetime
+            let appointmentDate = new Date(extendedProps.dateTime);
+            document.getElementById("editDate").value = appointmentDate.toISOString().split('T')[0];
+
+            // Set the time slot based on the slot value
+            document.getElementById("editTimeSlot").value = extendedProps.slot;
+            document.getElementById("editSlot").value = extendedProps.slot;
+
+            // Set selected values in dropdowns
             setTimeout(() => {
                 document.getElementById("editPatientId").value = extendedProps.patientId;
                 document.getElementById("editNurseId").value = extendedProps.nurseId;
+                document.getElementById("editServiceType").value = extendedProps.serviceType;
+                document.getElementById("editLocation").value = extendedProps.location;
+                document.getElementById("editStatus").value = extendedProps.status;
+                document.getElementById("editDoctorId").value = extendedProps.doctorId;
             }, 300);
 
             $('#editAppointmentModal').modal('show');
@@ -132,9 +140,13 @@
 
         function openAddModal() {
             // clear the form fields
-            document.getElementById("addDate").value = "";
             document.getElementById("addTimeSlot").value = "";
             document.getElementById("addLocation").value = "";
+            document.getElementById("addPatientId").value = "";
+            document.getElementById("addNurseId").value = "";
+            document.getElementById("addServiceType").value = "";
+
+            document.getElementById("addDate").readOnly = true;
 
             populateDropdowns();
 
@@ -146,16 +158,48 @@
             $('.modal').modal('hide');
         }
 
+        function validateEditAppointmentForm() {
+            let isValid = true;
+
+            // Check each required field
+            const fields = ['editPatientId', 'editNurseId', 'editServiceType', 'editTimeSlot', 'editLocation', 'editStatus', 'editDate'];
+
+            fields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                    field.classList.add('is-valid');
+                }
+            });
+
+            return isValid;
+        }
+
         function updateAppointment() {
+            // Validate form first
+            if (!validateEditAppointmentForm()) {
+                toastr.warning("Please fill in all required fields", "Warning");
+                return;
+            }
+
             let id = document.getElementById("editAppointmentId").value;
             let doctorId = document.getElementById("editDoctorId").value;
             let nurseId = document.getElementById("editNurseId").value;
             let patientId = document.getElementById("editPatientId").value;
-            let dateTime = document.getElementById("editDateAndTime").value;
+            let selectedDate = document.getElementById("editDate").value;
+            let selectedTimeSlot = document.getElementById("editTimeSlot").value;
             let location = document.getElementById("editLocation").value;
             let serviceType = document.getElementById("editServiceType").value;
-            let slot = document.getElementById("editSlot").value;
             let status = document.getElementById("editStatus").value;
+
+            // Calculate hour based on the selected time slot
+            let hour = parseInt(selectedTimeSlot);
+
+            // Manually construct the ISO DateTime string
+            let isoDateTime = `${selectedDate}T${hour.toString().padStart(2, '0')}:00:00.000Z`;
 
             let requestData = {
                 AppointmentId: id,
@@ -164,8 +208,8 @@
                 DoctorId: doctorId,
                 ServiceTypeId: serviceType,
                 Status: status,
-                DateTime: new Date(dateTime).toISOString(),  // Ensure ISO format
-                Slot: parseInt(slot),  // Ensure integer format
+                DateTime: isoDateTime,
+                Slot: parseInt(selectedTimeSlot),
                 Location: location
             };
 
@@ -182,13 +226,11 @@
                         toastr.success("Appointment updated successfully!", "Success");
                     } else {
                         toastr.error("Error updating appointment: " + data.message, "Error");
-
                     }
                 })
                 .catch(error => {
                     console.error("Error:", error);
                     toastr.error("An error occurred while updating the appointment.", "Error");
-
                 });
         }
 
@@ -241,15 +283,62 @@
             const dropdown = document.getElementById(elementId);
             dropdown.innerHTML = '<option value="">Select...</option>';
 
-            options.forEach(option => {
-                const optionElement = document.createElement("option");
-                optionElement.value = option.id;
-                optionElement.text = option.name;
-                dropdown.appendChild(optionElement);
-            })
+            // Check if we're dealing with service types (which are just strings)
+            if (elementId.includes("ServiceType")) {
+                // Handle string values for service types
+                options.forEach(option => {
+                    const optionElement = document.createElement("option");
+                    optionElement.value = option;  // Use the string as both value
+                    optionElement.text = option;   // and display text
+                    dropdown.appendChild(optionElement);
+                });
+            }
+            // Skip populating status dropdowns as they're already defined in HTML
+            else if (elementId.includes("Status")) {
+                // Status dropdown is already populated in HTML
+                return;
+            }
+            else {
+                // Handle objects with id/name for patients and nurses
+                options.forEach(option => {
+                    const optionElement = document.createElement("option");
+                    optionElement.value = option.id;
+                    optionElement.text = option.name;
+                    dropdown.appendChild(optionElement);
+                });
+            }
         }
 
+        function validateAddAppointmentForm() {
+            let isValid = true;
+            const form = document.getElementById('addAppointment');
+
+            // check each required field
+            const fields = ['addPatientId', 'addNurseId', 'addServiceType', 'addTimeSlot', 'addLocation'];
+
+            fields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                    field.classList.add('is-valid');
+                }
+            });
+
+            return isValid;
+        }
+
+        // update the existing addAppointment function
         function addAppointment() {
+            // validate form first
+            if (!validateAddAppointmentForm()) {
+                toastr.warning("Please fill in all required fields", "Warning");
+                return;
+            }
+
+            // rest of your existing function...
             let id = generateAppointmentId(20);
             let patientId = document.getElementById("addPatientId").value;
             let nurseId = document.getElementById("addNurseId").value;
@@ -259,11 +348,6 @@
             let selectedDate = document.getElementById("addDate").value;
             let selectedTimeSlot = document.getElementById("addTimeSlot").value;
             let location = document.getElementById("addLocation").value;
-
-            if (!selectedDate || selectedTimeSlot === "") {
-                toastr.warning("Please select both a date and time slot.", "Warning");
-                return;
-            }
 
             // calc hour based on the selected time slot
             let hour = 8 + parseInt(selectedTimeSlot);
@@ -293,7 +377,7 @@
                 .then(response => {
                     if (!response.ok) {
                         return response.json().then(err => {
-                            // Log the entire error response for debugging
+                            // log the entire error response for debugging
                             console.error("Error response:", err.message);
                             throw new Error(err.message || "An error occurred");
                         });
@@ -350,58 +434,101 @@
     <div id="editAppointmentModal" class="modal fade" tabi ndex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">Edit Appointment</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
+                    <button type="button" class="close text-white btn btn-danger" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <form id="editAppointmentForm">
                         <input type="hidden" id="editAppointmentId">
-                        <div class="form-group">
-                            <label for="editDoctorId">Doctor ID</label>
-                            <input type="text" class="form-control" id="editDoctorId" readonly>
+                        <!-- Hidden Doctor ID -->
+                        <input type="hidden" id="editDoctorId" value="DOC001">
+
+                        <!-- Patient Selection -->
+                        <div class="form-group mb-3">
+                            <label for="editPatientId">Select Patient</label>
+                            <select class="form-control" id="editPatientId" required>
+                                <option value="">Select Patient...</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a patient</div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="editPatientId">Patient ID</label>
-                            <input type="text" class="form-control" id="editPatientId">
-                        </div>
-                        <div class="form-group">
-                            <label for="editNurseId">Nurse ID</label>
-                            <input type="text" class="form-control" id="editNurseId">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="editDateAndTime">Date and time</label>
-                            <input type="datetime-local" class="form-control" id="editDateAndTime">
+                        <!-- Nurse Selection -->
+                        <div class="form-group mb-3">
+                            <label for="editNurseId">Select Nurse</label>
+                            <select class="form-control" id="editNurseId" required>
+                                <option value="">Select Nurse...</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a nurse</div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="editSlot">Slot</label>
-                            <input type="text" class="form-control" id="editSlot">
+                        <!-- Service Type -->
+                        <div class="form-group mb-3">
+                            <label for="editServiceType">Select Service Type</label>
+                            <select class="form-control" id="editServiceType" required>
+                                <option value="">Select Service Type...</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a service type</div>
                         </div>
 
-                        <div class="form-group">
+                        <!-- Date and Time Selection -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="editDate">Date:</label>
+                                    <input type="date" id="editDate" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="editTimeSlot">Time Slot:</label>
+                                    <select id="editTimeSlot" class="form-control" required>
+                                        <option value="">Select Time Slot</option>
+                                        <option value="0">08:00 - 09:00</option>
+                                        <option value="1">09:00 - 10:00</option>
+                                        <option value="2">10:00 - 11:00</option>
+                                        <option value="3">11:00 - 12:00</option>
+                                        <option value="4">12:00 - 13:00</option>
+                                        <option value="5">13:00 - 14:00</option>
+                                        <option value="6">14:00 - 15:00</option>
+                                        <option value="7">15:00 - 16:00</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select a time slot</div>
+                                    <input type="hidden" id="editSlot">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Selection -->
+                        <div class="form-group mb-3">
                             <label for="editLocation">Location</label>
-                            <input type="text" class="form-control" id="editLocation">
+                            <select class="form-control" id="editLocation" required>
+                                <option value="">Select Location...</option>
+                                <option value="PHYSICAL">Physical</option>
+                                <option value="VIRTUAL">Virtual</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a location</div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="editServiceType">Service Type</label>
-                            <input type="text" class="form-control" id="editServiceType">
-                        </div>
-
-                        <div class="form-group">
+                        <!-- Status Selection -->
+                        <div class="form-group mb-3">
                             <label for="editStatus">Status</label>
-                            <input type="text" class="form-control" id="editStatus">
+                            <select class="form-control" id="editStatus" required>
+                                <option value="">Select Status...</option>
+                                <option value="PENDING">Pending</option>
+                                <option value="CONFIRMED">Missed</option>
+                                <option value="COMPLETED">Completed</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a status</div>
                         </div>
 
-                        <button type="button" class="btn btn-primary" onclick="updateAppointment()">Save
-                            Changes</button>
-                        <button type="button" class="btn btn-danger"
-                            onclick="deleteAppointment(document.getElementById('editAppointmentId').value)">Delete</button>
+                        <!-- Action Buttons -->
+                        <div class="form-group text-right mt-4">
+                            <button type="button" class="btn btn-danger mr-2" onclick="deleteAppointment(document.getElementById('editAppointmentId').value)">Delete</button>
+                            <button type="button" class="btn btn-primary" onclick="updateAppointment()">Save Changes</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -412,9 +539,9 @@
     <div id="addAppointmentModal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">Add Appointment</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
+                    <button type="button" class="close text-white btn btn-danger" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -422,66 +549,80 @@
                     <form id="addAppointment">
                         <input type="hidden" id="addAppointmentId">
 
-                        <div class="form-group">
+                        <!-- Patient Selection -->
+                        <div class="form-group mb-3">
                             <label for="addPatientId">Select Patient</label>
-                            <select class="form-select" id="addPatientId">
+                            <select class="form-control" id="addPatientId" required>
                                 <option value="">Select Patient...</option>
                             </select>
+                            <div class="invalid-feedback">Please select a patient</div>
                         </div>
-                        <div class="form-group">
+
+                        <!-- Nurse Selection -->
+                        <div class="form-group mb-3">
                             <label for="addNurseId">Select Nurse</label>
-                            <select class="form-select" id="addNurseId">
+                            <select class="form-control" id="addNurseId" required>
                                 <option value="">Select Nurse...</option>
                             </select>
+                            <div class="invalid-feedback">Please select a nurse</div>
                         </div>
-                        @* Need to be retrieved from session *@
+
+                        <!-- Hidden Doctor ID -->
                         <input type="hidden" id="addDoctorID" value="DOC001">
-                        @* This one need to be pulled from management control class *@
-                        <div class="form-group">
+
+                        <!-- Service Type -->
+                        <div class="form-group mb-3">
                             <label for="addServiceType">Select Service Type</label>
-                            <select class="form-select" id="addServiceType">
+                            <select class="form-control" id="addServiceType" required>
                                 <option value="">Select Service Type...</option>
                             </select>
+                            <div class="invalid-feedback">Please select a service type</div>
                         </div>
 
-                        @* This one by default should be pending when the appointment just created
-                        <div class="form-group">
-                            <label for="addStatus">Status</label>
-                            <input type="text" class="form-control" id="addStatus">
-                        </div> *@
-
-                        @* Separate Date and Time selection *@
-                        <div class="form-group">
-                            <label for="addDate">Date:</label>
-                            <input type="date" id="addDate" name="Date" required>
-
-                            <label for="addTimeSlot">Time Slot:</label>
-                            <select id="addTimeSlot" name="TimeSlot" required>
-                                <option value="">Select Time Slot</option>
-                                <option value="0">08:00 - 09:00</option>
-                                <option value="1">09:00 - 10:00</option>
-                                <option value="2">10:00 - 11:00</option>
-                                <option value="3">11:00 - 12:00</option>
-                                <option value="4">12:00 - 13:00</option>
-                                <option value="5">13:00 - 14:00</option>
-                                <option value="6">14:00 - 15:00</option>
-                                <option value="7">15:00 - 16:00</option>
-                            </select><br><br>
+                        <!-- Date and Time Selection -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="addDate">Date:</label>
+                                    <input type="date" id="addDate" name="Date" class="form-control bg-light" required readonly>
+                                    <small class="text-muted">Selected from calendar</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="addTimeSlot">Time Slot:</label>
+                                    <select id="addTimeSlot" name="TimeSlot" class="form-control" required>
+                                        <option value="">Select Time Slot</option>
+                                        <option value="0">08:00 - 09:00</option>
+                                        <option value="1">09:00 - 10:00</option>
+                                        <option value="2">10:00 - 11:00</option>
+                                        <option value="3">11:00 - 12:00</option>
+                                        <option value="4">12:00 - 13:00</option>
+                                        <option value="5">13:00 - 14:00</option>
+                                        <option value="6">14:00 - 15:00</option>
+                                        <option value="7">15:00 - 16:00</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select a time slot</div>
+                                </div>
+                            </div>
                         </div>
 
-                        @* Location only set for 2 options, phsyical OR virtual *@
-                        <div class="form-group">
+                        <!-- Location Selection -->
+                        <div class="form-group mb-3">
                             <label for="addLocation">Location</label>
-                            <select class="form-select" id="addLocation">
+                            <select class="form-control" id="addLocation" required>
                                 <option value="">Select Location...</option>
                                 <option value="PHYSICAL">Physical</option>
                                 <option value="VIRTUAL">Virtual</option>
                             </select>
+                            <div class="invalid-feedback">Please select a location</div>
                         </div>
 
-                        <button type="button" class="btn btn-primary" onclick="addAppointment()">Add
-                            Appointment</button>
-                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <!-- Action Buttons -->
+                        <div class="form-group text-right mt-4">
+                            <button type="button" class="btn btn-secondary mr-2" onclick="closeModal()">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="addAppointment()">Add Appointment</button>
+                        </div>
                     </form>
                 </div>
             </div>

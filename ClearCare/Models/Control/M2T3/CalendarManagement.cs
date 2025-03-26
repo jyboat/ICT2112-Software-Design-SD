@@ -25,14 +25,14 @@ namespace ClearCare.Models.Control
         }
 
         public async Task<JsonResult> getAppointmentsForCalendar(
-            string? doctorId, 
-            string? patientId, 
+            string? doctorId,
+            string? patientId,
             string? nurseId,
             string? location,
             string? service)
         {
             // Get all appointments from IRetrieveAllAppointments (implemented by ServiceAppointmentManagement)
-            var appointments = await _retrieveAllAppointments.retrieveAllAppointments();
+            var appointments = await _retrieveAllAppointments.RetrieveAllAppointments();
 
             if (appointments == null || !appointments.Any())
             {
@@ -42,41 +42,41 @@ namespace ClearCare.Models.Control
             // Apply filtering within CalendarManagement
             if (!string.IsNullOrEmpty(doctorId))
             {
-                appointments = appointments.Where(a => a["DoctorId"].ToString() == doctorId).ToList();
+                appointments = appointments.Where(a => a.GetAttribute("DoctorId") == doctorId).ToList();
             }
             if (!string.IsNullOrEmpty(patientId))
             {
-                appointments = appointments.Where(a => a["PatientId"].ToString() == patientId).ToList();
+                appointments = appointments.Where(a => a.GetAttribute("PatientId") == patientId).ToList();
             }
             if (!string.IsNullOrEmpty(nurseId))
             {
-                appointments = appointments.Where(a => a.ContainsKey("NurseId") && a["NurseId"].ToString() == nurseId).ToList();
+                appointments = appointments.Where(a => a.GetAttribute("NurseId") == nurseId).ToList();
             }
             if (!string.IsNullOrEmpty(location))
             {
-                appointments = appointments.Where(a => a.ContainsKey("Location") && a["Location"].ToString() == location).ToList();
+                appointments = appointments.Where(a => a.GetAttribute("Location") == location).ToList();
             }
             if (!string.IsNullOrEmpty(service))
             {
-                appointments = appointments.Where(a => a.ContainsKey("ServiceTypeId") && a["ServiceTypeId"].ToString() == service).ToList();
+                appointments = appointments.Where(a => a.GetAttribute("ServiceTypeId") == service).ToList();
             }
 
             // Convert filtered data to JSON format required by FullCalendar
             var eventList = appointments.Select(a => new
             {
-                id = a["AppointmentId"],
-                title = a["ServiceTypeId"] + " for " + a["PatientId"],
-                start = ((DateTime)a["DateTime"]).ToString("yyyy-MM-ddTHH:mm:ss"),
+                id = a.GetAttribute("AppointmentId"),
+                title = a.GetAttribute("ServiceTypeId") + " for " + a.GetAttribute("PatientId"),
+                start = DateTime.Parse(a.GetAttribute("Datetime")).ToString("yyyy-MM-ddTHH:mm:ss"),
                 extendedProps = new
                 {
-                    patientId = a["PatientId"],
-                    nurseId = a["NurseId"],
-                    doctorId = a["DoctorId"],
-                    status = a["Status"],
-                    serviceType = a["ServiceTypeId"],
-                    slot = a["Slot"],
-                    location = a["Location"],
-                    dateTime = ((DateTime)a["DateTime"]).ToString("yyyy-MM-ddTHH:mm:ss"),
+                    patientId = a.GetAttribute("PatientId"),
+                    nurseId = a.GetAttribute("NurseId"),
+                    doctorId = a.GetAttribute("DoctorId"),
+                    status = a.GetAttribute("Status"),
+                    serviceType = a.GetAttribute("ServiceTypeId"),
+                    slot = a.GetAttribute("Slot"),
+                    location = a.GetAttribute("Location"),
+                    dateTime = DateTime.Parse(a.GetAttribute("Datetime")).ToString("yyyy-MM-ddTHH:mm:ss"),
                 }
             }).ToList();
 
@@ -95,13 +95,13 @@ namespace ClearCare.Models.Control
             // Convert availability data to JSON format required by FullCalendar
             var eventList = nurseAvailabilityList.Select(a =>
             {
-                var details = a.getAvailabilityDetails(); 
+                var details = a.getAvailabilityDetails();
 
                 return new
                 {
-                    id = details["availabilityId"],  
+                    id = details["availabilityId"],
                     title = "Available",
-                    start = (string)details["date"], 
+                    start = (string)details["date"],
                     extendedProps = new
                     {
                         nurseId = details["nurseID"],

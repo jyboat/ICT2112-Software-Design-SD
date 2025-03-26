@@ -10,7 +10,7 @@ namespace ClearCare.Interfaces
     public interface IServiceAppointmentDB_Receive
    {
     Task receiveServiceAppointmentList(List<ServiceAppointment> allServiceAppointments);
-    Task receiveServiceAppointmentById(Dictionary<string, object> serviceAppointment) ;
+    Task receiveServiceAppointmentById(ServiceAppointment serviceAppointment) ;
     Task receiveCreatedServiceAppointmentId(string serviceAppointmentId); 
     Task receiveUpdatedServiceAppointmentStatus(bool updateStatus);
     Task receiveDeletedServiceAppointmentStatus(bool deleteStatus);

@@ -11,7 +11,7 @@ namespace ClearCare.Models.Entities
     public class ServiceAppointment
     {
         // string.Empty = set empty default or else it will throw error FCK U ASP.NET
-        [FirestoreProperty]
+        // [FirestoreProperty]
         private string AppointmentId { get; set; } = string.Empty;
 
         [FirestoreProperty]
@@ -88,6 +88,34 @@ namespace ClearCare.Models.Entities
                 "Slot" => GetSlot(),
                 _ => throw new ArgumentException("Invalid integer attribute name")
             };
+        }
+
+        public DateTime GetAppointmentDateTime (ServiceAppointment appointment) {
+            // Ensure DateTime is properly converted
+            const string DateTimeFormat = "d/M/yyyy h:mm:ss tt";
+
+            DateTime localTime = DateTime.ParseExact(
+                appointment.GetAttribute("Datetime"),  // Ensure correct key
+                DateTimeFormat,
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.AdjustToUniversal // Ensures UTC conversion
+            );
+
+            return localTime;
+
+        }
+
+        public ServiceAppointment updateServiceAppointementById (ServiceAppointment appointment, string patientId, string nurseId,
+            string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location) {
+                appointment.SetPatientID(patientId);
+                appointment.SetNurseID(nurseId);
+                appointment.SetDoctorID(doctorId);
+                appointment.SetServiceId(serviceTypeId);
+                appointment.SetStatus(status);
+                appointment.SetDateTime(dateTime);
+                appointment.SetSlot(slot);
+                appointment.SetLocation(location);
+            return appointment;
         }
         
         public static ServiceAppointment setApptDetails(string patientId, string nurseId,
@@ -172,7 +200,7 @@ namespace ClearCare.Models.Entities
         {
             return new Dictionary<string, object>
             {
-                { "AppointmentId", AppointmentId },
+                // { "AppointmentId", AppointmentId },
                 { "PatientId", PatientId },
                 { "NurseId", NurseId },
                 { "DoctorId", DoctorId },
