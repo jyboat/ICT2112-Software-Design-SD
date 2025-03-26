@@ -20,5 +20,9 @@ namespace ClearCare.Models
         // New property for doctor UUID
         [FirestoreProperty]
         public string DoctorUUID { get; set; }
+
+        // New Topic property
+        [FirestoreProperty]
+        public string Topic { get; set; }
     }
 }

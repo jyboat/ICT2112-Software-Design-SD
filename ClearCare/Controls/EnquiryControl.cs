@@ -72,21 +72,29 @@ namespace ClearCare.Controls
         //=============================================================
         // Business Logic Methods
         //=============================================================
-        public async Task createEnquiryAsync(Enquiry enquiry, string userUUID, string doctorUUID)
+        public async Task createEnquiryAsync(
+            Enquiry enquiry,
+            string userUUID,
+            string doctorUUID,
+            string topic // <-- Accept Topic as a parameter
+        )
         {
-            _logger.LogInformation($"Creating enquiry from {enquiry.Name} for user {userUUID} and doctor {doctorUUID}.");
+            _logger.LogInformation($"Creating enquiry from {enquiry.Name} for user {userUUID}, doctor {doctorUUID}, topic: {topic}.");
 
-            // Set both user and doctor UUIDs on the enquiry instance.
+            // Assign the UUIDs and Topic on the Enquiry object.
             enquiry.UserUUID = userUUID;
             enquiry.DoctorUUID = doctorUUID;
+            enquiry.Topic = topic;
 
+            // Optionally store in your in-memory list (if you're using it).
             Enquiries.Add(enquiry);
+
+            // Persist to Firestore via the gateway.
             await _enquiryGateway.saveEnquiryAsync(enquiry);
+
+            // Notify observers of the new Enquiry.
             notifyCreated(enquiry);
         }
-
-
-
 
         public async Task saveReplyAsync(string enquiryId, Reply reply)
         {
@@ -106,6 +114,11 @@ namespace ClearCare.Controls
         public async Task<List<Enquiry>> fetchEnquiriesByUserAsync(string userUUID)
         {
             return await _enquiryGateway.getEnquiriesForUserAsync(userUUID);
+        }
+
+        public async Task<List<Enquiry>> fetchEnquiriesByDoctorAsync(string userUUID)
+        {
+            return await _enquiryGateway.getEnquiriesForDoctorAsync(userUUID);
         }
 
         public async Task<Enquiry> fetchEnquiryByFirestoreIdAsync(string firestoreId)

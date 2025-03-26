@@ -1,7 +1,9 @@
 @model List<ClearCare.Models.Enquiry>
+@using ClearCare
 
 @{
     ViewData["Title"] = "List of Enquiries";
+    string userRole = HardcodedUUIDs.UserRole;
 }
 
 <div class="container mt-5">
@@ -13,19 +15,33 @@
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Message</th>
-                        <th>Doctor</th>
+                        @if (userRole == "Doctor")
+                        {
+                            <th>Name</th>
+                            <th>Topic</th>
+                        }
+                        else if (userRole == "Patient")
+                        {
+                            <th>Doctor</th>
+                            <th>Topic</th>
+                        }
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach(var e in Model)
+                    @foreach (var e in Model)
                     {
                         <tr>
-                            <td>@e.Name</td>
-                            <td>@e.Message</td>
-                            <td>@e.DoctorUUID</td>
+                            @if (userRole == "Doctor")
+                            {
+                                <td>@e.Name</td>
+                                <td>@e.Topic</td>
+                            }
+                            else if (userRole == "Patient")
+                            {
+                                <td>@e.DoctorUUID</td>
+                                <td>@e.Topic</td>
+                            }
                             <td>
                                 <a href="@Url.Action("Reply", "Enquiry", new { id = e.FirestoreId })" class="btn btn-success btn-sm">Reply</a>
                             </td>

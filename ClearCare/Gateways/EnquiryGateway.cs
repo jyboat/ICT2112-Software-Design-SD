@@ -43,6 +43,24 @@ namespace ClearCare.Gateways
             }
             return enquiries;
         }
+        
+
+            public async Task<List<Enquiry>> getEnquiriesForDoctorAsync(string userUuid)
+        {
+            Query query = _db.Collection("Enquiry").WhereEqualTo("DoctorUUID", userUuid);
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+            var enquiries = new List<Enquiry>();
+            foreach (DocumentSnapshot doc in snapshot.Documents)
+            {
+                if (doc.Exists)
+                {
+                    Enquiry e = doc.ConvertTo<Enquiry>();
+                    enquiries.Add(e);
+                }
+            }
+            return enquiries;
+        }
 
         public async Task<Enquiry> getEnquiryByIdAsync(string documentId)
         {

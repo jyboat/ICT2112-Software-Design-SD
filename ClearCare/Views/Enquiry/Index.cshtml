@@ -4,14 +4,16 @@
 @{
     ViewData["Title"] = "Enquiry";
 
-    // Example list of doctors; in a real scenario, you might pass this list
-    // via a model from your controller (e.g., as Model.Doctors).
+    // Example list of doctors; in a real scenario, pass them via model or database
     var doctorList = new List<SelectListItem>
     {
         new SelectListItem { Text = "Dr. Alice", Value = "uuid-alice" },
         new SelectListItem { Text = "Dr. Bob",   Value = "uuid-bob"   },
         new SelectListItem { Text = "Dr. Carol", Value = "uuid-carol" }
     };
+
+    // Read the user's role from HardcodedUUIDs
+    string userRole = HardcodedUUIDs.UserRole;
 }
 
 <div class="container mt-5">
@@ -27,6 +29,12 @@
                 <div class="mb-3">
                     <label for="name" class="form-label">Name</label>
                     <input type="text" class="form-control" id="name" name="Name" required />
+                </div>
+
+                <!-- Topic Field -->
+                <div class="mb-3">
+                    <label for="topic" class="form-label">Topic</label>
+                    <input type="text" class="form-control" id="topic" name="Topic" required />
                 </div>
 
                 <div class="mb-3">
@@ -48,12 +56,27 @@
 
                 <div class="d-flex justify-content-between">
                     <button type="submit" class="btn btn-success">Submit</button>
-                    <a asp-controller="Enquiry"
-                       asp-action="ListEnquiriesByUser"
-                       asp-route-userUuid="@HardcodedUUIDs.UserUUID"
-                       class="btn btn-outline-primary">
-                       View My Enquiries
-                    </a>
+
+                    @if (userRole == "Doctor")
+                    {
+                        <!-- If the user is a Doctor, link to ListAllEnquiries -->
+                        <a asp-controller="Enquiry"
+                           asp-action="listEnquiriesByDoctor"
+                            asp-route-userUuid="@HardcodedUUIDs.UserUUID"
+                           class="btn btn-outline-primary">
+                            View All Enquiries
+                        </a>
+                    }
+                    else if (userRole == "Patient")
+                    {
+                        <!-- If the user is a Patient, link to ListEnquiriesByUser -->
+                        <a asp-controller="Enquiry"
+                           asp-action="ListEnquiriesByUser"
+                           asp-route-userUuid="@HardcodedUUIDs.UserUUID"
+                           class="btn btn-outline-primary">
+                           View My Enquiries
+                        </a>
+                    }
                 </div>
             </form>
         </div>

@@ -23,6 +23,21 @@ namespace ClearCare.Controllers
             return View();
         }
 
+
+        [HttpGet]
+        public IActionResult Index()
+        {
+            // Check the user role from your hardcoded class
+            if (HardcodedUUIDs.UserRole == "Doctor")
+            {
+                // Redirect doctors to ListEnquiriesByDoctor
+                return RedirectToAction("ListEnquiriesByDoctor", new { userUuid = HardcodedUUIDs.UserUUID });
+            }
+            
+            // Otherwise, render the Enquiry form for Patients (or others).
+            return index();
+        }
+
         // List all enquiries in memory
         [HttpGet]
         public IActionResult listEnquiries()
@@ -39,19 +54,28 @@ namespace ClearCare.Controllers
             return View("ListEnquiries", userEnquiries);
         }
 
+
+         // List all enquiries for a particular user (via Firestore)
+        [HttpGet]
+        public async Task<IActionResult> listEnquiriesByDoctor(string userUUID)
+        {
+            var userEnquiries = await _enquiryControl.fetchEnquiriesByDoctorAsync(userUUID);
+            return View("ListEnquiries", userEnquiries);
+        }
+
         [HttpPost]
-public async Task<IActionResult> submitEnquiry(Enquiry enquiry, string userUUID, string doctorUUID)
-{
-    // Pass both userUUID and doctorUUID to the control.
-    await _enquiryControl.createEnquiryAsync(enquiry, userUUID, doctorUUID);
+        public async Task<IActionResult> submitEnquiry(Enquiry enquiry, string userUUID, string doctorUUID, string topic)
+        {
+            // Pass both userUUID and doctorUUID to the control.
+            await _enquiryControl.createEnquiryAsync(enquiry, userUUID, doctorUUID, topic);
 
-    ViewData["Name"] = enquiry.Name;
-    ViewData["Message"] = enquiry.Message;
-    ViewData["UserUUID"] = userUUID;
-    ViewData["DoctorUUID"] = doctorUUID;
+            ViewData["Name"] = enquiry.Name;
+            ViewData["Message"] = enquiry.Message;
+            ViewData["UserUUID"] = userUUID;
+            ViewData["DoctorUUID"] = doctorUUID;
 
-    return View("EnquiryResult");
-}
+            return View("EnquiryResult");
+        }
 
 
         [HttpPost]
