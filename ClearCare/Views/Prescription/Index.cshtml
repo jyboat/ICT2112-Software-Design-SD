@@ -1,51 +1,42 @@
 @model List<ClearCare.Models.PrescriptionModel>
-
 @{
     ViewData["Title"] = "Prescriptions";
-
-    // Example role check; adjust to whatever you have in your code
+    // Example role check; adjust to your own logic
     bool isDoctor = (HardcodedUUIDs.UserRole == "Doctor");
 }
 
 <h1>Prescription List</h1>
 
-<!-- Table to display prescriptions -->
-<table class="table">
-    <thead>
+<table class="table table-striped table-hover">
+    <thead class="thead-dark">
         <tr>
-            <th>Patient ID</th>
-            <th>Doctor ID</th>
-            <th>Drug List</th>
-            <th>Date Issued</th>
-            <th>Dosage Info</th>
+            <th scope="col">Patient ID</th>
+            <th scope="col">Doctor ID</th>
+            <th scope="col">Medications</th>
         </tr>
     </thead>
     <tbody>
-        @if (Model != null)
+        @foreach (var item in Model)
         {
-            foreach (var prescription in Model)
-            {
-                <tr>
-                    <td>@prescription.PatientId</td>
-                    <td>@prescription.DoctorId</td>
-                    <td>
-                        @if (prescription.DrugList != null)
+            <tr>
+                <td>@item.PatientId</td>
+                <td>@item.DoctorId</td>
+                <td>
+                    <ul class="mb-0">
+                        @foreach (var med in item.Medications)
                         {
-                            foreach (var drug in prescription.DrugList)
-                            {
-                                @drug <br/>
-                            }
+                            <li>
+                                <strong>Drug:</strong> @med.DrugName,
+                                <strong>Dosage:</strong> @med.Dosage
+                            </li>
                         }
-                    </td>
-                    <td>@prescription.DateIssued.ToShortDateString()</td>
-                    <td>@prescription.DosageInfo</td>
-                </tr>
-            }
+                    </ul>
+                </td>
+            </tr>
         }
     </tbody>
 </table>
 
-<!-- Only show the "Add New Prescription" button if user is a Doctor -->
 @if (isDoctor)
 {
     <a asp-controller="Prescription" asp-action="Create" class="btn btn-primary">

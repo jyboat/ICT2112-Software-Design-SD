@@ -1,58 +1,98 @@
 @model ClearCare.Models.PrescriptionModel
-@using ClearCare  
+@using ClearCare
 
 @{
     ViewData["Title"] = "Create Prescription";
+
+    // Pre-populate the Model's DoctorId from your HardcodedUUIDs
+    Model.DoctorId = HardcodedUUIDs.UserUUID;
+
+    // Assuming you have a HardcodedUUIDs.Patients list like:
+    // public static List<PatientModel> Patients = new List<PatientModel>
+    // {
+    //     new PatientModel { Uuid = "patient-1", Name = "John Doe" },
+    //     new PatientModel { Uuid = "patient-2", Name = "Jane Smith" },
+    //     ...
+    // };
+    var patientList = HardcodedUUIDs.Patients;
 }
 
-<h1>Create a New Prescription</h1>
+<h2>Create Prescription</h2>
 
-<form asp-controller="Prescription" asp-action="Create" method="post">
-    <!-- Hidden field for Doctor UUID -->
-    <input type="hidden" asp-for="DoctorId" value="@HardcodedUUIDs.UserUUID" />
-
-    <!-- Patient Dropdown -->
-    <div class="form-group">
-        <label>Patient</label>
+<form asp-action="Create" method="post">
+    <!-- Patient dropdown -->
+    <div>
+        <label>Patient:</label>
         <select asp-for="PatientId" class="form-control">
-            <option value="">-- Select Patient --</option>
-            @foreach (var patient in HardcodedUUIDs.Patients)
+            @foreach (var patient in patientList)
             {
                 <option value="@patient.Uuid">@patient.Name</option>
             }
         </select>
-        <span asp-validation-for="PatientId" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label>Drug List (comma-separated)</label>
-        <textarea asp-for="DrugList" class="form-control"></textarea>
-        <span asp-validation-for="DrugList" class="text-danger"></span>
+    <!-- Doctor ID automatically set from HardcodedUUIDs -->
+    <div>
+        @* <label>Doctor ID:</label> *@
+        <!-- Visible but read-only -->
+<input type="hidden" asp-for="DoctorId" value="@HardcodedUUIDs.UserUUID" />
+        <!-- Or hide it if you prefer:
+             <input type="hidden" asp-for="DoctorId" value="@HardcodedUUIDs.UserUUID" />
+        -->
     </div>
 
- <div class="form-group">
-    <label asp-for="DateIssued"></label>
-    <input asp-for="DateIssued" type="text" class="form-control" data-provide="datepicker" />
-    <span asp-validation-for="DateIssued" class="text-danger"></span>
-</div>
+    <h4>Medications</h4>
+    <div id="medications-container">
+        @for (int i = 0; i < Model.Medications.Count; i++)
+        {
+            <div class="medication-row">
+                <label>Drug Name:</label>
+                <input asp-for="Medications[@i].DrugName" />
 
+                <label>Dosage:</label>
+                <input asp-for="Medications[@i].Dosage" />
 
-    <div class="form-group">
-        <label asp-for="DosageInfo"></label>
-        <textarea asp-for="DosageInfo" class="form-control"></textarea>
-        <span asp-validation-for="DosageInfo" class="text-danger"></span>
+                <button type="button" onclick="removeRow(this)">Remove</button>
+            </div>
+        }
     </div>
 
-    <button type="submit" class="btn btn-success">Submit</button>
+    <!-- Hidden template row to clone -->
+    <div id="medication-template" style="display:none;">
+        <div class="medication-row">
+            <label>Drug Name:</label>
+            <input name="Medications[IDX].DrugName" value="" />
+
+            <label>Dosage:</label>
+            <input name="Medications[IDX].Dosage" value="" />
+
+            <button type="button" onclick="removeRow(this)">Remove</button>
+        </div>
+    </div>
+
+    <!-- Button to add new medication row -->
+    <button type="button" onclick="addMedicationRow()">Add Drug</button>
+
+    <button type="submit">Save</button>
 </form>
 
+@section Scripts {
+    <script>
+        let counter = @Model.Medications.Count;
 
-<script>
-    $(function() {
-        // Initialize the datepicker
-        $('[data-provide="datepicker"]').datepicker({
-            format: 'yyyy-mm-dd',  // Adjust to your desired format
-            autoclose: true
-        });
-    });
-</script>
+        function addMedicationRow() {
+            // Clone the template
+            const template = document.getElementById("medication-template").innerHTML;
+            // Replace IDX with the current counter
+            const newRowHtml = template.replace(/IDX/g, counter);
+            counter++;
+            // Insert that HTML into the container
+            document.getElementById("medications-container").insertAdjacentHTML('beforeend', newRowHtml);
+        }
+
+        function removeRow(btn) {
+            // Remove the row that the button is in
+            btn.parentElement.remove();
+        }
+    </script>
+}

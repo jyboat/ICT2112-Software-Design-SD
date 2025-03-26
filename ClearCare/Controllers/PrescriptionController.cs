@@ -18,8 +18,10 @@ namespace ClearCare.Controllers
         [HttpGet]
         public IActionResult create()
         {
-            // Render a form for creating a Prescription
-            return View();
+            // You can initialize the model with one empty medication row if you want:
+            var model = new PrescriptionModel();
+            model.Medications.Add(new DrugDosage()); 
+            return View(model);
         }
 
         // POST: /Prescription/Create
