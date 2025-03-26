@@ -9,6 +9,7 @@ using System.Linq;
 using ClearCare.Interfaces;
 using ClearCare.Control;
 
+
 // Request Handling
 [Route("api/[controller]")]
 [ApiController]
@@ -63,12 +64,15 @@ public class ServiceAppointmentsController : Controller
 
     [HttpGet]
     [Route("GetAppointmentsForCalendar")]
-    public async Task<JsonResult> getAppointmentsForCalendar([FromQuery] string? doctorId,
-        [FromQuery] string? patientId, [FromQuery] string? nurseId)
+    public async Task<JsonResult> getAppointmentsForCalendar(
+        [FromQuery] string? doctorId,
+        [FromQuery] string? patientId,
+        [FromQuery] string? nurseId,
+        [FromQuery] string? location,
+        [FromQuery] string? service)
     {
-        return await _calendarManagement.getAppointmentsForCalendar(doctorId, patientId, nurseId);
+        return await _calendarManagement.getAppointmentsForCalendar(doctorId, patientId, nurseId, location, service);
     }
-
 
     [HttpGet]
     [Route("Calendar")]
@@ -101,7 +105,8 @@ public class ServiceAppointmentsController : Controller
     [Route("AutoScheduling")]
     public async Task<IActionResult> AddPatients()
     {
-        ViewBag.Patients = await ServiceAppointmentManagement.getUnscheduledPatients();
+        ViewBag.Appointment = await ServiceAppointmentManagement.getUnscheduledPatients();
+        // ViewBag.Services = await ServiceAppointmentManagement.getAllServices();
         return View("~/Views/M2T3/ServiceAppointments/AddPatientsAutoScheduling.cshtml");
     }
 
@@ -255,18 +260,61 @@ public class ServiceAppointmentsController : Controller
     // Test Auto Interface
     [HttpPost]
     [Route("TestAutoAppointment")]
-    public IActionResult TestAutoAppointment([FromForm] List<string> PatientIds)
+    public IActionResult TestAutoAppointment([FromForm] string appointmentsJson, [FromForm] string algorithm)
     {
-        Console.WriteLine("Selected Patient IDs: " + string.Join(", ", PatientIds));
-    
-        // Pass the list of patient IDs to your scheduling algorithm.
-        // You might need to modify AutomaticallyScheduleAppointment to accept this list.
-        AutomaticAppointmentScheduler.SetAlgorithm(new PreferredNurseStrategy());
-        AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(PatientIds);
-        
-        // Return a response or redirect as needed.
-        return Ok(new { Message = "Auto appointment scheduling initiated.", SelectedPatients = PatientIds });
+        // Deserialize the JSON into a list of dictionaries
+        var rawData = JsonSerializer.Deserialize<List<Dictionary<string, object>>>(appointmentsJson);
+
+        if (rawData == null || !rawData.Any())
+        {
+            return BadRequest(new { Message = "No appointments received." });
+        }
+
+        var appointments = new List<ServiceAppointment>();
+
+        foreach (var item in rawData)
+        {
+            var patient = item["patientId"]?.ToString();
+            var service = item["serviceTypeId"]?.ToString();
+
+            if (!string.IsNullOrEmpty(patient) && !string.IsNullOrEmpty(service))
+            {
+                appointments.Add(ServiceAppointment.setApptDetails(
+                    patientId: patient,
+                    nurseId: "",
+                    doctorId: "",
+                    serviceTypeId: service,
+                    status: "Pending",
+                    dateTime: DateTime.UtcNow,
+                    slot: 0,
+                    location: "Physical"
+                ));
+            }
+        }
+
+        Console.WriteLine("Selected Algorithm: " + algorithm);
+        foreach (var appt in appointments)
+        {
+            Console.WriteLine($"Patient ID: {appt.GetAttribute("PatientId")}, Service: {appt.GetAttribute("ServiceTypeId")}, DateTime: {appt.GetAttribute("Datetime")}");
+        }
+
+        if (algorithm == "Preferred")
+        {
+            AutomaticAppointmentScheduler.SetAlgorithm(new PreferredNurseStrategy());
+        }
+        else if (algorithm == "Earliest")
+        {
+            AutomaticAppointmentScheduler.SetAlgorithm(new EarliestsPossibleTimeSlotStrategy());
+        }
+
+        // Pass this full appointment list to your scheduler
+        AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(appointments);
+
+        return Ok(new { Message = "Auto appointment scheduling initiated." });
     }
+
+
+
 
     [HttpPost]
     [Route("AddAppt")]

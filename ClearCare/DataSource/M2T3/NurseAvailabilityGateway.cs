@@ -79,6 +79,26 @@ namespace ClearCare.DataSource
             return availabilityList;
         }
 
+        public async Task<List<NurseAvailability>> fetchAvailability()
+        {
+            List<NurseAvailability> availabilityList = new List<NurseAvailability>();
+
+            CollectionReference availabilitiesRef = _db.Collection("NurseAvailability");
+            QuerySnapshot snapshot = await availabilitiesRef.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                if (document.Exists)
+                {
+                    var data = document.ToDictionary();
+                    NurseAvailability availability = NurseAvailability.FromFirestoreData(data);
+                    availabilityList.Add(availability);
+                }
+            }
+            await _receiver.receiveAvailabilityList(availabilityList);
+            return availabilityList;
+        }
+
         // Add Availability - implemented in IAvailabilityDB_Send; used in NurseAvailabilityManagement (addAvailability)
         public async Task createAvailability(NurseAvailability availability)
         {

@@ -59,6 +59,22 @@ namespace ClearCare.Models.Control
             return Task.CompletedTask;
         }
 
+        public async Task<List<ServiceAppointment>> RetrieveAllAppointmentsByNurse(string nurseId)
+        {
+            List<ServiceAppointment> allAppointments = await _dbGateway.fetchAllServiceAppointments();
+            
+            // List<Dictionary<string, object>> nurseAppointments = allAppointments
+            //     .Where(a => a.GetAttribute("NurseId") == nurseId)
+            //     .Select(a => a.ToFirestoreDictionary())
+            //     .ToList();
+
+            List<ServiceAppointment> nurseAppointments = allAppointments
+                .Where(a => a.GetAttribute("NurseId") == nurseId)
+                .ToList();
+
+            return nurseAppointments;
+        }
+
         // Create Service Appointment
         public async Task<string> CreateAppointment(string patientId, string nurseId,
                 string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
@@ -259,12 +275,20 @@ namespace ClearCare.Models.Control
             public string Name { get; set; } = string.Empty;
         }
 
-        public async Task<List<ServiceAppointmentGateway.Patient>> getUnscheduledPatients()
+        public async Task<List<Dictionary<string, object>>> getUnscheduledPatients()
         {
             // Call the gateway to get the unscheduled patients.
-            List<ServiceAppointmentGateway.Patient> patients = await _dbGateway.fetchAllUnscheduledPatients();
-            return patients;
+            List<Dictionary<string, object>> serviceAppointment = await _dbGateway.fetchAllUnscheduledPatients();
+
+            return serviceAppointment;
         }
+
+        public async Task<List<string>> getAllServices()
+        {
+            List<string> services = await _dbGateway.getAllServices();
+            return services;
+        }
+
 
 
         // public Task CreateAppointment() {

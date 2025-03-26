@@ -9,12 +9,30 @@ public class FirebaseService
     {
         if (_firestoreDb == null)
         {
-            // Firebase Admin SDK JSON file
-            string path = @"Firebase\firebase-adminsdk.json"; 
+            // Determine the OS and set the file path accordingly
+            string path;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                // Path for MacBook
+                path = @"Firebase/firebase-adminsdk-private.json";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // Path for Windows
+                path = @"Firebase\firebase-adminsdk-private.json"; // not to make path absolute with "C: "
+                // path = @"Firebase\ict2112-firebase-adminsdk-fbsvc-168ada7053"; // not to make path absolute with "C: "
+
+            }
+            else
+            {
+                throw new PlatformNotSupportedException("Unsupported operating system.");
+            }
+
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
 
             _firestoreDb = FirestoreDb.Create("ict2112");
-            //_firestoreDb = FirestoreDb.Create("sd-m2t5");
+            // _firestoreDb = FirestoreDb.Create("sd-m2t5");
+            // _firestoreDb = FirestoreDb.Create("hello-world-f8882");
             Console.WriteLine("Connected to Firestore!");
         }
 

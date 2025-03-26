@@ -1,0 +1,87 @@
+@{
+    ViewData["Title"] = "Add Patients to Auto Schedule";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<h2>Add Patients to Auto Schedule</h2>
+
+<form id="appointmentForm" method="post" action="/api/ServiceAppointments/TestAutoAppointment">
+    <br />
+
+    <!-- Dropdown for algorithm -->
+    <label for="algorithm">Algorithm:</label>
+    <select id="algorithm" name="algorithm" class="select3" required>
+        <option disabled selected value="">Select Algorithm</option>
+        <option value="Preferred">Preferred</option>
+        <option value="Earliest">Earliest</option>
+    </select>
+
+    <br /><br />
+
+    <h3>Appointments to Schedule:</h3>
+    
+    <!-- Multi-select for patients and services -->
+    <select id="appointmentsList" name="appointments[]" multiple="multiple" style="width: 100%;" class="select2">
+        @foreach (var appointment in ViewBag.Appointment)
+        {
+            <option value="@appointment["PatientId"]-@appointment["ServiceTypeId"]">@appointment["PatientId"] - @appointment["ServiceTypeId"]</option>
+        }
+    </select>
+
+    <br />
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+    $(document).ready(function () {
+        // Initialize select2 for the multi-select dropdown
+        $('.select2').select2();
+
+        // Handle form submission to collect selected appointments and send to the server
+        $('#appointmentForm').submit(function (event) {
+            event.preventDefault();  // Prevent default form submission
+
+            const selectedAppointments = [];
+            // Collect the selected appointments
+            $("#appointmentsList option:selected").each(function () {
+                const selectedValue = $(this).val().split('-');
+                const patientId = selectedValue[0];
+                const serviceTypeId = selectedValue[1];
+
+                selectedAppointments.push({
+                    patientId: patientId,
+                    serviceTypeId: serviceTypeId
+                });
+            });
+
+            if (selectedAppointments.length === 0) {
+                alert("Please select at least one appointment.");
+                return false;
+            }
+
+            // Prepare the appointments data in JSON format and send it to the server
+            const appointmentsJson = JSON.stringify(selectedAppointments);
+
+            // Submit the form with the additional appointmentsJson and algorithm data
+            $.ajax({
+                type: "POST",
+                url: "/api/ServiceAppointments/TestAutoAppointment",
+                data: {
+                    appointmentsJson: appointmentsJson,
+                    algorithm: $('#algorithm').val()
+                },
+                success: function (response) {
+                    alert("Auto appointment scheduling initiated.");
+                    @* location.reload(); *@
+                },
+                error: function (error) {
+                    alert("An error occurred while processing your request.");
+                }
+            });
+        });
+    });
+</script>
+

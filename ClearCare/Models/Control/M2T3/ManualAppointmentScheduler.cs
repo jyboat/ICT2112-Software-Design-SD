@@ -1,9 +1,3 @@
-using System.Threading.Tasks;
-using ClearCare.DataSource;
-using ClearCare.Models;
-using ClearCare.Models.Control;
-using ClearCare.Models.Entities;
-using Google.Protobuf.WellKnownTypes;
 using ClearCare.Interfaces;
 
 namespace ClearCare.Models.Control
@@ -37,13 +31,15 @@ namespace ClearCare.Models.Control
             bool isValid = true;
             Console.WriteLine($"nurseId: {nurseId}");
             Console.WriteLine($"dateTime: {dateTime}");
+            
+            // 1st check: is the nurse available on this day?
 
             // retrieve staff availability
             var nurseAvailability = await _iNurseAvailability.getAvailabilityByStaff(nurseId);
-
             var requestedDate = dateTime.Date;
             var requestedTime = dateTime.TimeOfDay;
-
+            
+            // if any availability records show that the nurse is unavailable for that day, return false
             foreach (var availability in nurseAvailability)
             {
                 var availabilityDetails = availability.getAvailabilityDetails();
@@ -52,10 +48,6 @@ namespace ClearCare.Models.Control
                 DateTime availabilityDate = DateTime.Parse(availabilityDetails["date"].ToString());
                 TimeSpan startTime = TimeSpan.Parse(availabilityDetails["startTime"].ToString());
                 TimeSpan endTime = TimeSpan.Parse(availabilityDetails["endTime"].ToString());
-
-                // Console.WriteLine($"Availability Date: {availabilityDate}");
-                // Console.WriteLine($"Start Time: {startTime}");
-                // Console.WriteLine($"End Time: {endTime}");
 
                 // check if the requested date matches the availability date
                 if (requestedDate == availabilityDate.Date)
@@ -70,14 +62,23 @@ namespace ClearCare.Models.Control
                 }
             }
 
-            // if (isValid)
-            // {
-            //     Console.WriteLine("Appointment slot is valid.");
-            // }
-            // else
-            // {
-            //     Console.WriteLine("Appointment slot is not valid.");
-            // }
+            // 2nd check: is the same nurse already booked for another appointment at this time?
+            // get all appointments for the nurse
+            // probably will need to open interface for this
+            var nurseAppointments = await _iCreateAppointment.RetrieveAllAppointmentsByNurse(nurseId);
+
+            foreach (var appointment in nurseAppointments)
+            {
+                var apptDateTime = DateTime.Parse(appointment.GetAttribute("Datetime"));
+                var apptSlot = appointment.GetIntAttribute("Slot");
+    
+                // check if same date and slot
+                if (apptDateTime.Date == requestedDate && apptSlot == slot)
+                {
+                    Console.WriteLine($"Nurse {nurseId} already has an appointment at slot {slot} on {requestedDate.ToShortDateString()}");
+                    return false; // conflict found
+                }
+            }
 
             return isValid;
         }

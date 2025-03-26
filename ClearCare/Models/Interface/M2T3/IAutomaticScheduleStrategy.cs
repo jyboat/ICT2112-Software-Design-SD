@@ -7,9 +7,12 @@ namespace ClearCare.Interfaces
     public interface IAutomaticScheduleStrategy
     {
         List<ServiceAppointment> AutomaticallySchedule(
+            List<ServiceAppointment> unscheduledAppointment,
             List<AutomaticAppointmentScheduler.Nurse> nurses, 
-            List<AutomaticAppointmentScheduler.Patient> appointments,
             List<string> services,
-            List<ServiceAppointment> backlogEntries);
+            List<ServiceAppointment> backlogEntries,
+            Dictionary<string, List<int>> patientSlotTracker,
+            Dictionary<string, Dictionary<int,int>> serviceSlotTracker,
+            Dictionary<string, List<int>> nurseSlotTracker);
     }
 }
