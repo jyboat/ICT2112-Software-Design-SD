@@ -36,9 +36,11 @@ namespace ClearCare.DataSource
                 Timestamp date = doc.GetValue<Timestamp>("Date");
                 string erratumDetails = doc.GetValue<string>("ErratumDetails");
                 string doctorID = doc.GetValue<string>("DoctorID");
+                byte[] attachment = doc.GetValue<byte[]>("ErratumAttachment");
+                string attachmentName = doc.GetValue<string>("ErratumAttachmentName");
 
                 // Create a new Erratum object with the Firestore data
-                Erratum erratum = new Erratum(erratumID, medicalRecordID, date, erratumDetails, doctorID);
+                Erratum erratum = new Erratum(erratumID, medicalRecordID, date, erratumDetails, doctorID, attachment, attachmentName);
 
                 // Add the newly created erratum to the list
                 errata.Add(erratum);
@@ -47,7 +49,31 @@ namespace ClearCare.DataSource
             return errata;
         }
 
-        public async Task<Erratum?> insertErratum(string medicalRecordID, string erratumDetails, string doctorID)
+        // Retrieve a medical record by ID
+        public async Task<Erratum?> getErratumByID(string erratumID)
+        {
+            DocumentReference docRef = db.Collection("Erratum").Document(erratumID);
+            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+
+            if (!snapshot.Exists)
+            {
+                Console.WriteLine($"Erratum {erratumID} not found in Firestore.");
+                return null;
+            }
+
+            // Assign values from Firestore document
+            string medicalRecordID = snapshot.GetValue<string>("MedicalRecordID");
+            Timestamp date = snapshot.GetValue<Timestamp>("Date");
+            string erratumDetails = snapshot.GetValue<string>("ErratumDetails");
+            string doctorID = snapshot.GetValue<string>("DoctorID");
+            byte[] attachment = snapshot.GetValue<byte[]>("ErratumAttachment");
+            string attachmentName = snapshot.GetValue<string>("ErratumAttachmentName");
+
+            // Return record
+            return new Erratum(erratumID, medicalRecordID, date, erratumDetails, doctorID, attachment, attachmentName);
+        }
+
+        public async Task<Erratum?> insertErratum(string medicalRecordID, string erratumDetails, string doctorID, byte[] fileBytes, string fileName)
         {
             try
             {
@@ -91,7 +117,9 @@ namespace ClearCare.DataSource
                     { "MedicalRecordID", medicalRecordID },
                     { "Date", currentTimestamp },
                     { "ErratumDetails", erratumDetails },
-                    { "DoctorID", doctorID }
+                    { "DoctorID", doctorID },
+                    { "ErratumAttachment", fileBytes },
+                    { "ErratumAttachmentName", fileName }
                 };
 
                 // Insert new Erratum record into Firestore 
@@ -100,7 +128,7 @@ namespace ClearCare.DataSource
                 Console.WriteLine($"Erratum ID: {erratumID} inserted successfully.");
 
                 // Return the record with the correct MedicalRecordID (Firestore document ID)
-                return new Erratum(erratumID, medicalRecordID, currentTimestamp, erratumDetails, doctorID);
+                return new Erratum(erratumID, medicalRecordID, currentTimestamp, erratumDetails, doctorID, fileBytes, fileName);
             }
             catch (Exception e)
             {

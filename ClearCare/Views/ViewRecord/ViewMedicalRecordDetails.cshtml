@@ -22,7 +22,7 @@
                 </tr>
                 <tr>
                     <th class="table-light">Date</th>
-                    <td>@(((Google.Cloud.Firestore.Timestamp)record?.Date).ToDateTime().ToLocalTime().ToString("yyyy-MM-dd HH:mm"))</td>
+                    <td>@(((Google.Cloud.Firestore.Timestamp)record?.Date).ToDateTime().ToLocalTime().ToString("dd MMMM yyyy, hh:mm tt"))</td>
                 </tr>
                 <tr>
                     <th class="table-light">Doctor Note</th>
@@ -33,11 +33,15 @@
                     <td>
                         @if (record?.HasAttachment)
                         {
-                            <a href="/ViewRecord/ViewAttachment/@record?.MedicalRecordID">@record?.AttachmentName</a>
+                            <a href="/ViewRecord/ViewAttachment/@record?.MedicalRecordID" class="btn btn-outline-primary btn-sm" target="_blank">
+                                <i class="bi bi-paperclip"></i> @record?.AttachmentName
+                            </a>
                         }
                         else
                         {
-                            <span>No Attachment</span>
+                            <span class="text-muted">
+                                <i class="bi bi-x-circle-fill text-danger"></i> No Attachment
+                            </span>
                         }
                     </td>
                 </tr>
@@ -55,6 +59,7 @@
                     <th>Filed By</th>
                     <th>Date Filed</th>
                     <th>Details</th>
+                    <th>Attachment</th>
                 </tr>
             </thead>
             <tbody>
@@ -67,6 +72,20 @@
                             <td>@erratum.CreatedBy</td>
                             <td>@(((Google.Cloud.Firestore.Timestamp)erratum.Date).ToDateTime().ToLocalTime().ToString("dd MMMM yyyy, hh:mm tt"))</td>
                             <td>@erratum.ErratumDetails</td>
+                            <td>
+                                @if (erratum?.HasErratumAttachment)
+                                {
+                                    <a href="/ViewRecord/ViewErratumAttachment/@erratum?.ErratumID" class="btn btn-outline-secondary btn-sm" target="_blank">
+                                        <i class="bi bi-paperclip"></i> @erratum?.ErratumAttachmentName
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        <i class="bi bi-x-circle-fill text-danger"></i> No Attachment
+                                    </span>
+                                }
+                            </td>
                         </tr>
                     }
                 }
@@ -82,10 +101,18 @@
     }
 
     <div class="pt-4">
-        <!-- Export Button -->
-        <a href="/ViewRecord/Export/@record?.MedicalRecordID" class="btn btn-primary">Export Record</a>
-        
-        <!-- Back Button -->
-        <a href="/ViewRecord" class="btn btn-secondary">Back to Records</a>
+    <!-- Export Button with Format Selection -->
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            Export Record
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/ViewRecord/Export/@record?.MedicalRecordID?format=csv">Export as CSV</a></li>
+            <li><a class="dropdown-item" href="/ViewRecord/Export/@record?.MedicalRecordID?format=pdf">Export as PDF</a></li>
+        </ul>
     </div>
+    
+    <!-- Back Button -->
+    <a href="/ViewRecord" class="btn btn-secondary">Back to Records</a>
+</div>
 </div>

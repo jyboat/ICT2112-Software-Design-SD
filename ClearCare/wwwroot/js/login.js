@@ -59,4 +59,16 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+$(function () {
+    const successMessage = $('#ToastrSuccessMessage').val();
+    const errorMessage = $('#ToastrErrorMessage').val();
+    
+    if (successMessage) {
+        toastr.success(successMessage, "Success");
+    }
+
+    if (errorMessage) {
+        toastr.error(errorMessage, "Error");
+    }
+});
 

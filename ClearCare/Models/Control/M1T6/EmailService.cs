@@ -40,4 +40,34 @@ public class EmailService : IEmail
             return false;
         }
     }
+
+    public async Task<bool> sendEmail(string toEmail, string subject, string text)
+    {
+        try
+        {
+            using (var client = new SmtpClient(GmailSmtpHost, GmailSmtpPort))
+            {
+                client.Credentials = new NetworkCredential(SenderEmail, SenderPassword);
+                client.EnableSsl = true;
+
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(SenderEmail),
+                    Subject = subject,
+                    Body = text,
+                    IsBodyHtml = false
+                };
+
+                mailMessage.To.Add(toEmail);
+                await client.SendMailAsync(mailMessage);
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error sending email: {ex.Message}");
+            return false;
+        }
+    }
 }

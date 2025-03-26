@@ -38,6 +38,14 @@ namespace ClearCare.Models.Entities
             DateOfBirth = dateOfBirth;
         }
 
+        public Patient(string userID, string email, string password, string name, long mobileNumber, string address, string role)
+            : base(userID, email, password, name, mobileNumber, address, role)  // Call base constructor
+        {
+            AssignedCaregiverName = "";
+            AssignedCaregiverID = "";
+            DateOfBirth = Timestamp.FromDateTime(DateTime.UtcNow);
+        }
+
         // Override GetProfileData() to include Patient-specific fields
         public override Dictionary<string, object> getProfileData()
         {

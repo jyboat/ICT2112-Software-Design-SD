@@ -9,9 +9,9 @@ namespace ClearCare.Controllers
     {
         private ErratumManagement ErratumManagement;
 
-        public FileErratumController(IEncryption encryptionService)
+        public FileErratumController(IEncryption encryptionService, IAuditLog auditService)
         {
-            ErratumManagement = new ErratumManagement(encryptionService);
+            ErratumManagement = new ErratumManagement(encryptionService, auditService);
         }
 
         [Route("{recordID}")]
@@ -34,7 +34,7 @@ namespace ClearCare.Controllers
         // Form action to file erratum
         [HttpPost]
         [Route("FileErratumRecord")]
-        public async Task<IActionResult> fileErratum(string recordID, string erratumDetails)
+        public async Task<IActionResult> fileErratum(string recordID, string erratumDetails, IFormFile erratumAttachment)
         {
             var userRole = HttpContext.Session.GetString("Role");
             var doctorID = HttpContext.Session.GetString("UserID");
@@ -50,14 +50,46 @@ namespace ClearCare.Controllers
                 return BadRequest("Doctor ID is missing.");
             }
 
-            var result = await ErratumManagement.createErratum(recordID, erratumDetails, doctorID);
+            byte[] fileBytes = Array.Empty<byte>();
+            string fileName = string.Empty;
 
-            if (result == null)
+            // Handle file upload if provided
+            if (erratumAttachment != null && erratumAttachment.Length > 0)
             {
-                return NotFound("Failed to create erratum.");
+                try
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await erratumAttachment.CopyToAsync(memoryStream);
+                        fileBytes = memoryStream.ToArray(); // Convert file to byte array
+                    }
+                    fileName = erratumAttachment.FileName; // Store original file name
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"File processing failed: {ex.Message}");
+                    TempData["Error"] = "Failed to process attachment.";
+                    return RedirectToAction("displayCreateRecord");
+                }
             }
 
-            return RedirectToAction("displayViewRecord", "ViewRecord", new { recordID = recordID });
+            var result = await ErratumManagement.createErratum(
+                recordID, 
+                erratumDetails, 
+                doctorID, 
+                fileBytes ?? Array.Empty<byte>(), // Provide default empty byte array
+                fileName ?? string.Empty // Provide default empty string
+            );
+
+            if (result != null)
+            {
+                TempData["SuccessMessage"] = "Erratum filed successfully!";
+                return RedirectToAction("displayViewRecord", "ViewRecord", new { recordID = recordID });
+            }
+            else{
+                TempData["ErrorMessage"] = "Failed to file erratum.";
+                 return NotFound("Failed to create erratum.");
+            }
         }
     }
 }

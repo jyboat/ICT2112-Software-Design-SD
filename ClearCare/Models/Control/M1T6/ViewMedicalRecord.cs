@@ -4,6 +4,8 @@ using ClearCare.Models.Entities;
 using ClearCare.DataSource;
 using Google.Cloud.Firestore;
 using ClearCare.Models.Interface;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 
 namespace ClearCare.Models.Control
 {
@@ -12,12 +14,14 @@ namespace ClearCare.Models.Control
         private MedicalRecordGateway MedicalRecordGateway;
         private readonly UserGateway UserGateway;
         private readonly IEncryption encryptionService;
+        private readonly ErratumManagement erratumManagement;
 
-        public ViewMedicalRecord(IEncryption encryptionService)
+        public ViewMedicalRecord(IEncryption encryptionService, ErratumManagement erratumManagement)
         {
             MedicalRecordGateway = new MedicalRecordGateway();
             UserGateway = new UserGateway();
             this.encryptionService = encryptionService;
+            this.erratumManagement = erratumManagement ?? throw new ArgumentNullException(nameof(erratumManagement));
         }
 
         // Retrieve all medical records and process them for display
@@ -76,32 +80,270 @@ namespace ClearCare.Models.Control
             return await MedicalRecordGateway.retrieveMedicalRecordById(recordID);
         }
 
-        // Export medical record to CSV
-        public async Task<string> exportMedicalRecord(string recordID)
+        //Export Medical Record
+        public async Task<string> exportMedicalRecord(string recordID, string format = "csv")
         {
-            // Retrieve the medical record
             var medicalRecord = await getAdjustedRecordByID(recordID);
             if (medicalRecord == null)
             {
                 return "Medical record not found.";
             }
 
-            // Prepare the CSV file content
-            StringBuilder csvContent = new StringBuilder();
-            csvContent.AppendLine("MedicalRecordID,PatientID,CreatedBy,Date,DoctorNote,AttachmentName,HasAttachment");
+            var allErratums = await erratumManagement.getAllErratum();
+            var filteredErratums = allErratums.Where(e => e.MedicalRecordID == recordID).ToList();
 
-            // Add medical record details to the CSV content
-            csvContent.AppendLine($"{medicalRecord.MedicalRecordID},{medicalRecord.PatientID},{medicalRecord.CreatedBy},{medicalRecord.Date},{medicalRecord.DoctorNote},{medicalRecord.AttachmentName},{medicalRecord.HasAttachment}");
+            string ConvertToUTC8(string utcTimestamp)
+            {
+                if (string.IsNullOrEmpty(utcTimestamp))
+                    return "N/A";
 
-            // Specify the file path where the CSV will be saved
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), $"{recordID}_MedicalRecord.csv");
+                // Remove "Timestamp: " prefix safely
+                if (utcTimestamp.StartsWith("Timestamp: "))
+                    utcTimestamp = utcTimestamp.Substring(10).Trim();
 
-            // Write the content to the file
-            await File.WriteAllTextAsync(filePath, csvContent.ToString());
+                // Define multiple possible timestamp formats
+                string[] formats = {
+        "yyyy-MM-ddTHH:mm:ss.fffffffZ", // Full precision
+        "yyyy-MM-ddTHH:mm:ss.ffffffZ",  // 6 decimal places
+        "yyyy-MM-ddTHH:mm:ss.fffZ",     // 3 decimal places
+        "yyyy-MM-ddTHH:mm:ssZ"          // No milliseconds
+    };
 
-            // Return the file path to indicate success
+                DateTime utcDateTime;
+
+                // Try to parse the timestamp
+                bool success = DateTime.TryParseExact(utcTimestamp, formats,
+                                                      System.Globalization.CultureInfo.InvariantCulture,
+                                                      System.Globalization.DateTimeStyles.AdjustToUniversal,
+                                                      out utcDateTime);
+
+                if (!success)
+                {
+                    if (!DateTime.TryParse(utcTimestamp, out utcDateTime))
+                        return "Invalid Date";
+                }
+
+                // Explicitly set DateTimeKind to UTC to fix conversion error
+                utcDateTime = DateTime.SpecifyKind(utcDateTime, DateTimeKind.Utc);
+
+                // Convert from UTC to UTC+8
+                TimeZoneInfo utcPlus8Zone = TimeZoneInfo.FindSystemTimeZoneById("Singapore Standard Time");
+                DateTime utcPlus8Time = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, utcPlus8Zone);
+
+                // Format the date as "21 March 2025, 05:03 PM"
+                return utcPlus8Time.ToString("dd MMMM yyyy, hh:mm tt", System.Globalization.CultureInfo.InvariantCulture);
+            }
+
+
+            string filePath;
+            if (format.ToLower() == "csv")
+            {
+                // CSV export code remains the same
+                StringBuilder csvContent = new StringBuilder();
+                csvContent.AppendLine("MedicalRecordID,PatientID,CreatedBy,Date,DoctorNote");
+
+                csvContent.AppendLine($"{medicalRecord.MedicalRecordID},{medicalRecord.PatientID},{medicalRecord.CreatedBy},\"{ConvertToUTC8(medicalRecord.Date.ToString())}\",{medicalRecord.DoctorNote}");
+
+
+
+
+                if (filteredErratums.Count > 0)
+                {
+                    csvContent.AppendLine();
+                    csvContent.AppendLine("ErratumID,MedicalRecordID,FiledBy,DateFiled,ErratumDetails");
+                    foreach (var erratum in filteredErratums)
+                    {
+
+                        csvContent.AppendLine($"{erratum.ErratumID},{erratum.MedicalRecordID},{erratum.CreatedBy},\"{ConvertToUTC8(erratum.Date.ToString())}\",{erratum.ErratumDetails}");
+
+
+                    }
+                }
+
+                filePath = Path.Combine(Directory.GetCurrentDirectory(), $"{recordID}_MedicalRecord.csv");
+                await File.WriteAllTextAsync(filePath, csvContent.ToString());
+            }
+            else if (format.ToLower() == "pdf")
+            {
+                // Updated PDF export code with tables
+                filePath = Path.Combine(Directory.GetCurrentDirectory(), $"{recordID}_MedicalRecord.pdf");
+
+                using (var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    using (var doc = new Document())
+                    {
+                        PdfWriter.GetInstance(doc, fs);
+                        doc.Open();
+
+                        // Add a title
+                        Paragraph title = new Paragraph($"Medical Record: {medicalRecord.MedicalRecordID}",
+                            new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD));
+                        title.Alignment = Element.ALIGN_CENTER;
+                        title.SpacingAfter = 20f;
+                        doc.Add(title);
+
+                        // Create table for medical record details
+                        PdfPTable detailsTable = new PdfPTable(2);
+                        detailsTable.WidthPercentage = 100;
+                        detailsTable.SpacingAfter = 20f;
+
+                        // Set column widths
+                        float[] columnWidths = new float[] { 1f, 3f };
+                        detailsTable.SetWidths(columnWidths);
+
+                        // Add header row
+                        PdfPCell headerCell = new PdfPCell(new Phrase("Medical Record Details",
+                            new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD)));
+                        headerCell.Colspan = 2;
+                        headerCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        headerCell.BackgroundColor = new BaseColor(220, 220, 220);
+                        headerCell.Padding = 8f;
+                        detailsTable.AddCell(headerCell);
+
+
+                        // Medical Record ID row
+                        PdfPCell labelCell = new PdfPCell(new Phrase("Medical Record ID", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD)));
+                        labelCell.BackgroundColor = new BaseColor(240, 240, 240);
+                        labelCell.Padding = 5f;
+                        detailsTable.AddCell(labelCell);
+
+                        PdfPCell valueCell = new PdfPCell(new Phrase(medicalRecord.MedicalRecordID.ToString()));
+                        valueCell.Padding = 5f;
+                        detailsTable.AddCell(valueCell);
+
+                        // Patient row
+                        labelCell = new PdfPCell(new Phrase("Patient", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD)));
+                        labelCell.BackgroundColor = new BaseColor(240, 240, 240);
+                        labelCell.Padding = 5f;
+                        detailsTable.AddCell(labelCell);
+
+                        valueCell = new PdfPCell(new Phrase(medicalRecord.PatientID));
+                        valueCell.Padding = 5f;
+                        detailsTable.AddCell(valueCell);
+
+                        // Created By row
+                        labelCell = new PdfPCell(new Phrase("Created By", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD)));
+                        labelCell.BackgroundColor = new BaseColor(240, 240, 240);
+                        labelCell.Padding = 5f;
+                        detailsTable.AddCell(labelCell);
+
+                        valueCell = new PdfPCell(new Phrase(medicalRecord.CreatedBy));
+                        valueCell.Padding = 5f;
+                        detailsTable.AddCell(valueCell);
+
+                        // Date row
+                        labelCell = new PdfPCell(new Phrase("Date", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD)));
+                        labelCell.BackgroundColor = new BaseColor(240, 240, 240);
+                        labelCell.Padding = 5f;
+                        detailsTable.AddCell(labelCell);
+
+                        //valueCell = new PdfPCell(new Phrase(medicalRecord.Date.ToString()));
+                        valueCell = new PdfPCell(new Phrase(ConvertToUTC8(medicalRecord.Date.ToString())));
+                        valueCell.Padding = 5f;
+                        detailsTable.AddCell(valueCell);
+
+                        // Doctor Note row
+                        labelCell = new PdfPCell(new Phrase("Doctor Note", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD)));
+                        labelCell.BackgroundColor = new BaseColor(240, 240, 240);
+                        labelCell.Padding = 5f;
+                        detailsTable.AddCell(labelCell);
+
+                        valueCell = new PdfPCell(new Phrase(medicalRecord.DoctorNote));
+                        valueCell.Padding = 5f;
+                        detailsTable.AddCell(valueCell);
+
+                        // Attachment row
+                        labelCell = new PdfPCell(new Phrase("Attachment", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD)));
+                        labelCell.BackgroundColor = new BaseColor(240, 240, 240);
+                        labelCell.Padding = 5f;
+                        detailsTable.AddCell(labelCell);
+
+
+                        doc.Add(detailsTable);
+
+                        // Add erratum table if there are any erratums
+                        if (filteredErratums.Count > 0)
+                        {
+                            // Create table for erratums
+                            PdfPTable erratumTable = new PdfPTable(4);
+                            erratumTable.WidthPercentage = 100;
+
+                            // Set column widths for erratum table
+                            float[] erratumColumnWidths = new float[] { 1f, 1f, 1f, 3f };
+                            erratumTable.SetWidths(erratumColumnWidths);
+
+                            // Add header row
+                            PdfPCell erratumHeaderCell = new PdfPCell(new Phrase("Filed Erratums",
+                                new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD)));
+                            erratumHeaderCell.Colspan = 4;
+                            erratumHeaderCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            erratumHeaderCell.BackgroundColor = new BaseColor(220, 220, 220);
+                            erratumHeaderCell.Padding = 8f;
+                            erratumTable.AddCell(erratumHeaderCell);
+
+                            // Add column headers - inline implementation of AddHeaderCell
+                            // Erratum ID header
+                            PdfPCell headerCellErratum = new PdfPCell(new Phrase("Erratum ID", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD)));
+                            headerCellErratum.BackgroundColor = new BaseColor(240, 240, 240);
+                            headerCellErratum.Padding = 5f;
+                            headerCellErratum.HorizontalAlignment = Element.ALIGN_CENTER;
+                            erratumTable.AddCell(headerCellErratum);
+
+                            // Filed By header
+                            headerCellErratum = new PdfPCell(new Phrase("Filed By", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD)));
+                            headerCellErratum.BackgroundColor = new BaseColor(240, 240, 240);
+                            headerCellErratum.Padding = 5f;
+                            headerCellErratum.HorizontalAlignment = Element.ALIGN_CENTER;
+                            erratumTable.AddCell(headerCellErratum);
+
+                            // Date Filed header
+                            headerCellErratum = new PdfPCell(new Phrase("Date Filed", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD)));
+                            headerCellErratum.BackgroundColor = new BaseColor(240, 240, 240);
+                            headerCellErratum.Padding = 5f;
+                            headerCellErratum.HorizontalAlignment = Element.ALIGN_CENTER;
+                            erratumTable.AddCell(headerCellErratum);
+
+                            // Details header
+                            headerCellErratum = new PdfPCell(new Phrase("Details", new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD)));
+                            headerCellErratum.BackgroundColor = new BaseColor(240, 240, 240);
+                            headerCellErratum.Padding = 5f;
+                            headerCellErratum.HorizontalAlignment = Element.ALIGN_CENTER;
+                            erratumTable.AddCell(headerCellErratum);
+
+                            // Add data rows for each erratum
+                            foreach (var erratum in filteredErratums)
+                            {
+                                erratumTable.AddCell(new PdfPCell(new Phrase(erratum.ErratumID.ToString())));
+                                erratumTable.AddCell(new PdfPCell(new Phrase(erratum.CreatedBy)));
+                                //erratumTable.AddCell(new PdfPCell(new Phrase(erratum.Date.ToString())));
+                                erratumTable.AddCell(new PdfPCell(new Phrase(ConvertToUTC8(erratum.Date.ToString()))));
+                                erratumTable.AddCell(new PdfPCell(new Phrase(erratum.ErratumDetails)));
+                            }
+
+                            doc.Add(erratumTable);
+                        }
+
+                        doc.Close();
+                    }
+                }
+            }
+            else
+            {
+                return "Unsupported format.";
+            }
+
+            // Handle medical record attachment
+            if (medicalRecord.HasAttachment)
+            {
+                var originalRecord = await getOriginalRecordByID(recordID);
+                (byte[] fileBytes, string fileName) = originalRecord.retrieveAttachment();
+                string attachmentPath = Path.Combine(Directory.GetCurrentDirectory(), fileName);
+                await File.WriteAllBytesAsync(attachmentPath, fileBytes);
+            }
+
             return $"Medical record exported to {filePath}.";
         }
+
 
     }
 

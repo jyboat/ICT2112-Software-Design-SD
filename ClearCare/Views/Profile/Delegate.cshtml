@@ -1,0 +1,67 @@
+@model List<ClearCare.Models.Entities.Caregiver>
+@{
+    ViewData["Title"] = "Assign Caregiver";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    
+    // Clear any success messages that don't belong to this page
+    if (TempData["SuccessMessage"] != null && TempData["SuccessMessage"].ToString().Contains("removed"))
+    {
+        TempData.Remove("SuccessMessage");
+    }
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">Assign Caregiver</h3>
+                </div>
+                <div class="card-body">
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            @TempData["ErrorMessage"]
+                        </div>
+                    }
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    }
+
+                    @if (Model == null || Model.Count == 0)
+                    {
+                        <div class="alert alert-info">
+                            No caregivers are available for assignment at this time.
+                        </div>
+                        <div class="text-center mt-4">
+                            <a asp-action="displayProfile" class="btn btn-secondary">Back to Profile</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <form asp-action="Delegate" asp-controller="Profile" method="post">
+                            <div class="form-group mb-3">
+                                <label for="caregiverID" class="form-label">Select Caregiver:</label>
+                                <select id="caregiverID" name="caregiverID" class="form-control" required>
+                                    <option value="">-- Select a Caregiver --</option>
+                                    @foreach (var caregiver in Model)
+                                    {
+                                        var userData = caregiver.getProfileData();
+                                        <option value="@userData["UserID"]">@userData["Name"]</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group text-center mt-4">
+                                <button type="submit" class="btn btn-primary">Assign Caregiver</button>
+                                <a asp-action="displayProfile" class="btn btn-secondary ms-2">Cancel</a>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
