@@ -1,4 +1,6 @@
 @model ClearCare.Models.PrescriptionModel
+@using ClearCare  
+
 @{
     ViewData["Title"] = "Create Prescription";
 }
@@ -6,33 +8,34 @@
 <h1>Create a New Prescription</h1>
 
 <form asp-controller="Prescription" asp-action="Create" method="post">
+    <!-- Hidden field for Doctor UUID -->
+    <input type="hidden" asp-for="DoctorId" value="@HardcodedUUIDs.UserUUID" />
+
+    <!-- Patient Dropdown -->
     <div class="form-group">
-        <label asp-for="PatientId"></label>
-        <input asp-for="PatientId" class="form-control" />
+        <label>Patient</label>
+        <select asp-for="PatientId" class="form-control">
+            <option value="">-- Select Patient --</option>
+            @foreach (var patient in HardcodedUUIDs.Patients)
+            {
+                <option value="@patient.Uuid">@patient.Name</option>
+            }
+        </select>
         <span asp-validation-for="PatientId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="DoctorId"></label>
-        <input asp-for="DoctorId" class="form-control" />
-        <span asp-validation-for="DoctorId" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="DrugList"></label>
-        <!-- 
-            If DrugList is a List<string>, you might accept a comma-separated string 
-            and split it in your controller. Or handle it however suits your design.
-        -->
+        <label>Drug List (comma-separated)</label>
         <textarea asp-for="DrugList" class="form-control"></textarea>
         <span asp-validation-for="DrugList" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="DateIssued"></label>
-        <input asp-for="DateIssued" type="date" class="form-control" />
-        <span asp-validation-for="DateIssued" class="text-danger"></span>
-    </div>
+ <div class="form-group">
+    <label asp-for="DateIssued"></label>
+    <input asp-for="DateIssued" type="text" class="form-control" data-provide="datepicker" />
+    <span asp-validation-for="DateIssued" class="text-danger"></span>
+</div>
+
 
     <div class="form-group">
         <label asp-for="DosageInfo"></label>
@@ -42,3 +45,14 @@
 
     <button type="submit" class="btn btn-success">Submit</button>
 </form>
+
+
+<script>
+    $(function() {
+        // Initialize the datepicker
+        $('[data-provide="datepicker"]').datepicker({
+            format: 'yyyy-mm-dd',  // Adjust to your desired format
+            autoclose: true
+        });
+    });
+</script>

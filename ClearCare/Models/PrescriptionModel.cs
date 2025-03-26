@@ -8,10 +8,10 @@ namespace ClearCare.Models
     public class PrescriptionModel
     {
         [FirestoreProperty]
-        public int PatientId { get; set; }
+        public string PatientId { get; set; }
 
         [FirestoreProperty]
-        public int DoctorId { get; set; }
+        public string DoctorId { get; set; }
 
         [FirestoreProperty]
         public List<string> DrugList { get; set; }
@@ -21,5 +21,7 @@ namespace ClearCare.Models
 
         [FirestoreProperty]
         public string DosageInfo { get; set; }
+
+
     }
 }

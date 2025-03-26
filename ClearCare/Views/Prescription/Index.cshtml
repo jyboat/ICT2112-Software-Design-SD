@@ -1,6 +1,10 @@
 @model List<ClearCare.Models.PrescriptionModel>
+
 @{
     ViewData["Title"] = "Prescriptions";
+
+    // Example role check; adjust to whatever you have in your code
+    bool isDoctor = (HardcodedUUIDs.UserRole == "Doctor");
 }
 
 <h1>Prescription List</h1>
@@ -17,31 +21,38 @@
         </tr>
     </thead>
     <tbody>
-    @if (Model != null)
-    {
-        foreach (var prescription in Model)
+        @if (Model != null)
         {
-            <tr>
-                <td>@prescription.PatientId</td>
-                <td>@prescription.DoctorId</td>
-                <td>
-                    @if (prescription.DrugList != null)
-                    {
-                        foreach (var drug in prescription.DrugList)
+            foreach (var prescription in Model)
+            {
+                <tr>
+                    <td>@prescription.PatientId</td>
+                    <td>@prescription.DoctorId</td>
+                    <td>
+                        @if (prescription.DrugList != null)
                         {
-                            @drug <br/>
+                            foreach (var drug in prescription.DrugList)
+                            {
+                                @drug <br/>
+                            }
                         }
-                    }
-                </td>
-                <td>@prescription.DateIssued.ToShortDateString()</td>
-                <td>@prescription.DosageInfo</td>
-            </tr>
+                    </td>
+                    <td>@prescription.DateIssued.ToShortDateString()</td>
+                    <td>@prescription.DosageInfo</td>
+                </tr>
+            }
         }
-    }
     </tbody>
 </table>
 
-<!-- Link to add a new prescription -->
-<a asp-controller="Prescription" asp-action="Create" class="btn btn-primary">
-    Add New Prescription
-</a>
+<!-- Only show the "Add New Prescription" button if user is a Doctor -->
+@if (isDoctor)
+{
+    <a asp-controller="Prescription" asp-action="Create" class="btn btn-primary">
+        Add New Prescription
+    </a>
+}
+else
+{
+    <p>You do not have permission to add new prescriptions.</p>
+}
