@@ -2,6 +2,12 @@
 
 @{
     ViewData["Title"] = "Reply to Enquiry";
+
+    // Retrieve pagination info from ViewBag.
+    // These are set in your controller (e.g., in your reply action).
+    int currentPage = ViewBag.CurrentPage != null ? (int)ViewBag.CurrentPage : 1;
+    int totalPages = ViewBag.TotalPages != null ? (int)ViewBag.TotalPages : 1;
+    int totalReplies = ViewBag.TotalReplies != null ? (int)ViewBag.TotalReplies : 0;
 }
 
 <h2>Reply to Enquiry</h2>
@@ -19,8 +25,6 @@
                     
                     <dt class="col-sm-4">Name:</dt>
                     <dd class="col-sm-8">@Model.Enquiry.Name</dd>
-                    
-                   
                     
                     <dt class="col-sm-4">Message:</dt>
                     <dd class="col-sm-8">@Model.Enquiry.Message</dd>
@@ -41,10 +45,10 @@
                     <input type="hidden" name="originalMessage" value="@Model.Enquiry.Message" />
                     <input type="hidden" name="userUUID" value="@Model.Enquiry.UserUUID" />
                     
-                    <div class="form-group">
+                    @* <div class="form-group">
                         <label for="replySubject">Subject</label>
-                        <input type="text" class="form-control" id="replySubject" name="subject" required>
-                    </div>
+                        <input type="text" class="form-control" id="replySubject" name="subject" required />
+                    </div> *@
                     
                     <div class="form-group">
                         <label for="replyMessage">Reply Message</label>
@@ -73,16 +77,42 @@
         </div>
         <div class="card-body">
             <ul class="list-group">
-                @foreach (var reply in Model.Replies)
-                {
-                    <li class="list-group-item">
-                        <strong>Subject:</strong> @reply.Subject <br />
-                        <strong>Message:</strong> @reply.Message <br />
-                        <small class="text-muted">Sent on: @reply.CreatedAt.ToLocalTime()</small>
-                    </li>
-                }
+               @foreach (var reply in Model.Replies)
+{
+    <li class="list-group-item">
+        <strong>Subject:</strong> @reply.Subject <br />
+        <strong>Message:</strong> @reply.Message <br />
+        <small class="text-muted">
+            Sent on: @reply.CreatedAt.ToLocalTime()
+        </small>
+    </li>
+}
+
             </ul>
         </div>
+    </div>
+
+    <!-- Pagination controls -->
+    <div class="mt-3">
+        <span>
+            Page @currentPage of @totalPages 
+            (Total replies: @totalReplies)
+        </span>
+        <br />
+
+        @* Display "Previous" button only if we're not on the first page *@
+        @if (currentPage > 1)
+        {
+            <a href="@Url.Action("reply", "Enquiry", new { id = Model.Enquiry.FirestoreId, pageNumber = currentPage - 1 })"
+               class="btn btn-primary">Previous</a>
+        }
+
+        @* Display "Next" button only if we're not on the last page *@
+        @if (currentPage < totalPages)
+        {
+            <a href="@Url.Action("reply", "Enquiry", new { id = Model.Enquiry.FirestoreId, pageNumber = currentPage + 1 })"
+               class="btn btn-primary">Next</a>
+        }
     </div>
 }
 else
