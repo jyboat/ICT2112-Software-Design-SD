@@ -11,10 +11,10 @@ namespace ClearCare.Models.Control
         private ErratumGateway ErratumGateway;
         private readonly UserGateway UserGateway;
         private readonly IEncryption encryptionService;
-        private readonly IAuditLog auditService;
+        private readonly IAuditSubject auditService;
         string encryptedErratumDetails = string.Empty;
 
-        public ErratumManagement(IEncryption encryptionService, IAuditLog auditService)
+        public ErratumManagement(IEncryption encryptionService, IAuditSubject auditService)
         {
             ErratumGateway = new ErratumGateway();
             UserGateway = new UserGateway();

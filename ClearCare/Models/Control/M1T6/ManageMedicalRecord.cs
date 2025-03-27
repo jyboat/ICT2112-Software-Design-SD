@@ -10,11 +10,11 @@ namespace ClearCare.Models.Control
     {
         private MedicalRecordGateway MedicalRecordGateway;
         private readonly IEncryption encryptionService;
-        private readonly IAuditLog auditService;
+        private readonly IAuditSubject auditService;
         string encryptedText = string.Empty;
         private static List<IMedicalRecordObserver> MedObservers = new List<IMedicalRecordObserver>();
 
-        public ManageMedicalRecord(IEncryption encryptionService, IAuditLog auditService)
+        public ManageMedicalRecord(IEncryption encryptionService, IAuditSubject auditService)
         {
             MedicalRecordGateway = new MedicalRecordGateway();
             this.encryptionService = encryptionService;
