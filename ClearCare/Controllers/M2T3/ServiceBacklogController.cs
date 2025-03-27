@@ -27,6 +27,12 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> Index()
         {
             var backlogs = await _manager.getAllBacklogDetails();
+            // var appointmentIDs = await _manager.getAllBacklogAppointmentID();
+            // foreach (var id in appointmentIDs)
+            // {
+            //     Console.WriteLine("hello world:");
+            //     Console.WriteLine(id);
+            // }
             return View("~/Views/M2T3/ServiceBacklog/Index.cshtml", backlogs);
         }
 

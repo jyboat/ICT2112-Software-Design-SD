@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ClearCare.Models.Control
 {
-    public class ServiceBacklogManagement: IServiceBacklogDB_Receive, ISchedulingListener
+    public class ServiceBacklogManagement: IServiceBacklogDB_Receive, ISchedulingListener, IBacklogAppointments
     {
         private readonly IServiceBacklogDB_Send _dbGateway;
         private ServiceBacklogController? _controller;
@@ -216,6 +216,19 @@ namespace ClearCare.Models.Control
             return Task.CompletedTask;
         }
     
+        public async Task<List<string>> getAllBacklogAppointmentID()
+        {
+            List<ServiceBacklog> allBacklogs = await getAllBacklogs();
+            var appointmentIds = new List<string>();
+
+            foreach (var serviceBacklog in allBacklogs)
+            {
+                var appointmentId = serviceBacklog.getBacklogInformation()["appointmentId"];
+                appointmentIds.Add(appointmentId);
+            }
+
+            return appointmentIds;
+        }
 
         private Task<ServiceBacklogViewModel> createViewModel(ServiceBacklog serviceBacklog, ServiceAppointment appointment)
         {
@@ -231,6 +244,7 @@ namespace ClearCare.Models.Control
             });
         }
 
+        
         public async Task update(string appointmentID, string eventType)
         {
             if (eventType == "success")
