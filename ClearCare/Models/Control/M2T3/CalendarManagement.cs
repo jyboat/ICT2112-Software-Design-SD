@@ -18,10 +18,10 @@ namespace ClearCare.Models.Control
         private readonly IRetrieveAllAppointments _retrieveAllAppointments;
         private readonly INurseAvailability _getAvailabilityByStaff;
 
-        public CalendarManagement(IRetrieveAllAppointments retrieveAllAppointments, INurseAvailability getAvailabilityByStaff)
+        public CalendarManagement()
         {
-            _retrieveAllAppointments = retrieveAllAppointments;
-            _getAvailabilityByStaff = getAvailabilityByStaff;
+            _retrieveAllAppointments = (IRetrieveAllAppointments) new ServiceAppointmentStatusManagement();
+            _getAvailabilityByStaff = (INurseAvailability) new NurseAvailabilityManagement();
         }
 
         public async Task<JsonResult> getAppointmentsForCalendar(
@@ -31,8 +31,8 @@ namespace ClearCare.Models.Control
             string? location,
             string? service)
         {
-            // Get all appointments from IRetrieveAllAppointments (implemented by ServiceAppointmentManagement)
-            var appointments = await _retrieveAllAppointments.RetrieveAllAppointments();
+            // Get all appointments from IRetrieveAllAppointments
+            var appointments = await _retrieveAllAppointments.getAllServiceAppointments();
 
             if (appointments == null || !appointments.Any())
             {

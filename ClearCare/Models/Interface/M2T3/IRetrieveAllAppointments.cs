@@ -4,6 +4,8 @@ namespace ClearCare.Models.Control
 {
     public interface IRetrieveAllAppointments
     {
-        Task<List<ServiceAppointment>> RetrieveAllAppointments();
+        Task<List<ServiceAppointment>> getAllServiceAppointments();
+        Task<ServiceAppointment> getServiceAppointmentById(string apptId);
+        Task<List<ServiceAppointment>> RetrieveAllAppointmentsByNurse(string nurseId);
     }
 }

@@ -16,6 +16,7 @@ namespace ClearCare.Models.Control
         // Interfaces Automatic Requires
         private readonly ICreateAppointment _iCreateAppointment;
         private readonly INurseAvailability _iNurseAvailability;
+        private readonly IRetrieveAllAppointments _iRetrieveAppointment;
         private IAutomaticScheduleStrategy? _iAutomaticScheduleStrategy;
         private FirestoreDb db;
         // private readonly ServiceBacklogManagement _serviceBacklogManagement;
@@ -25,12 +26,12 @@ namespace ClearCare.Models.Control
 
         // Constructor initializes the field
         public AutomaticAppointmentScheduler(
-            ICreateAppointment ICreateAppointment, 
-            INurseAvailability INurseAvailability,
+            
             IAutomaticScheduleStrategy? IAutomaticScheduleStrategy = null)
         {
-            _iCreateAppointment = ICreateAppointment;
-            _iNurseAvailability = INurseAvailability;
+            _iCreateAppointment = (ICreateAppointment) new ServiceAppointmentManagement();
+            _iNurseAvailability = (INurseAvailability) new NurseAvailabilityManagement();
+            _iRetrieveAppointment = (IRetrieveAllAppointments) new ServiceAppointmentStatusManagement();
             // To be set at runtime later
             _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; 
             db = FirebaseService.Initialize();
@@ -198,7 +199,7 @@ namespace ClearCare.Models.Control
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
                 string appointmentId = document.GetValue<string>("appointmentId");
-                ServiceAppointment appointment = await _iCreateAppointment.getAppointmentByID(appointmentId);
+                ServiceAppointment appointment = await _iRetrieveAppointment.getServiceAppointmentById(appointmentId);
                 appointment.updateServiceAppointementById(
                     appointment, 
                     appointment.GetAttribute("PatientId"), 
