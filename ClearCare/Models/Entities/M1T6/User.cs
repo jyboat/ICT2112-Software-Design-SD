@@ -68,22 +68,22 @@ namespace ClearCare.Models.Entities
         // Returns all user data to be used in Profile
         public virtual Dictionary<string, object> getProfileData()
         {
-            string mobileStr = getMobileNumber().ToString(); // new code for country code
-            string countryCodeStr = mobileStr.Length >= 2 ? mobileStr.Substring(0, 2) : "0"; // new code for country code
-            string mobilenumberStr = mobileStr.Length >= 2 ? mobileStr.Substring(2) : "0"; // new code for country code
-            long.TryParse(countryCodeStr, out long countryCode); // new code for country code
-            long.TryParse(mobilenumberStr, out long mobileNumber); // new code for country code
+            // string mobileStr = getMobileNumber().ToString(); // new code for country code
+            // string countryCodeStr = mobileStr.Length >= 2 ? mobileStr.Substring(0, 2) : "0"; // new code for country code
+            // string mobilenumberStr = mobileStr.Length >= 2 ? mobileStr.Substring(2) : "0"; // new code for country code
+            // long.TryParse(countryCodeStr, out long countryCode); // new code for country code
+            // long.TryParse(mobilenumberStr, out long mobileNumber); // new code for country code
 
             return new Dictionary<string, object>
             {
                 { "UserID", getUserID() },
                 { "Email", getEmail() },
                 { "Name", getName() },
-                // { "MobileNumber", getMobileNumber() }, // commented out old code
-                { "MobileNumber",mobileNumber }, // new code for country code
+                { "MobileNumber", getMobileNumber() }, // commented out old code
+                // { "MobileNumber",mobileNumber }, // new code for country code
                 { "Address", getAddress() },
                 { "Role", getRole() },
-                { "CountryCode", countryCode } // new code for country code
+                // { "CountryCode", countryCode } // new code for country code
             };
         }
 

@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "User Profile";
     var profileData = Model.getProfileData();
+    var selectedCode = profileData["MobileNumber"]?.ToString()?.Substring(0, 2); // new code added for country code
+    var actualMobile = profileData["MobileNumber"]?.ToString()?.Substring(2); // new code added for country code
 }
 
 <div class="container mt-5">
@@ -24,7 +26,9 @@
                     <tr>
                         <td class="fw-bold text-primary">Mobile Number:</td>
                         @* <td>@profileData["MobileNumber"]</td> *@
-                        <td>@($"+{profileData["CountryCode"]} {profileData["MobileNumber"]}")</td>
+                        @* <td>@($"+{profileData["CountryCode"]} {profileData["MobileNumber"]}")</td> *@
+                        <td>@($"+{selectedCode} {actualMobile}")</td>
+
                     </tr>
                     <tr>
                         <td class="fw-bold text-primary">Address:</td>

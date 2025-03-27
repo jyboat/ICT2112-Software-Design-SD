@@ -4,7 +4,10 @@
     ViewData["Title"] = "Edit Profile";
     var profileData = Model.getProfileData();
     var countryCodes = new List<string> { "65", "60", "66", "62" }; // new code added for country code
-    var selectedCode = profileData["CountryCode"]?.ToString(); // new code added for country code
+    @* var selectedCode = profileData["MobileNumber"]?.ToString(); // new code added for country code *@
+    var selectedCode = profileData["MobileNumber"]?.ToString()?.Substring(0, 2); // new code added for country code
+    var actualMobile = profileData["MobileNumber"]?.ToString()?.Substring(2); // new code added for country code
+
 }
 
 <head>
@@ -93,7 +96,7 @@
                                 <div class="col-md-8">
                                     <div class="form-floating mb-3">
                                         <input type="number" name="mobileNumber" class="form-control shadow-sm"
-                                            value="@profileData["MobileNumber"]" required />
+                                            value="@actualMobile" required />
                                         <label class="bi bi-telephone me-1">Mobile Number</label>
                                     </div>
                                 </div>
