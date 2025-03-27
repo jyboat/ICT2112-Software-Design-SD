@@ -33,16 +33,21 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Application" asp-action="goToDrugInteraction">
-                            <i class="bi bi-chat-dots me-1"></i> Drug Checker
+                            <i class="bi bi-chat-dots me-1"></i> Drug Interaction
                         </a>
                     </li>
                 }
                 else if (HardcodedUUIDs.UserRole == "Patient")
                 {
-                    <!-- Show a smaller subset of links for a Patient, for example -->
+                   
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Application" asp-action="goToEnquiry">
                             <i class="bi bi-chat-dots me-1"></i> Enquiry
+                        </a>
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Application" asp-action="goToSideEffects">
+                            <i class="bi bi-chat-dots me-1"></i> SideEffects
                         </a>
                     </li>
                     <li class="nav-item">
@@ -50,10 +55,15 @@
                             <i class="bi bi-chat-dots me-1"></i> Prescription
                         </a>
                     </li>
+                     <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Application" asp-action="goToDrugLog">
+                            <i class="bi bi-chat-dots me-1"></i> DrugLog
+                        </a>
+                    </li>
+                   
                 }
                 else
                 {
-                    <!-- For any other user role, show a default set or none at all -->
                     <li class="nav-item">
                         <span class="nav-link disabled">No access</span>
                     </li>

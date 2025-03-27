@@ -12,44 +12,53 @@
             <h2 class="mb-0">@ViewData["Title"]</h2>
         </div>
         <div class="card-body">
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        @if (userRole == "Doctor")
-                        {
-                            <th>Name</th>
-                            <th>Topic</th>
-                        }
-                        else if (userRole == "Patient")
-                        {
-                            <th>Doctor</th>
-                            <th>Topic</th>
-                        }
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var e in Model)
-                    {
+            @if (userRole == "Doctor" && !Model.Any())
+            {
+                <div class="alert alert-info">
+                    No enquiries available.
+                </div>
+            }
+            else
+            {
+                <table class="table table-striped table-hover">
+                    <thead>
                         <tr>
                             @if (userRole == "Doctor")
                             {
-                                <td>@e.Name</td>
-                                <td>@e.Topic</td>
+                                <th>Name</th>
+                                <th>Topic</th>
                             }
                             else if (userRole == "Patient")
                             {
-                                <td>@e.DoctorUUID</td>
-                                <td>@e.Topic</td>
+                                <th>Doctor</th>
+                                <th>Topic</th>
                             }
-                            <td>
-                                <a href="@Url.Action("Reply", "Enquiry", new { id = e.FirestoreId })" class="btn btn-success btn-sm">Reply</a>
-                            </td>
+                            <th>Actions</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-            <a href="@Url.Action("Index", "Enquiry")" class="btn btn-secondary">Back</a>
+                    </thead>
+                    <tbody>
+                        @foreach (var e in Model)
+                        {
+                            <tr>
+                                @if (userRole == "Doctor")
+                                {
+                                    <td>@e.Name</td>
+                                    <td>@e.Topic</td>
+                                }
+                                else if (userRole == "Patient")
+                                {
+                                    <td>@e.DoctorUUID</td>
+                                    <td>@e.Topic</td>
+                                }
+                                <td>
+                                    <a href="@Url.Action("Reply", "Enquiry", new { id = e.FirestoreId })" class="btn btn-success btn-sm">Reply</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            @* <a href="@Url.Action("Index", "Enquiry")" class="btn btn-secondary">Back</a> *@
         </div>
     </div>
 </div>

@@ -80,6 +80,7 @@ namespace ClearCare.Controllers
 [HttpPost]
 public async Task<IActionResult> sendReply(
     string enquiryId,
+    string senderName,         
     string recipientName,
     string recipientEmail,
     string originalMessage,
@@ -94,6 +95,7 @@ public async Task<IActionResult> sendReply(
             EnquiryId = enquiryId,
             Subject = subject,
             Message = message,
+            SenderName = senderName, 
             RecipientName = recipientName,
             RecipientEmail = recipientEmail,
             OriginalMessage = originalMessage,
