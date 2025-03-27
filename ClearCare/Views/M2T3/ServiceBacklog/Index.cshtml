@@ -192,7 +192,7 @@
 
         // calc hour based on the selected time slot
         let hour = 8 + parseInt(slot);
-
+        
         // manually construct the ISO DateTime string
         let isoDateTime = `${dateTime}T${hour.toString().padStart(2, '0')}:00:00.000Z`;
 
@@ -209,7 +209,7 @@
                 DoctorId: doctorId,
                 ServiceType: serviceType,
                 NurseId: nurseId,
-                _DateTime: dateTime,
+                _DateTime: isoDateTime,
                 Slot: slot,
                 Location: location
             })
