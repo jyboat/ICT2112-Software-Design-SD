@@ -66,6 +66,9 @@ namespace ClearCare.Controllers
                 [FromForm] string Slot,
                 [FromForm] string Location)
         {   
+            DateTime parsedDateTime = DateTime.Parse(_DateTime);
+            Console.WriteLine($"DEBUG1: {parsedDateTime}");
+
             bool success = await _manager.reassignBacklog(
                     BacklogId:BacklogId,
                     AppointmentId:AppointmentId,
@@ -73,7 +76,7 @@ namespace ClearCare.Controllers
                     DoctorId:DoctorId,
                     ServiceType:ServiceType,
                     NurseId:NurseId,
-                    DateTime:DateTime.Parse(_DateTime),
+                    _DateTime:parsedDateTime,
                     Slot:int.Parse(Slot),
                     Location: Location
             );

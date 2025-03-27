@@ -92,7 +92,7 @@ namespace ClearCare.Models.Control
             string DoctorId,
             string ServiceType,
             string NurseId,
-            DateTime DateTime,
+            DateTime _DateTime,
             int Slot,
             string Location
         )
@@ -100,21 +100,33 @@ namespace ClearCare.Models.Control
             try
             {
                 // TODO change to manual scheduler's method once it's up
-                var svcMgr = new ServiceAppointmentManagement();
-                var svc = await svcMgr.getAppointmentByID(AppointmentId);
-                svc.updateServiceAppointementById(
-                    appointment:svc,
+                // var svcMgr = new ServiceAppointmentManagement();
+                // var svc = await svcMgr.getAppointmentByID(AppointmentId);
+                // svc.updateServiceAppointementById(
+                //     appointment:svc,
+                //     patientId: PatientId,
+                //     nurseId: NurseId,
+                //     doctorId: DoctorId,
+                //     serviceTypeId: ServiceType,
+                //     status: "Scheduled",
+                //     dateTime: DateTime.ToUniversalTime(),
+                //     slot: Slot,
+                //     location: Location
+                // );
+                // bool updateSuccess = await svcMgr.UpdateAppointment(svc);
+
+                var scheduler = new ManualAppointmentScheduler();
+                bool updateSuccess = await scheduler.RescheduleAppointment(
+                    appointmentId:AppointmentId,
                     patientId: PatientId,
                     nurseId: NurseId,
                     doctorId: DoctorId,
                     serviceTypeId: ServiceType,
                     status: "Scheduled",
-                    dateTime: DateTime.ToUniversalTime(),
+                    dateTime: _DateTime,
                     slot: Slot,
                     location: Location
                 );
-                bool updateSuccess = await svcMgr.UpdateAppointment(svc);
-
 
                 // Delete service backlog if updating is successful
                 bool deleteSuccess = false;
