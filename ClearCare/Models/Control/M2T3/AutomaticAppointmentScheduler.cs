@@ -63,6 +63,17 @@ namespace ClearCare.Models.Control
 
         public async void AutomaticallyScheduleAppointment(List<ServiceAppointment> unscheduledAppointment)
         {
+            var timeslot = new Dictionary<int, DateTime>
+            {
+                { 1, DateTime.Parse("4:00 PM").ToUniversalTime()  },
+                { 2, DateTime.Parse("5:00 PM").ToUniversalTime()  },
+                { 3, DateTime.Parse("6:00 PM").ToUniversalTime()  },
+                { 4, DateTime.Parse("7:00 PM").ToUniversalTime()  },
+                { 5, DateTime.Parse("9:00 PM").ToUniversalTime()  },
+                { 6, DateTime.Parse("10:00 PM").ToUniversalTime()  },
+                { 7, DateTime.Parse("11:00 PM").ToUniversalTime()  }
+            };
+
             // Attach listener only when scheduling is called
             var _serviceBacklogManagement = new ServiceBacklogManagement();
             attach(_serviceBacklogManagement);
@@ -169,8 +180,8 @@ namespace ClearCare.Models.Control
                         }
                         // Add the slot number into the list.
                         nurseSlotTracker[nurseID].Add(slot);
-                        Console.WriteLine($"Data1: {appointmentDate}");
-                        Console.WriteLine($"Data2: {todayDate}");
+                        // Console.WriteLine($"Data1: {appointmentDate}");
+                        // Console.WriteLine($"Data2: {todayDate}");
                     }
                     else{
                         continue;
@@ -276,7 +287,7 @@ namespace ClearCare.Models.Control
                         "Hardcode Doctor",
                         serviceAppt.GetAttribute("ServiceTypeId"),
                         "Scheduled",
-                        DateTime.UtcNow,
+                        timeslot[serviceAppt.GetIntAttribute("Slot")],
                         serviceAppt.GetIntAttribute("Slot"),
                         "Physical"
                     );
@@ -292,7 +303,7 @@ namespace ClearCare.Models.Control
                         "Hardcode Doctor",
                         serviceAppt.GetAttribute("ServiceTypeId"),
                         "Backlog",
-                        DateTime.UtcNow,
+                        timeslot[serviceAppt.GetIntAttribute("Slot")],
                         serviceAppt.GetIntAttribute("Slot"),
                         "Physical"
                     );
