@@ -114,8 +114,10 @@ namespace ClearCare.Models.Control
                 //     location: Location
                 // );
                 // bool updateSuccess = await svcMgr.UpdateAppointment(svc);
+                
 
                 var scheduler = new ManualAppointmentScheduler();
+                Console.WriteLine($"Hello Datetime log {_DateTime} Type: {_DateTime.GetType()}, Kind: {_DateTime.Kind}");
                 bool updateSuccess = await scheduler.RescheduleAppointment(
                     appointmentId:AppointmentId,
                     patientId: PatientId,
