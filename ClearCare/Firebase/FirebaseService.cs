@@ -15,12 +15,12 @@ public class FirebaseService
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 // Path for MacBook
-                path = @"Firebase/ict2112-firebase-adminsdk-fbsvc-168ada7053.json";
+                path = @"Firebase/firebase-adminsdk.json";
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 // Path for Windows
-                path = @"Firebase\ict2112-firebase-adminsdk-fbsvc-168ada7053.json"; // not to make path absolute with "C: "
+                path = @"Firebase\firebase-adminsdk.json"; // not to make path absolute with "C: "
                 // path = @"Firebase\ict2112-firebase-adminsdk-fbsvc-168ada7053"; // not to make path absolute with "C: "
 
             }

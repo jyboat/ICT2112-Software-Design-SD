@@ -205,23 +205,7 @@ $(document).ready(function () {
             data: JSON.stringify(data),
             contentType: 'application/json',
             success: function (response) {
-                // Handle the POST response (service history creation)
-                var newRow = `
-                    <tr>
-                        <td>${response.appointmentId}</td>
-                        <td>${response.patientId}</td>
-                        <td>${response.nurseId}</td>
-                        <td>${response.doctorId}</td>
-                        <td>${response.serviceTypeId}</td>
-                        <td>${response.status}</td>
-                        <td>${response.serviceDate}</td>
-                        <td>${response.location}</td>
-                        <td>${response.serviceOutcomes}</td>
-                    </tr>
-                `;
-                $('table tbody').append(newRow); // Add the new row to the table
                 alert('Service history created successfully!');
-                window.location.reload(); // Refresh the page to show the updated data
             },
             error: function (xhr, status, error) {
                 alert('Error creating service history: ' + error);
@@ -237,7 +221,7 @@ $(document).ready(function () {
             success: function (response) {
                 // Handle the PUT response (appointment update)
                 alert('Appointment updated successfully!');
-                // You can choose to update the table row here if needed
+                @* // You can choose to update the table row here if needed
                 var updatedRow = `
                     <tr>
                         <td>${response.appointmentId}</td>
@@ -251,9 +235,9 @@ $(document).ready(function () {
                         <td>${response.serviceOutcomes}</td>
                     </tr>
                 `;
-                $('table tbody').find(`tr[data-appointment-id=${appointmentId}]`).replaceWith(updatedRow); // Replace the row with updated data
-                $('#appointmentModal').modal('hide'); // Hide the modal
-                window.location.reload(); // Refresh the page to show the updated data
+                $('table tbody').find(`tr[data-appointment-id=${appointmentId}]`).replaceWith(updatedRow); // Replace the row with updated data*@
+                $('#appointmentModal').modal('hide'); // Hide the modal 
+                window.location.reload();
             },
             error: function (xhr, status, error) {
                 alert('Error updating appointment: ' + error);

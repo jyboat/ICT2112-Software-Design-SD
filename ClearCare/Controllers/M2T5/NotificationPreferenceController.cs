@@ -51,7 +51,7 @@ public async Task<IActionResult> SaveNotificationPreference([FromBody] Dictionar
 
         if (string.IsNullOrEmpty(methods))
         {
-            return BadRequest(new { message = "methods." });
+            return BadRequest(new { message = "Please select at least one notification method." });
         }
 
         // Convert methods string to a list (comma-separated values)

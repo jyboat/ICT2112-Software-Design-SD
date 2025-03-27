@@ -38,6 +38,8 @@ namespace ClearCare.Models.Control
                 return;
             }
 
+            
+
             ServiceAppointment appt = appointment.updateServiceAppointementById(
                 appointment,
                 appointment.GetAttribute("PatientId"), 
@@ -45,10 +47,11 @@ namespace ClearCare.Models.Control
                 appointment.GetAttribute("DoctorId"), 
                 appointment.GetAttribute("ServiceTypeId"), 
                 "Completed", 
-                appointment.GetAppointmentDateTime(appointment),
+                appointment.GetAppointmentDateTime(appointment).ToUniversalTime(), // Team 5 changed
                 Convert.ToInt32(appointment.GetAttribute("Slot")), 
                 appointment.GetAttribute("Location")
             );
+            Console.WriteLine($"SVCApptStatusManagement: {appt.GetAppointmentDateTime(appt)}");
             
             await _iServiceStatus.UpdateAppointment(appt);
 
