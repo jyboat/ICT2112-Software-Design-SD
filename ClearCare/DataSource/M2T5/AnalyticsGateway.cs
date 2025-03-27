@@ -83,6 +83,96 @@ namespace ClearCare.DataSource
             }
         }
 
+        public async Task<List<Dictionary<string, object>>> FetchAllAppointments()
+{
+    var snapshot = await db.Collection("ServiceAppointments").GetSnapshotAsync();
+    var results = new List<Dictionary<string, object>>();
+
+    foreach (var doc in snapshot.Documents)
+    {
+        var record = doc.ToDictionary();
+        record["AppointmentId"] = doc.Id;
+        results.Add(record);
+    }
+
+    return results;
+}
+
+private Dictionary<string, object> GenerateAppointmentAnalytics(List<Dictionary<string, object>> appointments)
+{
+    var totalAppointments = appointments.Count;
+    var appointmentsPerType = new Dictionary<string, int>();
+    var appointmentsPerDoctor = new Dictionary<string, int>();
+    var appointmentsPerMonth = new Dictionary<string, int>();
+    int completedAppointments = 0, pendingAppointments = 0, cancelledAppointments = 0;
+
+    foreach (var doc in appointments)
+    {
+        string serviceType = doc.ContainsKey("ServiceTypeId") ? doc["ServiceTypeId"]?.ToString() ?? "Unknown" : "Unknown";
+        string doctorId = doc.ContainsKey("DoctorId") ? doc["DoctorId"]?.ToString() ?? "Unknown" : "Unknown";
+        string status = doc.ContainsKey("Status") ? doc["Status"]?.ToString() ?? "Unknown" : "Unknown";
+        DateTime dateTime = doc.ContainsKey("DateTime") && doc["DateTime"] is Timestamp ts
+            ? ts.ToDateTime()
+            : DateTime.UtcNow;
+
+        // Service type count
+        if (appointmentsPerType.ContainsKey(serviceType))
+            appointmentsPerType[serviceType]++;
+        else
+            appointmentsPerType[serviceType] = 1;
+
+        // Doctor count
+        if (appointmentsPerDoctor.ContainsKey(doctorId))
+            appointmentsPerDoctor[doctorId]++;
+        else
+            appointmentsPerDoctor[doctorId] = 1;
+
+        // Appointments per month
+        string monthYearKey = dateTime.ToString("yyyy-MM");
+        if (appointmentsPerMonth.ContainsKey(monthYearKey))
+            appointmentsPerMonth[monthYearKey]++;
+        else
+            appointmentsPerMonth[monthYearKey] = 1;
+
+        // Status count
+        switch (status.ToLower())
+        {
+            case "completed": completedAppointments++; break;
+            case "cancelled": cancelledAppointments++; break;
+            default: pendingAppointments++; break;
+        }
+    }
+
+    return new Dictionary<string, object>
+    {
+        { "TotalAppointments", totalAppointments },
+        { "AppointmentsPerType", appointmentsPerType },
+        { "AppointmentsPerDoctor", appointmentsPerDoctor },
+        { "AppointmentsPerMonth", appointmentsPerMonth },
+        { "CompletedAppointments", completedAppointments },
+        { "PendingAppointments", pendingAppointments },
+        { "CancelledAppointments", cancelledAppointments }
+    };
+}
+
+
+// Return raw list of appointment records
+public async Task<List<Dictionary<string, object>>> FetchAppointmentsRaw(string status, string doctor, string type)
+{
+    var snapshot = await db.Collection("ServiceAppointments").GetSnapshotAsync();
+    List<Dictionary<string, object>> records = new List<Dictionary<string, object>>();
+
+    foreach (var doc in snapshot.Documents)
+    {
+        var record = doc.ToDictionary();
+        record["AppointmentId"] = doc.Id;
+        records.Add(record);
+    }
+
+    return records;
+}
+
+
                public async Task<Dictionary<string, object>> GetAppointmentAnalytics()
         {
             try
@@ -165,25 +255,35 @@ namespace ClearCare.DataSource
             }
         }
 
-public async Task<List<Dictionary<string, object>>> FetchAppointmentsByFilter(string filter)
+public async Task<Dictionary<string, object>> FetchAppointmentsByFilter(string status, string doctor, string type)
 {
-    var snapshot = await db.Collection("ServiceAppointments").GetSnapshotAsync();
-    var filtered = new List<Dictionary<string, object>>();
+    var allAppointments = await FetchAllAppointments(); // ← You should have this already
+    var filteredAppointments = allAppointments;
 
-    foreach (var doc in snapshot.Documents)
+    if (!string.IsNullOrEmpty(status))
     {
-        var data = doc.ToDictionary();
-        data["AppointmentId"] = doc.Id;
-
-        // Filtering logic
-        if (filter == "all" || (data.ContainsKey("Status") && data["Status"].ToString().Equals(filter, StringComparison.OrdinalIgnoreCase)))
-        {
-            filtered.Add(data);
-        }
+        filteredAppointments = filteredAppointments
+            .Where(a => a.ContainsKey("Status") && a["Status"]?.ToString().ToLower() == status.ToLower())
+            .ToList();
     }
 
-    return filtered;
+    if (!string.IsNullOrEmpty(doctor))
+    {
+        filteredAppointments = filteredAppointments
+            .Where(a => a.ContainsKey("DoctorId") && a["DoctorId"]?.ToString() == doctor)
+            .ToList();
+    }
+
+    if (!string.IsNullOrEmpty(type))
+    {
+        filteredAppointments = filteredAppointments
+            .Where(a => a.ContainsKey("ServiceTypeId") && a["ServiceTypeId"]?.ToString() == type)
+            .ToList();
+    }
+
+    return GenerateAppointmentAnalytics(filteredAppointments);
 }
+
 
 public async Task<List<Dictionary<string, object>>> FetchMedicalRecordsByFilter()
 {
