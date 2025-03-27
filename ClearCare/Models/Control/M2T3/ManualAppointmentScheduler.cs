@@ -88,7 +88,7 @@ namespace ClearCare.Models.Control
         }
 
         public async Task<string> ScheduleAppointment(string patientId, string nurseId,
-            string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
+            string doctorId, string Service, string status, DateTime dateTime, int slot, string location)
         {
             bool isSlotValid = await ValidateAppointmentSlot(patientId, nurseId, doctorId, dateTime, slot);
 
@@ -101,7 +101,7 @@ namespace ClearCare.Models.Control
 
             // calling the CreateAppointment method from the ICreateAppointment interface
             string createdAppointmentId = await _iCreateAppointment.CreateAppointment(
-                patientId, nurseId, doctorId, serviceTypeId, status, dbDateTime, slot, location);
+                patientId, nurseId, doctorId, Service, status, dbDateTime, slot, location);
 
             if (!string.IsNullOrEmpty(createdAppointmentId))
             {
@@ -120,7 +120,7 @@ namespace ClearCare.Models.Control
         }
 
         public async Task<bool> RescheduleAppointment(string appointmentId, string patientId, string nurseId,
-            string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
+            string doctorId, string Service, string status, DateTime dateTime, int slot, string location)
         {
             // retrieve the current appointment to compare changes
             var currentAppointment = await _iCreateAppointment.getAppointmentByID(appointmentId);
@@ -156,7 +156,7 @@ namespace ClearCare.Models.Control
 
             // create a new object with the updated values
             var updatedAppointment = ServiceAppointment.setApptDetails(
-                patientId, nurseId, doctorId, serviceTypeId, status, sgtDateTime, slot, location
+                patientId, nurseId, doctorId, Service, status, sgtDateTime, slot, location
             );
 
             // Set the appointment ID using reflection

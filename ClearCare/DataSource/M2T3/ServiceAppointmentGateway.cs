@@ -303,7 +303,7 @@ namespace ClearCare.DataSource
 
                 // Get all services this patient already has
                 var existingServices = snapshot.Documents
-                                               .Select(doc => doc.GetValue<string>("ServiceTypeId"))
+                                               .Select(doc => doc.GetValue<string>("Service"))
                                                .ToList();
 
                 // Find missing services (those that exist in the service list but not in the existing appointments)
@@ -316,7 +316,7 @@ namespace ClearCare.DataSource
                         patientId: patient,
                         nurseId: "",
                         doctorId: "",
-                        serviceTypeId: service,
+                        Service: service,
                         status: "Pending",
                         dateTime: DateTime.UtcNow,
                         slot: 0,

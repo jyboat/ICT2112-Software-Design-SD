@@ -32,7 +32,7 @@
                     <td>@appointment.GetAttribute("PatientId")</td>
                     <td>@appointment.GetAttribute("NurseId")</td>
                     <td>@appointment.GetAttribute("DoctorId")</td>
-                    <td>@appointment.GetAttribute("ServiceTypeId")</td>
+                    <td>@appointment.GetAttribute("Service")</td>
                     <td>@appointment.GetAttribute("Status")</td>
                     <td>@Convert.ToDateTime(appointment.GetAttribute("Datetime")).ToString("yyyy-MM-dd HH:mm")</td>
                     <td>@appointment.GetAttribute("Slot")</td>
@@ -63,7 +63,7 @@ else
             const patientId = row.cells[1].innerText;  // Assuming "Patient ID" is in the 2nd column
             const nurseId = row.cells[2].innerText;    // Assuming "Nurse ID" is in the 3rd column
             const doctorId = row.cells[3].innerText;   // Assuming "Doctor ID" is in the 4th column
-            const serviceTypeId = row.cells[4].innerText; // Assuming "Service Type ID" is in the 5th column
+            const Service = row.cells[4].innerText; // Assuming "Service Type ID" is in the 5th column
             const location = row.cells[8].innerText;   // Assuming "Location" is in the 9th column
 
             // Extract Date & Time safely (Check if it exists)
@@ -101,7 +101,7 @@ else
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     appointmentId: apptId,
-                    serviceTypeId: serviceTypeId,
+                    Service: Service,
                     patientId: patientId,
                     nurseId: nurseId,
                     doctorId: doctorId,

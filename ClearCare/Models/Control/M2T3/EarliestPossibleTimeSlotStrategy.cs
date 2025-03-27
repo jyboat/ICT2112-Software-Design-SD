@@ -21,7 +21,7 @@ namespace ClearCare.Control
         //                 patientId: patient,
         //                 nurseId: "",
         //                 doctorId: "",
-        //                 serviceTypeId: service,
+        //                 Service: service,
         //                 status: "Pending",
         //                 dateTime: DateTime.UtcNow,
         //                 slot: 0,
@@ -79,7 +79,7 @@ namespace ClearCare.Control
                             Console.WriteLine($"Appointment ID: {appt.GetAttribute("AppointmentId")}, " +
                                             $"Patient: {appt.GetAttribute("PatientId")}, " +
                                             $"Nurse: {appt.GetAttribute("NurseId")}, " +
-                                            $"Service: {appt.GetAttribute("ServiceTypeId")}, " +
+                                            $"Service: {appt.GetAttribute("Service")}, " +
                                             $"Slot: {appt.GetIntAttribute("Slot")}");
                         }
                         Console.WriteLine("Error: No available slots for patient left");
@@ -93,7 +93,7 @@ namespace ClearCare.Control
                     appointment.appointNurseToPatient(nurse, assignedSlot);
 
                     string patientId = appointment.GetAttribute("PatientId");
-                    string serviceTypeId = appointment.GetAttribute("ServiceTypeId");
+                    string Service = appointment.GetAttribute("Service");
                     string nurseId = nurse;
 
                     // Update patient slot tracker
@@ -107,11 +107,11 @@ namespace ClearCare.Control
                     nurseSlotTracker[nurseId].Add(assignedSlot);
 
                     // Update service slot tracker
-                    if (!serviceSlotTracker.ContainsKey(serviceTypeId))
-                        serviceSlotTracker[serviceTypeId] = new Dictionary<int, int>();
-                    if (!serviceSlotTracker[serviceTypeId].ContainsKey(assignedSlot))
-                        serviceSlotTracker[serviceTypeId][assignedSlot] = 0;
-                    serviceSlotTracker[serviceTypeId][assignedSlot]++;
+                    if (!serviceSlotTracker.ContainsKey(Service))
+                        serviceSlotTracker[Service] = new Dictionary<int, int>();
+                    if (!serviceSlotTracker[Service].ContainsKey(assignedSlot))
+                        serviceSlotTracker[Service][assignedSlot] = 0;
+                    serviceSlotTracker[Service][assignedSlot]++;
                     
                     // Rotate nurse index for round-robin scheduling
                     // Inside the for loop as theres no need for nurse to be tied to patient
@@ -125,7 +125,7 @@ namespace ClearCare.Control
                 Console.WriteLine($"Appointment ID: {appt.GetAttribute("AppointmentId")}, " +
                                 $"Patient: {appt.GetAttribute("PatientId")}, " +
                                 $"Nurse: {appt.GetAttribute("NurseId")}, " +
-                                $"Service: {appt.GetAttribute("ServiceTypeId")}, " +
+                                $"Service: {appt.GetAttribute("Service")}, " +
                                 $"Slot: {appt.GetIntAttribute("Slot")}");
             }
 
@@ -163,22 +163,22 @@ namespace ClearCare.Control
         {
             int assignedSlot = 1;
             string patientId = appointment.GetAttribute("PatientId");
-            string serviceTypeId = appointment.GetAttribute("ServiceTypeId");
+            string Service = appointment.GetAttribute("Service");
             string nurseId = nurse;
 
             // Ensure tracking dictionaries are initialized
             if (!patientSlotTracker.ContainsKey(patientId))
                 patientSlotTracker[patientId] = new List<int>();
-            if (!serviceSlotTracker.ContainsKey(serviceTypeId))
-                serviceSlotTracker[serviceTypeId] = new Dictionary<int, int>();
+            if (!serviceSlotTracker.ContainsKey(Service))
+                serviceSlotTracker[Service] = new Dictionary<int, int>();
             if (!nurseSlotTracker.ContainsKey(nurseId))
                 nurseSlotTracker[nurseId] = new List<int>();
 
             while (true)
             {
                 bool slotOccupied = patientSlotTracker[patientId].Contains(assignedSlot) ||
-                                    (serviceSlotTracker[serviceTypeId].ContainsKey(assignedSlot) &&
-                                    serviceSlotTracker[serviceTypeId][assignedSlot] >= maxPatientsPerSlot) ||
+                                    (serviceSlotTracker[Service].ContainsKey(assignedSlot) &&
+                                    serviceSlotTracker[Service][assignedSlot] >= maxPatientsPerSlot) ||
                                     nurseSlotTracker[nurseId].Contains(assignedSlot);
 
                 if (!slotOccupied)
@@ -205,7 +205,7 @@ namespace ClearCare.Control
             Console.WriteLine("Service Slot Tracker:");
             foreach (var service in serviceSlotTracker)
             {
-                Console.WriteLine($"ServiceTypeId: {service.Key}");
+                Console.WriteLine($"Service: {service.Key}");
                 foreach (var slot in service.Value)
                 {
                     Console.WriteLine($"  Slot: {slot.Key} -> Count: {slot.Value}");

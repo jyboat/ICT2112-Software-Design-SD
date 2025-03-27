@@ -116,7 +116,7 @@ public class ServiceAppointmentsController : Controller
             requestData["PatientId"].GetString() ?? "",
             requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
             requestData["DoctorId"].GetString() ?? "",
-            requestData["ServiceTypeId"].GetString() ?? "",
+            requestData["Service"].GetString() ?? "",
             requestData["Status"].GetString() ?? "",
             requestData["DateTime"].GetDateTime(),
             requestData["Slot"].GetInt32(),
@@ -168,7 +168,7 @@ public class ServiceAppointmentsController : Controller
     //                 requestData["PatientId"].GetString() ?? "",
     //                 requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
     //                 requestData["DoctorId"].GetString() ?? "",
-    //                 requestData["ServiceTypeId"].GetString() ?? "",
+    //                 requestData["Service"].GetString() ?? "",
     //                 requestData["Status"].GetString() ?? "",
     //                 requestData["DateTime"].GetDateTime(),
     //                 requestData["Slot"].GetInt32(),
@@ -205,7 +205,7 @@ public class ServiceAppointmentsController : Controller
             string patientId = requestData["PatientId"].GetString() ?? "";
             string nurseId = requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "";
             string doctorId = requestData["DoctorId"].GetString() ?? "";
-            string serviceTypeId = requestData["ServiceTypeId"].GetString() ?? "";
+            string Service = requestData["Service"].GetString() ?? "";
             string status = requestData["Status"].GetString() ?? "";
             DateTime dateTime = requestData["DateTime"].GetDateTime();
             int slot = requestData["Slot"].GetInt32();
@@ -213,7 +213,7 @@ public class ServiceAppointmentsController : Controller
 
             // Use the ManualAppointmentScheduler to handle validation and updating
             bool result = await _manualAppointmentScheduler.RescheduleAppointment(
-                appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
+                appointmentId, patientId, nurseId, doctorId, Service, status, dateTime, slot, location
             );
 
             if (result)
@@ -281,7 +281,7 @@ public class ServiceAppointmentsController : Controller
         foreach (var item in rawData)
         {
             var patient = item["patientId"]?.ToString();
-            var service = item["serviceTypeId"]?.ToString();
+            var service = item["Service"]?.ToString();
 
             if (!string.IsNullOrEmpty(patient) && !string.IsNullOrEmpty(service))
             {
@@ -289,7 +289,7 @@ public class ServiceAppointmentsController : Controller
                     patientId: patient,
                     nurseId: "",
                     doctorId: "",
-                    serviceTypeId: service,
+                    Service: service,
                     status: "Pending",
                     dateTime: DateTime.UtcNow,
                     slot: 0,
@@ -301,7 +301,7 @@ public class ServiceAppointmentsController : Controller
         Console.WriteLine("Selected Algorithm: " + algorithm);
         foreach (var appt in appointments)
         {
-            Console.WriteLine($"Patient ID: {appt.GetAttribute("PatientId")}, Service: {appt.GetAttribute("ServiceTypeId")}, DateTime: {appt.GetAttribute("Datetime")}");
+            Console.WriteLine($"Patient ID: {appt.GetAttribute("PatientId")}, Service: {appt.GetAttribute("Service")}, DateTime: {appt.GetAttribute("Datetime")}");
         }
 
         if (algorithm == "Preferred")
@@ -334,7 +334,7 @@ public class ServiceAppointmentsController : Controller
         string patientId = requestData["PatientId"].GetString() ?? "";
         string nurseId = requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "";
         string doctorId = requestData["DoctorId"].GetString() ?? "";
-        string serviceTypeId = requestData["ServiceTypeId"].GetString() ?? "";
+        string Service = requestData["Service"].GetString() ?? "";
         string status = "PENDING"; // hardcoded to always set PENDING as the default status
         DateTime dateTime = requestData["DateTime"].GetDateTime();
         int slot = requestData["Slot"].GetInt32();
@@ -343,7 +343,7 @@ public class ServiceAppointmentsController : Controller
         try
         {
             string createdAppointmentId = await _manualAppointmentScheduler.ScheduleAppointment(
-                patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
+                patientId, nurseId, doctorId, Service, status, dateTime, slot, location
             );
 
             return Ok(new { Message = "Appointment created successfully", AppointmentId = createdAppointmentId });

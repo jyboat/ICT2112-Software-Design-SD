@@ -31,8 +31,8 @@
     <label for="doctorId">Doctor ID:</label>
     <input type="text" id="doctorId" name="DoctorId"><br><br>
 
-    <label for="serviceTypeId">Service Type:</label>
-    <input type="text" id="serviceTypeId" name="ServiceTypeId" required><br><br>
+    <label for="Service">Service Type:</label>
+    <input type="text" id="Service" name="Service" required><br><br>
 
     <label for="status">Status:</label>
     <input type="text" id="status" name="Status" required><br><br>
@@ -100,7 +100,7 @@
             PatientId: document.getElementById("patientId").value,
             NurseId: document.getElementById("nurseId").value,
             DoctorId: document.getElementById("doctorId").value,
-            ServiceTypeId: document.getElementById("serviceTypeId").value,
+            Service: document.getElementById("Service").value,
             Status: document.getElementById("status").value,
             DateTime: isoString, // use our manually constructed ISO string
             Slot: parseInt(selectedTimeSlot),

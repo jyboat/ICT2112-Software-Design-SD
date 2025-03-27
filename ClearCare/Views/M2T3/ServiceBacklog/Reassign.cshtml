@@ -30,8 +30,8 @@
     <label for="doctorId">Doctor ID:</label>
     <input type="text" id="doctorId" name="DoctorId" value="@Model.DoctorId" readonly style="background-color: #e9ecef;"><br><br>
 
-    <label for="serviceTypeId">Service Type:</label>
-    <input type="text" id="serviceTypeId" name="ServiceType" value="@Model.ServiceType" readonly style="background-color: #e9ecef;"><br><br>
+    <label for="Service">Service Type:</label>
+    <input type="text" id="Service" name="ServiceType" value="@Model.ServiceType" readonly style="background-color: #e9ecef;"><br><br>
 
     <label for="nurseId">Nurse:</label>
     <select id="nurseId" name="NurseId" class="select2" required>
@@ -82,7 +82,7 @@
             PatientId: document.getElementById("patientId").value,
             NurseId: document.getElementById("nurseId").value,
             DoctorId: document.getElementById("doctorId").value,
-            ServiceTypeId: document.getElementById("serviceTypeId").value,
+            Service: document.getElementById("Service").value,
             Status: document.getElementById("status").value,
             DateTime: formattedDateTime,
             Slot: parseInt(document.getElementById("slot").value),

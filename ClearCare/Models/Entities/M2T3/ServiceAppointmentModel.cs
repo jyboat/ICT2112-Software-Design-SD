@@ -24,7 +24,7 @@ namespace ClearCare.Models.Entities
         private string DoctorId { get; set; } = string.Empty;
 
         [FirestoreProperty]
-        private string ServiceTypeId { get; set; } = string.Empty;
+        private string Service { get; set; } = string.Empty;
 
         [FirestoreProperty]
         private string Status { get; set; } = string.Empty;
@@ -43,7 +43,7 @@ namespace ClearCare.Models.Entities
         private string GetPatientID() => PatientId;
         private string GetNurseID() => NurseId;
         private string GetDoctorID() => DoctorId;
-        private string GetServiceType() => ServiceTypeId;
+        private string GetServiceType() => Service;
         private string GetStatus() => Status;
         private DateTime GetDateTime() => DateTime; 
         private int GetSlot() => Slot;
@@ -53,7 +53,7 @@ namespace ClearCare.Models.Entities
         private void SetPatientID(string patientId) => PatientId = patientId;
         private void SetNurseID(string nurseId) => NurseId = nurseId;
         private void SetDoctorID(string doctorId) => DoctorId = doctorId;
-        private void SetServiceId(string serviceTypeId) => ServiceTypeId = serviceTypeId;
+        private void SetServiceId(string Service) => Service = Service;
         private void SetStatus(string status) => Status = status;
         public void SetDateTime(DateTime dateTime) => DateTime = dateTime;
         private void SetSlot(int slot) => Slot = slot;
@@ -72,7 +72,7 @@ namespace ClearCare.Models.Entities
                 "PatientId" => GetPatientID(),
                 "NurseId" => GetNurseID(),
                 "DoctorId" => GetDoctorID(),
-                "ServiceTypeId" => GetServiceType(),
+                "Service" => GetServiceType(),
                 "Status" => GetStatus(),
                 "Datetime" => GetDateTime().ToString(),
                 "Slot" => GetSlot().ToString(),
@@ -107,11 +107,11 @@ namespace ClearCare.Models.Entities
         }
 
         public ServiceAppointment updateServiceAppointementById (ServiceAppointment appointment, string patientId, string nurseId,
-            string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location) {
+            string doctorId, string Service, string status, DateTime dateTime, int slot, string location) {
                 appointment.SetPatientID(patientId);
                 appointment.SetNurseID(nurseId);
                 appointment.SetDoctorID(doctorId);
-                appointment.SetServiceId(serviceTypeId);
+                appointment.SetServiceId(Service);
                 appointment.SetStatus(status);
                 appointment.SetDateTime(dateTime);
                 appointment.SetSlot(slot);
@@ -120,7 +120,7 @@ namespace ClearCare.Models.Entities
         }
         
         public static ServiceAppointment setApptDetails(string patientId, string nurseId,
-            string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
+            string doctorId, string Service, string status, DateTime dateTime, int slot, string location)
         {
             return new ServiceAppointment
             {
@@ -128,7 +128,7 @@ namespace ClearCare.Models.Entities
                 PatientId = patientId,
                 NurseId = nurseId,
                 DoctorId = doctorId,
-                ServiceTypeId = serviceTypeId,
+                Service = Service,
                 Status = status,
                 DateTime = dateTime,
                 Slot = slot,
@@ -187,7 +187,7 @@ namespace ClearCare.Models.Entities
                 PatientId = data["PatientId"].ToString() ?? "",
                 NurseId = data.ContainsKey("NurseId") ? data["NurseId"].ToString() ?? "" : "" ,
                 DoctorId = data["DoctorId"].ToString() ?? "",
-                ServiceTypeId = data["ServiceTypeId"].ToString() ?? "",
+                Service = data["Service"].ToString() ?? "",
                 Status = data["Status"].ToString() ?? "",
                 DateTime = appointmentDateTime,
                 Slot = data.ContainsKey("Slot") ? Convert.ToInt32(data["Slot"]) : 0,
@@ -205,7 +205,7 @@ namespace ClearCare.Models.Entities
                 { "PatientId", PatientId },
                 { "NurseId", NurseId },
                 { "DoctorId", DoctorId },
-                { "ServiceTypeId", ServiceTypeId },
+                { "Service", Service },
                 { "Status", Status },
                 { "DateTime", DateTime },
                 { "Slot", Slot },

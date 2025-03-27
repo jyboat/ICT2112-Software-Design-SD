@@ -58,14 +58,14 @@ namespace ClearCare.Models.Control
             }
             if (!string.IsNullOrEmpty(service))
             {
-                appointments = appointments.Where(a => a.GetAttribute("ServiceTypeId") == service).ToList();
+                appointments = appointments.Where(a => a.GetAttribute("Service") == service).ToList();
             }
 
             // Convert filtered data to JSON format required by FullCalendar
             var eventList = appointments.Select(a => new
             {
                 id = a.GetAttribute("AppointmentId"),
-                title = a.GetAttribute("ServiceTypeId") + " for " + a.GetAttribute("PatientId"),
+                title = a.GetAttribute("Service") + " for " + a.GetAttribute("PatientId"),
                 start = DateTime.Parse(a.GetAttribute("Datetime")).ToString("yyyy-MM-ddTHH:mm:ss"),
                 extendedProps = new
                 {
@@ -73,7 +73,7 @@ namespace ClearCare.Models.Control
                     nurseId = a.GetAttribute("NurseId"),
                     doctorId = a.GetAttribute("DoctorId"),
                     status = a.GetAttribute("Status"),
-                    serviceType = a.GetAttribute("ServiceTypeId"),
+                    serviceType = a.GetAttribute("Service"),
                     slot = a.GetAttribute("Slot"),
                     location = a.GetAttribute("Location"),
                     dateTime = DateTime.Parse(a.GetAttribute("Datetime")).ToString("yyyy-MM-ddTHH:mm:ss"),

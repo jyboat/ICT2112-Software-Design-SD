@@ -97,7 +97,7 @@ namespace ClearCare.Models.Control
             var serviceSlotTracker = new Dictionary<string, Dictionary<int, int>>();
             foreach(var service in services){
                 Query serviceList = db.Collection("ServiceAppointments")
-                                    .WhereEqualTo("ServiceTypeId", service);
+                                    .WhereEqualTo("Service", service);
                                     // .WhereArrayContains("DateTime", nurse.NurseId);
                 QuerySnapshot serviceSnapshot = await serviceList.GetSnapshotAsync();
                 foreach(DocumentSnapshot document in serviceSnapshot.Documents){
@@ -106,7 +106,7 @@ namespace ClearCare.Models.Control
                     DateTime todayDate = DateTime.Today;
 
                     if(appointmentDate == todayDate){
-                        string serviceName = document.GetValue<string>("ServiceTypeId");
+                        string serviceName = document.GetValue<string>("Service");
                         int slot = document.GetValue<int>("Slot");
 
                         // Create list for the nurse if doesn't exists
@@ -244,7 +244,7 @@ namespace ClearCare.Models.Control
                     appointment.GetAttribute("PatientId"), 
                     appointment.GetAttribute("NurseId"), 
                     appointment.GetAttribute("DoctorId"), 
-                    appointment.GetAttribute("ServiceTypeId"), 
+                    appointment.GetAttribute("Service"), 
                     appointment.GetAttribute("Status"), 
                     DateTime.Now, 
                     Convert.ToInt32(appointment.GetAttribute("Slot")), 
@@ -279,7 +279,7 @@ namespace ClearCare.Models.Control
                         serviceAppt.GetAttribute("PatientId"),
                         serviceAppt.GetAttribute("NurseId"),
                         "Hardcode Doctor",
-                        serviceAppt.GetAttribute("ServiceTypeId"),
+                        serviceAppt.GetAttribute("Service"),
                         "Scheduled",
                         timeslot[serviceAppt.GetIntAttribute("Slot")],
                         serviceAppt.GetIntAttribute("Slot"),
@@ -300,7 +300,7 @@ namespace ClearCare.Models.Control
                         serviceAppt.GetAttribute("PatientId"),
                         serviceAppt.GetAttribute("NurseId"),
                         "Hardcode Doctor",
-                        serviceAppt.GetAttribute("ServiceTypeId"),
+                        serviceAppt.GetAttribute("Service"),
                         "Backlog",
                         timeslot[serviceAppt.GetIntAttribute("Slot")],
                         serviceAppt.GetIntAttribute("Slot"),

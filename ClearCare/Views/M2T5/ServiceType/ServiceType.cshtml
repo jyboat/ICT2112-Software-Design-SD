@@ -43,18 +43,18 @@
     <tbody>
         @foreach (var service in Model)
         {
-            <tr id="service-@service.ServiceTypeId">
-                <td>@service.ServiceTypeId</td>
+            <tr id="service-@service.Service">
+                <td>@service.Service</td>
                 <td>@service.Name</td>
                 <td>@service.Duration</td>
                 <td>@service.Modality</td>
                 <td>@service.Requirements</td>
                 <td>
                     <button class="btn btn-warning" data-bs-toggle="modal"
-                        data-bs-target="#editServiceModal-@service.ServiceTypeId">
+                        data-bs-target="#editServiceModal-@service.Service">
                         Edit
                     </button>
-                    <button class="btn btn-danger" onclick="loadDiscontinueModal(@service.ServiceTypeId)">
+                    <button class="btn btn-danger" onclick="loadDiscontinueModal(@service.Service)">
                         Discontinue
                     </button>
                 </td>
@@ -119,26 +119,26 @@
 
 @foreach (var service in Model)
 {
-    <div class="modal fade" id="editServiceModal-@service.ServiceTypeId" tabindex="-1"
-        aria-labelledby="editServiceModalLabel-@service.ServiceTypeId" aria-hidden="true">
+    <div class="modal fade" id="editServiceModal-@service.Service" tabindex="-1"
+        aria-labelledby="editServiceModalLabel-@service.Service" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editServiceModalLabel-@service.ServiceTypeId">Edit Service</h5>
+                    <h5 class="modal-title" id="editServiceModalLabel-@service.Service">Edit Service</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form asp-action="Edit" asp-controller="ServiceTypePage" method="post">
-                        <input type="hidden" name="id" value="@service.ServiceTypeId" />
+                        <input type="hidden" name="id" value="@service.Service" />
                         <div class="mb-3">
-                            <label for="editServiceName-@service.ServiceTypeId" class="form-label">Service Name</label>
-                            <input type="text" class="form-control" id="editServiceName-@service.ServiceTypeId" name="name"
+                            <label for="editServiceName-@service.Service" class="form-label">Service Name</label>
+                            <input type="text" class="form-control" id="editServiceName-@service.Service" name="name"
                                 value="@service.Name" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editServiceDuration-@service.ServiceTypeId" class="form-label">Duration
+                            <label for="editServiceDuration-@service.Service" class="form-label">Duration
                                 (minutes)</label>
-                            <input type="number" class="form-control" id="editServiceDuration-@service.ServiceTypeId"
+                            <input type="number" class="form-control" id="editServiceDuration-@service.Service"
                                 name="duration" value="@service.Duration" required>
                         </div>
                         <select class="form-control" name="modality" required>
@@ -169,9 +169,9 @@
 
                         </select>
                         <div class="mb-3">
-                            <label for="editServiceRequirements-@service.ServiceTypeId"
+                            <label for="editServiceRequirements-@service.Service"
                                 class="form-label">Requirements</label>
-                            <textarea class="form-control" id="editServiceRequirements-@service.ServiceTypeId"
+                            <textarea class="form-control" id="editServiceRequirements-@service.Service"
                                 name="requirements" required>@service.Requirements</textarea>
                         </div>
                         <button type="submit" class="btn btn-success">Save Changes</button>

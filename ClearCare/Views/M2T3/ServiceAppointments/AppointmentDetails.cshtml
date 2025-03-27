@@ -22,7 +22,7 @@
             <p><strong>Patient ID:</strong> <span id="patientIdDisplay">@Model.GetAttribute("PatientId")</span></p>
             <p><strong>Nurse ID:</strong> <span id="nurseIdDisplay">@Model.GetAttribute("NurseId")</span></p>
             <p><strong>Doctor ID:</strong> <span id="doctorIdDisplay">@Model.GetAttribute("DoctorId")</span></p>
-            <p><strong>Service Type:</strong> <span id="serviceTypeIdDisplay">@Model.GetAttribute("ServiceTypeId")</span></p>
+            <p><strong>Service Type:</strong> <span id="ServiceDisplay">@Model.GetAttribute("Service")</span></p>
             <p><strong>Status:</strong> <span id="statusDisplay">@Model.GetAttribute("Status")</span></p>
             <p><strong>Date & Time:</strong> <span
                     id="dateTimeDisplay">@Model.GetAppointmentDateTime(Model)</span></p>
@@ -65,8 +65,8 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="serviceTypeId" class="form-label">Service Type</label>
-                            <input type="text" class="form-control" id="serviceTypeId" value="@Model.GetAttribute("ServiceTypeId")">
+                            <label for="Service" class="form-label">Service Type</label>
+                            <input type="text" class="form-control" id="Service" value="@Model.GetAttribute("Service")">
                         </div>
 
                         <div class="mb-3">
@@ -143,7 +143,7 @@
             const patientId = document.getElementById('patientId').value;
             const nurseId = document.getElementById('nurseId').value;
             const doctorId = document.getElementById('doctorId').value;
-            const serviceTypeId = document.getElementById('serviceTypeId').value;
+            const Service = document.getElementById('Service').value;
             const status = document.getElementById('status').value;
             const dateTime = new Date(document.getElementById('dateTime').value).toISOString();
             const slot = parseInt(document.getElementById('slot').value);
@@ -155,7 +155,7 @@
                 PatientId: patientId,
                 NurseId: nurseId,
                 DoctorId: doctorId,
-                ServiceTypeId: serviceTypeId,
+                Service: Service,
                 Status: status,
                 DateTime: dateTime,
                 Slot: slot,
@@ -178,7 +178,7 @@
                         // update displayed values w/o page refresh
                         document.getElementById('nurseIdDisplay').textContent = nurseId;
                         document.getElementById('doctorIdDisplay').textContent = doctorId;
-                        document.getElementById('serviceTypeIdDisplay').textContent = serviceTypeId;
+                        document.getElementById('ServiceDisplay').textContent = Service;
                         document.getElementById('statusDisplay').textContent = status;
                         document.getElementById('dateTimeDisplay').textContent = new Date(dateTime).toLocaleString();
                         document.getElementById('slotDisplay').textContent = slot;

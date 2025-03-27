@@ -69,11 +69,11 @@ namespace ClearCare.Models.Control
 
         // Create Service Appointment
         public async Task<string> CreateAppointment(string patientId, string nurseId,
-                string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
+                string doctorId, string Service, string status, DateTime dateTime, int slot, string location)
         {
             // Map JSON data to model
             var appointment = ServiceAppointment.setApptDetails(
-                patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
+                patientId, nurseId, doctorId, Service, status, dateTime, slot, location
             );
 
             string appointmentID = await _dbGateway.CreateAppointment(appointment);

@@ -45,7 +45,7 @@ namespace ClearCare.Models.Control
                 appointment.GetAttribute("PatientId"), 
                 appointment.GetAttribute("NurseId"), 
                 appointment.GetAttribute("DoctorId"), 
-                appointment.GetAttribute("ServiceTypeId"), 
+                appointment.GetAttribute("Service"), 
                 "Completed", 
                 appointment.GetAppointmentDateTime(appointment), 
                 Convert.ToInt32(appointment.GetAttribute("Slot")), 

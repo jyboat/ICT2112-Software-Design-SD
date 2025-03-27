@@ -27,7 +27,7 @@
     <select id="appointmentsList" name="appointments[]" multiple="multiple" style="width: 100%;" class="select2">
         @foreach (var appointment in ViewBag.Appointment)
         {
-            <option value="@appointment["PatientId"]-@appointment["ServiceTypeId"]">@appointment["PatientId"] - @appointment["ServiceTypeId"]</option>
+            <option value="@appointment["PatientId"]-@appointment["Service"]">@appointment["PatientId"] - @appointment["Service"]</option>
         }
     </select>
 
@@ -49,11 +49,11 @@
             $("#appointmentsList option:selected").each(function () {
                 const selectedValue = $(this).val().split('-');
                 const patientId = selectedValue[0];
-                const serviceTypeId = selectedValue[1];
+                const Service = selectedValue[1];
 
                 selectedAppointments.push({
                     patientId: patientId,
-                    serviceTypeId: serviceTypeId
+                    Service: Service
                 });
             });
 
