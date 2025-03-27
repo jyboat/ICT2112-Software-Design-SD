@@ -9,7 +9,7 @@ namespace ClearCare.Controllers
     {
         private ErratumManagement ErratumManagement;
 
-        public FileErratumController(IEncryption encryptionService, IAuditLog auditService)
+        public FileErratumController(IEncryption encryptionService, IAuditSubject auditService)
         {
             ErratumManagement = new ErratumManagement(encryptionService, auditService);
         }
