@@ -7,7 +7,7 @@ namespace ClearCare.Controllers.M2T5
     [Route("Analytics")]
     public class AnalyticsController : Controller
     {
-        private readonly AnalyticsGateway _analyticsGateway;
+private readonly AnalyticsGateway _analyticsGateway = new AnalyticsGateway();
 
         public AnalyticsController()
         {
@@ -30,5 +30,25 @@ namespace ClearCare.Controllers.M2T5
             ViewData["AppointmentAnalytics"] = analyticsData;
             return View("~/Views/M2T5/Analytics/AppointmentsAnalytics.cshtml");  
         }
+
+[Route("ListAppointments")]
+public async Task<IActionResult> ListAppointments(string filter = "all")
+{
+    var gateway = new AnalyticsGateway();
+    var appointments = await gateway.FetchAppointmentsByFilter(filter); // this returns List<Dictionary<string, object>>
+    var appointmentList = await _analyticsGateway.FetchAppointmentsByFilter(filter);
+
+        ViewData["Appointments"] = appointments;
+        ViewData["Title"] = filter switch
+        {
+            "completed" => "✅ Completed Appointments",
+            "pending" => "⏳ Pending Appointments",
+            "cancelled" => "❌ Cancelled Appointments",
+            _ => "📅 All Appointments"
+        };
+return View("~/Views/M2T5/Analytics/FilteredAppointmentsList.cshtml", appointmentList);
+}
+
+
     }
 }

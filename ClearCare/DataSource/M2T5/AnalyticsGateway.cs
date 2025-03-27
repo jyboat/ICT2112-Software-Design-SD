@@ -165,5 +165,26 @@ namespace ClearCare.DataSource
             }
         }
 
+public async Task<List<Dictionary<string, object>>> FetchAppointmentsByFilter(string filter)
+{
+    var snapshot = await db.Collection("ServiceAppointments").GetSnapshotAsync();
+    var filtered = new List<Dictionary<string, object>>();
+
+    foreach (var doc in snapshot.Documents)
+    {
+        var data = doc.ToDictionary();
+        data["AppointmentId"] = doc.Id;
+
+        // Filtering logic
+        if (filter == "all" || (data.ContainsKey("Status") && data["Status"].ToString().Equals(filter, StringComparison.OrdinalIgnoreCase)))
+        {
+            filtered.Add(data);
+        }
+    }
+
+    return filtered;
+}
+
+
     }
 }
