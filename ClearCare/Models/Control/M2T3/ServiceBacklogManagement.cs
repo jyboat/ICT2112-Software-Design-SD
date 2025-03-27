@@ -61,15 +61,6 @@ namespace ClearCare.Models.Control
             return serviceBacklogViewModels;
         }
 
-        public List<ServiceBacklog> getBacklogsByDate()
-        {
-            List<ServiceBacklog> backlogList = new List<ServiceBacklog>();
-
-            // call DSL to populate sorted list
-
-            return backlogList;
-        }
-
         // Get single backlog details
         public async Task<ServiceBacklogViewModel> getBacklogDetails(string backlogId)
         {
@@ -99,23 +90,6 @@ namespace ClearCare.Models.Control
         {
             try
             {
-                // TODO change to manual scheduler's method once it's up
-                // var svcMgr = new ServiceAppointmentManagement();
-                // var svc = await svcMgr.getAppointmentByID(AppointmentId);
-                // svc.updateServiceAppointementById(
-                //     appointment:svc,
-                //     patientId: PatientId,
-                //     nurseId: NurseId,
-                //     doctorId: DoctorId,
-                //     serviceTypeId: ServiceType,
-                //     status: "Scheduled",
-                //     dateTime: DateTime.ToUniversalTime(),
-                //     slot: Slot,
-                //     location: Location
-                // );
-                // bool updateSuccess = await svcMgr.UpdateAppointment(svc);
-                
-
                 var scheduler = new ManualAppointmentScheduler();
                 Console.WriteLine($"Hello Datetime log {_DateTime} Type: {_DateTime.GetType()}, Kind: {_DateTime.Kind}");
                 bool updateSuccess = await scheduler.RescheduleAppointment(
@@ -172,14 +146,6 @@ namespace ClearCare.Models.Control
             {
                 Console.WriteLine($"Received {backlogList.Count} backlogs.");
                 
-                // foreach (var backlog in backlogList)
-                // {
-                //     foreach (var kvp in backlog)
-                //     {
-                //         Console.Write($"{kvp.Key}: {kvp.Value}, ");
-                //     }
-                //     Console.WriteLine("");
-                // }
             }
 
             return Task.CompletedTask;
