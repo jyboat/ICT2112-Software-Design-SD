@@ -19,13 +19,8 @@ namespace ClearCare.Models.Control
         }
 
         public async Task<List<ServiceAppointment>> getAppointmentDetails() {
-            // Fetch all appointments
-            List<Dictionary<string, object>> appointmentDictionaries = await _iServiceStatus.retrieveAllAppointments();
-
-            // Convert to ServiceAppointment objects before filtering
-            List<ServiceAppointment> appointments = appointmentDictionaries
-                .Select(dict => ServiceAppointment.FromFirestoreData(dict["AppointmentId"].ToString(), dict))
-                .ToList();
+            // Fetch all appointments - no need to convert
+            List<ServiceAppointment> appointments = await _iServiceStatus.RetrieveAllAppointments();
 
             // Filter out completed appointments
             List<ServiceAppointment> filteredAppointments = appointments
@@ -37,35 +32,26 @@ namespace ClearCare.Models.Control
 
 
         public async Task updateAppointmentStatus(string appointmentId) {
-             Dictionary<string, object> appointmentDict = await _iServiceStatus.getAppointmentByID(appointmentId);
-            if (appointmentDict == null) {
+            ServiceAppointment appointment = await _iServiceStatus.getAppointmentByID(appointmentId);
+            if (appointment == null) {
                 Console.WriteLine("Failed to get appointment");
                 return;
             }
-            
-            ServiceAppointment appointment = ServiceAppointment.FromFirestoreData(appointmentId, appointmentDict);
 
-              // Ensure DateTime is properly converted
-            const string DateTimeFormat = "d/M/yyyy h:mm:ss tt";
-
-            DateTime localTime = DateTime.ParseExact(
-                appointment.GetAttribute("Datetime"),  // Ensure correct key
-                DateTimeFormat,
-                System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.AdjustToUniversal // Ensures UTC conversion
-            );
-
-
-            await _iServiceStatus.UpdateAppointment(
-                appointmentId, 
+            ServiceAppointment appt = appointment.updateServiceAppointementById(
+                appointment,
                 appointment.GetAttribute("PatientId"), 
                 appointment.GetAttribute("NurseId"), 
                 appointment.GetAttribute("DoctorId"), 
                 appointment.GetAttribute("ServiceTypeId"), 
                 "Completed", 
-                localTime.ToUniversalTime(), 
+                appointment.GetAppointmentDateTime(appointment),
                 Convert.ToInt32(appointment.GetAttribute("Slot")), 
-                appointment.GetAttribute("Location"));
+                appointment.GetAttribute("Location")
+            );
+            
+            await _iServiceStatus.UpdateAppointment(appt);
+
         }
 
        

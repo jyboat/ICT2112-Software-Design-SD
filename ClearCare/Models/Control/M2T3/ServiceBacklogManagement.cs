@@ -100,17 +100,23 @@ namespace ClearCare.Models.Control
             try
             {
                 // TODO change to manual scheduler's method once it's up
-                bool updateSuccess = await new ServiceAppointmentManagement().UpdateAppointment(
-                    appointmentId:AppointmentId,
-                    patientId: PatientId,
-                    nurseId: NurseId.ToString(),
-                    doctorId: DoctorId,
-                    serviceTypeId: ServiceType,
-                    status: "Scheduled",
-                    dateTime: DateTime.ToUniversalTime(),
-                    slot: Slot,
-                    location: Location
-                );
+                var serviceAppointmentManager = new ServiceAppointmentManagement();
+                ServiceAppointment appointment = await serviceAppointmentManager.getAppointmentByID(AppointmentId);
+                   
+                ServiceAppointment appt = appointment.updateServiceAppointementById(
+                    appointment,
+                    PatientId,
+                    NurseId.ToString(),
+                    DoctorId,
+                    ServiceType,
+                    "Scheduled",
+                    DateTime.ToUniversalTime(),
+                    Slot,
+                    Location
+                    );
+                
+                bool updateSuccess = await serviceAppointmentManager.UpdateAppointment(appt);
+            
                 bool deleteSuccess = false;
                 if (updateSuccess)
                 {
@@ -211,17 +217,17 @@ namespace ClearCare.Models.Control
         }
     
 
-        private Task<ServiceBacklogViewModel> createViewModel(ServiceBacklog serviceBacklog, Dictionary<string, object> appointment)
+        private Task<ServiceBacklogViewModel> createViewModel(ServiceBacklog serviceBacklog, ServiceAppointment appointment)
         {
             return Task.FromResult(new ServiceBacklogViewModel {
                 BacklogId = serviceBacklog.getBacklogInformation()["backlogId"],
                 AppointmentId = serviceBacklog.getBacklogInformation()["appointmentId"],
-                DateTime = (DateTime)appointment["DateTime"],
+                DateTime = (DateTime)appointment.GetAppointmentDateTime(appointment),
                 // DateTimeFormatted = ((DateTime)appointment["DateTime"]).ToString("yyyy-MM-dd HH:mm:ss"),
-                PatientId = (string)appointment["PatientId"],
-                DoctorId = (string)appointment["DoctorId"],
-                NurseId = (string)appointment["NurseId"],
-                ServiceType = (string)appointment["ServiceTypeId"]
+                PatientId = (string)appointment.GetAttribute("PatientId"),
+                DoctorId = (string)appointment.GetAttribute("DoctorId"),
+                NurseId = (string)appointment.GetAttribute("NurseId"),
+                ServiceType = (string)appointment.GetAttribute("ServiceTypeId")
             });
         }
 

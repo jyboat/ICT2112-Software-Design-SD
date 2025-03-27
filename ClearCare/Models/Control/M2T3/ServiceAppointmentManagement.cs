@@ -5,6 +5,7 @@ using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 using Google.Protobuf.WellKnownTypes;
 using ClearCare.Interfaces;
+using System.Text.Json;
 
 
 namespace ClearCare.Models.Control
@@ -22,14 +23,10 @@ namespace ClearCare.Models.Control
 
 
         // Get All Service Appointment
-        public async Task<List<Dictionary<string, object>>> retrieveAllAppointments()
+        public async Task<List<ServiceAppointment>> RetrieveAllAppointments()
         {
             List<ServiceAppointment> appointments = await _dbGateway.fetchAllServiceAppointments();
-            List<Dictionary<string, object>> appointmentList = appointments
-               .Select(a => a.ToFirestoreDictionary())
-               .ToList();
-
-            return appointmentList;
+            return appointments;
         }
 
         public Task receiveServiceAppointmentList(List<ServiceAppointment> allServiceAppointments)
@@ -46,14 +43,14 @@ namespace ClearCare.Models.Control
         }
 
         // Get Service Appointment By ID
-        public async Task<Dictionary<string, object>> getAppointmentByID(string appointmentId)
+        public async Task<ServiceAppointment> getAppointmentByID(string appointmentId)
         {
-            Dictionary<string, object> appointment = await _dbGateway.fetchServiceAppointmentByID(appointmentId);
+            ServiceAppointment appointment = await _dbGateway.fetchServiceAppointmentByID(appointmentId);
 
             return appointment;
         }
 
-        public Task receiveServiceAppointmentById(Dictionary<string, object> serviceAppointment)
+        public Task receiveServiceAppointmentById(ServiceAppointment serviceAppointment)
         {
             Console.WriteLine("1 Service Appointment Found.");
             return Task.CompletedTask;
@@ -62,12 +59,6 @@ namespace ClearCare.Models.Control
         public async Task<List<ServiceAppointment>> RetrieveAllAppointmentsByNurse(string nurseId)
         {
             List<ServiceAppointment> allAppointments = await _dbGateway.fetchAllServiceAppointments();
-            
-            // List<Dictionary<string, object>> nurseAppointments = allAppointments
-            //     .Where(a => a.GetAttribute("NurseId") == nurseId)
-            //     .Select(a => a.ToFirestoreDictionary())
-            //     .ToList();
-
             List<ServiceAppointment> nurseAppointments = allAppointments
                 .Where(a => a.GetAttribute("NurseId") == nurseId)
                 .ToList();
@@ -102,44 +93,15 @@ namespace ClearCare.Models.Control
         }
 
         // Update Service Appointment
-        public async Task<bool> UpdateAppointment(string appointmentId, string patientId, string nurseId,
-    string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
+        public async Task<bool> UpdateAppointment(ServiceAppointment appointment)
         {
             try
             {
-                // convert UTC time to Singapore time (UTC+8)
-                DateTime sgDateTime = dateTime.AddHours(8);
-
-                Console.WriteLine($"Original UTC time: {dateTime}");
-                Console.WriteLine($"Singapore time (UTC+8): {sgDateTime}");
-
-                // retrieve existing appt
-                var existingAppointment = await this.getAppointmentByID(appointmentId);
-                if (existingAppointment == null)
-                {
-                    return false;
-                }
-
-                // create updated appt
-                var updatedAppointment = new ServiceAppointment();
-
-                // set appointment id first
-                typeof(ServiceAppointment)
-                    .GetProperty("AppointmentId", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                    ?.SetValue(updatedAppointment, appointmentId);
-
-                // set other properties using the existing method with singapore time
-                updatedAppointment = ServiceAppointment.setApptDetails(
-                    patientId, nurseId, doctorId, serviceTypeId, status, sgDateTime, slot, location
-                );
-
-                // set appointment id again since it gets overwritten
-                typeof(ServiceAppointment)
-                    .GetProperty("AppointmentId", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                    ?.SetValue(updatedAppointment, appointmentId);
+                // Logging appointment data
+                Console.WriteLine($"attempting to update appointment with data: {JsonSerializer.Serialize(appointment)}");
 
                 // call gateway to update
-                return await _dbGateway.UpdateAppointment(updatedAppointment);
+                return await _dbGateway.UpdateAppointment(appointment);
             }
             catch (Exception e)
             {
@@ -147,6 +109,7 @@ namespace ClearCare.Models.Control
                 return false;
             }
         }
+
         public Task receiveUpdatedServiceAppointmentStatus(bool updateStatus)
         {
             if (updateStatus)
@@ -244,16 +207,29 @@ namespace ClearCare.Models.Control
                 };
         }
 
+        public List<string> GetServiceTypeNames()
+        {
+            return new List<string>
+            {
+                "FINANCIAL COUNSELING",
+                "PHYSICAL THERAPY",
+                "WOUND CARE"
+            };
+        }
 
-
+        // backwards compatibility
         public List<Dictionary<string, string>> GetAllServiceTypes()
         {
-            return new List<Dictionary<string, string>>
-                {
-                    new Dictionary<string, string> {{"id", "1"}, {"name", "FINANCIAL COUNSELING"}},
-                    new Dictionary<string, string> {{"id", "2"}, {"name", "PHYSICAL THERAPY"}},
-                    new Dictionary<string, string> {{"id", "3"}, {"name", "WOUND CARE"}},
-                };
+            // convert your simple strings to the format expected by the caller
+            var serviceTypes = GetServiceTypeNames();
+            var result = new List<Dictionary<string, string>>();
+
+            foreach (var type in serviceTypes)
+            {
+                result.Add(new Dictionary<string, string> { { "id", type }, { "name", type } });
+            }
+
+            return result;
         }
 
         public Task getUnscheduledPatients(List<ServiceAppointment> allServiceAppointments)
