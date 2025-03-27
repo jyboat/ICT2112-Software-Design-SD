@@ -19,6 +19,7 @@ public class ServiceAppointmentsController : Controller
     private readonly AutomaticAppointmentScheduler AutomaticAppointmentScheduler;
     private readonly CalendarManagement _calendarManagement;
     private readonly NurseAvailabilityManagement _nurseAvailabilityManagement;
+    private readonly NotificationManager _notificationManagement;
     private readonly ManualAppointmentScheduler _manualAppointmentScheduler;
 
 
@@ -29,10 +30,12 @@ public class ServiceAppointmentsController : Controller
 
 
         _nurseAvailabilityManagement = new NurseAvailabilityManagement();
+        
+        _notificationManagement = new NotificationManager();
 
         _calendarManagement = new CalendarManagement(ServiceAppointmentManagement, _nurseAvailabilityManagement);
 
-        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler((ICreateAppointment)ServiceAppointmentManagement, (INurseAvailability)_nurseAvailabilityManagement);
+        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler((ICreateAppointment)ServiceAppointmentManagement, (INurseAvailability)_nurseAvailabilityManagement, (INotification)_notificationManagement);
         _manualAppointmentScheduler = new ManualAppointmentScheduler((ICreateAppointment)ServiceAppointmentManagement, (INurseAvailability)_nurseAvailabilityManagement);
 
     }
