@@ -170,42 +170,43 @@
     });
 
     // Bar Chart: Medical Records Per Doctor
-var ctx3 = document.getElementById('recordsPerDoctorChart').getContext('2d');
-var recordsPerDoctor = @Html.Raw(Json.Serialize(recordsPerDoctor ?? new Dictionary<string, int>()));
-new Chart(ctx3, {
-    type: 'bar',
-    data: {
-        labels: Object.keys(recordsPerDoctor),
-        datasets: [{
-            label: 'Medical Records',
-            data: Object.values(recordsPerDoctor),
-            backgroundColor: '#17a2b8'
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: { beginAtZero: true }
-        },
-        // ✅ Add click support here:
-        onClick: function(evt, elements) {
-            if (elements.length > 0) {
-                var chart = elements[0];
-                var clickedLabel = this.data.labels[chart.index];
+    var recordsPerDoctor = @Html.Raw(Json.Serialize(recordsPerDoctor ?? new Dictionary<string, int>()));
+    var ctxDoctor = document.getElementById('recordsPerDoctorChart').getContext('2d');
 
-                // Redirect to filtered view
-                window.location.href = `/Analytics/ListMedicalRecords?filter=doctor&doctorId=${clickedLabel}`;
+    var doctorChart = new Chart(ctxDoctor, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(recordsPerDoctor),
+            datasets: [{
+                label: 'Medical Records',
+                data: Object.values(recordsPerDoctor),
+                backgroundColor: '#17a2b8'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            onClick: function (evt, elements) {
+                if (elements.length > 0) {
+                    const chart = elements[0];
+                    const clickedDoctorId = this.data.labels[chart.index];
+                    // Redirect to filtered view
+                    window.location.href = `/Analytics/ListMedicalRecords?filter=doctor&value=${clickedDoctorId}`;
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
             }
         }
-    }
-});
+    });
 
 
     // Bar Chart: Medical Records Per Patient
     var ctx4 = document.getElementById('recordsPerPatientChart').getContext('2d');
     var recordsPerPatient = @Html.Raw(Json.Serialize(recordsPerPatient ?? new Dictionary<string, int>()));
-    new Chart(ctx4, {
+    var patientChart = new Chart(ctx4, {
         type: 'bar',
         data: {
             labels: Object.keys(recordsPerPatient),
@@ -218,6 +219,13 @@ new Chart(ctx3, {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            onClick: function (e, elements) {
+                if (elements.length > 0) {
+                    var index = elements[0].index;
+                    var selectedPatientId = this.data.labels[index];
+                    window.location.href = `/Analytics/ListMedicalRecords?filter=patient&value=${selectedPatientId}`;
+                }
+            },
             scales: {
                 y: { beginAtZero: true }
             }

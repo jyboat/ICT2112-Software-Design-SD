@@ -102,7 +102,7 @@
             <div class="card shadow-lg p-4">
                 <h5 class="text-center">👨‍⚕️ Appointments Per Doctor</h5>
                 <div class="chart-container">
-                    <canvas id="appointmentsPerDoctorChart"></canvas>
+                   <canvas id="appointmentsPerDoctorChart"></canvas>
                 </div>
             </div>
         </div>
@@ -201,26 +201,33 @@
     });
 
     // Bar Chart: Appointments Per Service Type
-    var ctx3 = document.getElementById('appointmentsPerServiceChart').getContext('2d');
-    var appointmentsPerType = @Html.Raw(Json.Serialize(appointmentsPerType ?? new Dictionary<string, int>()));
-    new Chart(ctx3, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(appointmentsPerType),
-            datasets: [{
-                label: 'Appointments',
-                data: Object.values(appointmentsPerType),
-                backgroundColor: '#17a2b8'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true }
+var ctx3 = document.getElementById('appointmentsPerServiceChart').getContext('2d');
+var appointmentsPerType = @Html.Raw(Json.Serialize(appointmentsPerType ?? new Dictionary<string, int>()));
+new Chart(ctx3, {
+    type: 'bar',
+    data: {
+        labels: Object.keys(appointmentsPerType),
+        datasets: [{
+            label: 'Appointments',
+            data: Object.values(appointmentsPerType),
+            backgroundColor: '#17a2b8'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        onClick: function (e, elements) {
+            if (elements.length > 0) {
+                var index = elements[0].index;
+                var selectedType = this.data.labels[index];
+                window.location.href = `/Analytics/ListAppointments?filter=serviceType&value=${selectedType}`;
             }
+        },
+        scales: {
+            y: { beginAtZero: true }
         }
-    });
+    }
+});
 
     // Bar Chart: Appointments Per Doctor
     var ctx4 = document.getElementById('appointmentsPerDoctorChart').getContext('2d');

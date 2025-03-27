@@ -32,51 +32,84 @@ private readonly AnalyticsGateway _analyticsGateway = new AnalyticsGateway();
         }
 
 [Route("ListAppointments")]
-public async Task<IActionResult> ListAppointments(string filter = "all")
+public async Task<IActionResult> ListAppointments(string filter = "all", string value = "")
 {
-    var gateway = new AnalyticsGateway();
-    var appointments = await gateway.FetchAppointmentsByFilter(filter); // this returns List<Dictionary<string, object>>
-    var appointmentList = await _analyticsGateway.FetchAppointmentsByFilter(filter);
+    // Get all appointments from your AnalyticsGateway
+    var records = await _analyticsGateway.FetchAppointmentsByFilter("all"); // You can rename this to just FetchAllAppointments() if clearer
+    List<Dictionary<string, object>> filtered = records;
 
-        ViewData["Appointments"] = appointments;
-        ViewData["Title"] = filter switch
-        {
-            "completed" => "✅ Completed Appointments",
-            "pending" => "⏳ Pending Appointments",
-            "cancelled" => "❌ Cancelled Appointments",
-            _ => "📅 All Appointments"
-        };
-return View("~/Views/M2T5/Analytics/FilteredAppointmentsList.cshtml", appointmentList);
+    // Filtering logic
+    switch (filter.ToLower())
+    {
+        case "servicetype":
+            filtered = records
+                .Where(r => r.ContainsKey("ServiceTypeId") && r["ServiceTypeId"]?.ToString() == value)
+                .ToList();
+            ViewData["Title"] = $"🏥 Appointments for Service Type: {value}";
+            break;
+
+        case "completed":
+        case "pending":
+        case "cancelled":
+        case "missed":
+            filtered = records
+                .Where(r => r.ContainsKey("Status") && r["Status"]?.ToString().ToLower() == filter.ToLower())
+                .ToList();
+            ViewData["Title"] = $"📋 {char.ToUpper(filter[0]) + filter.Substring(1)} Appointments";
+            break;
+
+        default:
+            ViewData["Title"] = "📅 All Appointments";
+            break;
+    }
+
+    ViewData["Appointments"] = filtered;
+
+    return View("~/Views/M2T5/Analytics/FilteredAppointmentsList.cshtml");
 }
 
+
+
 [Route("ListMedicalRecords")]
-public async Task<IActionResult> ListMedicalRecords(string filter = "all", string doctorId = null)
+public async Task<IActionResult> ListMedicalRecords(string filter = "all", string value = "")
 {
-    var records = await _analyticsGateway.FetchMedicalRecordsByFilter();
+    var records = await _analyticsGateway.FetchMedicalRecordsByFilter(); // already implemented
     var filtered = records;
+    string title = "📄 All Medical Records";
 
-    if (filter == "attachments")
+    switch (filter.ToLower())
     {
-        filtered = records
-            .Where(r => r.ContainsKey("Attachment") && r["Attachment"] != null)
-            .ToList();
+        case "attachments":
+            filtered = records
+                .Where(r => r.ContainsKey("Attachment") && r["Attachment"] != null)
+                .ToList();
+            title = "📎 Medical Records with Attachments";
+            break;
 
-        ViewData["Title"] = "📎 Medical Records with Attachments";
-    }
-    else if (filter == "doctor" && !string.IsNullOrEmpty(doctorId))
-    {
-        filtered = records
-            .Where(r => r.ContainsKey("DoctorID") && r["DoctorID"]?.ToString() == doctorId)
-            .ToList();
+        case "doctor":
+            if (!string.IsNullOrEmpty(value))
+            {
+                filtered = records
+                    .Where(r => r.ContainsKey("DoctorID") && r["DoctorID"]?.ToString() == value)
+                    .ToList();
+                title = $"👨‍⚕️ Records for Doctor: {value}";
+            }
+            break;
 
-        ViewData["Title"] = $"👨‍⚕️ Records by Doctor {doctorId}";
-    }
-    else
-    {
-        ViewData["Title"] = "📄 All Medical Records";
+        case "patient":
+            if (!string.IsNullOrEmpty(value))
+            {
+                filtered = records
+                    .Where(r => r.ContainsKey("PatientID") && r["PatientID"]?.ToString() == value)
+                    .ToList();
+                title = $"🏥 Records for Patient: {value}";
+            }
+            break;
     }
 
+    ViewData["Title"] = title;
     ViewData["Records"] = filtered;
+
     return View("~/Views/M2T5/Analytics/FilteredMedicalRecordsList.cshtml");
 }
 
