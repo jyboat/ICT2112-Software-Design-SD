@@ -12,7 +12,7 @@ using ClearCare.Models.Interface;
 
 namespace ClearCare.DataSource
 {
-    public class UserGateway : IAdminDatabase, IDelegateDatabase
+    public class UserGateway : IUserDatabase, IDelegateDatabase
     {
         private FirestoreDb db;
         private readonly EncryptionManagement encryptionManagement;
