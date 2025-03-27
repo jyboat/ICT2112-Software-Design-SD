@@ -125,7 +125,7 @@ namespace ClearCare.Models.Control
                     doctorId: DoctorId,
                     serviceTypeId: ServiceType,
                     status: "Scheduled",
-                    dateTime: _DateTime,
+                    dateTime: _DateTime.ToUniversalTime(),
                     slot: Slot,
                     location: Location
                 );
