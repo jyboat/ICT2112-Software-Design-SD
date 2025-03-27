@@ -25,8 +25,8 @@ namespace ClearCare.Models.Control
         }
 
         public async Task<JsonResult> getAppointmentsForCalendar(
-            string? doctorId, 
-            string? patientId, 
+            string? doctorId,
+            string? patientId,
             string? nurseId,
             string? location,
             string? service)
@@ -95,13 +95,13 @@ namespace ClearCare.Models.Control
             // Convert availability data to JSON format required by FullCalendar
             var eventList = nurseAvailabilityList.Select(a =>
             {
-                var details = a.getAvailabilityDetails(); 
+                var details = a.getAvailabilityDetails();
 
                 return new
                 {
-                    id = details["availabilityId"],  
+                    id = details["availabilityId"],
                     title = "Available",
-                    start = (string)details["date"], 
+                    start = (string)details["date"],
                     extendedProps = new
                     {
                         nurseId = details["nurseID"],

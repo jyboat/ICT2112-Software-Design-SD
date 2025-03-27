@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using ClearCare.Interfaces;
+using Google.Api;
+using System.ComponentModel;
 
 namespace ClearCare.DataSource
 {
@@ -56,9 +58,9 @@ namespace ClearCare.DataSource
                 Console.WriteLine($"Firestore Document Not Found: {documentId}");
                 return null;
             }
-              // Convert snapshot to dictionary
+            // Convert snapshot to dictionary
             var data = snapshot.ToDictionary();
-            
+
             // Convert Firestore document to a ServiceAppointment object
             ServiceAppointment appointment = ServiceAppointment.FromFirestoreData(documentId, data);
 
@@ -256,10 +258,24 @@ namespace ClearCare.DataSource
             public string Name { get; set; } = string.Empty;
         }
 
-        // To do: Retrieve from firebase/interface
-        public async Task<List<Patient>> fetchAllUnscheduledPatients()
+        // To be changed delete once got interface from other teams
+        public async Task<List<string>> getAllServices()
         {
-            
+            Query serviceQuery = _db.Collection("service_type");
+            QuerySnapshot snapshot2 = await serviceQuery.GetSnapshotAsync();
+
+            var services = new List<string>();
+
+            foreach (DocumentSnapshot document in snapshot2.Documents)
+            {
+                services.Add(document.GetValue<string>("name"));
+            }
+            return services;
+        }
+
+        // To do: Retrieve from firebase/interface
+        public async Task<List<Dictionary<string, object>>> fetchAllUnscheduledPatients()
+        {
             var patients = new List<Patient>
             {
                 new Patient { PatientId = "PAT001", Name = "Patient 1" },
@@ -274,19 +290,47 @@ namespace ClearCare.DataSource
                 new Patient { PatientId = "PAT010", Name = "Patient 10" },
                 new Patient { PatientId = "PAT011", Name = "Patient 11" }
             };
-            var unscheduledPatients = new List<Patient>();
+
+            var unscheduledPatients = new List<ServiceAppointment>();
+            var services = await getAllServices();
 
             foreach (var patient in patients)
             {
+                // Query to get all the appointments of this patient
                 Query appointmentsRef = _db.Collection("ServiceAppointments")
-                                        .WhereEqualTo("PatientId", patient.PatientId);
+                                            .WhereEqualTo("PatientId", patient.PatientId);
                 QuerySnapshot snapshot = await appointmentsRef.GetSnapshotAsync();
-                if(snapshot.Count == 0){
-                    unscheduledPatients.Add(new Patient { PatientId = patient.PatientId, Name = patient.Name });
+
+                // Get all services this patient already has
+                var existingServices = snapshot.Documents
+                                               .Select(doc => doc.GetValue<string>("ServiceTypeId"))
+                                               .ToList();
+
+                // Find missing services (those that exist in the service list but not in the existing appointments)
+                var missingServices = services.Where(service => !existingServices.Contains(service)).ToList();
+
+                // For each missing service, create a new service appointment
+                foreach (var service in missingServices)
+                {
+                    unscheduledPatients.Add(ServiceAppointment.setApptDetails(
+                        patientId: patient.PatientId,
+                        nurseId: "",
+                        doctorId: "",
+                        serviceTypeId: service,
+                        status: "Pending",
+                        dateTime: DateTime.UtcNow,
+                        slot: 0,
+                        location: "Physical"
+                    ));
                 }
             }
-            
-            return unscheduledPatients;
+
+            // Convert the appointments to Firestore dictionaries
+            List<Dictionary<string, object>> result = unscheduledPatients
+                .Select(appointment => appointment.ToFirestoreDictionary())
+                .ToList();
+
+            return result;
         }
 
     }

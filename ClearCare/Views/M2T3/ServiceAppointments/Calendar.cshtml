@@ -7,31 +7,14 @@
 
 <head>
     <title>Appointments Calendar</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <style>
         #calendar {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 40px auto;
-        }
-
-        #filterContainer {
-            text-align: center;
-            margin: 20px auto;
-        }
-
-        .filterInput {
-            width: 180px;
-            padding: 10px;
-            margin-right: 10px;
-        }
-
-        #filterButton,
-        #resetButton {
-            padding: 10px;
-            cursor: pointer;
         }
     </style>
     <script>
@@ -105,6 +88,7 @@
 
             // filter button
             document.getElementById('filterButton').addEventListener('click', function () {
+                event.preventDefault(); 
                 var doctorId = document.getElementById('doctorInput').value.trim();
                 var patientId = document.getElementById('patientInput').value.trim();
                 var nurseId = document.getElementById('nurseInput').value.trim();
@@ -116,6 +100,7 @@
 
             // reset button
             document.getElementById('resetButton').addEventListener('click', function () {
+                event.preventDefault(); 
                 document.getElementById('doctorInput').value = '';
                 document.getElementById('patientInput').value = '';
                 document.getElementById('nurseInput').value = '';
@@ -416,19 +401,37 @@
 <body>
     <h2 style="text-align: center;">Service Appointments Calendar</h2>
 
-    <div id="filterContainer">
-        <input type="text" id="doctorInput" class="filterInput" placeholder="Enter Doctor ID">
-        <input type="text" id="patientInput" class="filterInput" placeholder="Enter Patient ID">
-        <input type="text" id="nurseInput" class="filterInput" placeholder="Enter Nurse ID">
-        <input type="text" id="locationInput" class="filterInput" placeholder="Enter Location">
-        <input type="text" id="serviceInput" class="filterInput" placeholder="Enter Service">
-        <button id="filterButton">Filter</button>
-        <button id="resetButton">Reset Filters</button>
-    </div>
+    <form>
+        <div class="form-row">
+            <div class="col">
+                <input type="text" id="doctorInput" class="form-control" placeholder="Enter Doctor ID">
+            </div>
+            <div class="col">
+                <input type="text" id="patientInput" class="form-control" placeholder="Enter Patient ID">
+
+            </div>
+            <div class="col">
+                <input type="text" id="nurseInput" class="form-control" placeholder="Enter Nurse ID">
+
+            </div>
+            <div class="col">
+                <input type="text" id="locationInput" class="form-control" placeholder="Enter Location">
+
+            </div>
+
+            <div class="col">
+                <input type="text" id="serviceInput" class="form-control" placeholder="Enter Service">
+            </div>
+
+            <button id="filterButton" class="btn btn-success">Filter</button>
+            <button id="resetButton" class="btn btn-primary">Reset Filters</button>
+        </div>
+    </form>
+
     <div id="calendar"></div>
 
     <!-- Edit Appointment Modal -->
-    <div id="editAppointmentModal" class="modal fade" tabindex="-1" role="dialog">
+    <div id="editAppointmentModal" class="modal fade" tabi ndex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">

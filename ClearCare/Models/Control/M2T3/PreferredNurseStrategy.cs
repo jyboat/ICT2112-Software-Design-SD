@@ -34,30 +34,30 @@ namespace ClearCare.Control
         }
 
         public List<ServiceAppointment> AutomaticallySchedule(
+            List<ServiceAppointment> unscheduledAppointment,
             List<AutomaticAppointmentScheduler.Nurse> nurses, 
-            List<string> patients,
             List<string> services,
             List<ServiceAppointment> backlogEntries,
+            Dictionary<string, List<int>> patientSlotTracker,
             Dictionary<string, Dictionary<int,int>> serviceSlotTracker,
             Dictionary<string, List<int>> nurseSlotTracker)
         {
-            var appointments = InitialInsert(patients, services);
             int totalSlots = 7;
-            int maxPatientsPerSlot = 2;
+            int maxPatientsPerSlot = nurses.Count;
             int nurseIndex = 0;
-            
+
             var sortedNurses = nurses.OrderBy(n =>
             (!nurseSlotTracker.ContainsKey(n.NurseId) || nurseSlotTracker[n.NurseId].Count == 0) ? 0 : 1)
             .ToList();
 
             // Concat backlog entries with the newly created appointments
-            var combinedAppointments = backlogEntries.Concat(appointments).ToList();
+            var combinedAppointments = backlogEntries.Concat(unscheduledAppointment).ToList();
 
             // Group and sort backlog will be scheduled first if any
-            var combinedGroups = GetCombinedAppointmentGroups(appointments, backlogEntries);
+            var combinedGroups = GetCombinedAppointmentGroups(unscheduledAppointment, backlogEntries);
 
             // Tracking dictionaries
-            var patientSlotTracker = new Dictionary<string, List<int>>();
+            // var patientSlotTracker = new Dictionary<string, List<int>>();
             // var serviceSlotTracker = new Dictionary<string, Dictionary<int, int>>();
 
             foreach (var patientAppointments in combinedGroups)

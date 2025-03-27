@@ -86,10 +86,10 @@ namespace ClearCare.Models.Control
         public async Task<bool> UpdateAppointment(ServiceAppointment appointment)
         {
             try
-            {   
+            {
                 // Logging appointment data
                 Console.WriteLine($"attempting to update appointment with data: {JsonSerializer.Serialize(appointment)}");
-                
+
                 // call gateway to update
                 return await _dbGateway.UpdateAppointment(appointment);
             }
@@ -99,7 +99,7 @@ namespace ClearCare.Models.Control
                 return false;
             }
         }
-        
+
         public Task receiveUpdatedServiceAppointmentStatus(bool updateStatus)
         {
             if (updateStatus)
@@ -196,7 +196,7 @@ namespace ClearCare.Models.Control
                     new Dictionary<string, string> {{"id", "USR003"}, {"name", "USR003"}},
                 };
         }
-        
+
         public List<string> GetServiceTypeNames()
         {
             return new List<string>
@@ -206,19 +206,19 @@ namespace ClearCare.Models.Control
                 "WOUND CARE"
             };
         }
-        
+
         // backwards compatibility
         public List<Dictionary<string, string>> GetAllServiceTypes()
         {
             // convert your simple strings to the format expected by the caller
             var serviceTypes = GetServiceTypeNames();
             var result = new List<Dictionary<string, string>>();
-    
+
             foreach (var type in serviceTypes)
             {
-                result.Add(new Dictionary<string, string> {{"id", type}, {"name", type}});
+                result.Add(new Dictionary<string, string> { { "id", type }, { "name", type } });
             }
-    
+
             return result;
         }
 
@@ -241,12 +241,26 @@ namespace ClearCare.Models.Control
             public string Name { get; set; } = string.Empty;
         }
 
-        public async Task<List<ServiceAppointmentGateway.Patient>> getUnscheduledPatients()
+        public async Task<List<Dictionary<string, object>>> getUnscheduledPatients()
         {
             // Call the gateway to get the unscheduled patients.
-            List<ServiceAppointmentGateway.Patient> patients = await _dbGateway.fetchAllUnscheduledPatients();
-            return patients;
+            List<Dictionary<string, object>> serviceAppointment = await _dbGateway.fetchAllUnscheduledPatients();
+
+            return serviceAppointment;
         }
+
+        public async Task<List<string>> getAllServices()
+        {
+            List<string> services = await _dbGateway.getAllServices();
+            return services;
+        }
+
+
+
+        // public Task CreateAppointment() {
+        //     Console.WriteLine("Hello Create Appointment Interface");
+        //     return Task.CompletedTask;
+        // }
     }
 
 }

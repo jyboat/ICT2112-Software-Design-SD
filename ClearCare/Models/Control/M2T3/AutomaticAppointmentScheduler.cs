@@ -52,29 +52,29 @@ namespace ClearCare.Models.Control
             public string Name { get; set; } = string.Empty;
         }
 
-        // public class Patient
-        // {
-        //     public string PatientId { get; set; }  = string.Empty;
-        //     public string Name { get; set; } = string.Empty;
-        // }
-
-        // public List<Patient> getPatients(){
-        //     var patients = new List<Patient>
-        //     {
-        //         new Patient { PatientId = "PAT001", Name = "Patient 1" },
-        //         new Patient { PatientId = "PAT002", Name = "Patient 2" },
-        //         new Patient { PatientId = "PAT003", Name = "Patient 3" }
-        //     };
-            
-        //     return patients; 
-        // }
+        public class Patient
+        {
+            public string PatientId { get; set; }  = string.Empty;
+            public string Name { get; set; } = string.Empty;
+        }
 
         // To Do: In ServiceAppointmentGateway, PreferredNurseStrategy and this class
         // To Do: Modify HTML to showcase how auto scheduling works
         // To Do: Add more interface for serviceAppointment db operations
 
-        public async void AutomaticallyScheduleAppointment(List<string> patients)
+        public async void AutomaticallyScheduleAppointment(List<ServiceAppointment> unscheduledAppointment)
         {
+            var timeslot = new Dictionary<int, DateTime>
+            {
+                { 1, DateTime.Parse("4:00 PM").ToUniversalTime()  },
+                { 2, DateTime.Parse("5:00 PM").ToUniversalTime()  },
+                { 3, DateTime.Parse("6:00 PM").ToUniversalTime()  },
+                { 4, DateTime.Parse("7:00 PM").ToUniversalTime()  },
+                { 5, DateTime.Parse("9:00 PM").ToUniversalTime()  },
+                { 6, DateTime.Parse("10:00 PM").ToUniversalTime()  },
+                { 7, DateTime.Parse("11:00 PM").ToUniversalTime()  }
+            };
+
             // Attach listener only when scheduling is called
             var _serviceBacklogManagement = new ServiceBacklogManagement();
             attach(_serviceBacklogManagement);
@@ -181,6 +181,52 @@ namespace ClearCare.Models.Control
                         }
                         // Add the slot number into the list.
                         nurseSlotTracker[nurseID].Add(slot);
+                        // Console.WriteLine($"Data1: {appointmentDate}");
+                        // Console.WriteLine($"Data2: {todayDate}");
+                    }
+                    else{
+                        continue;
+                    }
+                }
+            }
+
+            var patientSlotTracker = new Dictionary<string, List<int>>();
+
+            var patients = new List<Patient>
+            {
+                new Patient { PatientId = "PAT001", Name = "Patient 1" },
+                new Patient { PatientId = "PAT002", Name = "Patient 2" },
+                new Patient { PatientId = "PAT003", Name = "Patient 3" },
+                new Patient { PatientId = "PAT004", Name = "Patient 4" },
+                new Patient { PatientId = "PAT005", Name = "Patient 5" },
+                new Patient { PatientId = "PAT006", Name = "Patient 6" },
+                new Patient { PatientId = "PAT007", Name = "Patient 7" },
+                new Patient { PatientId = "PAT008", Name = "Patient 8" },
+                new Patient { PatientId = "PAT009", Name = "Patient 9" },
+                new Patient { PatientId = "PAT010", Name = "Patient 10" },
+                new Patient { PatientId = "PAT011", Name = "Patient 11" }
+            };
+
+            foreach(var patient in patients){
+                Query patientSlotList = db.Collection("ServiceAppointments")
+                                    .WhereEqualTo("PatientId", patient.PatientId);
+                QuerySnapshot patientSnapshot = await patientSlotList.GetSnapshotAsync();
+                foreach(DocumentSnapshot document in patientSnapshot.Documents){
+                    DateTime appointmentDateTime = document.GetValue<DateTime>("DateTime");
+                    DateTime appointmentDate = appointmentDateTime.Date;
+                    DateTime todayDate = DateTime.Today;
+                    
+                    if(appointmentDate == todayDate){
+                        string patientId = document.GetValue<string>("PatientId");
+                        int slot = document.GetValue<int>("Slot");
+
+                        // Create list for the nurse if doesn't exists
+                        if (!patientSlotTracker.ContainsKey(patientId))
+                        {
+                            patientSlotTracker[patientId] = new List<int>();
+                        }
+                        // Add the slot number into the list.
+                        patientSlotTracker[patientId].Add(slot);
                         Console.WriteLine($"Data1: {appointmentDate}");
                         Console.WriteLine($"Data2: {todayDate}");
                     }
@@ -219,10 +265,11 @@ namespace ClearCare.Models.Control
 
             // Call the auto-assignment function
             var serviceAppointment = _iAutomaticScheduleStrategy.AutomaticallySchedule(
+                unscheduledAppointment,
                 nurses, 
-                patients, 
                 services, 
                 backlogEntries,
+                patientSlotTracker,
                 serviceSlotTracker,
                 nurseSlotTracker);
 
@@ -241,7 +288,7 @@ namespace ClearCare.Models.Control
                         "Hardcode Doctor",
                         serviceAppt.GetAttribute("ServiceTypeId"),
                         "Scheduled",
-                        DateTime.UtcNow,
+                        timeslot[serviceAppt.GetIntAttribute("Slot")],
                         serviceAppt.GetIntAttribute("Slot"),
                         "Physical"
                     );
@@ -257,7 +304,7 @@ namespace ClearCare.Models.Control
                         "Hardcode Doctor",
                         serviceAppt.GetAttribute("ServiceTypeId"),
                         "Backlog",
-                        DateTime.UtcNow,
+                        timeslot[serviceAppt.GetIntAttribute("Slot")],
                         serviceAppt.GetIntAttribute("Slot"),
                         "Physical"
                     );

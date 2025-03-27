@@ -19,6 +19,9 @@ namespace ClearCare.Interfaces
     Task<bool> DeleteAppointment (string appointmentId);
     Task<DateTime?> fetchAppointmentTime(string appointmentId);
     
-    Task<List<ServiceAppointmentGateway.Patient>> fetchAllUnscheduledPatients();
+    Task<List<Dictionary<string, object>>> fetchAllUnscheduledPatients();
+    
+    // To be changed delete once got interface from other teams
+    Task<List<string>> getAllServices();
    }
 }
