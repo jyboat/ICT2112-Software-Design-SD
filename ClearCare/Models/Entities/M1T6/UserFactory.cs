@@ -13,16 +13,16 @@ namespace ClearCare.DataSource
             {
                 case "Doctor":
                     string specialization = (string)infoDictionary["Specialization"];
-                    return new Doctor(userID, email, password, name, (int)mobileNumber, address, role, specialization);
+                    return new Doctor(userID, email, password, name, mobileNumber, address, role, specialization);
 
                 case "Nurse":
                     string department = (string)infoDictionary["Department"];
-                    return new Nurse(userID, email, password, name, (int)mobileNumber, address, role, department);
+                    return new Nurse(userID, email, password, name, mobileNumber, address, role, department);
 
                 case "Admin":
                     string adminID = (string)infoDictionary["AdminID"];
                     string assignedBackupAdmin = (string)infoDictionary["AssignedBackupAdmin"];
-                    return new Admin(userID, email, password, name, (int)mobileNumber, address, role, adminID, assignedBackupAdmin);
+                    return new Admin(userID, email, password, name, mobileNumber, address, role, adminID, assignedBackupAdmin);
 
                 case "Patient":
                     // Added null checks for Patient fields
@@ -62,12 +62,12 @@ namespace ClearCare.DataSource
                         // No DateOfBirth field
                         dateOfBirth = Timestamp.FromDateTime(DateTime.UtcNow);
                     }
-                    return new Patient(userID, email, password, name, (int)mobileNumber, address, role, assignedCaregiverName, assignedCaregiverID, dateOfBirth);
+                    return new Patient(userID, email, password, name, mobileNumber, address, role, assignedCaregiverName, assignedCaregiverID, dateOfBirth);
 
                 case "Caregiver":
                     string assignedPatientName = (string)infoDictionary["AssignedPatientName"];
                     string assignedPatientID = (string)infoDictionary["AssignedPatientID"];
-                    return new Caregiver(userID, email, password, name, (int)mobileNumber, address, role, assignedPatientName, assignedPatientID);
+                    return new Caregiver(userID, email, password, name, mobileNumber, address, role, assignedPatientName, assignedPatientID);
 
                 default:
                     throw new ArgumentException($"Invalid user role: {role}"); // Prevents creating abstract User

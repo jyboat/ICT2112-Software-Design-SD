@@ -28,12 +28,13 @@ namespace ClearCare.Models.Control
             // Insert record
             var newRecord = await MedicalRecordGateway.insertMedicalRecord(encryptedText, patientID, fileBytes, fileName, doctorID);
 
-            await auditService.InsertAuditLog("Created new medical record", doctorID);
+            
             
             if (newRecord != null)
             {
                 // Notify observers after adding a new record
                 await notifyObservers(); 
+                await auditService.InsertAuditLog("Created new medical record", doctorID);
             }
 
             return newRecord;
