@@ -20,7 +20,7 @@
     <script>
         const patientsData = @Html.Raw(Json.Serialize(ViewBag.Patients));
         const nursesData = @Html.Raw(Json.Serialize(ViewBag.Nurses));
-        const serviceTypes = @Html.Raw(Json.Serialize(ViewBag.ServiceTypes));
+        const serviceTypes = @Html.Raw(Json.Serialize(ViewBag.ServiceNames));
         const DoctorId = @Html.Raw(Json.Serialize(ViewBag.DoctorId));
 
         function loadCalendar(doctorId, patientId, nurseId, location, service) {

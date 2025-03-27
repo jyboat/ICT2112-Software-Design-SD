@@ -77,11 +77,11 @@ public class ServiceAppointmentsController : Controller
 
     [HttpGet]
     [Route("Calendar")]
-    public IActionResult Calendar()
+    public async Task<IActionResult> Calendar()
     {
         ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
         ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
-        ViewBag.ServiceTypes = ServiceAppointmentManagement.GetServiceTypeNames();
+        ViewBag.ServiceNames = await ServiceAppointmentManagement.GetServiceTypeNames();
         ViewBag.DoctorId = "DOC001"; // TODO - hardcoded for now, will retrieve from session later
 
         return View("~/Views/M2T3/ServiceAppointments/Calendar.cshtml");

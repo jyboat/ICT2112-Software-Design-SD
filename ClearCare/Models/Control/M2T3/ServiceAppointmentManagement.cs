@@ -6,17 +6,18 @@ using ClearCare.Models.Entities;
 using Google.Protobuf.WellKnownTypes;
 using ClearCare.Interfaces;
 using System.Text.Json;
+using ClearCare.Models.Interface;
 
 
 namespace ClearCare.Models.Control
 {
     public class ServiceAppointmentManagement : IRetrieveAllAppointments, ICreateAppointment, IServiceAppointmentDB_Receive, IAppointmentTime, IServiceStatus
     {
-
-
+        private readonly IServiceType _iServiceType;
         private readonly IServiceAppointmentDB_Send _dbGateway;
         public ServiceAppointmentManagement()
         {
+            _iServiceType = new ServiceTypeManager();
             _dbGateway = (IServiceAppointmentDB_Send)new ServiceAppointmentGateway();
             _dbGateway.Receiver = this;
         }
@@ -207,30 +208,34 @@ namespace ClearCare.Models.Control
                 };
         }
 
-        public List<string> GetServiceTypeNames()
+        public async Task<List<string>> GetServiceTypeNames()
         {
-            return new List<string>
-            {
-                "FINANCIAL COUNSELING",
-                "PHYSICAL THERAPY",
-                "WOUND CARE"
-            };
-        }
+            var services = await _iServiceType.GetServiceTypes();
+            var servicesList = services.Select(service => service.Name).ToList();
 
-        // backwards compatibility
-        public List<Dictionary<string, string>> GetAllServiceTypes()
-        {
-            // convert your simple strings to the format expected by the caller
-            var serviceTypes = GetServiceTypeNames();
-            var result = new List<Dictionary<string, string>>();
-
-            foreach (var type in serviceTypes)
+            foreach (var name in servicesList)
             {
-                result.Add(new Dictionary<string, string> { { "id", type }, { "name", type } });
+                Console.WriteLine(name); // or use a logger like _logger.LogInformation(name);
             }
 
-            return result;
+            return servicesList;
         }
+
+
+        // backwards compatibility
+        // public List<Dictionary<string, string>> GetAllServiceTypes()
+        // {
+        //     // convert your simple strings to the format expected by the caller
+        //     var serviceTypes = GetServiceTypeNames();
+        //     var result = new List<Dictionary<string, string>>();
+
+        //     foreach (var type in serviceTypes)
+        //     {
+        //         result.Add(new Dictionary<string, string> { { "id", type }, { "name", type } });
+        //     }
+
+        //     return result;
+        // }
 
         public Task getUnscheduledPatients(List<ServiceAppointment> allServiceAppointments)
         {
