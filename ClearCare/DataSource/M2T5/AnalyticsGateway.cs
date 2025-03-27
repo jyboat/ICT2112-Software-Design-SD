@@ -200,6 +200,46 @@ public async Task<List<Dictionary<string, object>>> FetchMedicalRecordsByFilter(
     return results;
 }
 
+public async Task<List<Dictionary<string, object>>> FetchAllMedicalRecords()
+{
+    List<Dictionary<string, object>> records = new List<Dictionary<string, object>>();
+    var snapshot = await db.Collection("MedicalRecords").GetSnapshotAsync();
+
+    foreach (var doc in snapshot.Documents)
+    {
+        var recordData = doc.ToDictionary();
+        recordData["RecordId"] = doc.Id;
+        records.Add(recordData);
+    }
+
+    return records;
+}
+
+public async Task<List<Dictionary<string, object>>> FetchMedicalRecordsByFilter(string filterType, string filterValue)
+{
+    CollectionReference collection = db.Collection("MedicalRecords");
+    Query query = collection;
+
+    if (filterType == "HasAttachment")
+        query = query.WhereEqualTo("HasAttachment", filterValue.ToLower() == "true");
+    else if (filterType == "DoctorId")
+        query = query.WhereEqualTo("DoctorId", filterValue);
+    else if (filterType == "PatientId")
+        query = query.WhereEqualTo("PatientId", filterValue);
+
+    var snapshot = await query.GetSnapshotAsync();
+
+    List<Dictionary<string, object>> results = new();
+    foreach (var doc in snapshot.Documents)
+    {
+        var record = doc.ToDictionary();
+        record["RecordId"] = doc.Id;
+        results.Add(record);
+    }
+
+    return results;
+}
+
 
 
     }
