@@ -10,7 +10,7 @@ public class FirebaseService
         if (_firestoreDb == null)
         {
             // Firebase Admin SDK JSON file
-            string path = @"Firebase\firebase-adminsdk.json"; 
+            string path = @"Firebase/firebase-adminsdk.json"; 
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
 
             _firestoreDb = FirestoreDb.Create("ict2112");
