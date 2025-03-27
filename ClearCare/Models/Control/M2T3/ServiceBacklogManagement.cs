@@ -115,6 +115,7 @@ namespace ClearCare.Models.Control
                 );
                 bool updateSuccess = await svcMgr.UpdateAppointment(svc);
 
+
                 // Delete service backlog if updating is successful
                 bool deleteSuccess = false;
                 if (updateSuccess)

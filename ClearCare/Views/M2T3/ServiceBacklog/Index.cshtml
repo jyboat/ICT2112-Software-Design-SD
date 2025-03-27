@@ -17,6 +17,8 @@
     <div class="container"></div>
         <h1 class="my-4">@ViewData["Title"]</h1>
 
+        <button id="generateDummy" class="btn btn-primary mb-3">Generate Dummy Backlogs</button>
+
         @if (Model != null && Model.Count > 0)
         {
             <table class="table table-striped mt-3">
@@ -198,6 +200,26 @@
             console.error("Error:", error);
         });
 
+    });
+
+    document.getElementById("generateDummy").addEventListener("click", function() {
+        fetch("/ServiceBacklog/GenerateDummy", {
+            method: "POST"
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to generate dummy backlogs.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert("Dummy backlogs generated successfully.");
+            location.reload();
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Error generating dummy backlogs.");
+        });
     });
     </script>
 

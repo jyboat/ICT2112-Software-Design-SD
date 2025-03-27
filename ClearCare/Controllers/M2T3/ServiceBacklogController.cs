@@ -82,11 +82,18 @@ namespace ClearCare.Controllers
             }
         }
 
-        // [HttpPost]
-        // public bool GenerateDummyBacklogs()
-        // {
-        //     ServiceAppointmentManagement svcMgr = new ServiceAppointmentManagement();
-        //     return true;
-        // }
+        [HttpPost]
+        [Route("GenerateDummy")] 
+        public async void GenerateDummyBacklogs()
+        {
+            ServiceAppointmentManagement svcMgr = new ServiceAppointmentManagement();
+            var allAppointments = (await svcMgr.RetrieveAllAppointments()).Take(5);
+            foreach (var appointment in allAppointments)
+            {
+                await _manager.addBacklog(appointment.GetAttribute("AppointmentId"));
+            }
+
+            Redirect("Index");
+        }
     }
 }
