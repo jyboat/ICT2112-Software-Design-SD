@@ -3,13 +3,21 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using ClearCare.DataSource.M3T1;
 using ClearCare.Models.Entities.M3T1;
+using ClearCare.Models.Interfaces.M3T1;
 using System.Text.RegularExpressions;
 
 namespace ClearCare.Models.Control.M3T1
 {
-    public class CommunityPostManagement
+    public class CommunityPostManagement : IPostReceive
     {
-        private CommunityDataMapper _dataMapper = new CommunityDataMapper();
+        //private CommunityDataMapper _dataMapper = new CommunityDataMapper();
+
+        private readonly IPostSend _dataMapper;
+
+        public CommunityPostManagement(IPostSend mapper)
+        {
+            _dataMapper = mapper;
+        }
 
         public async Task<string> createPost(string title, string content, string postedBy, string? groupId)
         {
@@ -64,6 +72,79 @@ namespace ClearCare.Models.Control.M3T1
         public async Task<bool> updatePost(string postId, string title, string content)
         {
             return await _dataMapper.updateCommunityPost(postId, title, content);
+        }
+
+        // Implement IPostReceive methods for receiving data from the mapper
+        public Task receiveAllCommunityPosts(List<CommunityPost> communityPosts)
+        {
+            if (communityPosts.Count > 0)
+                Console.WriteLine($"Received {communityPosts.Count} community posts");
+            else
+                Console.WriteLine("No community posts received");
+
+            return Task.CompletedTask;
+        }
+
+        public Task receiveGroupPosts(List<CommunityPost> groupPosts)
+        {
+            if (groupPosts.Count > 0)
+                Console.WriteLine($"Received {groupPosts.Count} group posts");
+            else
+                Console.WriteLine("No group posts received");
+
+            return Task.CompletedTask;
+        }
+
+        public Task receiveUserPosts(List<CommunityPost> userPosts)
+        {
+            if (userPosts.Count > 0)
+                Console.WriteLine($"Received {userPosts.Count} user posts");
+            else
+                Console.WriteLine("No user posts received");
+
+            return Task.CompletedTask;
+        }
+
+        public Task receiveUserGroupPosts(List<CommunityPost> userGroupPosts)
+        {
+            if (userGroupPosts.Count > 0)
+                Console.WriteLine($"Received {userGroupPosts.Count} user-group posts");
+            else
+                Console.WriteLine("No user-group posts received");
+
+            return Task.CompletedTask;
+        }
+
+        public Task receivePost(CommunityPost communityPost)
+        {
+            if (communityPost != null)
+                Console.WriteLine("Received community post");
+            else
+                Console.WriteLine("No community post received");
+
+            return Task.CompletedTask;
+        }
+
+        public Task receiveInsertStatus(string postId)
+        {
+            if (!string.IsNullOrEmpty(postId))
+                Console.WriteLine($"Inserted post successfully with ID: {postId}");
+            else
+                Console.WriteLine("Failed to insert post");
+
+            return Task.CompletedTask;
+        }
+
+        public Task receiveUpdateStatus(bool status)
+        {
+            Console.WriteLine(status ? "Updated post successfully" : "Failed to update post");
+            return Task.CompletedTask;
+        }
+
+        public Task receiveDeleteStatus(bool status)
+        {
+            Console.WriteLine(status ? "Deleted post successfully" : "Failed to delete post");
+            return Task.CompletedTask;
         }
     }
 }
