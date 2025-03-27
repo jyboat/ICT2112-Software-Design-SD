@@ -9,6 +9,7 @@ using System.Linq;
 using ClearCare.Interfaces;
 using ClearCare.Control;
 
+
 // Request Handling
 [Route("api/[controller]")]
 [ApiController]
@@ -29,10 +30,10 @@ public class ServiceAppointmentsController : Controller
 
         _nurseAvailabilityManagement = new NurseAvailabilityManagement();
 
-        _calendarManagement = new CalendarManagement(ServiceAppointmentManagement, _nurseAvailabilityManagement);
+        _calendarManagement = new CalendarManagement();
 
-        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler((ICreateAppointment)ServiceAppointmentManagement, (INurseAvailability)_nurseAvailabilityManagement);
-        _manualAppointmentScheduler = new ManualAppointmentScheduler((ICreateAppointment)ServiceAppointmentManagement, (INurseAvailability)_nurseAvailabilityManagement);
+        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler();
+        _manualAppointmentScheduler = new ManualAppointmentScheduler();
 
     }
 
@@ -75,8 +76,8 @@ public class ServiceAppointmentsController : Controller
     {
         ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
         ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
-        ViewBag.ServiceTypes = ServiceAppointmentManagement.GetAllServiceTypes();
-        ViewBag.DoctorId = "DOC001"; // hardcoded for now, will retrieve from session later
+        ViewBag.ServiceTypes = ServiceAppointmentManagement.GetServiceTypeNames();
+        ViewBag.DoctorId = "DOC001"; // TODO - hardcoded for now, will retrieve from session later
 
         return View("~/Views/M2T3/ServiceAppointments/Calendar.cshtml");
     }
@@ -94,7 +95,8 @@ public class ServiceAppointmentsController : Controller
     [Route("AutoScheduling")]
     public async Task<IActionResult> AddPatients()
     {
-        ViewBag.Patients = await ServiceAppointmentManagement.getUnscheduledPatients();
+        ViewBag.Appointment = await ServiceAppointmentManagement.getUnscheduledPatients();
+        // ViewBag.Services = await ServiceAppointmentManagement.getAllServices();
         return View("~/Views/M2T3/ServiceAppointments/AddPatientsAutoScheduling.cshtml");
     }
 
@@ -146,6 +148,46 @@ public class ServiceAppointmentsController : Controller
     }
 
     // update appointment
+    // [HttpPut]
+    // [Route("Update")]
+    // public async Task<IActionResult> UpdateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
+    // {
+    //     try
+    //     {
+    //         Console.WriteLine("Received JSON request body: " + JsonSerializer.Serialize(requestData));
+    //
+    //         ServiceAppointment appointment = await ServiceAppointmentManagement.getAppointmentByID(requestData["AppointmentId"].GetString());
+    //         // Entity Method 
+    //         ServiceAppointment appt = appointment.updateServiceAppointementById(
+    //                 appointment,
+    //                 requestData["PatientId"].GetString() ?? "",
+    //                 requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
+    //                 requestData["DoctorId"].GetString() ?? "",
+    //                 requestData["ServiceTypeId"].GetString() ?? "",
+    //                 requestData["Status"].GetString() ?? "",
+    //                 requestData["DateTime"].GetDateTime(),
+    //                 requestData["Slot"].GetInt32(),
+    //                 requestData["Location"].GetString() ?? ""
+    //                 );
+    //         var result = await ServiceAppointmentManagement.UpdateAppointment(appt);
+    //
+    //
+    //         // TODO - Should we strictly return a view or can we return a JSON response? - dinie
+    //         if (result)
+    //         {
+    //             return Ok(new { Success = true, Message = "Appointment updated successfully" });
+    //         }
+    //         else
+    //         {
+    //             return BadRequest(new { Success = false, Message = "Failed to update appointment" });
+    //         }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         return StatusCode(500, new { Success = false, Message = "An error occurred", Error = ex.Message });
+    //     }
+    // }
+    
     [HttpPut]
     [Route("Update")]
     public async Task<IActionResult> UpdateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
@@ -154,23 +196,21 @@ public class ServiceAppointmentsController : Controller
         {
             Console.WriteLine("Received JSON request body: " + JsonSerializer.Serialize(requestData));
 
-            ServiceAppointment appointment = await ServiceAppointmentManagement.getAppointmentByID(requestData["AppointmentId"].GetString());
-            // Entity Method 
-            ServiceAppointment appt = appointment.updateServiceAppointementById(
-                    appointment,
-                    requestData["PatientId"].GetString() ?? "",
-                    requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
-                    requestData["DoctorId"].GetString() ?? "",
-                    requestData["ServiceTypeId"].GetString() ?? "",
-                    requestData["Status"].GetString() ?? "",
-                    requestData["DateTime"].GetDateTime(),
-                    requestData["Slot"].GetInt32(),
-                    requestData["Location"].GetString() ?? ""
-                    );
-            var result = await ServiceAppointmentManagement.UpdateAppointment(appt);
+            string appointmentId = requestData["AppointmentId"].GetString();
+            string patientId = requestData["PatientId"].GetString() ?? "";
+            string nurseId = requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "";
+            string doctorId = requestData["DoctorId"].GetString() ?? "";
+            string serviceTypeId = requestData["ServiceTypeId"].GetString() ?? "";
+            string status = requestData["Status"].GetString() ?? "";
+            DateTime dateTime = requestData["DateTime"].GetDateTime();
+            int slot = requestData["Slot"].GetInt32();
+            string location = requestData["Location"].GetString() ?? "";
 
+            // Use the ManualAppointmentScheduler to handle validation and updating
+            bool result = await _manualAppointmentScheduler.RescheduleAppointment(
+                appointmentId, patientId, nurseId, doctorId, serviceTypeId, status, dateTime, slot, location
+            );
 
-            // TODO - Should we strictly return a view or can we return a JSON response? - dinie
             if (result)
             {
                 return Ok(new { Success = true, Message = "Appointment updated successfully" });
@@ -179,6 +219,12 @@ public class ServiceAppointmentsController : Controller
             {
                 return BadRequest(new { Success = false, Message = "Failed to update appointment" });
             }
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Log the exception message
+            Console.WriteLine($"Error: {ex.Message}");
+            return BadRequest(new { Success = false, Message = ex.Message });
         }
         catch (Exception ex)
         {
@@ -215,29 +261,60 @@ public class ServiceAppointmentsController : Controller
     // Test Auto Interface
     [HttpPost]
     [Route("TestAutoAppointment")]
-    public IActionResult TestAutoAppointment([FromForm] List<string> PatientIds, [FromForm] string algorithm)
+    public IActionResult TestAutoAppointment([FromForm] string appointmentsJson, [FromForm] string algorithm)
     {
-        Console.WriteLine("Selected Patient IDs: " + string.Join(", ", PatientIds));
+        // Deserialize the JSON into a list of dictionaries
+        var rawData = JsonSerializer.Deserialize<List<Dictionary<string, object>>>(appointmentsJson);
+
+        if (rawData == null || !rawData.Any())
+        {
+            return BadRequest(new { Message = "No appointments received." });
+        }
+
+        var appointments = new List<ServiceAppointment>();
+
+        foreach (var item in rawData)
+        {
+            var patient = item["patientId"]?.ToString();
+            var service = item["serviceTypeId"]?.ToString();
+
+            if (!string.IsNullOrEmpty(patient) && !string.IsNullOrEmpty(service))
+            {
+                appointments.Add(ServiceAppointment.setApptDetails(
+                    patientId: patient,
+                    nurseId: "",
+                    doctorId: "",
+                    serviceTypeId: service,
+                    status: "Pending",
+                    dateTime: DateTime.UtcNow,
+                    slot: 0,
+                    location: "Physical"
+                ));
+            }
+        }
+
         Console.WriteLine("Selected Algorithm: " + algorithm);
-        
-        // Use the selected algorithm to set the scheduling strategy
+        foreach (var appt in appointments)
+        {
+            Console.WriteLine($"Patient ID: {appt.GetAttribute("PatientId")}, Service: {appt.GetAttribute("ServiceTypeId")}, DateTime: {appt.GetAttribute("Datetime")}");
+        }
+
         if (algorithm == "Preferred")
         {
             AutomaticAppointmentScheduler.SetAlgorithm(new PreferredNurseStrategy());
-            // Pass the list of patient IDs to the scheduling algorithm.
-            AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(PatientIds);
-            return Ok(new { Message = "Auto appointment scheduling Initiated."});
         }
         else if (algorithm == "Earliest")
         {
             AutomaticAppointmentScheduler.SetAlgorithm(new EarliestsPossibleTimeSlotStrategy());
-            // Pass the list of patient IDs to the scheduling algorithm.
-            AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(PatientIds);
-            return Ok(new { Message = "Auto appointment scheduling Initiated."});
-        }   
-        
-        return Ok(new { Message = "Auto appointment scheduling Completed."});
+        }
+
+        // Pass this full appointment list to your scheduler
+        AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(appointments);
+
+        return Ok(new { Message = "Auto appointment scheduling initiated." });
     }
+
+
 
 
     [HttpPost]

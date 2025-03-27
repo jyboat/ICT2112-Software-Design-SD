@@ -8,42 +8,42 @@ namespace ClearCare.Control
     public class EarliestsPossibleTimeSlotStrategy : IAutomaticScheduleStrategy
     {
         // Inital insert of service appointment w/o nurse and slot attribute filled
-        public List<ServiceAppointment> InitialInsert(List<string> patients, List<string> allServices)
-        {
-            var services = allServices;
-            var appointments = new List<ServiceAppointment>();
+        // public List<ServiceAppointment> InitialInsert(List<string> patients, List<string> allServices)
+        // {
+        //     var services = allServices;
+        //     var appointments = new List<ServiceAppointment>();
 
-            foreach (var patient in patients)
-            {
-                foreach (var service in services)
-                {
-                    appointments.Add(ServiceAppointment.setApptDetails(
-                        patientId: patient,
-                        nurseId: "",
-                        doctorId: "",
-                        serviceTypeId: service,
-                        status: "Pending",
-                        dateTime: DateTime.UtcNow,
-                        slot: 0,
-                        location: "Physical"
-                    ));
-                }
-            }
+        //     foreach (var patient in patients)
+        //     {
+        //         foreach (var service in services)
+        //         {
+        //             appointments.Add(ServiceAppointment.setApptDetails(
+        //                 patientId: patient,
+        //                 nurseId: "",
+        //                 doctorId: "",
+        //                 serviceTypeId: service,
+        //                 status: "Pending",
+        //                 dateTime: DateTime.UtcNow,
+        //                 slot: 0,
+        //                 location: "Physical"
+        //             ));
+        //         }
+        //     }
 
-            return appointments;
-        }
+        //     return appointments;
+        // }
 
         public List<ServiceAppointment> AutomaticallySchedule(
+            List<ServiceAppointment> unscheduledAppointment,
             List<AutomaticAppointmentScheduler.Nurse> nurses, 
-            List<string> patients,
             List<string> services,
             List<ServiceAppointment> backlogEntries,
+            Dictionary<string, List<int>> patientSlotTracker,
             Dictionary<string, Dictionary<int,int>> serviceSlotTracker,
             Dictionary<string, List<int>> nurseSlotTracker)
         {
-            var appointments = InitialInsert(patients, services);
             int totalSlots = 7;
-            int maxPatientsPerSlot = 2;
+            int maxPatientsPerSlot = nurses.Count;
             int nurseIndex = 0;
 
             var sortedNurses = nurses.OrderBy(n =>
@@ -51,13 +51,13 @@ namespace ClearCare.Control
             .ToList();
 
             // Concat backlog entries with the newly created appointments
-            var combinedAppointments = backlogEntries.Concat(appointments).ToList();
+            var combinedAppointments = backlogEntries.Concat(unscheduledAppointment).ToList();
 
             // Group and sort backlog will be scheduled first if any
-            var combinedGroups = GetCombinedAppointmentGroups(appointments, backlogEntries);
+            var combinedGroups = GetCombinedAppointmentGroups(unscheduledAppointment, backlogEntries);
 
             // Tracking dictionaries
-            var patientSlotTracker = new Dictionary<string, List<int>>();
+            // var patientSlotTracker = new Dictionary<string, List<int>>();
             // var serviceSlotTracker = new Dictionary<string, Dictionary<int, int>>();
 
             foreach (var patientAppointments in combinedGroups)

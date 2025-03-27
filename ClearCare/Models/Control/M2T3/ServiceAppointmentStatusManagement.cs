@@ -9,12 +9,14 @@ using ClearCare.Interfaces;
 
 namespace ClearCare.Models.Control
 {
-    public class ServiceAppointmentStatusManagement: IAppointmentStatus
+    public class ServiceAppointmentStatusManagement: IAppointmentStatus, IRetrieveAllAppointments
     {
         private readonly IServiceStatus _iServiceStatus;
+        private readonly ICreateAppointment _iCreateAppointment;
         public ServiceAppointmentStatusManagement() {
             
             _iServiceStatus = (IServiceStatus) new ServiceAppointmentManagement();
+            _iCreateAppointment = (ICreateAppointment) new ServiceAppointmentManagement();
         }
 
         public async Task<List<ServiceAppointment>> getAppointmentDetails() {
@@ -49,9 +51,73 @@ namespace ClearCare.Models.Control
                 appointment.GetAttribute("Location")
             );
             
-            await _iServiceStatus.UpdateAppointment(appt);
+            await _iCreateAppointment.UpdateAppointment(appt);
 
         }
+
+        public async Task<List<ServiceAppointment>> getAllServiceAppointments() {
+            List<ServiceAppointment> appointments = await _iServiceStatus.RetrieveAllAppointments();
+            appointments = await CheckAndUpdateStatusAsync(appointments);
+            return appointments;
+        }
+
+        public async Task<ServiceAppointment> getServiceAppointmentById(string apptId) {
+            ServiceAppointment appointment = await _iServiceStatus.getAppointmentByID(apptId);
+            appointment = await CheckAndUpdateStatusAsync(appointment);
+            return appointment;
+        }
+
+        private async Task<List<ServiceAppointment>> CheckAndUpdateStatusAsync(List<ServiceAppointment> appointments)
+        {
+            if (appointments == null || appointments.Count == 0) return new List<ServiceAppointment>();
+
+            foreach (var appointment in appointments)
+            {
+                if (appointment.CheckAndMarkAsMissed()) 
+                {
+                    Console.WriteLine($"🔍 Appointment ID: {appointment.GetAttribute("AppointmentId")}, Status: {appointment.GetAttribute("Status")}, DateTime: {appointment.GetAttribute("Datetime")}");
+
+                    bool success = await _iCreateAppointment.UpdateAppointment(appointment); 
+                    if (!success)
+                    {
+                        Console.WriteLine($"Failed to update appointment status to missed: {appointment.GetAttribute("AppointmentId")}");
+                    }
+                    else {
+                        Console.WriteLine($"updated {appointment.GetAttribute("AppointmentId")} to {appointment.GetAttribute("Status")}");
+                    }
+                
+                }
+
+            }
+
+            return appointments;
+        }
+
+        private async Task<ServiceAppointment> CheckAndUpdateStatusAsync(ServiceAppointment appointment) {
+            if (appointment.CheckAndMarkAsMissed()) {
+                bool success = await _iCreateAppointment.UpdateAppointment(appointment);
+                if (!success)
+                    {
+                        Console.WriteLine($"Failed to update appointment status to missed: {appointment.GetAttribute("AppointmentId")}");
+                    }
+                    else {
+                        Console.WriteLine($"updated {appointment.GetAttribute("AppointmentId")} to {appointment.GetAttribute("Status")}");
+                    }
+            }
+            return appointment;
+        }
+
+
+        public async Task<List<ServiceAppointment>> RetrieveAllAppointmentsByNurse(string nurseId)
+        {
+            List<ServiceAppointment> allAppointments = await this.getAllServiceAppointments();
+            List<ServiceAppointment> nurseAppointments = allAppointments
+                .Where(a => a.GetAttribute("NurseId") == nurseId)
+                .ToList();
+
+            return nurseAppointments;
+        }
+
 
        
     }

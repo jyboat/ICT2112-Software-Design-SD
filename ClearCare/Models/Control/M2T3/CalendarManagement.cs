@@ -18,21 +18,21 @@ namespace ClearCare.Models.Control
         private readonly IRetrieveAllAppointments _retrieveAllAppointments;
         private readonly INurseAvailability _getAvailabilityByStaff;
 
-        public CalendarManagement(IRetrieveAllAppointments retrieveAllAppointments, INurseAvailability getAvailabilityByStaff)
+        public CalendarManagement()
         {
-            _retrieveAllAppointments = retrieveAllAppointments;
-            _getAvailabilityByStaff = getAvailabilityByStaff;
+            _retrieveAllAppointments = (IRetrieveAllAppointments) new ServiceAppointmentStatusManagement();
+            _getAvailabilityByStaff = (INurseAvailability) new NurseAvailabilityManagement();
         }
 
         public async Task<JsonResult> getAppointmentsForCalendar(
-            string? doctorId, 
-            string? patientId, 
+            string? doctorId,
+            string? patientId,
             string? nurseId,
             string? location,
             string? service)
         {
-            // Get all appointments from IRetrieveAllAppointments (implemented by ServiceAppointmentManagement)
-            var appointments = await _retrieveAllAppointments.RetrieveAllAppointments();
+            // Get all appointments from IRetrieveAllAppointments
+            var appointments = await _retrieveAllAppointments.getAllServiceAppointments();
 
             if (appointments == null || !appointments.Any())
             {
@@ -95,13 +95,13 @@ namespace ClearCare.Models.Control
             // Convert availability data to JSON format required by FullCalendar
             var eventList = nurseAvailabilityList.Select(a =>
             {
-                var details = a.getAvailabilityDetails(); 
+                var details = a.getAvailabilityDetails();
 
                 return new
                 {
-                    id = details["availabilityId"],  
+                    id = details["availabilityId"],
                     title = "Available",
-                    start = (string)details["date"], 
+                    start = (string)details["date"],
                     extendedProps = new
                     {
                         nurseId = details["nurseID"],
