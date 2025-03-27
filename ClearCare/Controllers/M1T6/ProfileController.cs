@@ -198,7 +198,7 @@ namespace ClearCare.Controllers
 
             // For debugging - temporarily display all caregivers regardless of role
             // Note: In production, you would want to restore the role check
-            List<Caregiver> availableCaregivers = await _delegateManagement.getAllCaregivers();
+            List<Caregiver> availableCaregivers = await _delegateManagement.getAvailableCaregivers();
 
             if (availableCaregivers == null || availableCaregivers.Count == 0)
             {

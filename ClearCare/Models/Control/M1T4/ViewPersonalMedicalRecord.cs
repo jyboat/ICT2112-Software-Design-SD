@@ -10,11 +10,19 @@ namespace ClearCare.Models.Control
     {
         private readonly MedicalRecordGateway _medicalRecordGateway;
         private readonly EncryptionManagement _encryptionManagement;
+        private readonly UserGateway _userGateway;
 
         public ViewPersonalMedicalRecord()
         {
             _medicalRecordGateway = new MedicalRecordGateway();
             _encryptionManagement = new EncryptionManagement();
+            _userGateway = new UserGateway();
+        }
+        public async Task<User> getAssignedPatient(string userID)
+        {
+            var assignedUser = await _userGateway.findUserByID(userID);
+            //var assignedPatientID = (string) assignedUser.getProfileData()["AssignedPatientID"];
+            return assignedUser;
         }
 
         public async Task<List<dynamic>> getMedicalRecord(string userID)
@@ -27,10 +35,11 @@ namespace ClearCare.Models.Control
                 return processedRecords;
             }
 
+            var tempList = new List<(DateTime SortKey, dynamic Record)>();
+
             foreach (var record in medicalRecords)
             {
-                var recordDetails = record.getRecordDetails(); 
-
+                var recordDetails = record.getRecordDetails();
                 var (attachmentBytes, attachmentFileName) = record.retrieveAttachment();
 
                 Google.Cloud.Firestore.Timestamp firestoreTimestamp = (Google.Cloud.Firestore.Timestamp)recordDetails["Date"];
@@ -44,7 +53,7 @@ namespace ClearCare.Models.Control
                     {
                         decryptedDoctorNote = _encryptionManagement.decryptMedicalData(encryptedNote);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         decryptedDoctorNote = "Error decrypting note";
                     }
@@ -60,8 +69,6 @@ namespace ClearCare.Models.Control
 
                 if (attachmentBytes != null && attachmentBytes.Length > 0)
                 {
-                    
-                    // Determine MIME type based on file extension
                     string fileExtension = attachmentName.Split('.').Last().ToLower();
                     switch (fileExtension)
                     {
@@ -74,22 +81,26 @@ namespace ClearCare.Models.Control
                     attachmentBase64 = Convert.ToBase64String(attachmentBytes);
                 }
 
-                processedRecords.Add(new
+                var recordObject = new
                 {
                     MedicalRecordID = recordDetails["MedicalRecordID"],
                     Date = formattedDate,
                     DoctorNote = decryptedDoctorNote,
                     DoctorID = recordDetails["DoctorID"],
                     AttachmentName = attachmentName,
-                    AttachmentData = attachmentBase64, 
-                    AttachmentType = attachmentMimeType 
-                });
+                    AttachmentData = attachmentBase64,
+                    AttachmentType = attachmentMimeType
+                };
+
+                tempList.Add((dateTime, recordObject));
             }
 
-            return processedRecords;
+            var sortedRecords = tempList
+                .OrderByDescending(item => item.SortKey)
+                .Select(item => item.Record)
+                .ToList();
+
+            return sortedRecords;
         }
-
-
-
     }
 }
