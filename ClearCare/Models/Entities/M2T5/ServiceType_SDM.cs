@@ -16,14 +16,21 @@ namespace ClearCare.Models.Entities
         [Required(ErrorMessage = "Requirements field is required.")]
         public string Requirements { get; set; }
 
+        public string Status { get; set; } = "active"; // can be "active" or "discontinued"
+        public string Modality { get; set; } = "Virtual"; // default can be "Virtual" or "Physical (Level 1 Room A)"
+
+
+
         public ServiceType_SDM() { }
 
-        public ServiceType_SDM(int id, string name, int duration, string requirements)
+        public ServiceType_SDM(int id, string name, int duration, string requirements, string modality)
         {
             ServiceTypeId = id;
             Name = name;
             Duration = duration;
             Requirements = requirements;
+            Modality = modality;
         }
+
     }
 }

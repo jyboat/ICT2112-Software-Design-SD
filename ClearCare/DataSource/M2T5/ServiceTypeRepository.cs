@@ -47,6 +47,7 @@ namespace ClearCare.DataSource
                 { "serviceTypeId", serviceType.ServiceTypeId },
                 { "name", serviceType.Name },
                 { "duration", serviceType.Duration },
+                { "modality", serviceType.Modality },
                 { "requirements", serviceType.Requirements }
             };
             await colRef.AddAsync(serviceData);
@@ -64,13 +65,14 @@ namespace ClearCare.DataSource
                 {
                     { "name", serviceType.Name },
                     { "duration", serviceType.Duration },
+                    { "modality", serviceType.Modality },
                     { "requirements", serviceType.Requirements }
                 };
                 await docRef.UpdateAsync(updatedData);
             }
         }
 
-        public async Task DeleteServiceType(int id)
+        public async Task DiscontinueServiceType(int id)
         {
             Query query = _firestoreDb.Collection("service_type").WhereEqualTo("serviceTypeId", id);
             QuerySnapshot snapshot = await query.GetSnapshotAsync();
@@ -78,8 +80,16 @@ namespace ClearCare.DataSource
             foreach (DocumentSnapshot doc in snapshot.Documents)
             {
                 DocumentReference docRef = doc.Reference;
-                await docRef.DeleteAsync();
+
+                Dictionary<string, object> updatedData = new Dictionary<string, object>
+        {
+            { "status", "discontinued" }
+        };
+
+                await docRef.UpdateAsync(updatedData);
             }
         }
+
+
     }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
+using ClearCare.Models;
+
 
 namespace ClearCare.Controllers
 {
@@ -17,23 +19,47 @@ namespace ClearCare.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(string name, int duration, string requirements)
+        public async Task<IActionResult> Create(string name, int duration, string requirements, string modality)
         {
-            await serviceManager.CreateServiceType(name, duration, requirements);
+            await serviceManager.CreateServiceType(name, duration, requirements, modality);
             return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, string name, int duration, string requirements)
+        public async Task<IActionResult> Edit(int id, string name, int duration, string requirements, string modality)
         {
-            await serviceManager.UpdateServiceType(id, name, duration, requirements);
+            await serviceManager.UpdateServiceType(id, name, duration, requirements, modality);
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Delete(int id)
+        [HttpGet]
+        public async Task<IActionResult> ConfirmDiscontinue(int id)
         {
-            await serviceManager.DeleteServiceType(id);
+            var serviceTypes = await serviceManager.GetServiceTypes();
+            var service = serviceTypes.Find(s => s.ServiceTypeId == id);
+
+            var appointmentChecker = new ServiceAppointmentStatusManagement();
+            var allAppointments = await appointmentChecker.getAppointmentDetails();
+
+            var upcomingApptIds = allAppointments
+                .Where(appt => appt.GetAttribute("ServiceTypeId") == id.ToString())
+                .Select(appt => appt.GetAttribute("AppointmentId"))
+                .ToList();
+
+            ViewBag.UpcomingAppointmentIds = upcomingApptIds;
+
+            return PartialView("~/Views/M2T5/ServiceType/_ConfirmDiscontinue.cshtml", service);
+
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> DiscontinueConfirmed(int id)
+        {
+            await serviceManager.DiscontinueServiceType(id);
             return RedirectToAction("Index");
         }
+
+
     }
 }

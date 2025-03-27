@@ -14,23 +14,26 @@ namespace ClearCare.Models.Control
             return await _serviceTypeRepository.GetServiceTypes();
         }
 
-        public async Task CreateServiceType(string name, int duration, string requirements)
+        public async Task CreateServiceType(string name, int duration, string requirements, string modality)
         {
-            List<ServiceType_SDM> existingServices = await _serviceTypeRepository.GetServiceTypes();
-            int newId = existingServices.Count + 1; // Auto-increment ID
-            ServiceType_SDM newService = new ServiceType_SDM(newId, name, duration, requirements);
+            var existing = await _serviceTypeRepository.GetServiceTypes();
+            var newId = existing.Count + 1;
+            var newService = new ServiceType_SDM(newId, name, duration, requirements, modality);
             await _serviceTypeRepository.AddServiceType(newService);
         }
 
-        public async Task UpdateServiceType(int id, string name, int duration, string requirements)
+        public async Task UpdateServiceType(int id, string name, int duration, string requirements, string modality)
         {
-            ServiceType_SDM updatedService = new ServiceType_SDM(id, name, duration, requirements);
-            await _serviceTypeRepository.UpdateServiceType(id, updatedService);
+            var updated = new ServiceType_SDM(id, name, duration, requirements, modality);
+            await _serviceTypeRepository.UpdateServiceType(id, updated);
         }
 
-        public async Task DeleteServiceType(int id)
+
+        public async Task DiscontinueServiceType(int id)
         {
-            await _serviceTypeRepository.DeleteServiceType(id);
+            // TODO: Check appointments before continuing
+            await _serviceTypeRepository.DiscontinueServiceType(id);
         }
+
     }
 }

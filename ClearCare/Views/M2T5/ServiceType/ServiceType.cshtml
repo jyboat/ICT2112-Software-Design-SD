@@ -17,6 +17,7 @@
             <th>ID</th>
             <th>Name</th>
             <th>Duration</th>
+            <th>Modality</th>
             <th>Requirements</th>
             <th>Actions</th>
         </tr>
@@ -28,20 +29,42 @@
                 <td>@service.ServiceTypeId</td>
                 <td>@service.Name</td>
                 <td>@service.Duration</td>
+                <td>@service.Modality</td>
                 <td>@service.Requirements</td>
                 <td>
                     <button class="btn btn-warning" data-bs-toggle="modal"
                         data-bs-target="#editServiceModal-@service.ServiceTypeId">
                         Edit
                     </button>
-                    <button class="btn btn-danger" onclick="confirmDelete(@service.ServiceTypeId, '@service.Name')">
-                        Delete
+                    <button class="btn btn-danger" onclick="loadDiscontinueModal(@service.ServiceTypeId)">
+                        Discontinue
                     </button>
+
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+<!-- Modal container -- Discontinue service -->
+<div class="modal fade" id="discontinueModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" id="discontinueModalContent"></div>
+    </div>
+</div>
+
+
+<script>
+    function loadDiscontinueModal(serviceId) {
+        fetch(`/ServiceTypePage/ConfirmDiscontinue/${serviceId}`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById("discontinueModalContent").innerHTML = html;
+                new bootstrap.Modal(document.getElementById("discontinueModal")).show();
+            });
+    }
+</script>
+
 
 <!-- Add Service Modal -->
 <div class="modal fade" id="addServiceModal" tabindex="-1" aria-labelledby="addServiceModalLabel" aria-hidden="true">
@@ -95,10 +118,38 @@
                                 value="@service.Name" required>
                         </div>
                         <div class="mb-3">
-                            <label for="editServiceDuration-@service.ServiceTypeId" class="form-label">Duration (minutes)</label>
+                            <label for="editServiceDuration-@service.ServiceTypeId" class="form-label">Duration
+                                (minutes)</label>
                             <input type="number" class="form-control" id="editServiceDuration-@service.ServiceTypeId"
                                 name="duration" value="@service.Duration" required>
                         </div>
+                        <select class="form-control" name="modality" required>
+                            @if (service.Modality == "Virtual")
+                            {
+                                <option value="Virtual" selected>Virtual</option>
+                            }
+                            else
+                            {
+                                <option value="Virtual">Virtual</option>
+                            }
+                            @if (service.Modality == "Physical (Level 1 Room A)")
+                            {
+                                <option value="Physical (Level 1 Room A)" selected>Physical (Level 1 Room A)</option>
+                            }
+                            else
+                            {
+                                <option value="Physical (Level 1 Room A)">Physical (Level 1 Room A)</option>
+                            }
+                            @if (service.Modality == "Physical (Level 2 Room B)")
+                            {
+                                <option value="Physical (Level 2 Room B)" selected>Physical (Level 2 Room B)</option>
+                            }
+                            else
+                            {
+                                <option value="Physical (Level 2 Room B)">Physical (Level 2 Room B)</option>
+                            }
+
+                        </select>
                         <div class="mb-3">
                             <label for="editServiceRequirements-@service.ServiceTypeId"
                                 class="form-label">Requirements</label>
