@@ -158,22 +158,5 @@ namespace ClearCare.Models.Control
 
                return "Failed to reset password.";
           }
-
-          // Method to delete account
-          public async Task<string> deleteAccount(string uid, IAuditSubject auditLog)
-          {
-               var user = await _userGateway.findUserByID(uid);
-               if (user == null)
-               {
-                    return "Account does not exist.";
-               }
-
-               var result = await _userGateway.deleteUser(uid);
-
-               // Insert audit log after successful account deletion
-               string auditResult = await auditLog.InsertAuditLog("Deleted account", uid);
-
-               return result ? "Account deleted successfully." : "Failed to delete account.";
-          }
      }
 }

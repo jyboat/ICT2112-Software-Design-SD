@@ -20,8 +20,6 @@ namespace ClearCare.Models.Entities
         protected string Address { get; set; }
         [FirestoreProperty]
         protected string Role { get; set; }
-        [FirestoreProperty]
-        protected bool RequirePasswordChange { get; set; }
 
         // Getter and Setter
         protected string getUserID() => UserID;
@@ -52,7 +50,6 @@ namespace ClearCare.Models.Entities
             MobileNumber = mobileNumber;
             Address = address;
             Role = role;
-            RequirePasswordChange = false;
         }
 
         // Returns hashed password to compare when User logs in
@@ -86,7 +83,6 @@ namespace ClearCare.Models.Entities
                 { "MobileNumber",mobileNumber }, // new code for country code
                 { "Address", getAddress() },
                 { "Role", getRole() },
-                { "RequirePasswordChange", RequirePasswordChange },
                 { "CountryCode", countryCode } // new code for country code
             };
         }

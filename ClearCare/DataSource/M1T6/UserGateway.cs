@@ -443,7 +443,6 @@ namespace ClearCare.DataSource
                 Dictionary<string, object> updates = new Dictionary<string, object>
                 {
                     { "Password", encryptionManagement.hashPassword(password) },
-                    { "RequirePasswordChange", true }
                 };
 
                 try
