@@ -31,8 +31,10 @@ namespace ClearCare.DataSource
                         ServiceTypeId = Convert.ToInt32(data["serviceTypeId"]),
                         Name = data["name"].ToString(),
                         Duration = Convert.ToInt32(data["duration"]),
-                        Requirements = data["requirements"].ToString()
+                        Requirements = data["requirements"].ToString(),
+                        Modality = data.ContainsKey("modality") ? data["modality"].ToString() : "Virtual" // fallback
                     };
+
                     serviceTypes.Add(serviceType);
                 }
             }

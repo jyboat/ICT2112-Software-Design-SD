@@ -29,8 +29,10 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> Edit(int id, string name, int duration, string requirements, string modality)
         {
             await serviceManager.UpdateServiceType(id, name, duration, requirements, modality);
+            TempData["SuccessMessage"] = "Service updated successfully.";
             return RedirectToAction("Index");
         }
+
 
         [HttpGet]
         public async Task<IActionResult> ConfirmDiscontinue(int id)

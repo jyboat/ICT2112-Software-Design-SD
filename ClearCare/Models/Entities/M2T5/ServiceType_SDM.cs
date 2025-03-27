@@ -17,7 +17,7 @@ namespace ClearCare.Models.Entities
         public string Requirements { get; set; }
 
         public string Status { get; set; } = "active"; // can be "active" or "discontinued"
-        public string Modality { get; set; } = "Virtual"; // default can be "Virtual" or "Physical (Level 1 Room A)"
+        public string Modality { get; set; } // default can be "Virtual" or "Physical (Level 1 Room A)"
 
 
 

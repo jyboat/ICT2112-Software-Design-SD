@@ -24,9 +24,11 @@ namespace ClearCare.Models.Control
 
         public async Task UpdateServiceType(int id, string name, int duration, string requirements, string modality)
         {
-            var updated = new ServiceType_SDM(id, name, duration, requirements, modality);
-            await _serviceTypeRepository.UpdateServiceType(id, updated);
+            ServiceType_SDM updatedService = new ServiceType_SDM(id, name, duration, requirements, modality);
+            updatedService.Modality = modality;
+            await _serviceTypeRepository.UpdateServiceType(id, updatedService);
         }
+
 
 
         public async Task DiscontinueServiceType(int id)
