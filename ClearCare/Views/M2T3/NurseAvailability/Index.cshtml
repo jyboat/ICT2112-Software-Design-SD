@@ -103,7 +103,19 @@
         }
 
         function openAddModal(date) {
+            var todayStr = new Date().toISOString().split("T")[0];
+            document.getElementById("addDate").setAttribute("min", todayStr);
             document.getElementById("addDate").value = date;
+
+            // Grab nurse ID from any existing event (assuming all belong to logged-in user)
+            const events = calendar.getEvents();
+            if (events.length > 0) {
+                const nurseId = events[0].extendedProps.nurseId;
+                document.getElementById("addNurseID").value = nurseId;
+            } else {
+                document.getElementById("addNurseID").value = "USR003";
+            }
+
             $('#addAvailabilityModal').modal('show');
         }
 
@@ -182,16 +194,34 @@
         }
 
         function addAvailability() {
-            let nurseID = document.getElementById("addNurseID").value;
             let date = document.getElementById("addDate").value;
             let startTime = "08:00:00";
             let endTime = "16:00:00";
+
+            const clickedDate = new Date(date);
+            const events = calendar.getEvents();
+
+            const conflict = events.find(e => {
+                const eventDate = new Date(e.start);
+                return (
+                    eventDate.getFullYear() === clickedDate.getFullYear() &&
+                    eventDate.getMonth() === clickedDate.getMonth() &&
+                    eventDate.getDate() === clickedDate.getDate()
+                );
+            });
+
+            if (conflict) {
+                toastr.error("An availability already exists on this date.", "Error");
+                return;
+            }
 
             fetch("/NurseAvailability/AddAvailability", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: new URLSearchParams({
-                    nurseID: nurseID, date: date, startTime: startTime, endTime: endTime
+                    date: date,
+                    startTime: startTime,
+                    endTime: endTime
                 })
             }).then(response => {
                 if (!response.ok) {
@@ -207,6 +237,7 @@
                 console.error("Error:", error);
             });
         }
+
     </script>
 
 </head>
@@ -268,7 +299,7 @@
 
                         <div class="form-group">
                             <label for="addNurseID">Nurse ID</label>
-                            <input type="text" class="form-control" id="addNurseID" value="USR003" readonly>
+                            <input type="text" class="form-control" id="addNurseID" readonly>
                         </div>
                         <div class="form-group">
                             <label for="addDate">Date</label>

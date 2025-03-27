@@ -16,6 +16,7 @@ namespace ClearCare.Models.Control
         // Interfaces Automatic Requires
         private readonly ICreateAppointment _iCreateAppointment;
         private readonly INurseAvailability _iNurseAvailability;
+        private readonly INotification _iNotification;
         private IAutomaticScheduleStrategy? _iAutomaticScheduleStrategy;
         private FirestoreDb db;
         // private readonly ServiceBacklogManagement _serviceBacklogManagement;
@@ -27,10 +28,12 @@ namespace ClearCare.Models.Control
         public AutomaticAppointmentScheduler(
             ICreateAppointment ICreateAppointment, 
             INurseAvailability INurseAvailability,
+            INotification INotification,
             IAutomaticScheduleStrategy? IAutomaticScheduleStrategy = null)
         {
             _iCreateAppointment = ICreateAppointment;
             _iNurseAvailability = INurseAvailability;
+            _iNotification = INotification;
             // To be set at runtime later
             _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; 
             db = FirebaseService.Initialize();
@@ -63,6 +66,17 @@ namespace ClearCare.Models.Control
 
         public async void AutomaticallyScheduleAppointment(List<ServiceAppointment> unscheduledAppointment)
         {
+            var timeslot = new Dictionary<int, DateTime>
+            {
+                { 1, DateTime.Parse("4:00 PM").ToUniversalTime()  },
+                { 2, DateTime.Parse("5:00 PM").ToUniversalTime()  },
+                { 3, DateTime.Parse("6:00 PM").ToUniversalTime()  },
+                { 4, DateTime.Parse("7:00 PM").ToUniversalTime()  },
+                { 5, DateTime.Parse("9:00 PM").ToUniversalTime()  },
+                { 6, DateTime.Parse("10:00 PM").ToUniversalTime()  },
+                { 7, DateTime.Parse("11:00 PM").ToUniversalTime()  }
+            };
+
             // Attach listener only when scheduling is called
             var _serviceBacklogManagement = new ServiceBacklogManagement();
             attach(_serviceBacklogManagement);
@@ -276,10 +290,19 @@ namespace ClearCare.Models.Control
                         "Hardcode Doctor",
                         serviceAppt.GetAttribute("ServiceTypeId"),
                         "Scheduled",
-                        DateTime.UtcNow,
+                        timeslot[serviceAppt.GetIntAttribute("Slot")],
                         serviceAppt.GetIntAttribute("Slot"),
                         "Physical"
                     );
+
+                    var message = "Your Appointment at" 
+                                    + timeslot[serviceAppt.GetIntAttribute("Slot")] 
+                                    + "for "
+                                    + serviceAppt.GetAttribute("serviceTypeId")
+                                    + "has been booked";
+
+                    await _iNotification.createNotification(serviceAppt.GetAttribute("PatientId")
+                    , message);
 
                     // Console.WriteLine($"Successfully rescheduled Appointment: {serviceAppt.GetAttribute("AppointmentId")}");
                     notify(serviceAppt.GetAttribute("AppointmentId"), "success");
@@ -292,10 +315,19 @@ namespace ClearCare.Models.Control
                         "Hardcode Doctor",
                         serviceAppt.GetAttribute("ServiceTypeId"),
                         "Backlog",
-                        DateTime.UtcNow,
+                        timeslot[serviceAppt.GetIntAttribute("Slot")],
                         serviceAppt.GetIntAttribute("Slot"),
                         "Physical"
                     );
+
+                    var message = "Your Appointment at" 
+                                    + timeslot[serviceAppt.GetIntAttribute("Slot")] 
+                                    + "for "
+                                    + serviceAppt.GetAttribute("serviceTypeId")
+                                    + "has been booked";
+
+                    await _iNotification.createNotification(serviceAppt.GetAttribute("PatientId")
+                    , message);
 
                     // When appointment isn't scheduled
                     if (string.IsNullOrEmpty(serviceAppt.GetAttribute("NurseId")))
@@ -307,11 +339,11 @@ namespace ClearCare.Models.Control
             }
         }
 
-        public async Task TestInterface()
-        {
-           //  await _iCreateAppointment.CreateAppointment();
-            var staffAvailability = await _iNurseAvailability.getAllStaffAvailability();
-        }   
+        // public async Task TestInterface()
+        // {
+        //    //  await _iCreateAppointment.CreateAppointment();
+        //     var staffAvailability = await _iNurseAvailability.getAllStaffAvailability();
+        // }   
 
     }
 }
