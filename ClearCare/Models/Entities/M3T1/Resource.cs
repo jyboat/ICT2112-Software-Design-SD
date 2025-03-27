@@ -22,23 +22,23 @@ namespace ClearCare.Models.Entities.M3T1
         [FirestoreProperty]
         private string Url { get; set; }
 
-        private string GetId() => Id;
-        private string GetTitle() => Title;
-        private string GetDescription() => Description;
-        private int GetUploadedBy() => UploadedBy;
-        private string GetDateCreated() => DateCreated;
-        private byte[] GetCoverImage() => CoverImage;
-        private string GetCoverImageName() => CoverImageName;
-        private string GetTargetUrl() => Url;
+        private string getId() => Id;
+        private string getTitle() => Title;
+        private string getDescription() => Description;
+        private int getUploadedBy() => UploadedBy;
+        private string getDateCreated() => DateCreated;
+        private byte[] getCoverImage() => CoverImage;
+        private string getCoverImageName() => CoverImageName;
+        private string getTargetUrl() => Url;
 
-        private void SetId(string id) => Id = id;
-        private void SetTitle(string title) => Title = title;
-        private void SetDescription(string description) => Description = description;
-        private void SetUploadedBy(int uploadedBy) => UploadedBy = uploadedBy;
-        private void SetDateCreated(string dateCreated) => DateCreated = dateCreated;
-        private void SetCoverImage(byte[] image) => CoverImage = image;
-        private void SetCoverImageName(string coverImageName) => CoverImageName = coverImageName;
-        private void SetTargetUrl(string url) => Url = url;
+        private void setId(string id) => Id = id;
+        private void setTitle(string title) => Title = title;
+        private void setDescription(string description) => Description = description;
+        private void setUploadedBy(int uploadedBy) => UploadedBy = uploadedBy;
+        private void setDateCreated(string dateCreated) => DateCreated = dateCreated;
+        private void setCoverImage(byte[] image) => CoverImage = image;
+        private void setCoverImageName(string coverImageName) => CoverImageName = coverImageName;
+        private void setTargetUrl(string url) => Url = url;
 
         public Resource() { }
 
@@ -54,18 +54,18 @@ namespace ClearCare.Models.Entities.M3T1
             Url = url;
         }
 
-        public Dictionary<string, object> GetDetails()
+        public Dictionary<string, object> getDetails()
         {
             return new Dictionary<string, object>
             {
-                { "Id", GetId() },
-                { "Title", GetTitle() },
-                { "Description", GetDescription() },
-                { "UploadedBy", GetUploadedBy() },
-                { "DateCreated", GetDateCreated() },
-                { "CoverImage", GetCoverImage() },
-                { "CoverImageUrl", GetCoverImageName() },
-                { "Url", GetTargetUrl() }
+                { "Id", getId() },
+                { "Title", getTitle() },
+                { "Description", getDescription() },
+                { "UploadedBy", getUploadedBy() },
+                { "DateCreated", getDateCreated() },
+                { "CoverImage", getCoverImage() },
+                { "CoverImageUrl", getCoverImageName() },
+                { "Url", getTargetUrl() }
             };
         }
     }

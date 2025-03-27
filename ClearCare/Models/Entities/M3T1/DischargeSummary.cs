@@ -21,19 +21,19 @@ namespace ClearCare.Models.Entities.M3T1
         [FirestoreProperty]
         private string PatientId { get; set; }
 
-        private string GetId() => Id;
-        private string GetDetails() => Details;
-        private string GetInstructions() => Instructions;
-        private string GetCreatedAt() => CreatedAt;
-        private string GetStatus() => Status;
-        private string GetPatientId() => PatientId;
+        private string getId() => Id;
+        private string getDetails() => Details;
+        private string getInstructions() => Instructions;
+        private string getCreatedAt() => CreatedAt;
+        private string getStatus() => Status;
+        private string getPatientId() => PatientId;
 
-        private void SetId(string id) => Id = id;
-        private void SetDetails(string details) => Details = details;
-        private void SetInstructions(string instructions) => Instructions = instructions;
-        private void SetCreatedAt(string createdAt) => CreatedAt = createdAt;
-        private void SetStatus(string status) => Status = status;
-        private void SetPatientId(string patientId) => PatientId = patientId;
+        private void setId(string id) => Id = id;
+        private void setDetails(string details) => Details = details;
+        private void setInstructions(string instructions) => Instructions = instructions;
+        private void setCreatedAt(string createdAt) => CreatedAt = createdAt;
+        private void setStatus(string status) => Status = status;
+        private void setPatientId(string patientId) => PatientId = patientId;
 
         public DischargeSummary() { }
 
@@ -51,12 +51,12 @@ namespace ClearCare.Models.Entities.M3T1
         {
             return new Dictionary<string, object>
             {
-                { "Id", GetId() },
-                { "Details", GetDetails() },
-                { "Instructions", GetInstructions() },
-                { "CreatedAt", GetCreatedAt() },
-                {"Status", GetStatus() },
-                { "PatientId", GetPatientId() }
+                { "Id", getId() },
+                { "Details", getDetails() },
+                { "Instructions", getInstructions() },
+                { "CreatedAt", getCreatedAt() },
+                {"Status", getStatus() },
+                { "PatientId", getPatientId() }
             };
         }
 
@@ -67,12 +67,12 @@ namespace ClearCare.Models.Entities.M3T1
                 throw new ArgumentNullException(nameof(summaryDetails));
             }
 
-            if (summaryDetails.ContainsKey("Id")) SetId(summaryDetails["Id"]?.ToString() ?? string.Empty);
-            if (summaryDetails.ContainsKey("Details")) SetDetails(summaryDetails["Details"]?.ToString() ?? string.Empty);
-            if (summaryDetails.ContainsKey("Instructions")) SetInstructions(summaryDetails["Instructions"]?.ToString() ?? string.Empty);
-            if (summaryDetails.ContainsKey("CreatedAt")) SetCreatedAt(summaryDetails["CreatedAt"]?.ToString() ?? string.Empty);
-            if (summaryDetails.ContainsKey("Status")) SetCreatedAt(summaryDetails["Status"]?.ToString() ?? string.Empty);
-            if (summaryDetails.ContainsKey("PatientId")) SetPatientId(summaryDetails["PatientId"]?.ToString() ?? string.Empty);
+            if (summaryDetails.ContainsKey("Id")) setId(summaryDetails["Id"]?.ToString() ?? string.Empty);
+            if (summaryDetails.ContainsKey("Details")) setDetails(summaryDetails["Details"]?.ToString() ?? string.Empty);
+            if (summaryDetails.ContainsKey("Instructions")) setInstructions(summaryDetails["Instructions"]?.ToString() ?? string.Empty);
+            if (summaryDetails.ContainsKey("CreatedAt")) setCreatedAt(summaryDetails["CreatedAt"]?.ToString() ?? string.Empty);
+            if (summaryDetails.ContainsKey("Status")) setStatus(summaryDetails["Status"]?.ToString() ?? string.Empty);
+            if (summaryDetails.ContainsKey("PatientId")) setPatientId(summaryDetails["PatientId"]?.ToString() ?? string.Empty);
         }
     }
 }

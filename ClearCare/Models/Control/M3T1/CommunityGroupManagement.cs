@@ -33,56 +33,44 @@ namespace ClearCare.Models.Control.M3T1
 
         public async Task<bool> addMember(string groupId, string userId)
         {
-            CommunityGroup group = await _dataMapper.fetchGroupById(groupId);
+            var group = await _dataMapper.fetchGroupById(groupId);
+            if (group == null) return false;
+
             var groupDetails = group.getDetails();
-
-            List<string> currentMembers = new List<string>();
-
-            if (group != null && groupDetails.ContainsKey("MemberIds") && groupDetails["MemberIds"] is List<string> memberList)
-            {
-                currentMembers = memberList;
-                if (!currentMembers.Contains(userId))
-                {
-                    currentMembers.Add(userId);
-                }
-                else
-                {
-                    return false;
-                }
-
-                return await _dataMapper.updateGroupMembers(groupId, userId, currentMembers);
-            }
-            else
+            if (!groupDetails.TryGetValue("MemberIds", out var membersObj) || membersObj is not List<string> currentMembers)
             {
                 return false;
             }
+
+            if (currentMembers.Contains(userId)) return false;
+
+            currentMembers.Add(userId);
+            return await _dataMapper.updateGroupMembers(groupId, currentMembers);
         }
 
-        public async Task<bool> removeMember(string groupId, string userId)
+        public async Task<bool> removeMember(string groupId, List<string> memberIds)
         {
             CommunityGroup group = await _dataMapper.fetchGroupById(groupId);
-            var groupDetails = group.getDetails();
 
-            List<string> currentMembers = new List<string>();
-
-            if (group != null && groupDetails.ContainsKey("MemberIds") && groupDetails["MemberIds"] is List<string> memberList)
-            {
-                currentMembers = memberList;
-                if (currentMembers.Contains(userId))
-                {
-                    currentMembers.Remove(userId);
-                }
-                else
-                {
-                    return false;
-                }
-
-                return await _dataMapper.updateGroupMembers(groupId, userId, currentMembers);
-            }
-            else
+            if (group == null)
             {
                 return false;
             }
+
+            var groupDetails = group.getDetails();
+
+            if (!groupDetails.ContainsKey("MemberIds") || !(groupDetails["MemberIds"] is List<string> currentMembers))
+            {
+                return false;
+            }
+
+            if (currentMembers.Contains(groupDetails["CreatedBy"])) return false;
+
+            // Remove all selected members
+            currentMembers.RemoveAll(member => memberIds.Contains(member));
+
+            // Update the group with the new member list
+            return await _dataMapper.updateGroupMembers(groupId, currentMembers);
         }
 
         public async Task<bool> deleteGroup(string groupId)
@@ -101,7 +89,7 @@ namespace ClearCare.Models.Control.M3T1
                 if (groupDetails.ContainsKey("MemberIds") && groupDetails["MemberIds"] is List<string> memberList)
                 {
                     // Check if the MemberList contains the target ID
-                    if (memberList.Contains(userId))
+                    if (memberList.Contains(userId) || groupDetails["CreatedBy"] == userId)
                     {
                         userGroups.Add(group); // Add the group if the ID is found
                     }
@@ -121,7 +109,7 @@ namespace ClearCare.Models.Control.M3T1
                 if (groupDetails.ContainsKey("MemberIds") && groupDetails["MemberIds"] is List<string> memberList)
                 {
                     // Check if the MemberList does contain the target ID
-                    if (!memberList.Contains(userId))
+                    if (!memberList.Contains(userId) || groupDetails["CreatedBy"] != userId)
                     {
                         nonUserGroups.Add(group); // Add the group if the ID is found
                     }

@@ -10,7 +10,7 @@
 }
 else
 {
-	var resource = Model.GetDetails();
+	var resource = Model.getDetails();
 	string currentType = resource["Url"].ToString().ToLower().EndsWith(".mp4") ? "video" : "article";
 	string currentUrl = resource["Url"].ToString();
 	<div class="container update-resource">
