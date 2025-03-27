@@ -98,16 +98,17 @@ public class ResourceController : Controller
     [HttpPost]
     public async Task<IActionResult> Add(
     IFormFile coverImage,
+    IFormFile? videoFile,
     string title,
     string description,
-    string? url, 
+    string? url,
     string resourceType,
     int uploadedBy)
     {
-        // Convert image into bytes and get image name
         byte[] imageFileBytes = Array.Empty<byte>();
         string imageFileName = string.Empty;
 
+        // Handle cover image
         if (coverImage != null && coverImage.Length > 0)
         {
             try
@@ -126,6 +127,20 @@ public class ResourceController : Controller
             }
         }
 
+        // Decide what to pass based on resource type
+        object? fileOrUrl = resourceType.ToLower() switch
+        {
+            "video" => videoFile,
+            "article" => url,
+            _ => null
+        };
+
+        if (fileOrUrl == null)
+        {
+            TempData["ErrorMessage"] = "Missing input for the selected resource type.";
+            return RedirectToAction("List");
+        }
+
         try
         {
             await _manager.ProcessResourceWithStrategy(
@@ -135,7 +150,7 @@ public class ResourceController : Controller
                 DateTime.Now.ToString("yyyy-MM-dd"),
                 imageFileBytes,
                 imageFileName,
-                url,
+                fileOrUrl,
                 resourceType
             );
 
@@ -148,6 +163,7 @@ public class ResourceController : Controller
 
         return RedirectToAction("List");
     }
+
 
 
 

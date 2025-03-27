@@ -18,19 +18,19 @@ namespace ClearCare.Models.Control.M3T1
             _gateway = new ResourceGateway();
         }
         public async Task<string> ProcessResourceWithStrategy(
-            string title,
+           string title,
             string description,
             int uploadedBy,
             string dateCreated,
             byte[] image,
             string coverImageName,
-            string? url,
+            object? fileOrUrl,
             string resourceType)
         {
             IResourceStrategy strategy = resourceType.ToLower() switch
             {
                 "article" => new ArticleUrlStrategy(),
-                "youtube" => new YouTubeStrategy(),
+                "video" => new VideoUploadStrategy(),
                 _ => throw new ArgumentException("Unsupported resource type")
             };
 
@@ -41,7 +41,7 @@ namespace ClearCare.Models.Control.M3T1
                 dateCreated,
                 image,
                 coverImageName,
-                url
+                fileOrUrl
             );
         }
 

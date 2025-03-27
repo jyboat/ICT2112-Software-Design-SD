@@ -14,9 +14,11 @@ public class ArticleUrlStrategy : IResourceStrategy
         string dateCreated,
         byte[] image,
         string coverImageName,
-        string? url
+        object? fileOrUrl
                 )
     {
+            string? url = fileOrUrl as string;
+
         if (string.IsNullOrWhiteSpace(url))
             throw new ArgumentException("Article URL is required.");
 
