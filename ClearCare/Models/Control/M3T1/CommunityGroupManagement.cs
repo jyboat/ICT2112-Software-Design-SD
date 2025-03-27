@@ -6,12 +6,20 @@ using ClearCare.Models.Entities.M3T1;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Xml.Linq;
 using System.Text.RegularExpressions;
+using ClearCare.Models.Interfaces.M3T1;
 
 namespace ClearCare.Models.Control.M3T1
 {
-    public class CommunityGroupManagement
+    public class CommunityGroupManagement : IGroupReceive
     {
-        private CommunityDataMapper _dataMapper = new CommunityDataMapper();
+        //private CommunityDataMapper _dataMapper = new CommunityDataMapper();
+
+        private readonly IGroupSend _dataMapper;
+
+        public CommunityGroupManagement(IGroupSend mapper)
+        {
+            _dataMapper = mapper;
+        }
 
         public async Task<string> createGroup(string userId, string name, string description, List<string> memberIds)
         {
@@ -125,6 +133,75 @@ namespace ClearCare.Models.Control.M3T1
         public async Task<CommunityGroup> viewGroupById(string groupId)
         {
             return await _dataMapper.fetchGroupById(groupId);
+        }
+
+        // Implement IGroupReceive methods for receiving data from the mapper
+        public Task receiveAllCommunityGroups(List<CommunityGroup> communityGroups)
+        {
+            Console.WriteLine($"Received {communityGroups.Count} community groups");
+            return Task.CompletedTask;
+        }
+
+        public Task receiveUserGroups(List<CommunityGroup> communityGroups)
+        {
+            Console.WriteLine($"Received {communityGroups.Count} user groups");
+            return Task.CompletedTask;
+        }
+
+        public Task receiveNonUserGroups(List<CommunityGroup> communityGroups)
+        {
+            Console.WriteLine($"Received {communityGroups.Count} non-user groups");
+            return Task.CompletedTask;
+        }
+
+        public Task receiveGroup(CommunityGroup communityGroup)
+        {
+            if (communityGroup != null)
+            {
+                Console.WriteLine("Received community group details");
+            }
+            else
+            {
+                Console.WriteLine("No group found");
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task receiveInsertStatus(string groupId)
+        {
+            if (!string.IsNullOrEmpty(groupId))
+            {
+                Console.WriteLine($"Inserted group successfully with ID: {groupId}");
+            }
+            else
+            {
+                Console.WriteLine("Failed to insert group");
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task receiveUpdateStatus(bool status)
+        {
+            Console.WriteLine(status ? "Updated group successfully" : "Failed to update group");
+            return Task.CompletedTask;
+        }
+
+        public Task receiveAddMemberStatus(bool status)
+        {
+            Console.WriteLine(status ? "Added member successfully" : "Failed to add member");
+            return Task.CompletedTask;
+        }
+
+        public Task receiveRemoveMemberStatus(bool status)
+        {
+            Console.WriteLine(status ? "Removed member successfully" : "Failed to remove member");
+            return Task.CompletedTask;
+        }
+
+        public Task receiveDeleteStatus(bool status)
+        {
+            Console.WriteLine(status ? "Deleted group successfully" : "Failed to delete group");
+            return Task.CompletedTask;
         }
 
     }

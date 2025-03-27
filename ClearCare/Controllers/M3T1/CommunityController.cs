@@ -4,15 +4,24 @@ using ClearCare.Models;
 using ClearCare.Models.ViewModels.M3T1;
 using ClearCare.Models.Entities.M3T1;
 using ClearCare.Models.Control.M3T1;
+using ClearCare.DataSource.M3T1;
 
 namespace ClearCare.Controllers.M3T1;
 
 [Route("Community")]
 public class CommunityController : Controller
 {
-    private readonly CommunityGroupManagement _communityGroup = new CommunityGroupManagement();
-    private readonly CommunityPostManagement _communityPost = new CommunityPostManagement();
-    private readonly CommunityCommentManagement _communityComment = new CommunityCommentManagement();
+    private readonly CommunityGroupManagement _communityGroup;
+    private readonly CommunityPostManagement _communityPost;
+    private readonly CommunityCommentManagement _communityComment;
+
+    public CommunityController()
+    {
+        var mapper = new CommunityDataMapper();
+        _communityGroup = new CommunityGroupManagement(mapper);
+        _communityPost = new CommunityPostManagement(mapper);
+        _communityComment = new CommunityCommentManagement(mapper);
+    }
 
     [HttpGet]
     [Route("")]

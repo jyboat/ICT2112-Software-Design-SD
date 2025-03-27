@@ -1,11 +1,12 @@
 ﻿using ClearCare.Models.Entities.M3T1;
+using ClearCare.Models.Interfaces.M3T1;
 using Google.Cloud.Firestore;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace ClearCare.DataSource.M3T1
 {
-    public class CommunityDataMapper
+    public class CommunityDataMapper : IGroupSend, IPostSend, ICommentSend
     {
         private FirestoreDb _db;
 
