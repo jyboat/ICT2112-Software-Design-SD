@@ -25,7 +25,7 @@
                 initialView: 'dayGridMonth',
                 selectable: true, // Allows clicking empty dates
                 events: function (fetchInfo, successCallback, failureCallback) {
-                    $.getJSON('/NurseAvailability/GetAvailabilityByNurseIdForCalendar', function (data) {
+                    $.getJSON('/NurseAvailability/getAvailabilityByNurseIdForCalendar', function (data) {
                         var events = data.map(function (availability) {
                             return {
                                 id: availability.id,
@@ -215,7 +215,7 @@
                 return;
             }
 
-            fetch("/NurseAvailability/AddAvailability", {
+            fetch("/NurseAvailability/addAvailability", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: new URLSearchParams({

@@ -29,29 +29,29 @@ namespace ClearCare.Models.Entities
 
 
         // 🔹 Private Getter Methods (Encapsulation)
-        private int GetAvailabilityId() => AvailabilityId;
-        private string GetNurseId() => NurseID;
-        private string GetDate() => Date;
-        private string GetStartTime() => StartTime;
-        private string GetEndTime() => EndTime;
+        private int getAvailabilityId() => AvailabilityId;
+        private string getNurseId() => NurseID;
+        private string getDate() => Date;
+        private string getStartTime() => StartTime;
+        private string getEndTime() => EndTime;
 
         // 🔹 Private Setter Methods
-        private void SetAvailabilityId(int availabilityId) => AvailabilityId = availabilityId;
-        private void SetNurseId(string nurseId) => NurseID = nurseId;
-        private void SetDate(string date) => Date = date;
-        private void SetStartTime(string startTime) => StartTime = startTime;
-        private void SetEndTime(string endTime) => EndTime = endTime;
+        private void setAvailabilityId(int availabilityId) => AvailabilityId = availabilityId;
+        private void setNurseId(string nurseId) => NurseID = nurseId;
+        private void setDate(string date) => Date = date;
+        private void setStartTime(string startTime) => StartTime = startTime;
+        private void setEndTime(string endTime) => EndTime = endTime;
 
 
         // Public function to set availability details
         public static NurseAvailability setAvailabilityDetails(int availabilityId, string nurseID, string date, string startTime, string endTime)
         {
             NurseAvailability availability = new NurseAvailability();
-            availability.SetAvailabilityId(availabilityId);
-            availability.SetNurseId(nurseID);
-            availability.SetDate(date);
-            availability.SetStartTime(startTime);
-            availability.SetEndTime(endTime);
+            availability.setAvailabilityId(availabilityId);
+            availability.setNurseId(nurseID);
+            availability.setDate(date);
+            availability.setStartTime(startTime);
+            availability.setEndTime(endTime);
 
             return availability;
         }
@@ -61,11 +61,11 @@ namespace ClearCare.Models.Entities
         {
             return new Dictionary<string, object>
             {
-                { "availabilityId", GetAvailabilityId() },
-                { "nurseID", GetNurseId() },
-                { "date", GetDate() },
-                { "startTime", GetStartTime() },
-                { "endTime", GetEndTime() }
+                { "availabilityId", getAvailabilityId() },
+                { "nurseID", getNurseId() },
+                { "date", getDate() },
+                { "startTime", getStartTime() },
+                { "endTime", getEndTime() }
             };
         }
 

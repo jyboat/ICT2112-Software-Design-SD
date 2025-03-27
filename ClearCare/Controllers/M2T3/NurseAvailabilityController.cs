@@ -29,7 +29,7 @@ namespace ClearCare.Controllers
         }
 
         // methods to get Id from current session 
-        private string GetCurrentNurseId()
+        private string getCurrentNurseId()
          {
              return HttpContext.Session.GetString("UserID") ?? string.Empty; 
          }
@@ -38,11 +38,11 @@ namespace ClearCare.Controllers
         [HttpGet]
         [Route("GetAvailabilityByNurseIdForCalendar")]
         // public async Task<JsonResult> GetAvailabilityByNurseIdForCalendar([FromQuery] string? nurseId)
-        public async Task<JsonResult> GetAvailabilityByNurseIdForCalendar([FromQuery] string? inputNurseId)
+        public async Task<JsonResult> getAvailabilityByNurseIdForCalendar([FromQuery] string? nurseId)
         {
             // return await _calendarManagement.getAvailabilityByNurseIdForCalendar("USR003"); // Dummy ID for testing
 
-            string currentNurseId = GetCurrentNurseId();
+            string currentNurseId = getCurrentNurseId();
              if (string.IsNullOrEmpty(currentNurseId))
                  return new JsonResult(new { error = "User not logged in." });
  
@@ -62,9 +62,9 @@ namespace ClearCare.Controllers
         // Add Availability (Handles Form Submission)
         [HttpPost]
         [Route("AddAvailability")]
-        public async Task<IActionResult> AddAvailability([FromForm] string date)
+        public async Task<IActionResult> addAvailability([FromForm] string date)
         {
-            string nurseId = GetCurrentNurseId();
+            string nurseId = getCurrentNurseId();
              if (string.IsNullOrEmpty(nurseId))
                  return BadRequest("User is not logged in.");
  
@@ -78,9 +78,9 @@ namespace ClearCare.Controllers
         // Handles Updating of Availability
         [HttpPost]
         [Route("Update")]
-        public async Task<IActionResult> UpdateAvailability([FromForm] int availabilityId, [FromForm] string date)
+        public async Task<IActionResult> updateAvailability([FromForm] int availabilityId, [FromForm] string date)
         {
-            string nurseId = GetCurrentNurseId();
+            string nurseId = getCurrentNurseId();
              if (string.IsNullOrEmpty(nurseId))
                  return BadRequest("User is not logged in.");
  
@@ -94,7 +94,7 @@ namespace ClearCare.Controllers
         // Handles Deletion of Availability
         [HttpPost]
         [Route("Delete/{availabilityId}")]
-        public async Task<IActionResult> DeleteAvailability(int availabilityId)
+        public async Task<IActionResult> deleteAvailability(int availabilityId)
         {
             // Console.WriteLine($"Attempting to delete availability with ID: {availabilityId}");
             await _manager.deleteAvailability(availabilityId);
