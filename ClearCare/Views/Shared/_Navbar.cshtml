@@ -66,13 +66,16 @@
                             </a>
                             <div class="dropdown-menu dropdown-menu-end dropdown-primary mt-1" aria-labelledby="profile-dropdown" style="z-index: 1050;">
                                 <a class="dropdown-item" asp-area="" asp-controller="Profile" asp-action="displayProfile"><i class="bi bi-person-badge me-1"></i>My Profile</a>
-                                <a class="dropdown-item" asp-controller="ViewRecord" asp-action="ViewPatientMedRecord"><i class="bi bi-clipboard-pulse me-1"></i>Medical Records</a>
+                                <a class="dropdown-item" asp-controller="Record" asp-action="ViewPatientMedRecord"><i class="bi bi-clipboard-pulse me-1"></i>Medical Records</a>
                                 <a class="dropdown-item" asp-controller="Profile" asp-action="displayAssignCaregiver"><i class="bi bi-people-fill me-1"></i>Assign Caregiver</a>
                                 <a class="dropdown-item" asp-controller="Profile" asp-action="displayRemoveCaregiver"><i class="bi bi-people-fill me-1"></i>Remove Caregiver</a>
                             </div>
                         </li>
                     }
                     else{
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Record" asp-action="ViewPatientMedRecord"><i class="bi bi-house me-1"></i>Patient's Medical Records</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Profile" asp-action="displayProfile"><i class="bi bi-person-vcard me-1"></i>My Profile</a>
                         </li>
