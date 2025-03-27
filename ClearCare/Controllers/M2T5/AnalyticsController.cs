@@ -34,17 +34,18 @@ namespace ClearCare.Controllers.M2T5
                     filtered = appointments.FindAll(a => a["DoctorId"]?.ToString() == value);
                     ViewData["Title"] = $"👨‍⚕️ Appointments for Doctor: {value}";
                     break;
- case "completed":
-case "pending":
+case "completed":
 case "cancelled":
 case "missed":
-filtered = appointments
-    .Where(r => r.ContainsKey("Status") && r["Status"]?.ToString().ToLower() == filter.ToLower())
-    .ToList();
-
-    var capitalized = char.ToUpper(filter[0]) + filter.Substring(1);
-    ViewData["Title"] = $"📋 {capitalized} Appointments";
+    filtered = appointments.FindAll(a => a["Status"]?.ToString().ToLower() == filter.ToLower());
+    ViewData["Title"] = $"📋 {char.ToUpper(filter[0]) + filter[1..]} Appointments";
     break;
+
+case "pending":
+    filtered = appointments.FindAll(a => a["Status"]?.ToString().ToLower() == "missed");
+    ViewData["Title"] = $"📋 Missed Appointments";
+    break;
+
 
                 default:
                     ViewData["Title"] = "📅 All Appointments";

@@ -229,12 +229,13 @@ public async Task<List<Dictionary<string, object>>> FetchAppointmentsRaw(string 
                         appointmentsPerMonth[monthYearKey] = 1;
 
                     // Count completed, pending, and cancelled appointments
-                    if (status == "Completed")
-                        completedAppointments++;
-                    else if (status == "Cancelled")
-                        cancelledAppointments++;
-                    else
-                        pendingAppointments++;
+if (status == "Completed")
+    completedAppointments++;
+else if (status == "Cancelled")
+    cancelledAppointments++;
+else if (status == "Missed")
+    pendingAppointments++;  
+
                 }
 
                 return new Dictionary<string, object>
