@@ -89,7 +89,9 @@ namespace ClearCare.Models.Control
 
         public async Task<string> ScheduleAppointment(string patientId, string nurseId,
             string doctorId, string serviceTypeId, string status, DateTime dateTime, int slot, string location)
-        {
+        {   
+            Console.WriteLine($"DEBUG(ManualServiceAppointment/ScheduleAppointment) - dateTime: {dateTime}");
+            
             bool isSlotValid = await ValidateAppointmentSlot(patientId, nurseId, doctorId, dateTime, slot);
 
             if (!isSlotValid)

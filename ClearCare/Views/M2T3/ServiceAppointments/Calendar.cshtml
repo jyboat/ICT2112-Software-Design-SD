@@ -35,7 +35,36 @@
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
-                events: '/api/ServiceAppointments/GetAppointmentsForCalendar' + queryString,
+                events: function(info, successCallback, failureCallback) {
+                    fetch('/api/ServiceAppointments/GetAppointmentsForCalendar' + queryString)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Fix the time for each event
+                            const events = data.map(event => {
+                                let startDate = new Date(event.start);
+
+                                // Use slot to set the correct hour (slot 0 = 8am)
+                                if (event.extendedProps && event.extendedProps.slot !== undefined) {
+                                    startDate.setHours(parseInt(event.extendedProps.slot) + 8);
+                                }
+
+                                let endDate = new Date(startDate);
+                                endDate.setHours(endDate.getHours() + 1);
+
+                                return {
+                                    ...event,
+                                    start: startDate.toISOString(),
+                                    end: endDate.toISOString()
+                                };
+                            });
+
+                            successCallback(events);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching events:', error);
+                            failureCallback(error);
+                        });
+                },
                 dayMaxEventRows: 3, // limit how many event rows show
                 eventTimeFormat: {
                     hour: 'numeric',
@@ -113,6 +142,8 @@
 
         function openEditModal(id, extendedProps) {
             document.getElementById("editAppointmentId").value = id;
+            
+            console.log("DEBUG(OpenEditModal)/extendedProps:", extendedProps);
 
             // Populate the dropdowns first
             populateDropdowns();
@@ -197,9 +228,13 @@
 
             // Calculate hour based on the selected time slot
             let hour = parseInt(selectedTimeSlot);
+            
+            console.log(hour);
 
             // Manually construct the ISO DateTime string
             let isoDateTime = `${selectedDate}T${hour.toString().padStart(2, '0')}:00:00.000Z`;
+
+            console.log(isoDateTime);
 
             let requestData = {
                 AppointmentId: id,
@@ -350,10 +385,13 @@
             let location = document.getElementById("addLocation").value;
 
             // calc hour based on the selected time slot
-            let hour = 8 + parseInt(selectedTimeSlot);
+            let hour = parseInt(selectedTimeSlot);
 
             // manually construct the ISO DateTime string
             let isoDateTime = `${selectedDate}T${hour.toString().padStart(2, '0')}:00:00.000Z`;
+
+            console.log("DEBUG(CreateAppt)/hour:", hour);
+            console.log("DEBUG(CreateAppt)/isoDateTime:", isoDateTime);
 
             let formData = {
                 AppointmentId: id || "dummy123",

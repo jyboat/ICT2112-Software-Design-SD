@@ -67,6 +67,7 @@ namespace ClearCare.Models.Control
                 id = a.GetAttribute("AppointmentId"),
                 title = a.GetAttribute("ServiceTypeId") + " for " + a.GetAttribute("PatientId"),
                 start = DateTime.Parse(a.GetAttribute("Datetime")).ToString("yyyy-MM-ddTHH:mm:ss"),
+                // start = a.GetAttribute("Datetime"),
                 extendedProps = new
                 {
                     patientId = a.GetAttribute("PatientId"),
@@ -79,7 +80,7 @@ namespace ClearCare.Models.Control
                     dateTime = DateTime.Parse(a.GetAttribute("Datetime")).ToString("yyyy-MM-ddTHH:mm:ss"),
                 }
             }).ToList();
-
+            
             return new JsonResult(eventList);
         }
 

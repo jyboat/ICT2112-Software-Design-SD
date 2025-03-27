@@ -106,7 +106,7 @@ public class ServiceAppointmentsController : Controller
     [HttpPost]
     [Route("Create")]
     public async Task<IActionResult> CreateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
-    {
+    {   
         var appointment = await ServiceAppointmentManagement.CreateAppointment(
             requestData["PatientId"].GetString() ?? "",
             requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
@@ -321,9 +321,7 @@ public class ServiceAppointmentsController : Controller
     [Route("AddAppt")]
     public async Task<IActionResult> AddAppt([FromBody] Dictionary<string, JsonElement> requestData)
     {
-        string jsonRequestBody = JsonSerializer.Serialize(requestData);
-
-        Console.WriteLine("Received JSON request body: " + jsonRequestBody);
+        Console.WriteLine("DEBUG(CreateAppt)/requestData:" + JsonSerializer.Serialize(requestData));
 
         string appointmentId = requestData["AppointmentId"].GetString() ?? "";
         string patientId = requestData["PatientId"].GetString() ?? "";

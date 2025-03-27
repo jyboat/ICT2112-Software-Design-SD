@@ -37,9 +37,10 @@
                     <td>@appointment.GetAttribute("DoctorId")</td>
                     <td>@appointment.GetAttribute("ServiceTypeId")</td>
                     <td>@appointment.GetAttribute("Status")</td>
-                    <td>
-                    @appointment.GetAppointmentDateTime(appointment)
-                    </td>
+                    <td>@appointment.GetAttribute("Datetime")</td>
+                    @* <td> *@
+                    @* @appointment.GetAppointmentDateTime(appointment) *@
+                    @* </td> *@
                     <td>@appointment.GetAttribute("Slot")</td>
                     <td>@appointment.GetAttribute("Location")</td>
                     <td>

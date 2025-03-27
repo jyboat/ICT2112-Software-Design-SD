@@ -63,6 +63,8 @@ namespace ClearCare.DataSource
 
             // Convert Firestore document to a ServiceAppointment object
             ServiceAppointment appointment = ServiceAppointment.FromFirestoreData(documentId, data);
+            
+            Console.WriteLine($"DEBUG(ServiceApptGateway)/Appointment ID: {appointment.GetAttribute("AppointmentId")}, Status: {appointment.GetAttribute("Status")}, DateTime: {appointment.GetAttribute("Datetime")}");
 
             
             // appointment = await CheckAndUpdateStatusAsync(appointment);

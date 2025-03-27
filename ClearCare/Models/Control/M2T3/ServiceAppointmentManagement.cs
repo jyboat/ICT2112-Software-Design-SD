@@ -26,6 +26,12 @@ namespace ClearCare.Models.Control
         public async Task<List<ServiceAppointment>> RetrieveAllAppointments()
         {
             List<ServiceAppointment> appointments = await _dbGateway.fetchAllServiceAppointments();
+            
+            foreach (var appointment in appointments)
+            {
+                Console.WriteLine($"Appointment DateTime: {appointment.GetAppointmentDateTime(appointment)}");
+            }
+            
             return appointments;
         }
 
