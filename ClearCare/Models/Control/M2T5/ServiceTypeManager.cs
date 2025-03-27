@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ClearCare.Models.Entities;
 using ClearCare.DataSource;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
-    public class ServiceTypeManager
+    public class ServiceTypeManager: IServiceType
     {
         private ServiceTypeRepository _serviceTypeRepository = new ServiceTypeRepository();
 

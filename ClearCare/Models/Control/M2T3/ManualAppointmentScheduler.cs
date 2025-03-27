@@ -8,35 +8,37 @@ namespace ClearCare.Models.Control
     {
         private readonly ICreateAppointment _iCreateAppointment;
         private readonly INurseAvailability _iNurseAvailability;
-        public ManualAppointmentScheduler(ICreateAppointment ICreateAppointment, INurseAvailability INurseAvailability)
+        private readonly INotification _iNotification;
+        public ManualAppointmentScheduler()
         {
-            _iCreateAppointment = ICreateAppointment;
-            _iNurseAvailability = INurseAvailability;
+            _iCreateAppointment = new ServiceAppointmentManagement();
+            _iNurseAvailability = new NurseAvailabilityManagement();
+            _iNotification = new NotificationManager();
         }
 
         public async Task<bool> ValidateAppointmentSlot(string patientId, string nurseId,
             string doctorId, DateTime dateTime, int slot, string currentAppointmentId = null)
         {
             bool isValid = true;
-            
+
             // convert datetime to SGT for validation
             DateTime sgtDateTime = dateTime.AddHours(8);
-            
+
             // 0th check: is the dateTime in the past?
             if (sgtDateTime.Date < DateTime.Now.Date)
             {
                 return false; // invalid if date is in the past
             }
-            
+
             // 1st check: is the nurse available on this day?
-            
+
             // retrieve staff availability
             var nurseAvailability = await _iNurseAvailability.getAvailabilityByStaff(nurseId);
-    
+
             // Use SGT datetime instead of UTC datetime
             var requestedDate = sgtDateTime.Date;
             var requestedTime = sgtDateTime.TimeOfDay;
-            
+
             // if any availability records show that the nurse is unavailable for that day, return false
             foreach (var availability in nurseAvailability)
             {
@@ -59,22 +61,22 @@ namespace ClearCare.Models.Control
             }
 
             // 2nd check: is the same nurse already booked for another appointment at this time?
-            
+
             var nurseAppointments = await _iCreateAppointment.RetrieveAllAppointmentsByNurse(nurseId);
 
             foreach (var appointment in nurseAppointments)
-            {   
+            {
                 string apptId = appointment.GetAttribute("AppointmentId");
-                
+
                 // Skip current appointment if we are doing rescheduling
                 if (currentAppointmentId != null && apptId == currentAppointmentId)
                 {
                     continue;
                 }
-                
+
                 var apptDateTime = DateTime.Parse(appointment.GetAttribute("Datetime"));
                 var apptSlot = appointment.GetIntAttribute("Slot");
-                
+
                 // check if same date and slot
                 if (apptDateTime.Date == requestedDate && apptSlot == slot)
                 {
@@ -110,6 +112,10 @@ namespace ClearCare.Models.Control
                 throw new InvalidOperationException("Failed to create the appointment.");
             }
 
+            var message = "Your appointment has been scheduled." ;
+
+            await _iNotification.createNotification("USR007", message);
+
             return createdAppointmentId;
         }
 
@@ -122,19 +128,19 @@ namespace ClearCare.Models.Control
             {
                 return false;
             }
-            
+
             string currentDateTimeStr = currentAppointment.GetAttribute("Datetime");
             DateTime currentDateTime = DateTime.Parse(currentDateTimeStr);
-            
+
             int currentSlot = currentAppointment.GetIntAttribute("Slot");
-            
+
             // check if the nurse or timeslot is changing
             bool nurseChanged = nurseId != currentAppointment.GetAttribute("NurseId");
             bool dateChanged = dateTime.Date != currentDateTime.Date;
             bool slotChanged = slot != currentSlot;
-            
+
             bool needsValidation = nurseChanged || dateChanged || slotChanged;
-            
+
             // only validate if we're changing time or nurse
             if (needsValidation)
             {
@@ -145,25 +151,29 @@ namespace ClearCare.Models.Control
                     throw new InvalidOperationException("The selected appointment slot is invalid. Nurse is unavailable or already booked.");
                 }
             }
-            
+
             DateTime sgtDateTime = dateTime.AddHours(8);
-            
+
             // create a new object with the updated values
             var updatedAppointment = ServiceAppointment.setApptDetails(
                 patientId, nurseId, doctorId, serviceTypeId, status, sgtDateTime, slot, location
             );
-            
+
             // Set the appointment ID using reflection
             typeof(ServiceAppointment)
                 .GetProperty("AppointmentId", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                 ?.SetValue(updatedAppointment, appointmentId);
-            
+
             bool updated = await _iCreateAppointment.UpdateAppointment(updatedAppointment);
-            
+
             if (!updated)
             {
                 throw new InvalidOperationException("Failed to reschedule the appointment.");
             }
+
+            var message = "manual scheduling works reschedule";
+
+            await _iNotification.createNotification("USR007", message);
 
             return updated;
         }

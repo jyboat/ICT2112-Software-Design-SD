@@ -14,7 +14,6 @@ namespace ClearCare.DataSource
     {
         private readonly FirestoreDb _db;
         private IServiceAppointmentDB_Receive _receiver;
-
         public ServiceAppointmentGateway()
         {
             _db = FirebaseService.Initialize();
@@ -279,20 +278,18 @@ namespace ClearCare.DataSource
         // To do: Retrieve from firebase/interface
         public async Task<List<Dictionary<string, object>>> fetchAllUnscheduledPatients()
         {
-            var patients = new List<Patient>
+
+            // TODO: Change to interface
+            var patients = new List<string>();
+            
+            Query patientQuery = _db.Collection("User")
+                                    .WhereEqualTo("Role", "Patient");
+            QuerySnapshot userPatientSnapshot = await patientQuery.GetSnapshotAsync();
+
+            foreach(DocumentSnapshot document in userPatientSnapshot.Documents)
             {
-                new Patient { PatientId = "PAT001", Name = "Patient 1" },
-                new Patient { PatientId = "PAT002", Name = "Patient 2" },
-                new Patient { PatientId = "PAT003", Name = "Patient 3" },
-                new Patient { PatientId = "PAT004", Name = "Patient 4" },
-                new Patient { PatientId = "PAT005", Name = "Patient 5" },
-                new Patient { PatientId = "PAT006", Name = "Patient 6" },
-                new Patient { PatientId = "PAT007", Name = "Patient 7" },
-                new Patient { PatientId = "PAT008", Name = "Patient 8" },
-                new Patient { PatientId = "PAT009", Name = "Patient 9" },
-                new Patient { PatientId = "PAT010", Name = "Patient 10" },
-                new Patient { PatientId = "PAT011", Name = "Patient 11" }
-            };
+                patients.Add(document.Id);
+            }
 
             var unscheduledPatients = new List<ServiceAppointment>();
             var services = await getAllServices();
@@ -301,7 +298,7 @@ namespace ClearCare.DataSource
             {
                 // Query to get all the appointments of this patient
                 Query appointmentsRef = _db.Collection("ServiceAppointments")
-                                            .WhereEqualTo("PatientId", patient.PatientId);
+                                            .WhereEqualTo("PatientId", patient);
                 QuerySnapshot snapshot = await appointmentsRef.GetSnapshotAsync();
 
                 // Get all services this patient already has
@@ -316,7 +313,7 @@ namespace ClearCare.DataSource
                 foreach (var service in missingServices)
                 {
                     unscheduledPatients.Add(ServiceAppointment.setApptDetails(
-                        patientId: patient.PatientId,
+                        patientId: patient,
                         nurseId: "",
                         doctorId: "",
                         serviceTypeId: service,
