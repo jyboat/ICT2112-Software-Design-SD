@@ -49,51 +49,6 @@ public class ResourceController : Controller
         return View("~/Views/M3T1/Resource/Add.cshtml");
     }
 
-    //[Route("Add")]
-    //[HttpPost]
-    //public async Task<IActionResult> Add(
-    //IFormFile coverImage,
-    //string title,
-    //string description,
-    //string? articleUrl,
-    //IFormFile? videoFile,
-    //string resourceType,
-    //int uploadedBy)
-    //{
-    //    // 1. Upload the cover image to Firebase Storage
-    //    CoverImageUploadStrategy coverImageUploader = new CoverImageUploadStrategy();
-    //    string coverImageUrl = await coverImageUploader.UploadCoverImageAsync(coverImage);
-
-    //    // 2. Choose the correct strategy based on resourceType
-    //    IResourceStrategy strategy = resourceType.ToLower() switch
-    //    {
-    //        "article" => new ArticleUrlStrategy(),
-    //        "video" => new VideoUploadStrategy(),
-    //        _ => throw new ArgumentException("Unsupported resource type")
-    //    };
-
-    //    // 3. Prepare video file (if any)
-    //    Stream? fileStream = videoFile?.OpenReadStream();
-    //    string? fileName = videoFile?.FileName;
-    //    string? contentType = videoFile?.ContentType;
-
-    //    // 4. Upload + Save to Firestore via Strategy (includes using the gateway)
-    //    string resourceId = await strategy.UploadAsync(
-    //        title,
-    //        description,
-    //        uploadedBy,
-    //        DateTime.Now.ToString("yyyy-MM-dd"),
-    //        fileStream,
-    //        fileName,
-    //        contentType,
-    //        articleUrl,
-    //        coverImageUrl
-    //    );
-
-    //    // 5. Redirect to the resource list view
-    //    return RedirectToAction("List");
-    //}
-
     [Route("Add")]
     [HttpPost]
     public async Task<IActionResult> Add(
@@ -163,6 +118,94 @@ public class ResourceController : Controller
 
         return RedirectToAction("List");
     }
+
+    [HttpPost]
+    [Route("Edit/{resourceId}")]
+    public async Task<IActionResult> Edit(
+    string resourceId,
+    IFormFile? coverImage,
+    IFormFile? videoFile,
+    string title,
+    string description,
+    string? url,
+    string resourceType,
+    string? existingUrl) 
+    {
+        byte[] imageFileBytes = Array.Empty<byte>();
+        string imageFileName = string.Empty;
+
+        if (coverImage != null && coverImage.Length > 0)
+        {
+            try
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await coverImage.CopyToAsync(memoryStream);
+                    imageFileBytes = memoryStream.ToArray();
+                }
+                imageFileName = coverImage.FileName;
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "Failed to process cover image.";
+                return RedirectToAction("Edit", new { resourceId });
+            }
+        }
+
+        // Decide what to use for the URL depending on resource type
+        string? finalUrl = null;
+
+        if (resourceType.ToLower() == "video")
+        {
+            if (videoFile != null && videoFile.Length > 0)
+            {
+                string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "videos");
+                Directory.CreateDirectory(uploadsFolder);
+
+                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(videoFile.FileName);
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await videoFile.CopyToAsync(stream);
+                }
+
+                finalUrl = "/videos/" + uniqueFileName;
+            }
+            else
+            {
+                // Use existing video URL if no new file is uploaded
+    finalUrl = existingUrl;
+            }
+        }
+        else if (resourceType.ToLower() == "article")
+        {
+            finalUrl = url;
+        }
+
+        try
+        {
+            await _manager.updateResource(
+                resourceId,
+                title,
+                description,
+                uploadedBy: 1, // Replace with actual user ID
+                image: imageFileBytes,
+                coverImageName: imageFileName,
+                url: finalUrl
+            );
+
+            TempData["SuccessMessage"] = "Resource updated successfully!";
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = "Failed to update resource: " + ex.Message;
+            return RedirectToAction("Edit", new { resourceId });
+        }
+
+        return RedirectToAction("List");
+    }
+
 
 
 

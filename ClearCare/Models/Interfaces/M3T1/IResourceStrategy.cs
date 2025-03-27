@@ -1,6 +1,4 @@
 
-
-
 namespace ClearCare.Interfaces.M3T1
 {
     public interface IResourceStrategy

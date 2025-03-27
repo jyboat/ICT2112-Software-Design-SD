@@ -91,7 +91,7 @@ namespace ClearCare.DataSource.M3T1
                 snapshot.GetValue<string>("DateCreated"),
                 snapshot.GetValue<byte[]>("CoverImage"),
                 snapshot.GetValue<string>("CoverImageName"),
-                snapshot.GetValue<string>("TargetUrl")
+                snapshot.GetValue<string>("Url")
             );
         }
 

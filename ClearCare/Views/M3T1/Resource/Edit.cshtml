@@ -1,39 +1,52 @@
 @model ClearCare.Models.Entities.M3T1.Resource
 
 @{
-    ViewData["Title"] = "Update Resource";
+	ViewData["Title"] = "Update Resource";
 }
 
 @if (Model == null)
 {
-    <div class="alert alert-danger">Error: Resource not found.</div>
+	<div class="alert alert-danger">Error: Resource not found.</div>
 }
 else
 {
-    var resource = Model.GetDetails();
-
+	var resource = Model.GetDetails();
+	string currentType = resource["Url"].ToString().ToLower().EndsWith(".mp4") ? "video" : "article";
+	string currentUrl = resource["Url"].ToString();
 	<div class="container update-resource">
 		<div class="card card-body">
 			<h3 class="text-info font-weight-bold">Update Resource</h3>
 			<form method="post" action="/Resource/Edit/@resource["Id"]" enctype="multipart/form-data">
+				<input type="hidden" name="resourceType" value="@currentType" />
 				<div class="row">
 					<div class="col-lg-9">
 						<div class="md-form md-outline">
 							<label for="title">Title</label>
-							<input class="form-control w-50" type="text" name="title" id="title" value="@resource["Title"]" required>
+							<input class="form-control w-50" type="text" name="title" id="title" value="@resource["Title"]"
+								required>
 						</div>
 						<div class="md-form md-outline">
 							<label for="description">Description</label>
-							<textarea class="form-control" id="description" name="description" rows="7" required>@resource["Description"]</textarea>
+							<textarea class="form-control" id="description" name="description" rows="7"
+								required>@resource["Description"]</textarea>
 						</div>
-						<div class="md-form md-outline">
-							<label for="targetUrl">Article link</label>
-							<input class="form-control w-50" type="url" name="targetUrl" id="targetUrl" value="@resource["TargetUrl"]" required />
-						</div>
-						<div class="mt-2">
-							<label for="videoFile">Upload a Video</label>
-							<input type="file" name="videoFile" accept="video/mp4,video/wav" id="videoFile" />
-						</div>
+
+						@if (currentType == "article")
+						{
+							<div class="md-form md-outline">
+								<label for="url">Article Link</label>
+								<input class="form-control w-50" type="url" name="url" id="url" value="@currentUrl" required />
+							</div>
+						}
+						else if (currentType == "video")
+						{
+							<div class="mt-2">
+								<label for="videoFile">Upload a New Video (optional)</label>
+								<input type="file" name="videoFile" accept=".mp4" id="videoFile" />
+								<input type="hidden" name="existingUrl" value="@currentUrl" />
+								<small class="text-muted">Current video: @currentUrl.Split('/').Last()</small>
+							</div>
+						}
 					</div>
 					<div class="col-lg-3">
 						<label class="fst-italic">Cover Image (Optional)</label>
@@ -42,10 +55,11 @@ else
 								<div class="wrapper">
 									<div class="card-text">
 										<i class="bi bi-5x bi-card-image"></i>
-										<p class="font-weight-bolder">No Image Uploaded</p>
+										<p class="font-weight-bolder">Current Cover</p>
 									</div>
 									<div class="preview">
-										<img class="poster" src="~/img/placeholder.jpg"> @* Change to uploaded image *@
+										<img class="poster"
+											src="data:image/jpeg;base64,@Convert.ToBase64String((byte[])resource["CoverImage"])" />
 										<div class="infos d-none">
 											<div class="infos-inner">
 												<p class="filename"></p>
@@ -55,15 +69,13 @@ else
 									</div>
 									<button type="button" class="remove btn btn-sm btn-danger d-none">Remove</button>
 								</div>
-								<input type="file" name="resourceFile" accept="image/png,image/jpeg,image/jpg,image/gif">
+								<input type="file" name="coverImage" accept="image/png,image/jpeg,image/jpg,image/gif">
 							</div>
 						</div>
 					</div>
 				</div>
 				<a href="/Resource" class="btn btn-danger">Cancel</a>
-				<button type="submit" class="btn btn-success">
-					Update
-				</button>
+				<button type="submit" class="btn btn-success">Update</button>
 			</form>
 		</div>
 	</div>
