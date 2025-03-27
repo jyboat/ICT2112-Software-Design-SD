@@ -523,5 +523,121 @@ namespace ClearCare.DataSource
             return false;
         }
 
+        public async Task<List<User>> getAllDoctors()
+        {
+            List<User> doctorList = new List<User>();
+
+            Query query = db.Collection("User").WhereEqualTo("Role", "Doctor");
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                if (document.Exists)
+                {
+                    try
+                    {
+                        var docDictionary = document.ToDictionary();
+
+                        string userID = document.Id;
+                        string email = document.GetValue<string>("Email");
+                        string password = document.GetValue<string>("Password");
+                        string name = document.GetValue<string>("Name");
+                        long mobileNumber = document.GetValue<long>("MobileNumber");
+                        string address = document.GetValue<string>("Address");
+                        string role = document.GetValue<string>("Role");
+
+                        User user = UserFactory.createUser(userID, email, password, name, mobileNumber, address, role, docDictionary);
+
+                        if (user is Doctor doctor)
+                            doctorList.Add(doctor);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error converting doctor {document.Id}: {ex.Message}");
+                    }
+                }
+            }
+
+            return doctorList;
+        }
+
+        public async Task<List<User>> getAllPatients()
+        {
+            List<User> patientList = new List<User>();
+
+            Query query = db.Collection("User").WhereEqualTo("Role", "Patient");
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                if (document.Exists)
+                {
+                    try
+                    {
+                        var docDictionary = document.ToDictionary();
+
+                        string userID = document.Id;
+                        string email = document.GetValue<string>("Email");
+                        string password = document.GetValue<string>("Password");
+                        string name = document.GetValue<string>("Name");
+                        long mobileNumber = document.GetValue<long>("MobileNumber");
+                        string address = document.GetValue<string>("Address");
+                        string role = document.GetValue<string>("Role");
+
+                        User user = UserFactory.createUser(userID, email, password, name, mobileNumber, address, role, docDictionary);
+
+                        if (user is Patient patient)
+                            patientList.Add(patient);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error converting patient {document.Id}: {ex.Message}");
+                    }
+                }
+            }
+
+            return patientList;
+        }
+
+        public async Task<List<User>> getAllNurses()
+        {
+            List<User> nurseList = new List<User>();
+
+            Query query = db.Collection("User").WhereEqualTo("Role", "Nurse");
+            QuerySnapshot snapshot = await query.GetSnapshotAsync();
+
+            foreach (DocumentSnapshot document in snapshot.Documents)
+            {
+                if (document.Exists)
+                {
+                    try
+                    {
+                        var docDictionary = document.ToDictionary();
+
+                        string userID = document.Id;
+                        string email = document.GetValue<string>("Email");
+                        string password = document.GetValue<string>("Password");
+                        string name = document.GetValue<string>("Name");
+                        long mobileNumber = document.GetValue<long>("MobileNumber");
+                        string address = document.GetValue<string>("Address");
+                        string role = document.GetValue<string>("Role");
+
+                        User user = UserFactory.createUser(userID, email, password, name, mobileNumber, address, role, docDictionary);
+
+                        if (user is Nurse nurse)
+                            nurseList.Add(nurse);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error converting doctor {document.Id}: {ex.Message}");
+                    }
+                }
+            }
+
+            return nurseList;
+        }
+
+
+
     }
 }
