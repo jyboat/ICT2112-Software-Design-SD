@@ -1,7 +1,7 @@
 @using ClearCare.Models.Entities
 
 @{
-    ViewData["Title"] = "Manage User Accounts";
+    ViewData["Title"] = "Manage" + (ViewData["CurrentView"]!.ToString() == "medical" ? " Medical Staff" : " Patients & Caregivers");
     var userList = ViewData["Users"] as List<User>;
     var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"); // System timestamp
 }
@@ -69,9 +69,12 @@
                 <tr>
                     <th scope="col" class="text-nowrap">User ID</th>
                     <th scope="col">Name</th>
+                    @if(ViewData["CurrentView"]!.ToString() == "medical")
+                    {
+                        <th scope="col">Department/Specialization</th>
+                    }
                     <th scope="col">Role</th>
-                    <th scope="col">Created By</th>
-                    <th scope="col" class="text-center">Actions</th>
+                    <th scope="col" class="text-center">Details</th>
                 </tr>
             </thead>
             <tbody>
@@ -82,14 +85,34 @@
                         <tr>
                             <td class="text-nowrap">@(user?.getProfileData()["UserID"] ?? "N/A")</td>
                             <td>@(user?.getProfileData()["Name"] ?? "N/A")</td>
+
+                            @if(ViewData["CurrentView"]!.ToString() == "medical")
+                            {
+                                var displayValue = "";
+                                <td class="text-nowrap">
+                                    @if (user.getProfileData().TryGetValue("Department", out var dept))
+                                    {
+                                        displayValue = dept as string;
+                                    }
+                                    else if (user.getProfileData().TryGetValue("Specialization", out var spec))
+                                    {
+                                        displayValue = spec as string;
+                                    }   
+                                    else
+                                    {
+                                        displayValue = "N/A";
+                                    }
+                                    @displayValue
+                                </td>
+                            }
+                            
                             <td class="text-nowrap">
                                 <span class="badge bg-primary">@(user?.getProfileData()["Role"] ?? "N/A")</span>
                             </td>
-                            <td>System</td>
                             <td class="text-center">
                                 <div class="btn-group">
                                     @if (!string.IsNullOrEmpty(user?.getProfileData()["UserID"] as String))
-                                    {
+                                    {                                        
                                         <button data-bs-toggle="modal" data-bs-target="#viewUserModal_@user?.getProfileData()["UserID"]" class="btn btn-warning btn-md me-2" title="View Details">
                                             <i class="bi bi-eye"></i><span class="d-none d-md-inline"> View</span>
                                         </button>
@@ -98,9 +121,6 @@
                                         </a>
                                         <button data-bs-toggle="modal" data-bs-target="#resetPassword_@user?.getProfileData()["UserID"]" class="btn btn-warning btn-md me-2" title="View Details">
                                             <i class="bi bi-arrow-repeat"></i><span class="d-none d-md-inline"> Reset Password</span>
-                                        </button>
-                                        <button data-bs-toggle="modal" data-bs-target="#deleteAccount_@user?.getProfileData()["UserID"]" class="btn btn-warning btn-md me-2" title="View Details">
-                                            <i class="fa-solid fa-trash"></i><span class="d-none d-md-inline"> Delete Account</span>
                                         </button>
                                     }
                                     else
@@ -256,30 +276,6 @@
                         <input type="hidden" name="uid" value="@(user?.getProfileData()["UserID"])" />
                         <button type="submit" class="btn btn-sm btn-success px-3 py-1" title="Reset Password">
                             <i class="bi bi-arrow-repeat"></i><span class="d-none d-md-inline"> Reset Password</span>
-                        </button>
-                    </form>
-                </div>
-                </div>
-            </div>
-            </div>
-
-            // Delete Password Modal
-            <div class="modal fade" id="deleteAccount_@user?.getProfileData()["UserID"]" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Delete Account for @user?.getProfileData()["Name"]</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete account for @user?.getProfileData()["Name"] ?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <form action="/Admin/deleteAccount" method="post" style="display:inline;">
-                        <input type="hidden" name="uid" value="@(user?.getProfileData()["UserID"])" />
-                        <button type="submit" class="btn btn-sm btn-danger px-3 py-1" title="Delete Account">
-                            <i class="fa-solid fa-trash"></i><span class="d-none d-md-inline"> Delete Account</span>
                         </button>
                     </form>
                 </div>

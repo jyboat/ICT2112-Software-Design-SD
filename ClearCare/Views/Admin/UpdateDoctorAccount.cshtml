@@ -4,6 +4,12 @@
      var user = ViewData["User"] as User;
 }
 
+@{
+    string[] doctorSpecialization = {
+        "Pre-Discharged", 
+    };
+}
+
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
@@ -52,7 +58,13 @@
                             
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    <input type="text" id="specialization" name="specialization" class="form-control" value="@(user?.getProfileData()["Specialization"] ?? "N/A")" required>
+                                    <select id="specialization" name="specialization" class="form-control" required>
+                                        <option value="">Select Specialization</option>
+                                        @foreach (var specialty in doctorSpecialization)
+                                        {
+                                            <option value="@specialty" selected='@(user?.getProfileData()["Specialization"] == specialty ? "selected" : "")'>@specialty</option>
+                                        }
+                                    </select>
                                     <label for="specialization"><i class="bi bi-building me-1"></i>Specialization</label>
                                 </div>
                             </div>
