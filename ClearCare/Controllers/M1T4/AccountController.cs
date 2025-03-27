@@ -30,7 +30,7 @@ namespace ClearCare.Controllers
 
         // POST: /Account/Register
         [HttpPost]
-        public async Task<IActionResult> Register(string email, string password, string name, long mobileNumber, string address, string role)
+        public async Task<IActionResult> Register(string email, string password, string name, long mobileNumber, string address, string role, long countryCode)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(name))
             {
@@ -51,8 +51,11 @@ namespace ClearCare.Controllers
                 infoDictionary.Add("AssignedPatientName", "");
                 infoDictionary.Add("AssignedPatientID", "");
             }
-
-            User newUser = UserFactory.createUser("", email, password, name, (int)mobileNumber, address, role, infoDictionary);
+            string combinedNumberStr = countryCode.ToString() + mobileNumber.ToString(); //new code
+            long combinedNumber; //new code
+            long.TryParse(combinedNumberStr, out combinedNumber); //new code
+            // User newUser = UserFactory.createUser("", email, password, name, mobileNumber, address, role, infoDictionary);
+            User newUser = UserFactory.createUser("", email, password, name, combinedNumber, address, role, infoDictionary);
             string result = await _accountManagement.CreateAccount(newUser, password, _auditManagement);
 
             if (result == "Account created successfully.")
