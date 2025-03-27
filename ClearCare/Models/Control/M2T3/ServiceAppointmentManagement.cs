@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace ClearCare.Models.Control
 {
-    public class ServiceAppointmentManagement : IRetrieveAllAppointments, ICreateAppointment, IServiceAppointmentDB_Receive, IAppointmentTime, IServiceStatus
+    public class ServiceAppointmentManagement : ICreateAppointment, IServiceAppointmentDB_Receive, IAppointmentTime, IServiceStatus
     {
 
 
@@ -54,16 +54,6 @@ namespace ClearCare.Models.Control
         {
             Console.WriteLine("1 Service Appointment Found.");
             return Task.CompletedTask;
-        }
-
-        public async Task<List<ServiceAppointment>> RetrieveAllAppointmentsByNurse(string nurseId)
-        {
-            List<ServiceAppointment> allAppointments = await _dbGateway.fetchAllServiceAppointments();
-            List<ServiceAppointment> nurseAppointments = allAppointments
-                .Where(a => a.GetAttribute("NurseId") == nurseId)
-                .ToList();
-
-            return nurseAppointments;
         }
 
         // Create Service Appointment

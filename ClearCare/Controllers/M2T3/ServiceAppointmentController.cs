@@ -30,10 +30,10 @@ public class ServiceAppointmentsController : Controller
 
         _nurseAvailabilityManagement = new NurseAvailabilityManagement();
 
-        _calendarManagement = new CalendarManagement(ServiceAppointmentManagement, _nurseAvailabilityManagement);
+        _calendarManagement = new CalendarManagement();
 
-        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler((ICreateAppointment)ServiceAppointmentManagement, (INurseAvailability)_nurseAvailabilityManagement);
-        _manualAppointmentScheduler = new ManualAppointmentScheduler((ICreateAppointment)ServiceAppointmentManagement, (INurseAvailability)_nurseAvailabilityManagement);
+        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler();
+        _manualAppointmentScheduler = new ManualAppointmentScheduler();
 
     }
 
