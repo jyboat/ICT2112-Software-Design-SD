@@ -8,6 +8,7 @@ using ClearCare.Interfaces;
 using Google.Cloud.Firestore;
 using ClearCare.Models.Interface.M2T3;
 using System.Reflection.Metadata;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
@@ -18,6 +19,7 @@ namespace ClearCare.Models.Control
         private readonly INurseAvailability _iNurseAvailability;
         private readonly INotification _iNotification;
         private IAutomaticScheduleStrategy? _iAutomaticScheduleStrategy;
+        private readonly IServiceType _iServiceType;
         private FirestoreDb db;
         // private readonly ServiceBacklogManagement _serviceBacklogManagement;
 
@@ -26,14 +28,17 @@ namespace ClearCare.Models.Control
 
         // Constructor initializes the field
         public AutomaticAppointmentScheduler(
-            ICreateAppointment ICreateAppointment, 
-            INurseAvailability INurseAvailability,
-            INotification INotification,
-            IAutomaticScheduleStrategy? IAutomaticScheduleStrategy = null)
+            // ICreateAppointment ICreateAppointment, 
+            // INurseAvailability INurseAvailability,
+            // INotification INotification,
+            // IServiceType IServiceType,
+            IAutomaticScheduleStrategy? IAutomaticScheduleStrategy = null
+            )
         {
-            _iCreateAppointment = ICreateAppointment;
-            _iNurseAvailability = INurseAvailability;
-            _iNotification = INotification;
+            _iCreateAppointment = new ServiceAppointmentManagement();
+            _iNurseAvailability = new NurseAvailabilityManagement();
+            _iNotification = new NotificationManager();
+            _iServiceType = new ServiceTypeManager();;
             // To be set at runtime later
             _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; 
             db = FirebaseService.Initialize();
@@ -48,11 +53,11 @@ namespace ClearCare.Models.Control
         }
 
         // Dummy Entity for testing
-        public class Nurse 
-        {
-            public string NurseId { get; set; } = string.Empty;
-            public string Name { get; set; } = string.Empty;
-        }
+        // public class Nurse 
+        // {
+        //     public string NurseId { get; set; } = string.Empty;
+        //     public string Name { get; set; } = string.Empty;
+        // }
 
         public class Patient
         {
@@ -86,16 +91,8 @@ namespace ClearCare.Models.Control
                 throw new InvalidOperationException("Scheduling strategy has not been set. Use SetAlgorithm() first.");
             }
 
-            // To do: Use interface to get services
-            Query serviceQuery = db.Collection("service_type");
-            QuerySnapshot snapshot2 = await serviceQuery.GetSnapshotAsync();
-            
-            var services = new List<string>();
-
-            foreach(DocumentSnapshot document in snapshot2.Documents)
-            {
-                services.Add(document.GetValue<string>("name"));
-            }
+            var serviceNames = await _iServiceType.GetServiceTypes();
+            var services = serviceNames.Select(service => service.Name).ToList();
 
             var serviceSlotTracker = new Dictionary<string, Dictionary<int, int>>();
             foreach(var service in services){
@@ -133,7 +130,7 @@ namespace ClearCare.Models.Control
             }
             
             // To Do: Need check whether they're from pre-discharge department
-            // var nurses = new List<Nurse>();
+            // var nurses = new List<string>();
 
             // var AvailableNurse = await _iNurseAvailability.getAllStaffAvailability();
 
@@ -152,20 +149,19 @@ namespace ClearCare.Models.Control
             // var serviceSlotTracker = new Dictionary<string, Dictionary<int, int>>();
             var nurseSlotTracker = new Dictionary<string, List<int>>();
 
-            // To do: Use interface for nurse
-            var nurses = new List<Nurse>
+            var nurses = new List<string>();
+
+            Query userQuery = db.Collection("User").WhereEqualTo("Role", "Nurse");
+            QuerySnapshot userSnapshot = await userQuery.GetSnapshotAsync();
+
+            foreach(DocumentSnapshot document in userSnapshot.Documents)
             {
-                new Nurse { NurseId = "NURSE001", Name = "Nurse A" },
-                new Nurse { NurseId = "NURSE002", Name = "Nurse B" },
-                new Nurse { NurseId = "NURSE003", Name = "Nurse C" },
-                new Nurse { NurseId = "NURSE004", Name = "Nurse D" },
-                new Nurse { NurseId = "NURSE005", Name = "Nurse E" },
-                new Nurse { NurseId = "NURSE006", Name = "Nurse F" }
-            };
+                nurses.Add(document.Id);
+            }
 
             foreach(var nurse in nurses){
                 Query nurseSlotList = db.Collection("ServiceAppointments")
-                                    .WhereEqualTo("NurseId", nurse.NurseId);
+                                    .WhereEqualTo("NurseId", nurse);
                 QuerySnapshot patientSnapshot = await nurseSlotList.GetSnapshotAsync();
                 foreach(DocumentSnapshot document in patientSnapshot.Documents){
                     DateTime appointmentDateTime = document.GetValue<DateTime>("DateTime");
@@ -183,8 +179,8 @@ namespace ClearCare.Models.Control
                         }
                         // Add the slot number into the list.
                         nurseSlotTracker[nurseID].Add(slot);
-                        Console.WriteLine($"Data1: {appointmentDate}");
-                        Console.WriteLine($"Data2: {todayDate}");
+                        // Console.WriteLine($"Data1: {appointmentDate}");
+                        // Console.WriteLine($"Data2: {todayDate}");
                     }
                     else{
                         continue;
@@ -194,24 +190,19 @@ namespace ClearCare.Models.Control
 
             var patientSlotTracker = new Dictionary<string, List<int>>();
 
-            var patients = new List<Patient>
+            var patients = new List<string>();
+            
+            Query patientQuery = db.Collection("User").WhereEqualTo("Role", "Patient");;
+            QuerySnapshot userPatientSnapshot = await patientQuery.GetSnapshotAsync();
+
+            foreach(DocumentSnapshot document in userPatientSnapshot.Documents)
             {
-                new Patient { PatientId = "PAT001", Name = "Patient 1" },
-                new Patient { PatientId = "PAT002", Name = "Patient 2" },
-                new Patient { PatientId = "PAT003", Name = "Patient 3" },
-                new Patient { PatientId = "PAT004", Name = "Patient 4" },
-                new Patient { PatientId = "PAT005", Name = "Patient 5" },
-                new Patient { PatientId = "PAT006", Name = "Patient 6" },
-                new Patient { PatientId = "PAT007", Name = "Patient 7" },
-                new Patient { PatientId = "PAT008", Name = "Patient 8" },
-                new Patient { PatientId = "PAT009", Name = "Patient 9" },
-                new Patient { PatientId = "PAT010", Name = "Patient 10" },
-                new Patient { PatientId = "PAT011", Name = "Patient 11" }
-            };
+                patients.Add(document.Id);
+            }
 
             foreach(var patient in patients){
                 Query patientSlotList = db.Collection("ServiceAppointments")
-                                    .WhereEqualTo("PatientId", patient.PatientId);
+                                    .WhereEqualTo("PatientId", patient);
                 QuerySnapshot patientSnapshot = await patientSlotList.GetSnapshotAsync();
                 foreach(DocumentSnapshot document in patientSnapshot.Documents){
                     DateTime appointmentDateTime = document.GetValue<DateTime>("DateTime");
@@ -229,8 +220,8 @@ namespace ClearCare.Models.Control
                         }
                         // Add the slot number into the list.
                         patientSlotTracker[patientId].Add(slot);
-                        Console.WriteLine($"Data1: {appointmentDate}");
-                        Console.WriteLine($"Data2: {todayDate}");
+                        // Console.WriteLine($"Data1: {appointmentDate}");
+                        // Console.WriteLine($"Data2: {todayDate}");
                     }
                     else{
                         continue;
@@ -295,13 +286,9 @@ namespace ClearCare.Models.Control
                         "Physical"
                     );
 
-                    var message = "Your Appointment at" 
-                                    + timeslot[serviceAppt.GetIntAttribute("Slot")] 
-                                    + "for "
-                                    + serviceAppt.GetAttribute("serviceTypeId")
-                                    + "has been booked";
+                    var message = "Your Appointment at";
 
-                    await _iNotification.createNotification(serviceAppt.GetAttribute("PatientId")
+                    await _iNotification.createNotification("USR22"
                     , message);
 
                     // Console.WriteLine($"Successfully rescheduled Appointment: {serviceAppt.GetAttribute("AppointmentId")}");
@@ -320,13 +307,9 @@ namespace ClearCare.Models.Control
                         "Physical"
                     );
 
-                    var message = "Your Appointment at" 
-                                    + timeslot[serviceAppt.GetIntAttribute("Slot")] 
-                                    + "for "
-                                    + serviceAppt.GetAttribute("serviceTypeId")
-                                    + "has been booked";
+                    var message = "Your Appointment at";
 
-                    await _iNotification.createNotification(serviceAppt.GetAttribute("PatientId")
+                    await _iNotification.createNotification("USR22"
                     , message);
 
                     // When appointment isn't scheduled

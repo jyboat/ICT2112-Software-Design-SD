@@ -35,19 +35,19 @@ namespace ClearCare.Control
 
         public List<ServiceAppointment> AutomaticallySchedule(
             List<ServiceAppointment> unscheduledAppointment,
-            List<AutomaticAppointmentScheduler.Nurse> nurses, 
+            List<string> nurses, 
             List<string> services,
             List<ServiceAppointment> backlogEntries,
             Dictionary<string, List<int>> patientSlotTracker,
             Dictionary<string, Dictionary<int,int>> serviceSlotTracker,
             Dictionary<string, List<int>> nurseSlotTracker)
         {
-            int totalSlots = 7;
+            int totalSlots = 8;
             int maxPatientsPerSlot = nurses.Count;
             int nurseIndex = 0;
 
             var sortedNurses = nurses.OrderBy(n =>
-            (!nurseSlotTracker.ContainsKey(n.NurseId) || nurseSlotTracker[n.NurseId].Count == 0) ? 0 : 1)
+            (!nurseSlotTracker.ContainsKey(n) || nurseSlotTracker[n].Count == 0) ? 0 : 1)
             .ToList();
 
             // Concat backlog entries with the newly created appointments
@@ -90,11 +90,11 @@ namespace ClearCare.Control
                     }
 
                     // Assign nurse and slot
-                    appointment.appointNurseToPatient(nurse.NurseId, assignedSlot);
+                    appointment.appointNurseToPatient(nurse, assignedSlot);
 
                     string patientId = appointment.GetAttribute("PatientId");
                     string serviceTypeId = appointment.GetAttribute("ServiceTypeId");
-                    string nurseId = nurse.NurseId;
+                    string nurseId = nurse;
 
                     // Update patient slot tracker
                     if (!patientSlotTracker.ContainsKey(patientId))
@@ -152,7 +152,7 @@ namespace ClearCare.Control
         // Finds the first available slot for the given appointment based on current trackers.
         private int GetFirstAvailableSlot(
             ServiceAppointment appointment,
-            AutomaticAppointmentScheduler.Nurse nurse,
+            string nurse,
             Dictionary<string, List<int>> patientSlotTracker,
             Dictionary<string, Dictionary<int, int>> serviceSlotTracker,
             Dictionary<string, List<int>> nurseSlotTracker,
@@ -163,7 +163,7 @@ namespace ClearCare.Control
             int assignedSlot = 1;
             string patientId = appointment.GetAttribute("PatientId");
             string serviceTypeId = appointment.GetAttribute("ServiceTypeId");
-            string nurseId = nurse.NurseId;
+            string nurseId = nurse;
 
             // Ensure tracking dictionaries are initialized
             if (!patientSlotTracker.ContainsKey(patientId))

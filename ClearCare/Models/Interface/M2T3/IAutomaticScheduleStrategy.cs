@@ -8,7 +8,7 @@ namespace ClearCare.Interfaces
     {
         List<ServiceAppointment> AutomaticallySchedule(
             List<ServiceAppointment> unscheduledAppointment,
-            List<AutomaticAppointmentScheduler.Nurse> nurses, 
+            List<string> nurses, 
             List<string> services,
             List<ServiceAppointment> backlogEntries,
             Dictionary<string, List<int>> patientSlotTracker,

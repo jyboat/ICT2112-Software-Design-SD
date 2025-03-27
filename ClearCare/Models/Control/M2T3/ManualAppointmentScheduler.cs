@@ -8,10 +8,10 @@ namespace ClearCare.Models.Control
     {
         private readonly ICreateAppointment _iCreateAppointment;
         private readonly INurseAvailability _iNurseAvailability;
-        public ManualAppointmentScheduler(ICreateAppointment ICreateAppointment, INurseAvailability INurseAvailability)
+        public ManualAppointmentScheduler()
         {
-            _iCreateAppointment = ICreateAppointment;
-            _iNurseAvailability = INurseAvailability;
+            _iCreateAppointment = new ServiceAppointmentManagement();
+            _iNurseAvailability = new NurseAvailabilityManagement();
         }
 
         public async Task<bool> ValidateAppointmentSlot(string patientId, string nurseId,

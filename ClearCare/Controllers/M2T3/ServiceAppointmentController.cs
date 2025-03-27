@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ClearCare.Interfaces;
 using ClearCare.Control;
+using ClearCare.Models.Interface;
 
 
 // Request Handling
@@ -20,8 +21,8 @@ public class ServiceAppointmentsController : Controller
     private readonly CalendarManagement _calendarManagement;
     private readonly NurseAvailabilityManagement _nurseAvailabilityManagement;
     private readonly NotificationManager _notificationManagement;
+    private readonly ServiceTypeManager _serviceTypeManagement;
     private readonly ManualAppointmentScheduler _manualAppointmentScheduler;
-
 
     public ServiceAppointmentsController()
     {
@@ -32,11 +33,13 @@ public class ServiceAppointmentsController : Controller
         _nurseAvailabilityManagement = new NurseAvailabilityManagement();
         
         _notificationManagement = new NotificationManager();
+        
+        _serviceTypeManagement = new ServiceTypeManager();
 
         _calendarManagement = new CalendarManagement(ServiceAppointmentManagement, _nurseAvailabilityManagement);
 
-        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler((ICreateAppointment)ServiceAppointmentManagement, (INurseAvailability)_nurseAvailabilityManagement, (INotification)_notificationManagement);
-        _manualAppointmentScheduler = new ManualAppointmentScheduler((ICreateAppointment)ServiceAppointmentManagement, (INurseAvailability)_nurseAvailabilityManagement);
+        AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler();
+        _manualAppointmentScheduler = new ManualAppointmentScheduler();
 
     }
 
