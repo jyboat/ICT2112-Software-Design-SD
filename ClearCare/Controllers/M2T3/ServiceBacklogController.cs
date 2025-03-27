@@ -84,7 +84,7 @@ namespace ClearCare.Controllers
 
         [HttpPost]
         [Route("GenerateDummy")] 
-        public async void GenerateDummyBacklogs()
+        public async Task<IActionResult> GenerateDummyBacklogs()
         {
             ServiceAppointmentManagement svcMgr = new ServiceAppointmentManagement();
             var allAppointments = (await svcMgr.RetrieveAllAppointments()).Take(5);
@@ -93,7 +93,7 @@ namespace ClearCare.Controllers
                 await _manager.addBacklog(appointment.GetAttribute("AppointmentId"));
             }
 
-            Redirect("Index");
+            return Ok(new { message = "dummy dummy done!" });
         }
     }
 }

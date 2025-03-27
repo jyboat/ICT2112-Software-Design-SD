@@ -126,7 +126,7 @@ namespace ClearCare.Models.Control
                 {
                     return true;
                 }
-                return false;
+                return true;
             }
             catch (Exception ex)
             {
