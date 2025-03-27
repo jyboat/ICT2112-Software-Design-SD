@@ -31,7 +31,7 @@
                     <td>@appointment.PatientId</td>
                     <td>@appointment.NurseId</td>
                     <td>@appointment.DoctorId</td>
-                    <td>@appointment.ServiceTypeId</td>
+                    <td>@appointment.Service</td>
                     <td>@appointment.Status</td>
                     <td>
                         <!-- Update Button -->
@@ -40,7 +40,7 @@
                                 data-patient-id="@appointment.PatientId"
                                 data-nurse-id="@appointment.NurseId"
                                 data-doctor-id="@appointment.DoctorId"
-                                data-service-type-id="@appointment.ServiceTypeId"
+                                data-service="@appointment.Service"
                                 data-status="@appointment.Status">
                             Update Status
                         </button>
@@ -84,8 +84,8 @@ else
                         <input type="text" class="form-control" id="doctorId" disabled>
                     </div>
                     <div class="form-group">
-                        <label for="serviceTypeId">Service Type ID</label>
-                        <input type="text" class="form-control" id="serviceTypeId" disabled>
+                        <label for="service">Service Type</label>
+                        <input type="text" class="form-control" id="service" disabled>
                     </div>
                     <div class="form-group">
                         <label for="status">Status</label>
@@ -123,7 +123,7 @@ $(document).ready(function () {
         var patientId = $(this).data('patient-id');
         var nurseId = $(this).data('nurse-id');
         var doctorId = $(this).data('doctor-id');
-        var serviceTypeId = $(this).data('service-type-id');
+        var service = $(this).data('service');
         var status = $(this).data('status');
 
         // Log the data when the update button is clicked
@@ -133,7 +133,7 @@ $(document).ready(function () {
             patientId: patientId,
             nurseId: nurseId,
             doctorId: doctorId,
-            serviceTypeId: serviceTypeId,
+            service: service,
             status: status
         });
 
@@ -142,7 +142,7 @@ $(document).ready(function () {
         $('#patientId').val(patientId);
         $('#nurseId').val(nurseId);
         $('#doctorId').val(doctorId);
-        $('#serviceTypeId').val(serviceTypeId);
+        $('#service').val(service);
         $('#status').val(status);
 
         console.log("Modal populated with values:");
@@ -151,7 +151,7 @@ $(document).ready(function () {
             patientId: $('#patientId').val(),
             nurseId: $('#nurseId').val(),
             doctorId: $('#doctorId').val(),
-            serviceTypeId: $('#serviceTypeId').val(),
+            service: $('#service').val(),
             status: $('#status').val()
         });
 
@@ -168,7 +168,7 @@ $(document).ready(function () {
         var patientId = $('#patientId').val();
         var nurseId = $('#nurseId').val();
         var doctorId = $('#doctorId').val();
-        var serviceTypeId = $('#serviceTypeId').val();
+        var service = $('#service').val();
         var status = $('#status').val();
 
         // Log the data before making the POST and PUT requests
@@ -178,7 +178,7 @@ $(document).ready(function () {
             patientId: patientId,
             nurseId: nurseId,
             doctorId: doctorId,
-            serviceTypeId: serviceTypeId,
+            service: service,
             status: status,
             serviceDate: serviceDate,
             location: location,
@@ -191,7 +191,7 @@ $(document).ready(function () {
             patientId: patientId,
             nurseId: nurseId,
             doctorId: doctorId,
-            serviceTypeId: serviceTypeId,
+            service: service,
             status: status,
             serviceDate: serviceDate,
             location: location,
@@ -228,7 +228,7 @@ $(document).ready(function () {
                         <td>${response.patientId}</td>
                         <td>${response.nurseId}</td>
                         <td>${response.doctorId}</td>
-                        <td>${response.serviceTypeId}</td>
+                        <td>${response.service}</td>
                         <td>${response.status}</td>
                         <td>${response.serviceDate}</td>
                         <td>${response.location}</td>

@@ -96,7 +96,7 @@ namespace ClearCare.Controllers
 
                 var serviceHistoryId = await _appointmentStatus.CreateServiceHistory(
                     requestData["appointmentId"].GetString() ?? "",
-                    requestData["serviceTypeId"].GetString() ?? "",
+                    requestData["service"].GetString() ?? "",
                     requestData["patientId"].GetString() ?? "",
                     requestData["nurseId"].GetString() ?? "",
                     requestData["doctorId"].GetString() ?? "",
@@ -107,7 +107,7 @@ namespace ClearCare.Controllers
 
         Console.WriteLine("Step 1: Values extracted:");
         Console.WriteLine($"  - Appointment ID: {requestData["appointmentId"].GetString()}");
-        Console.WriteLine($"  - Service Type ID: {requestData["serviceTypeId"].GetString()}");
+        Console.WriteLine($"  - Service Type: {requestData["service"].GetString()}");
         Console.WriteLine($"  - Patient ID: {requestData["patientId"].GetString()}");
         Console.WriteLine($"  - Nurse ID: {requestData["nurseId"].GetString()}");
         Console.WriteLine($"  - Doctor ID: {requestData["doctorId"].GetString()}");

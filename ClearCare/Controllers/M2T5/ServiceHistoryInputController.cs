@@ -49,7 +49,7 @@ namespace ClearCare.Controllers
 
                 var serviceHistoryId = await _ServiceHistoryManager.createServiceHistory(
                     requestData["appointmentId"].GetString() ?? "",
-                    requestData["serviceTypeId"].GetString() ?? "",
+                    requestData["service"].GetString() ?? "",
                     requestData["patientId"].GetString() ?? "",
                     requestData["nurseId"].GetString() ?? "",
                     requestData["doctorId"].GetString() ?? "",

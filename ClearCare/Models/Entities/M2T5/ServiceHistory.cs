@@ -12,7 +12,7 @@ namespace ClearCare.Models.Entities
         private string AppointmentId { get; set; }
 
         [FirestoreProperty]
-        private string ServiceTypeId { get; set; }
+        private string Service { get; set; }
 
         [FirestoreProperty]
         private string PatientId { get; set; }
@@ -35,7 +35,7 @@ namespace ClearCare.Models.Entities
         // private getters and setters
         private string getServiceHistoryId() => ServiceHistoryId;
         private string getAppointmentId() => AppointmentId;
-        private string getServiceTypeId() => ServiceTypeId;
+        private string getService() => Service;
         private string getPatientId() => PatientId;
         private string getNurseId() => NurseId;
         private string getDoctorId() => DoctorId;
@@ -45,7 +45,7 @@ namespace ClearCare.Models.Entities
 
         private void setServiceHistoryId(string serviceHistoryId) => ServiceHistoryId = serviceHistoryId;
         private void setAppointmentId(string appointmentId) => AppointmentId = appointmentId;
-        private void setServiceTypeId(string serviceTypeId) => ServiceTypeId = serviceTypeId;
+        private void setService(string service) => Service = service;
         private void setPatientId(string patientId) => PatientId = patientId;
         private void setNurseId(string nurseId) => NurseId = nurseId;
         private void setDoctorId(string doctorId) => DoctorId = doctorId;
@@ -63,7 +63,7 @@ namespace ClearCare.Models.Entities
             {
                 { "ServiceHistoryId", getServiceHistoryId() },
                 { "AppointmentId", getAppointmentId() },
-                { "ServiceTypeId", getServiceTypeId() },
+                { "Service", getService() },
                 { "PatientId", getPatientId() },
                 { "NurseId", getNurseId() },
                 { "DoctorId", getDoctorId() },
@@ -72,12 +72,12 @@ namespace ClearCare.Models.Entities
                 { "ServiceOutcomes", getServiceOutcomes() }
             };
         }
-        public static ServiceHistory setServiceHistoryDetails(string appointmentId, string serviceTypeId, string patientId, string nurseId, string doctorId, DateTime serviceDate, string location, string serviceOutcomes)
+        public static ServiceHistory setServiceHistoryDetails(string appointmentId, string service, string patientId, string nurseId, string doctorId, DateTime serviceDate, string location, string serviceOutcomes)
         {
             var serviceHistory = new ServiceHistory();
 
             serviceHistory.setAppointmentId(appointmentId);
-            serviceHistory.setServiceTypeId(serviceTypeId);
+            serviceHistory.setService(service);
             serviceHistory.setPatientId(patientId);
             serviceHistory.setNurseId(nurseId);
             serviceHistory.setDoctorId(doctorId);
@@ -106,7 +106,7 @@ namespace ClearCare.Models.Entities
             {
                 ServiceHistoryId = serviceHistoryId,
                 AppointmentId = data["AppointmentId"].ToString() ?? "",
-                ServiceTypeId = data["ServiceTypeId"].ToString() ?? "",
+                Service = data["Service"].ToString() ?? "",
                 PatientId = data["PatientId"].ToString() ?? "",
                 NurseId = data.ContainsKey("NurseId") ? data["NurseId"].ToString() ?? "" : "" ,
                 DoctorId = data["DoctorId"].ToString() ?? "",

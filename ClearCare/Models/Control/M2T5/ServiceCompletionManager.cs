@@ -45,14 +45,14 @@ namespace ClearCare.Models.Control
             await _notificationManager.createNotification(userId, notificationContent); // Create the notification
         }
 
-        public async Task<string> CreateServiceHistory(string appointmentId, string serviceTypeId, string patientId, 
+        public async Task<string> CreateServiceHistory(string appointmentId, string service, string patientId, 
             string nurseId, string doctorId, DateTime serviceDate, string location, string serviceOutcomes)
         {
 
             // Log all input variables
             Console.WriteLine($"Step 1: Creating service history with details:");
             Console.WriteLine($"  - Appointment ID: {appointmentId}");
-            Console.WriteLine($"  - Service Type ID: {serviceTypeId}");
+            Console.WriteLine($"  - Service Type: {service}");
             Console.WriteLine($"  - Patient ID: {patientId}");
             Console.WriteLine($"  - Nurse ID: {nurseId}");
             Console.WriteLine($"  - Doctor ID: {doctorId}");
@@ -62,7 +62,7 @@ namespace ClearCare.Models.Control
 
             // Step 2: Create service history
             string serviceHistoryId = await _serviceHistoryManager.createServiceHistory(
-                appointmentId, serviceTypeId, patientId, nurseId, doctorId, serviceDate, location, serviceOutcomes);
+                appointmentId, service, patientId, nurseId, doctorId, serviceDate, location, serviceOutcomes);
 
             Console.WriteLine($"Step 2: Service history created with ID: {serviceHistoryId} for appointment ID: {appointmentId}");
             

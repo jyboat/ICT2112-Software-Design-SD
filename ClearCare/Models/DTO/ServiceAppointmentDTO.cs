@@ -16,7 +16,7 @@ namespace ClearCare.Models.DTO
         public string PatientId { get; set; }
         public string NurseId { get; set; }
         public string DoctorId { get; set; }
-        public string ServiceTypeId { get; set; }
+        public string Service { get; set; }
         public string Status { get; set; }
         public DateTime DateTime { get; set; }
         public int Slot { get; set; }
@@ -29,7 +29,7 @@ namespace ClearCare.Models.DTO
             PatientId = appointment.GetAttribute("PatientId");
             NurseId = appointment.GetAttribute("NurseId");
             DoctorId = appointment.GetAttribute("DoctorId");
-            ServiceTypeId = appointment.GetAttribute("ServiceTypeId");
+            Service = appointment.GetAttribute("Service");
             Status = appointment.GetAttribute("Status");
 
             // Ensure proper parsing of Datetime

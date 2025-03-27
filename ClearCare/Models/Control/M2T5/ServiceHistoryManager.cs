@@ -31,13 +31,13 @@ namespace ClearCare.Models.Control
         }
 
         // CREATE SERVICE HISTORY
-        public async Task<string> createServiceHistory(string appointmentId, string serviceTypeId, string patientId, string nurseId, string doctorId, DateTime serviceDate, string location, string serviceOutcomes)
+        public async Task<string> createServiceHistory(string appointmentId, string service, string patientId, string nurseId, string doctorId, DateTime serviceDate, string location, string serviceOutcomes)
         {
             // Convert to UTC
             DateTime utcServiceDate = serviceDate.Kind == DateTimeKind.Utc ? serviceDate : serviceDate.ToUniversalTime();
 
             var serviceHistory = ServiceHistory.setServiceHistoryDetails(
-                appointmentId, serviceTypeId, patientId, nurseId, doctorId, utcServiceDate, location, serviceOutcomes
+                appointmentId, service, patientId, nurseId, doctorId, utcServiceDate, location, serviceOutcomes
             );
 
             string serviceHistoryId = await _ServiceHistoryMapper.createServiceHistory(serviceHistory);

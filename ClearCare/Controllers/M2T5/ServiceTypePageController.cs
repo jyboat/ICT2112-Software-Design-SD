@@ -79,7 +79,7 @@ namespace ClearCare.Controllers
             var allAppointments = await appointmentChecker.getAppointmentDetails();
 
             var upcomingApptIds = allAppointments
-                .Where(appt => appt.GetAttribute("ServiceTypeId") == id.ToString())
+                .Where(appt => appt.GetAttribute("Service") == service.Name)
                 .Select(appt => appt.GetAttribute("AppointmentId"))
                 .ToList();
 
