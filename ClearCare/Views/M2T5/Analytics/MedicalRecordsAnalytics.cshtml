@@ -12,32 +12,26 @@
 
 <div class="container">
     <!-- Key Metrics Row -->
-    <div class="row text-center">
-        <div class="col-md-3">
+<div class="row text-center">
+    <div class="col-md-6">
+        <a href="/Analytics/ListMedicalRecords?filter=all" style="text-decoration: none;">
             <div class="card bg-primary text-white shadow-lg p-3">
-                <h6 class="card-title">Total Medical Records</h6>
+                <h6>Total Medical Records</h6>
                 <h3 class="fw-bold">@analytics?["TotalRecords"]</h3>
             </div>
-        </div>
-        <div class="col-md-3">
+        </a>
+    </div>
+
+    <div class="col-md-6">
+        <a href="/Analytics/ListMedicalRecords?filter=attachments" style="text-decoration: none;">
             <div class="card bg-success text-white shadow-lg p-3">
-                <h6 class="card-title">Records With Attachments</h6>
+                <h6>Records With Attachments</h6>
                 <h3 class="fw-bold">@analytics?["RecordsWithAttachments"]</h3>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-dark shadow-lg p-3">
-                <h6 class="card-title">Records Per Doctor</h6>
-                <h3 class="fw-bold">@recordsPerDoctor?.Count</h3>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-danger text-white shadow-lg p-3">
-                <h6 class="card-title">Records Per Patient</h6>
-                <h3 class="fw-bold">@recordsPerPatient?.Count</h3>
-            </div>
-        </div>
+        </a>
     </div>
+</div>
+
 
     <!-- Charts Row -->
     <div class="row mt-4">

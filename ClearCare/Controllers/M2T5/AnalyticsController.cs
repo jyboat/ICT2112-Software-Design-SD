@@ -49,6 +49,25 @@ public async Task<IActionResult> ListAppointments(string filter = "all")
 return View("~/Views/M2T5/Analytics/FilteredAppointmentsList.cshtml", appointmentList);
 }
 
+[Route("ListMedicalRecords")]
+public async Task<IActionResult> ListMedicalRecords(string filter = "all")
+{
+    var records = await _analyticsGateway.FetchMedicalRecordsByFilter(); // implement this below
+    var filtered = records;
+
+    if (filter == "attachments")
+        filtered = records.Where(r => r.ContainsKey("Attachment") && r["Attachment"] != null).ToList();
+
+    ViewData["Records"] = filtered;
+    ViewData["Title"] = filter switch
+    {
+        "attachments" => "📎 Medical Records with Attachments",
+        _ => "📄 All Medical Records"
+    };
+
+    return View("~/Views/M2T5/Analytics/FilteredMedicalRecordsList.cshtml");
+}
+
 
     }
 }

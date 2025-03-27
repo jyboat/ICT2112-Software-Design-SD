@@ -185,6 +185,22 @@ public async Task<List<Dictionary<string, object>>> FetchAppointmentsByFilter(st
     return filtered;
 }
 
+public async Task<List<Dictionary<string, object>>> FetchMedicalRecordsByFilter()
+{
+    var snapshot = await db.Collection("MedicalRecords").GetSnapshotAsync();
+    var results = new List<Dictionary<string, object>>();
+
+    foreach (var doc in snapshot.Documents)
+    {
+        var record = doc.ToDictionary();
+        record["RecordId"] = doc.Id;
+        results.Add(record);
+    }
+
+    return results;
+}
+
+
 
     }
 }
