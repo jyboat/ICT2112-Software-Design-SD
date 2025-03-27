@@ -1,4 +1,7 @@
 @model List<ClearCare.Models.DTO.ServiceAppointmentDTO>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
 
 <h2>Service Completion</h2>
 
@@ -11,7 +14,7 @@
 
 @if (Model != null && Model.Any())
 {
-    <table class="table">
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>Appointment ID</th>
@@ -61,9 +64,7 @@ else
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="appointmentModalLabel">Update Appointment Status</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="appointmentForm">
@@ -98,7 +99,10 @@ else
                     </div>
                     <div class="form-group">
                         <label for="location">Location</label>
-                        <input type="text" class="form-control" id="location">
+                        <select class="form-control" id="location">
+                            <option value="Physical">Physical</option>
+                            <option value="Virtual">Virtual</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="serviceOutcomes">Service Outcomes</label>
@@ -108,7 +112,6 @@ else
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="updateStatusBtn">Update Status</button>
             </div>
         </div>
@@ -118,6 +121,11 @@ else
 @section Scripts {
 <script>
 $(document).ready(function () {
+        $('.close, .btn-secondary').click(function () {
+        $('#appointmentModal').modal('hide');
+    });
+
+
     $('.update-btn').click(function () {
         var appointmentId = $(this).data('appointment-id');
         var patientId = $(this).data('patient-id');
@@ -156,7 +164,11 @@ $(document).ready(function () {
         });
 
         // Show the modal
-        $('#appointmentModal').modal('show');
+       // $('#appointmentModal').modal('show');
+        var modal = new bootstrap.Modal(document.getElementById('appointmentModal'));
+        modal.show();
+
+
     });
 
     // Handle the Update Status button click inside the modal
@@ -221,21 +233,6 @@ $(document).ready(function () {
             success: function (response) {
                 // Handle the PUT response (appointment update)
                 alert('Appointment updated successfully!');
-                @* // You can choose to update the table row here if needed
-                var updatedRow = `
-                    <tr>
-                        <td>${response.appointmentId}</td>
-                        <td>${response.patientId}</td>
-                        <td>${response.nurseId}</td>
-                        <td>${response.doctorId}</td>
-                        <td>${response.service}</td>
-                        <td>${response.status}</td>
-                        <td>${response.serviceDate}</td>
-                        <td>${response.location}</td>
-                        <td>${response.serviceOutcomes}</td>
-                    </tr>
-                `;
-                $('table tbody').find(`tr[data-appointment-id=${appointmentId}]`).replaceWith(updatedRow); // Replace the row with updated data*@
                 $('#appointmentModal').modal('hide'); // Hide the modal 
                 window.location.reload();
             },
@@ -248,100 +245,3 @@ $(document).ready(function () {
 </script>
 
 }
-
-
-
-@* @model List<ClearCare.Models.DTO.ServiceAppointmentDTO>
-
-<h2>Service Completion</h2>
-@{
-    var message = ViewBag.Message as string;
-    var notificationMessage = TempData["NotificationMessage"] as string; // Use TempData to pass notification message
-}
-
-@if (!string.IsNullOrEmpty(message))
-{
-    <div>
-        <strong>Message:</strong> @message
-    </div>
-}
-
-@if (!string.IsNullOrEmpty(notificationMessage))
-{
-    <div>
-        <strong>Notification:</strong> @notificationMessage
-    </div>
-}
-
-@if (Model != null && Model.Any())
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Appointment ID</th>
-                <th>Patient</th>
-                <th>Nurse</th>
-                <th>Doctor</th>
-                <th>Service Type</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var appointment in Model)
-            {
-                <tr>
-                    <td>@appointment.AppointmentId</td>
-                    <td>@appointment.PatientId</td>
-                    <td>@appointment.NurseId</td>
-                    <td>@appointment.DoctorId</td>
-                    <td>@appointment.ServiceTypeId</td>
-                    <td>@appointment.Status</td>
-                    <td>
-                        <!-- Update Button -->
-                        <button class="btn btn-primary update-btn" data-appointment-id="@appointment.AppointmentId">
-                            Update Status
-                        </button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No pending service appointments found.</p>
-}
-
-@section Scripts {
-    <script>
-        // Handle the update button click
-        $(document).ready(function () {
-            $('.update-btn').click(function () {
-                var appointmentId = $(this).data('appointment-id');
-
-                // Confirm the action (optional)
-                var confirmation = confirm('Are you sure you want to update the status of this appointment?');
-
-                if (confirmation) {
-                    // Make an AJAX request to the PUT endpoint
-                    $.ajax({
-                        url: '/ServiceCompletionInput/appointments/' + appointmentId,
-                        type: 'PUT',
-                        success: function (response) {
-                            // Optionally, update the row or give feedback to the user
-                            //alert('Appointment status updated successfully.');
-
-                            // Display a success message for the notification
-                            //TempData["NotificationMessage"] = "Notification sent to the user successfully.";
-                            window.location.reload(); // Reload the page to reflect the change and show the notification message
-                        },
-                        error: function (xhr, status, error) {
-                            alert('An error occurred while updating the appointment status: ' + error);
-                        }
-                    });
-                }
-            });
-        });
-    </script>
-} *@

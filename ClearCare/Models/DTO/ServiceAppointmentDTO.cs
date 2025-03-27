@@ -12,48 +12,59 @@ namespace ClearCare.Models.DTO
 {
     public class ServiceAppointmentDTO
     {
-        public string AppointmentId { get; set; }
-        public string PatientId { get; set; }
-        public string NurseId { get; set; }
-        public string DoctorId { get; set; }
-        public string Service { get; set; }
-        public string Status { get; set; }
-        public DateTime DateTime { get; set; }
-        public int Slot { get; set; }
-        public string Location { get; set; }
+        // Private fields
+        private string _appointmentId;
+        private string _patientId;
+        private string _nurseId;
+        private string _doctorId;
+        private string _service;
+        private string _status;
+        private DateTime _dateTime;
+        private int _slot;
+        private string _location;
 
         // Constructor that maps data from ServiceAppointment entity
         public ServiceAppointmentDTO(ServiceAppointment appointment)
         {
-            AppointmentId = appointment.GetAttribute("AppointmentId");
-            PatientId = appointment.GetAttribute("PatientId");
-            NurseId = appointment.GetAttribute("NurseId");
-            DoctorId = appointment.GetAttribute("DoctorId");
-            Service = appointment.GetAttribute("Service");
-            Status = appointment.GetAttribute("Status");
+            _appointmentId = appointment.GetAttribute("AppointmentId");
+            _patientId = appointment.GetAttribute("PatientId");
+            _nurseId = appointment.GetAttribute("NurseId");
+            _doctorId = appointment.GetAttribute("DoctorId");
+            _service = appointment.GetAttribute("Service");
+            _status = appointment.GetAttribute("Status");
 
-            // Ensure proper parsing of Datetime
+            // Ensure proper parsing of DateTime
             if (DateTime.TryParse(appointment.GetAttribute("Datetime"), out DateTime parsedDateTime))
             {
-                DateTime = parsedDateTime;
+                _dateTime = parsedDateTime;
             }
             else
             {
-                // Handle parsing failure (set to default or log error)
-                DateTime = DateTime.MinValue; // Default to MinValue or another fallback
+                _dateTime = DateTime.MinValue; // Default to MinValue or another fallback
             }
 
             // Ensure proper parsing of Slot
             if (int.TryParse(appointment.GetAttribute("Slot"), out int parsedSlot))
             {
-                Slot = parsedSlot;
+                _slot = parsedSlot;
             }
             else
             {
-                Slot = 0; // Default value if parsing fails
+                _slot = 0; // Default value if parsing fails
             }
 
-            Location = appointment.GetAttribute("Location");
+            _location = appointment.GetAttribute("Location");
         }
+
+        // Public getter methods to access the private fields
+        public string AppointmentId => _appointmentId;
+        public string PatientId => _patientId;
+        public string NurseId => _nurseId;
+        public string DoctorId => _doctorId;
+        public string Service => _service;
+        public string Status => _status;
+        public DateTime DateTime => _dateTime;
+        public int Slot => _slot;
+        public string Location => _location;
     }
 }
