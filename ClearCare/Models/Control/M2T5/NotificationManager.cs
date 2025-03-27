@@ -34,7 +34,7 @@ namespace ClearCare.Models.Control {
             var (methods, sendNow, sendTime) = await checkPreference(userId);
             DateTime timing = DateTime.UtcNow;
 
-            string email = "2301858@sit.singaporetech.edu.sg"; // Placeholder
+            string email = "example@gmail.com"; // Placeholder
             string phone = "+6500000000"; // Placeholder
             Console.WriteLine(TimeZoneInfo.Local.Id);
             sendTime = sendTime.ToUniversalTime();

@@ -60,6 +60,10 @@ builder.Services.AddScoped<NotificationManager>(); // Registers the concrete typ
 builder.Services.AddSingleton<NotificationPreferenceManager>();
 builder.Services.AddScoped<ServiceCompletionManager>();
 
+builder.Services.AddScoped<ServiceHistoryMapper>(); // Register ServiceHistoryMapper
+builder.Services.AddScoped<ServiceHistoryManager>(); // Register ServiceHistoryManager
+builder.Services.AddScoped<ServiceCompletionManager>();
+
 
 var app = builder.Build();
 

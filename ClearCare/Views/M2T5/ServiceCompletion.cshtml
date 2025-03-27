@@ -1,6 +1,275 @@
 @model List<ClearCare.Models.DTO.ServiceAppointmentDTO>
 
 <h2>Service Completion</h2>
+
+@if (!string.IsNullOrEmpty(TempData["NotificationMessage"] as string))
+{
+    <div class="alert alert-info">
+        @TempData["NotificationMessage"]
+    </div>
+}
+
+@if (Model != null && Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Appointment ID</th>
+                <th>Patient</th>
+                <th>Nurse</th>
+                <th>Doctor</th>
+                <th>Service Type</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var appointment in Model)
+            {
+                <tr>
+                    <td>@appointment.AppointmentId</td>
+                    <td>@appointment.PatientId</td>
+                    <td>@appointment.NurseId</td>
+                    <td>@appointment.DoctorId</td>
+                    <td>@appointment.ServiceTypeId</td>
+                    <td>@appointment.Status</td>
+                    <td>
+                        <!-- Update Button -->
+                        <button class="btn btn-primary update-btn"
+                                data-appointment-id="@appointment.AppointmentId"
+                                data-patient-id="@appointment.PatientId"
+                                data-nurse-id="@appointment.NurseId"
+                                data-doctor-id="@appointment.DoctorId"
+                                data-service-type-id="@appointment.ServiceTypeId"
+                                data-status="@appointment.Status">
+                            Update Status
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No pending service appointments found.</p>
+}
+
+<!-- Modal -->
+<div class="modal fade" id="appointmentModal" tabindex="-1" role="dialog" aria-labelledby="appointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="appointmentModalLabel">Update Appointment Status</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="appointmentForm">
+                    <div class="form-group">
+                        <label for="appointmentId">Appointment ID</label>
+                        <input type="text" class="form-control" id="appointmentId" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientId">Patient ID</label>
+                        <input type="text" class="form-control" id="patientId" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="nurseId">Nurse ID</label>
+                        <input type="text" class="form-control" id="nurseId" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="doctorId">Doctor ID</label>
+                        <input type="text" class="form-control" id="doctorId" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="serviceTypeId">Service Type ID</label>
+                        <input type="text" class="form-control" id="serviceTypeId" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <input type="text" class="form-control" id="status" disabled>
+                    </div>
+                    <!-- New fields for creating service history -->
+                    <div class="form-group">
+                        <label for="serviceDate">Service Date</label>
+                        <input type="datetime-local" class="form-control" id="serviceDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" class="form-control" id="location">
+                    </div>
+                    <div class="form-group">
+                        <label for="serviceOutcomes">Service Outcomes</label>
+                        <textarea class="form-control" id="serviceOutcomes"></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="updateStatusBtn">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+$(document).ready(function () {
+    $('.update-btn').click(function () {
+        var appointmentId = $(this).data('appointment-id');
+        var patientId = $(this).data('patient-id');
+        var nurseId = $(this).data('nurse-id');
+        var doctorId = $(this).data('doctor-id');
+        var serviceTypeId = $(this).data('service-type-id');
+        var status = $(this).data('status');
+
+        // Log the data when the update button is clicked
+        console.log("Button clicked, retrieving data:");
+        console.log({
+            appointmentId: appointmentId,
+            patientId: patientId,
+            nurseId: nurseId,
+            doctorId: doctorId,
+            serviceTypeId: serviceTypeId,
+            status: status
+        });
+
+        // Populate the modal with current appointment data
+        $('#appointmentId').val(appointmentId);
+        $('#patientId').val(patientId);
+        $('#nurseId').val(nurseId);
+        $('#doctorId').val(doctorId);
+        $('#serviceTypeId').val(serviceTypeId);
+        $('#status').val(status);
+
+        console.log("Modal populated with values:");
+        console.log({
+            appointmentId: $('#appointmentId').val(),
+            patientId: $('#patientId').val(),
+            nurseId: $('#nurseId').val(),
+            doctorId: $('#doctorId').val(),
+            serviceTypeId: $('#serviceTypeId').val(),
+            status: $('#status').val()
+        });
+
+        // Show the modal
+        $('#appointmentModal').modal('show');
+    });
+
+    // Handle the Update Status button click inside the modal
+    $('#updateStatusBtn').click(function () {
+        var appointmentId = $('#appointmentId').val();
+        var serviceDate = $('#serviceDate').val();
+        var location = $('#location').val();
+        var serviceOutcomes = $('#serviceOutcomes').val();
+        var patientId = $('#patientId').val();
+        var nurseId = $('#nurseId').val();
+        var doctorId = $('#doctorId').val();
+        var serviceTypeId = $('#serviceTypeId').val();
+        var status = $('#status').val();
+
+        // Log the data before making the POST and PUT requests
+        console.log("Preparing to send POST and PUT requests...");
+        console.log({
+            appointmentId: appointmentId,
+            patientId: patientId,
+            nurseId: nurseId,
+            doctorId: doctorId,
+            serviceTypeId: serviceTypeId,
+            status: status,
+            serviceDate: serviceDate,
+            location: location,
+            serviceOutcomes: serviceOutcomes
+        });
+
+        // Define the common data object to send with both requests
+        var data = {
+            appointmentId: appointmentId,
+            patientId: patientId,
+            nurseId: nurseId,
+            doctorId: doctorId,
+            serviceTypeId: serviceTypeId,
+            status: status,
+            serviceDate: serviceDate,
+            location: location,
+            serviceOutcomes: serviceOutcomes
+        };
+
+        // Send the POST request to create a new service history
+        $.ajax({
+            url: '/ServiceCompletionInput/createServiceHistory', // POST endpoint
+            type: 'POST',
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            success: function (response) {
+                // Handle the POST response (service history creation)
+                var newRow = `
+                    <tr>
+                        <td>${response.appointmentId}</td>
+                        <td>${response.patientId}</td>
+                        <td>${response.nurseId}</td>
+                        <td>${response.doctorId}</td>
+                        <td>${response.serviceTypeId}</td>
+                        <td>${response.status}</td>
+                        <td>${response.serviceDate}</td>
+                        <td>${response.location}</td>
+                        <td>${response.serviceOutcomes}</td>
+                    </tr>
+                `;
+                $('table tbody').append(newRow); // Add the new row to the table
+                alert('Service history created successfully!');
+                window.location.reload(); // Refresh the page to show the updated data
+            },
+            error: function (xhr, status, error) {
+                alert('Error creating service history: ' + error);
+            }
+        });
+
+        // Send the PUT request to update the appointment
+        $.ajax({
+            url: '/ServiceCompletionInput/appointments/' + appointmentId, // PUT endpoint
+            type: 'PUT',
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            success: function (response) {
+                // Handle the PUT response (appointment update)
+                alert('Appointment updated successfully!');
+                // You can choose to update the table row here if needed
+                var updatedRow = `
+                    <tr>
+                        <td>${response.appointmentId}</td>
+                        <td>${response.patientId}</td>
+                        <td>${response.nurseId}</td>
+                        <td>${response.doctorId}</td>
+                        <td>${response.serviceTypeId}</td>
+                        <td>${response.status}</td>
+                        <td>${response.serviceDate}</td>
+                        <td>${response.location}</td>
+                        <td>${response.serviceOutcomes}</td>
+                    </tr>
+                `;
+                $('table tbody').find(`tr[data-appointment-id=${appointmentId}]`).replaceWith(updatedRow); // Replace the row with updated data
+                $('#appointmentModal').modal('hide'); // Hide the modal
+                window.location.reload(); // Refresh the page to show the updated data
+            },
+            error: function (xhr, status, error) {
+                alert('Error updating appointment: ' + error);
+            }
+        });
+    });
+});
+</script>
+
+}
+
+
+
+@* @model List<ClearCare.Models.DTO.ServiceAppointmentDTO>
+
+<h2>Service Completion</h2>
 @{
     var message = ViewBag.Message as string;
     var notificationMessage = TempData["NotificationMessage"] as string; // Use TempData to pass notification message
@@ -91,4 +360,4 @@ else
             });
         });
     </script>
-}
+} *@
