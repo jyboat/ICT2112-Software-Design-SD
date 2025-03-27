@@ -15,10 +15,19 @@
 }
 
 
-<!-- Button to trigger add service modal -->
-<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServiceModal">
-    Add a Service
-</button>
+<!-- Button to trigger add service modal & search bar -->
+<div class="d-flex justify-content-between align-items-center mb-3 position-relative">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServiceModal">
+        Add a Service
+    </button>
+
+    <div style="position: relative; max-width: 400px; width: 100%;">
+        <input type="text" id="liveSearch" class="form-control" placeholder="Search services..." autocomplete="off" />
+        <ul id="searchResults" class="list-group position-absolute w-100 z-3"
+            style="top: 100%; max-height: 200px; overflow-y: auto;"></ul>
+    </div>
+</div>
+
 
 <table class="table table-bordered mt-3">
     <thead>
@@ -34,7 +43,7 @@
     <tbody>
         @foreach (var service in Model)
         {
-            <tr>
+            <tr id="service-@service.ServiceTypeId">
                 <td>@service.ServiceTypeId</td>
                 <td>@service.Name</td>
                 <td>@service.Duration</td>
@@ -48,11 +57,11 @@
                     <button class="btn btn-danger" onclick="loadDiscontinueModal(@service.ServiceTypeId)">
                         Discontinue
                     </button>
-
                 </td>
             </tr>
         }
     </tbody>
+
 </table>
 
 <!-- Modal container -- Discontinue service -->
@@ -183,3 +192,49 @@
         }
     }
 </script>
+
+@section Scripts {
+    <script>
+        const input = document.getElementById("liveSearch");
+        const resultsList = document.getElementById("searchResults");
+
+        input.addEventListener("input", async function () {
+            const term = this.value.trim();
+            resultsList.innerHTML = "";
+
+            if (term.length < 2) return;
+
+            const response = await fetch(`/ServiceTypePage/SearchServices?term=${encodeURIComponent(term)}`);
+            const data = await response.json();
+
+            if (data.length === 0) {
+                resultsList.innerHTML = `<li class="list-group-item text-muted">No matches found</li>`;
+                return;
+            }
+
+            data.forEach(service => {
+                const li = document.createElement("li");
+                li.classList.add("list-group-item", "list-group-item-action");
+                li.textContent = `${service.name} (${service.modality})`;
+                li.style.cursor = "pointer";
+
+                li.addEventListener("click", () => {
+                    const targetRow = document.getElementById(`service-${service.id}`);
+                    if (targetRow) {
+                        targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
+                        targetRow.classList.add("table-warning");
+                        setTimeout(() => targetRow.classList.remove("table-warning"), 2000);
+                    }
+                });
+
+                resultsList.appendChild(li);
+            });
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest("#liveSearch")) {
+                resultsList.innerHTML = "";
+            }
+        });
+    </script>
+}

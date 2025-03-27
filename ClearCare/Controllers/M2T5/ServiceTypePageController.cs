@@ -12,10 +12,45 @@ namespace ClearCare.Controllers
     {
         private ServiceTypeManager serviceManager = new ServiceTypeManager();
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchTerm)
         {
             var serviceTypes = await serviceManager.GetServiceTypes();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                serviceTypes = serviceTypes
+                    .Where(s =>
+                        s.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                        s.Requirements.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                        s.Modality.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
+                    )
+                    .ToList();
+            }
+
+            ViewBag.SearchTerm = searchTerm;
             return View("~/Views/M2T5/ServiceType/ServiceType.cshtml", serviceTypes);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> SearchServices(string term)
+        {
+            var all = await serviceManager.GetServiceTypes();
+
+            var results = all
+                .Where(s =>
+                    s.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    s.Modality.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    s.Requirements.Contains(term, StringComparison.OrdinalIgnoreCase)
+                )
+                .Select(s => new
+                {
+                    id = s.ServiceTypeId,
+                    name = s.Name,
+                    modality = s.Modality
+                })
+                .ToList();
+
+            return Json(results);
         }
 
         [HttpPost]
