@@ -92,16 +92,17 @@ namespace ClearCare.Models.Entities
 
         public DateTime GetAppointmentDateTime (ServiceAppointment appointment) {
             // Ensure DateTime is properly converted
-            const string DateTimeFormat = "d/M/yyyy h:mm:ss tt";
+            // const string DateTimeFormat = "d/M/yyyy h:mm:ss tt";
 
-            DateTime localTime = DateTime.ParseExact(
-                appointment.GetAttribute("Datetime"),  // Ensure correct key
-                DateTimeFormat,
-                System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.AdjustToUniversal // Ensures UTC conversion
-            );
+            // DateTime localTime = DateTime.ParseExact(
+            //     appointment.GetAttribute("Datetime"),  // Ensure correct key
+            //     DateTimeFormat,
+            //     System.Globalization.CultureInfo.InvariantCulture,
+            //     System.Globalization.DateTimeStyles.AdjustToUniversal // Ensures UTC conversion
+            // );
 
-            return localTime;
+            // return localTime;
+            return GetDateTime();
 
         }
 
