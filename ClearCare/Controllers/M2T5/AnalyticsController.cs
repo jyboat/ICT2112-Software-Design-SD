@@ -48,6 +48,13 @@ public async Task<IActionResult> ListAppointments(string filter = "all", string 
             ViewData["Title"] = $"🏥 Appointments for Service Type: {value}";
             break;
 
+        case "doctor":
+            filtered = records
+                .Where(a => a.ContainsKey("DoctorId") && a["DoctorId"]?.ToString() == value)
+                .ToList();
+            ViewData["Title"] = $"👨‍⚕️ Appointments for Doctor: {value}";
+            break;
+
         case "completed":
         case "pending":
         case "cancelled":

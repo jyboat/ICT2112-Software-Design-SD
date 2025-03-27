@@ -230,9 +230,10 @@ new Chart(ctx3, {
 });
 
     // Bar Chart: Appointments Per Doctor
-    var ctx4 = document.getElementById('appointmentsPerDoctorChart').getContext('2d');
+   var ctx4 = document.getElementById('appointmentsPerDoctorChart').getContext('2d');
     var appointmentsPerDoctor = @Html.Raw(Json.Serialize(appointmentsPerDoctor ?? new Dictionary<string, int>()));
-    new Chart(ctx4, {
+
+    var doctorChart = new Chart(ctx4, {
         type: 'bar',
         data: {
             labels: Object.keys(appointmentsPerDoctor),
@@ -247,6 +248,13 @@ new Chart(ctx3, {
             maintainAspectRatio: false,
             scales: {
                 y: { beginAtZero: true }
+            },
+            onClick: function (evt, elements) {
+                if (elements.length > 0) {
+                    const index = elements[0].index;
+                    const doctorId = this.data.labels[index];
+                    window.location.href = `/Analytics/ListAppointments?filter=doctor&value=${doctorId}`;
+                }
             }
         }
     });
