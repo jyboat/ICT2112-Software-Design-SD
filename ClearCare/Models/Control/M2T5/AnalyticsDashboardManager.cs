@@ -18,11 +18,6 @@ namespace ClearCare.Models.Control.M2T5
             return await _gateway.GetAppointmentAnalytics();
         }
 
-        public async Task<Dictionary<string, object>> GetMedicalRecordsAnalytics()
-        {
-            return await _gateway.GetMedicalRecordsAnalytics();
-        }
-
         public async Task<List<Dictionary<string, object>>> FetchFilteredAppointments(string status, string doctor, string type)
         {
             return await _gateway.FetchAppointmentsRaw(status, doctor, type); // Return raw list for filtering display
@@ -31,16 +26,6 @@ namespace ClearCare.Models.Control.M2T5
         public async Task<Dictionary<string, object>> GenerateFilteredAppointmentAnalytics(string status, string doctor, string type)
         {
             return await _gateway.FetchAppointmentsByFilter(status, doctor, type); // Return analytics object
-        }
-
-        public async Task<List<Dictionary<string, object>>> FetchMedicalRecordsRaw()
-        {
-            return await _gateway.FetchMedicalRecordsByFilter();
-        }
-
-        public async Task<List<Dictionary<string, object>>> FetchFilteredMedicalRecords(string filterType, string filterValue)
-        {
-            return await _gateway.FetchMedicalRecordsByFilter(filterType, filterValue);
         }
     }
 }

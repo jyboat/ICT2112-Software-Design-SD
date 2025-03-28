@@ -3,6 +3,18 @@
     var appointmentsPerType = analytics?["AppointmentsPerType"] as Dictionary<string, int>;
     var appointmentsPerDoctor = analytics?["AppointmentsPerDoctor"] as Dictionary<string, int>;
     var appointmentsPerMonth = analytics?["AppointmentsPerMonth"] as Dictionary<string, int>;
+
+
+    // Optionally, you could provide lists of available Service Types and Doctors to populate your dropdowns.
+    // For example, these could be provided from the controller via ViewData.
+    var serviceTypes = new List<string> { "Blood Test", "Medication Counselling", "Home Safety Assessments" };  
+    var serviceStatuses = new List<string> { "completed", "cancelled", "missed", "pending" };
+    var doctorIds = new List<string> { "101", "102", "103" };
+
+    // // Retrieve dynamic dropdown lists from ViewData
+    // var serviceTypes = ViewData["ServiceTypes"] as List<string>;
+    // var serviceStatuses = ViewData["ServiceStatuses"] as List<string>;
+    // var doctorIds = ViewData["DoctorIds"] as List<string>;
 }
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -19,6 +31,49 @@
 }
 </style>
 
+
+<!-- Filter Form -->
+<div class="container mt-4">
+    <form method="get" action="/Analytics/Appointments">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="type" class="form-label">Service Type</label>
+                <select name="type" id="type" class="form-select">
+                    <option value="">All</option>
+                    @foreach(var type in serviceTypes)
+                    {
+                        <option value="@type">@type</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="status" class="form-label">Service Status</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="">All</option>
+                    @foreach(var status in serviceStatuses)
+                    {
+                        <option value="@status">@status</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="doctor" class="form-label">Doctor ID</label>
+                <select name="doctor" id="doctor" class="form-select">
+                    <option value="">All</option>
+                    @foreach(var doctor in doctorIds)
+                    {
+                        <option value="@doctor">@doctor</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+            </div>
+        </div>
+    </form>
+</div>
 
 <!-- Dashboard Header -->
 <div class="container mt-4">

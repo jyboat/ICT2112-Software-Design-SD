@@ -84,19 +84,19 @@ namespace ClearCare.DataSource
         }
 
         public async Task<List<Dictionary<string, object>>> FetchAllAppointments()
-{
-    var snapshot = await db.Collection("ServiceAppointments").GetSnapshotAsync();
-    var results = new List<Dictionary<string, object>>();
+        {
+            var snapshot = await db.Collection("ServiceAppointments").GetSnapshotAsync();
+            var results = new List<Dictionary<string, object>>();
 
-    foreach (var doc in snapshot.Documents)
-    {
-        var record = doc.ToDictionary();
-        record["AppointmentId"] = doc.Id;
-        results.Add(record);
-    }
+            foreach (var doc in snapshot.Documents)
+            {
+                var record = doc.ToDictionary();
+                record["AppointmentId"] = doc.Id;
+                results.Add(record);
+            }
 
-    return results;
-}
+            return results;
+        }
 
 private Dictionary<string, object> GenerateAppointmentAnalytics(List<Dictionary<string, object>> appointments)
 {
@@ -229,13 +229,12 @@ public async Task<List<Dictionary<string, object>>> FetchAppointmentsRaw(string 
                         appointmentsPerMonth[monthYearKey] = 1;
 
                     // Count completed, pending, and cancelled appointments
-if (status == "Completed")
-    completedAppointments++;
-else if (status == "Cancelled")
-    cancelledAppointments++;
-else if (status == "Missed")
-    pendingAppointments++;  
-
+                    if (status == "Completed")
+                        completedAppointments++;
+                    else if (status == "Cancelled")
+                        cancelledAppointments++;
+                    else if (status == "Missed")
+                        pendingAppointments++;  
                 }
 
                 return new Dictionary<string, object>

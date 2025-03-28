@@ -15,6 +15,12 @@ namespace ClearCare.Controllers.M2T5
         {
             var analytics = await _manager.GenerateFilteredAppointmentAnalytics(status, doctor, type);
             ViewData["AppointmentAnalytics"] = analytics;
+
+            // // Retrieve dynamic data from the database
+            // var serviceTypes = await _manager.GetServiceTypesAsync();  // e.g., returns List<string>
+            // var doctorIds = await _manager.GetDoctorIdsAsync();        // e.g., returns List<string>
+            // var serviceStatuses = new List<string> { "completed", "cancelled", "missed", "pending" };
+
             return View("~/Views/M2T5/Analytics/AppointmentsAnalytics.cshtml");
         }
 
@@ -34,17 +40,17 @@ namespace ClearCare.Controllers.M2T5
                     filtered = appointments.FindAll(a => a["DoctorId"]?.ToString() == value);
                     ViewData["Title"] = $"👨‍⚕️ Appointments for Doctor: {value}";
                     break;
-case "completed":
-case "cancelled":
-case "missed":
-    filtered = appointments.FindAll(a => a["Status"]?.ToString().ToLower() == filter.ToLower());
-    ViewData["Title"] = $"📋 {char.ToUpper(filter[0]) + filter[1..]} Appointments";
-    break;
+                case "completed":
+                case "cancelled":
+                case "missed":
+                    filtered = appointments.FindAll(a => a["Status"]?.ToString().ToLower() == filter.ToLower());
+                    ViewData["Title"] = $"📋 {char.ToUpper(filter[0]) + filter[1..]} Appointments";
+                    break;
 
-case "pending":
-    filtered = appointments.FindAll(a => a["Status"]?.ToString().ToLower() == "missed");
-    ViewData["Title"] = $"📋 Missed Appointments";
-    break;
+                case "pending":
+                    filtered = appointments.FindAll(a => a["Status"]?.ToString().ToLower() == "missed");
+                    ViewData["Title"] = $"📋 Missed Appointments";
+                    break;
 
 
                 default:
@@ -54,42 +60,6 @@ case "pending":
 
             ViewData["Appointments"] = filtered;
             return View("~/Views/M2T5/Analytics/FilteredAppointmentsList.cshtml");
-        }
-
-        [HttpGet("MedicalRecords")]
-        public async Task<IActionResult> MedicalRecordsAnalytics()
-        {
-            var analytics = await _manager.GetMedicalRecordsAnalytics();
-            ViewData["MedicalRecordsAnalytics"] = analytics;
-            return View("~/Views/M2T5/Analytics/MedicalRecordsAnalytics.cshtml");
-        }
-
-        [HttpGet("ListMedicalRecords")]
-        public async Task<IActionResult> ListMedicalRecords(string filter = "all", string value = "")
-        {
-            var records = await _manager.FetchMedicalRecordsRaw();
-            var filtered = records;
-            string title = "📄 All Medical Records";
-
-            switch (filter.ToLower())
-            {
-                case "attachments":
-                    filtered = records.FindAll(r => r.ContainsKey("Attachment") && r["Attachment"] != null);
-                    title = "📎 Records with Attachments";
-                    break;
-                case "doctor":
-                    filtered = records.FindAll(r => r.ContainsKey("DoctorID") && r["DoctorID"]?.ToString() == value);
-                    title = $"👨‍⚕️ Records for Doctor: {value}";
-                    break;
-                case "patient":
-                    filtered = records.FindAll(r => r.ContainsKey("PatientID") && r["PatientID"]?.ToString() == value);
-                    title = $"🏥 Records for Patient: {value}";
-                    break;
-            }
-
-            ViewData["Records"] = filtered;
-            ViewData["Title"] = title;
-            return View("~/Views/M2T5/Analytics/FilteredMedicalRecordsList.cshtml");
         }
     }
 }
