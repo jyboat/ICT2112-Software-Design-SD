@@ -101,7 +101,7 @@ namespace ClearCare.Models.Entities
         // ServiceHistory { PatientId = "USR010", NurseId = "USR001", ... }
         // Rich Domain Model Mapping
         public static ServiceHistory FromFirestoreData(string serviceHistoryId, Dictionary<string, object> data)
-        {
+        {   
             return new ServiceHistory
             {
                 ServiceHistoryId = serviceHistoryId,
@@ -110,13 +110,10 @@ namespace ClearCare.Models.Entities
                 PatientId = data["PatientId"].ToString() ?? "",
                 NurseId = data.ContainsKey("NurseId") ? data["NurseId"].ToString() ?? "" : "" ,
                 DoctorId = data["DoctorId"].ToString() ?? "",
-                ServiceDate = ((Timestamp)data["ServiceDate"]).ToDateTime(),
+                ServiceDate = ((Timestamp)data["ServiceDate"]).ToDateTime().ToLocalTime(),
                 Location = data["Location"].ToString()  ?? "",
                 ServiceOutcomes = data["ServiceOutcomes"].ToString()  ?? ""
             };
         }
-
     }
-
-
 }
