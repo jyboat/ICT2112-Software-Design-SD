@@ -1,6 +1,7 @@
 using ClearCare.Controls;
 using ClearCare.Gateways;
 using ClearCare.Observers;
+using ClearCare.Interfaces; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +27,10 @@ builder.Services.AddScoped<PatientDrugLogControl>();
 builder.Services.AddSingleton<PrescriptionMapper>();
 builder.Services.AddScoped<PrescriptionControl>();
 
+builder.Services.AddHttpClient<IFetchSideEffects, DrugLogSideEffectsService>();
+
 builder.Services.AddSingleton<PatientDrugMapper>();
+builder.Services.AddSingleton<DrugLogSideEffectsService>();
 builder.Services.AddScoped<PatientDrugLogControl>();
 builder.Services.AddScoped<DrugInteractionControl>();
 

@@ -1,5 +1,6 @@
 using ClearCare.Controls;
 using ClearCare.Models;
+using ClearCare.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -8,10 +9,13 @@ namespace ClearCare.Controllers
     public class PatientDrugLogController : Controller
     {
         private readonly PatientDrugLogControl _patientDrugLogControl;
+        //IFetchSideEffects interface
+        private readonly IFetchSideEffects _ifetchSideEffects;
 
-        public PatientDrugLogController(PatientDrugLogControl patientDrugLogControl)
+        public PatientDrugLogController(PatientDrugLogControl patientDrugLogControl, IFetchSideEffects ifetchSideEffects)
         {
             _patientDrugLogControl = patientDrugLogControl;
+            _ifetchSideEffects = ifetchSideEffects;
         }
 
         [HttpGet]
@@ -27,6 +31,7 @@ namespace ClearCare.Controllers
             return View();
         }
 
+        //Method Name Matches CD ✅
         [HttpPost]
         public async Task<IActionResult> add(PatientDrugLogModel drugInfo)
         {
@@ -37,6 +42,19 @@ namespace ClearCare.Controllers
             }
 
             return View();
+        }
+        
+        
+        [HttpGet]
+        public async Task<IActionResult> fetchDrugSideEffect(string drugName)
+        {
+            if (string.IsNullOrWhiteSpace(drugName))
+            {
+                return BadRequest("Drug name is required.");
+            }
+
+            string sideEffects = await _ifetchSideEffects.fetchDrugSideEffect(drugName);
+            return Content(sideEffects, "application/json");
         }
     }
 }

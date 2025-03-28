@@ -8,7 +8,7 @@ namespace ClearCare
 
         // Paitent Exmaple
         public const string UserUUID = "uuid-alice";
-        public const string UserRole = "Patient";
+        public const string UserRole = "Doctor";
 
         // Used for Prescription Page Drop Done
         public class PatientInfo

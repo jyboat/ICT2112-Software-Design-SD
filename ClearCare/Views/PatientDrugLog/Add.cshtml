@@ -7,11 +7,9 @@
 <div class="container py-4">
     <h1 class="mb-4">Upload Drug</h1>
 
-    <form asp-action="Add" method="post">
+    <form asp-action="add" method="post">
         <div class="mb-3">
-            <label for="PatientId" class="form-label">Patient ID</label>
-            <!-- Use your static class to populate the field -->
-            <input type="text"
+            <input type="hidden"
                    class="form-control"
                    id="PatientId"
                    name="PatientId"
@@ -25,15 +23,20 @@
         </div>
 
         <div class="mb-3">
-            <label for="DrugInformation" class="form-label">Drug Information</label>
-            <textarea class="form-control" id="DrugInformation" name="DrugInformation" rows="3" required></textarea>
+            <label for="ReportedSideEffects" class="form-label">Reported Side Effects</label>
+            <textarea class="form-control" id="ReportedSideEffects" name="ReportedSideEffects" rows="6" disabled></textarea>
         </div>
 
         <div class="mb-3">
-            <label for="SideEffects" class="form-label">Side Effects</label>
+            <label for="SideEffects" class="form-label">Report New Side Effects</label>
             <textarea class="form-control" id="SideEffects" name="SideEffects" rows="3" required></textarea>
         </div>
-    
+
+        <div class="mb-3">
+            <label for="DrugInformation" class="form-label">Information</label>
+            <textarea class="form-control" id="DrugInformation" name="DrugInformation" rows="3" required></textarea>
+        </div>
+
         <div class="form-group col-md-4 mb-3 ">
         <label for="status">Status</label>
         <select id="status" name = "status" class="form-control">
@@ -46,3 +49,35 @@
         <a asp-action="Index" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
+
+<script>
+document.getElementById("DrugName").addEventListener("input", async function() {
+    const drugName = document.getElementById("DrugName").value.trim();
+
+    if (!drugName) {
+        document.getElementById("ReportedSideEffects").value = ""; // Clear side effects if input is empty
+        return;
+    }
+
+    try {
+        const response = await fetch(`/PatientDrugLog/fetchDrugSideEffect?drugName=${encodeURIComponent(drugName)}`);
+        
+        if (!response.ok) {
+            throw new Error("Failed to fetch side effects.");
+        }
+
+        const data = await response.json(); // Parse JSON response
+        
+        if (data.results && data.results.length > 0) {
+            const sideEffects = data.results[0].sideEffects.split(',').map(effect => `• ${effect.trim()}`).join('\n');
+            document.getElementById("ReportedSideEffects").value = sideEffects;
+        } else {
+            document.getElementById("ReportedSideEffects").value = "No side effects found.";
+        }
+    } catch (error) {
+        console.error("Error fetching side effects:", error);
+        document.getElementById("ReportedSideEffects").value = "Could not retrieve any reported side effects.";
+    }
+});
+</script>
+
