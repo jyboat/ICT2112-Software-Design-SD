@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Add Side Effect";
+    // Retrieve the patient ID from session. 
+    // 'Context' is available in Razor views and gives you access to HttpContext.
+    string userUUID = Context.Session.GetString("UserUUID") ?? "";
 }
 
 <div class="container py-4">
@@ -10,12 +13,12 @@
     <form asp-action="Add" method="post">
         <div class="mb-3">
             <label for="PatientId" class="form-label">Patient ID</label>
-            <!-- Use your static class to populate the field -->
+            <!-- Use the patient ID from session -->
             <input type="text"
                    class="form-control"
                    id="PatientId"
                    name="PatientId"
-                   value="@HardcodedUUIDs.UserUUID"
+                   value="@userUUID"
                    readonly />
         </div>
 

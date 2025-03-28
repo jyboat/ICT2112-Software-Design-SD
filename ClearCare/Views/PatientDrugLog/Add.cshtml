@@ -1,7 +1,10 @@
 @using ClearCare  
+@using Microsoft.AspNetCore.Http
 
 @{
     ViewData["Title"] = "Upload Drug";
+    // Retrieve the patient ID from session storage.
+    var userUUID = Context.Session.GetString("UserUUID") ?? "";
 }
 
 <div class="container py-4">
@@ -9,11 +12,13 @@
 
     <form asp-action="add" method="post">
         <div class="mb-3">
-            <input type="hidden"
+            <label for="PatientId" class="form-label">Patient ID</label>
+            <!-- Use the patient ID from session -->
+            <input type="text"
                    class="form-control"
                    id="PatientId"
                    name="PatientId"
-                   value="@HardcodedUUIDs.UserUUID"
+                   value="@userUUID"
                    readonly />
         </div>
 
@@ -31,18 +36,13 @@
             <label for="SideEffects" class="form-label">Report New Side Effects</label>
             <textarea class="form-control" id="SideEffects" name="SideEffects" rows="3" required></textarea>
         </div>
-
-        <div class="mb-3">
-            <label for="DrugInformation" class="form-label">Information</label>
-            <textarea class="form-control" id="DrugInformation" name="DrugInformation" rows="3" required></textarea>
-        </div>
-
-        <div class="form-group col-md-4 mb-3 ">
-        <label for="status">Status</label>
-        <select id="status" name = "status" class="form-control">
-            <option selected>Currently Taking</option>
-            <option>Not Taking</option>
-        </select>
+    
+        <div class="form-group col-md-4 mb-3">
+            <label for="status">Status</label>
+            <select id="status" name="status" class="form-control">
+                <option selected>Currently Taking</option>
+                <option>Not Taking</option>
+            </select>
         </div>
 
         <button type="submit" class="btn btn-primary">Upload Drug Info</button>

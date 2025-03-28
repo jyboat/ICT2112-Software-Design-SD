@@ -1,9 +1,11 @@
 @model List<ClearCare.Models.Enquiry>
 @using ClearCare
+@using Microsoft.AspNetCore.Http
 
 @{
     ViewData["Title"] = "List of Enquiries";
-    string userRole = HardcodedUUIDs.UserRole;
+    // Retrieve the user's role from the session
+    string userRole = Context.Session.GetString("UserRole") ?? "Unknown";
 }
 
 <div class="container mt-5">

@@ -9,7 +9,6 @@ namespace ClearCare.Controllers
         /// </summary>
         public IActionResult index()
         {
-            // Typically returns a "home" or "landing" page
             return View();
         }
 

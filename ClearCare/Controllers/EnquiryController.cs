@@ -3,6 +3,9 @@ using ClearCare.Models;
 using ClearCare.Controls;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Http;  // For session extension methods
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ClearCare.Controllers
 {
@@ -18,29 +21,25 @@ namespace ClearCare.Controllers
         }
 
         // Display the Enquiry Form
-        public IActionResult index()
-        {
-            return View();
-        }
-
-
-        [HttpGet]
         public IActionResult Index()
         {
-            // Check the user role from your hardcoded class
-            if (HardcodedUUIDs.UserRole == "Doctor")
+            // Retrieve user role from session.
+            string userRole = HttpContext.Session.GetString("UserRole") ?? "Unknown";
+            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "";
+
+            if (userRole == "Doctor")
             {
-                // Redirect doctors to ListEnquiriesByDoctor
-                return RedirectToAction("ListEnquiriesByDoctor", new { userUuid = HardcodedUUIDs.UserUUID });
+                // Redirect doctors to ListEnquiriesByDoctor using session value.
+                return RedirectToAction("ListEnquiriesByDoctor", new { userUUID = userUUID });
             }
             
-            // Otherwise, render the Enquiry form for Patients (or others).
-            return index();
+            // Otherwise, render the Enquiry form for patients (or others).
+            return View();
         }
 
         // List all enquiries in memory
         [HttpGet]
-        public IActionResult listEnquiries()
+        public IActionResult ListEnquiries()
         {
             var enquiries = _enquiryControl.fetchAllEnquiries();
             return View(enquiries);
@@ -48,24 +47,36 @@ namespace ClearCare.Controllers
 
         // List all enquiries for a particular user (via Firestore)
         [HttpGet]
-        public async Task<IActionResult> listEnquiriesByUser(string userUUID)
+        public async Task<IActionResult> ListEnquiriesByUser(string userUUID)
         {
+            // If userUUID not passed as a parameter, try to get it from session.
+            if (string.IsNullOrEmpty(userUUID))
+            {
+                userUUID = HttpContext.Session.GetString("UserUUID") ?? "";
+            }
             var userEnquiries = await _enquiryControl.fetchEnquiriesByUserAsync(userUUID);
             return View("ListEnquiries", userEnquiries);
         }
 
-
-         // List all enquiries for a particular user (via Firestore)
+        // List all enquiries for a particular doctor (via Firestore)
         [HttpGet]
-        public async Task<IActionResult> listEnquiriesByDoctor(string userUUID)
+        public async Task<IActionResult> ListEnquiriesByDoctor(string userUUID)
         {
+            // If userUUID not passed as a parameter, get it from session.
+            if (string.IsNullOrEmpty(userUUID))
+            {
+                userUUID = HttpContext.Session.GetString("UserUUID") ?? "";
+            }
             var userEnquiries = await _enquiryControl.fetchEnquiriesByDoctorAsync(userUUID);
             return View("ListEnquiries", userEnquiries);
         }
 
         [HttpPost]
-        public async Task<IActionResult> submitEnquiry(Enquiry enquiry, string userUUID, string doctorUUID, string topic)
+        public async Task<IActionResult> SubmitEnquiry(Enquiry enquiry, string doctorUUID, string topic)
         {
+            // Retrieve userUUID from session.
+            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "";
+
             // Pass both userUUID and doctorUUID to the control.
             await _enquiryControl.createEnquiryAsync(enquiry, userUUID, doctorUUID, topic);
 
@@ -77,96 +88,96 @@ namespace ClearCare.Controllers
             return View("EnquiryResult");
         }
 
-[HttpPost]
-public async Task<IActionResult> sendReply(
-    string enquiryId,
-    string senderName,         
-    string recipientName,
-    string recipientEmail,
-    string originalMessage,
-    string userUUID,
-    string subject,
-    string message)
-{
-    try
-    {
-        var reply = new Reply
+        [HttpPost]
+        public async Task<IActionResult> SendReply(
+            string enquiryId,
+            string senderName,
+            string recipientName,
+            string recipientEmail,
+            string originalMessage,
+            string subject,
+            string message)
         {
-            EnquiryId = enquiryId,
-            Subject = subject,
-            Message = message,
-            SenderName = senderName, 
-            RecipientName = recipientName,
-            RecipientEmail = recipientEmail,
-            OriginalMessage = originalMessage,
-            UserUUID = userUUID
-        };
+            // Retrieve userUUID from session.
+            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "";
 
-        await _enquiryControl.saveReplyAsync(enquiryId, reply);
+            try
+            {
+                var reply = new Reply
+                {
+                    EnquiryId = enquiryId,
+                    Subject = subject,
+                    Message = message,
+                    SenderName = senderName,
+                    RecipientName = recipientName,
+                    RecipientEmail = recipientEmail,
+                    OriginalMessage = originalMessage,
+                    UserUUID = userUUID
+                };
 
-        return RedirectToAction("reply", new { id = enquiryId, pageNumber = 1 });
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error sending reply");
-        return View("Error", new ErrorViewModel
-        {
-            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
-        });
-    }
-}
+                await _enquiryControl.saveReplyAsync(enquiryId, reply);
 
-     
-        [HttpGet]
-public async Task<IActionResult> reply(string id, int pageNumber = 1)
-{
-    try
-    {
-        var enquiry = await _enquiryControl.fetchEnquiryByFirestoreIdAsync(id);
-        if (enquiry == null)
-        {
-            return NotFound($"Enquiry with ID {id} not found.");
+                return RedirectToAction("reply", new { id = enquiryId, pageNumber = 1 });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending reply");
+                return View("Error", new ErrorViewModel
+                {
+                    RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+                });
+            }
         }
 
-        // Fetch all replies
-        var replies = await _enquiryControl.fetchRepliesForEnquiryAsync(id);
-
-        // Define page size (how many replies to show per page)
-        const int pageSize = 10;
-        var totalReplies = replies.Count;
-
-        // Calculate how many to skip, then take up to 'pageSize'
-        var skip = (pageNumber - 1) * pageSize;
-       var pagedReplies = replies
-    .OrderByDescending(r => r.CreatedAt)
-    .Skip(skip)
-    .Take(pageSize)
-    .ToList();
-
-        // Populate view model
-        var viewModel = new ReplyToEnquiryViewModel
+        [HttpGet]
+        public async Task<IActionResult> Reply(string id, int pageNumber = 1)
         {
-            Enquiry = enquiry,
-            Replies = pagedReplies
-        };
+            try
+            {
+                var enquiry = await _enquiryControl.fetchEnquiryByFirestoreIdAsync(id);
+                if (enquiry == null)
+                {
+                    return NotFound($"Enquiry with ID {id} not found.");
+                }
 
-        // Pass pagination info to the view
-        ViewBag.CurrentPage = pageNumber;
-        ViewBag.PageSize = pageSize;
-        ViewBag.TotalReplies = totalReplies;
-        ViewBag.TotalPages = (int)Math.Ceiling((double)totalReplies / pageSize);
+                // Fetch all replies.
+                var replies = await _enquiryControl.fetchRepliesForEnquiryAsync(id);
 
-        return View("Reply", viewModel);
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, $"Error retrieving enquiry with ID {id}");
-        return View("Error", new ErrorViewModel
-        {
-            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
-        });
-    }
-}
+                // Define page size (how many replies to show per page)
+                const int pageSize = 10;
+                var totalReplies = replies.Count;
 
+                // Calculate how many to skip, then take up to 'pageSize'
+                var skip = (pageNumber - 1) * pageSize;
+                var pagedReplies = replies
+                    .OrderByDescending(r => r.CreatedAt)
+                    .Skip(skip)
+                    .Take(pageSize)
+                    .ToList();
+
+                // Populate view model.
+                var viewModel = new ReplyToEnquiryViewModel
+                {
+                    Enquiry = enquiry,
+                    Replies = pagedReplies
+                };
+
+                // Pass pagination info to the view.
+                ViewBag.CurrentPage = pageNumber;
+                ViewBag.PageSize = pageSize;
+                ViewBag.TotalReplies = totalReplies;
+                ViewBag.TotalPages = (int)Math.Ceiling((double)totalReplies / pageSize);
+
+                return View("Reply", viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving enquiry with ID {id}");
+                return View("Error", new ErrorViewModel
+                {
+                    RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+                });
+            }
+        }
     }
 }
