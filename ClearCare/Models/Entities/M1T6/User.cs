@@ -60,9 +60,9 @@ namespace ClearCare.Models.Entities
 
 
         // Returns userID and Role to store in Session upon User login
-        public (string userID, string role) getSessionData()
+        public (string userID, string role, string name) getSessionData()
         {
-            return (getUserID(), getRole());
+            return (getUserID(), getRole(), getName());
         }
 
         // Returns all user data to be used in Profile
