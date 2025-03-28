@@ -18,8 +18,8 @@ public class SessionInitializerMiddleware
         // Set the session keys with your desired values.
         context.Session.SetString("UserUUID", "uuid-1234");
         context.Session.SetString("UserName", "Alice");
-        context.Session.SetString("UserRole", "Patient");
-        // context.Session.SetString("UserRole", "Doctor");
+        // context.Session.SetString("UserRole", "Patient");
+        context.Session.SetString("UserRole", "Doctor");
 
         await _next(context);
     }
