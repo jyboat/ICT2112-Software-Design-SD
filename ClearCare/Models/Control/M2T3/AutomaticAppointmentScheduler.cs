@@ -18,8 +18,10 @@ namespace ClearCare.Models.Control
         private readonly ICreateAppointment _iCreateAppointment;
         private readonly INurseAvailability _iNurseAvailability;
         private readonly INotification _iNotification;
+         private readonly IServiceType _iServiceType;
+        private readonly IRetrieveAllAppointments _iRetrieveAppointment;
         private IAutomaticScheduleStrategy? _iAutomaticScheduleStrategy;
-        private readonly IServiceType _iServiceType;
+       
         private FirestoreDb db;
         // private readonly ServiceBacklogManagement _serviceBacklogManagement;
 
@@ -35,13 +37,16 @@ namespace ClearCare.Models.Control
             IAutomaticScheduleStrategy? IAutomaticScheduleStrategy = null
             )
         {
-            _iCreateAppointment = new ServiceAppointmentManagement();
-            _iNurseAvailability = new NurseAvailabilityManagement();
-            _iNotification = new NotificationManager();
-            _iServiceType = new ServiceTypeManager();;
+            _iCreateAppointment = (ICreateAppointment) new ServiceAppointmentManagement();
+            _iNurseAvailability = (INurseAvailability) new NurseAvailabilityManagement();
+            _iNotification = (INotification) new NotificationManager();
+            _iServiceType = (IServiceType) new ServiceTypeManager();
+            _iRetrieveAppointment = (IRetrieveAllAppointments) new ServiceAppointmentStatusManagement();
             // To be set at runtime later
             _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; 
             db = FirebaseService.Initialize();
+
+             
 
             // _serviceBacklogManagement = new ServiceBacklogManagement();
             // attach(_serviceBacklogManagement);
@@ -238,7 +243,7 @@ namespace ClearCare.Models.Control
             foreach (DocumentSnapshot document in snapshot.Documents)
             {
                 string appointmentId = document.GetValue<string>("appointmentId");
-                ServiceAppointment appointment = await _iCreateAppointment.getAppointmentByID(appointmentId);
+                ServiceAppointment appointment = await _iRetrieveAppointment.getServiceAppointmentById(appointmentId);
                 appointment.updateServiceAppointementById(
                     appointment, 
                     appointment.GetAttribute("PatientId"), 
