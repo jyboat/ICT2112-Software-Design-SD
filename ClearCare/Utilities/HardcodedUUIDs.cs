@@ -2,11 +2,7 @@ namespace ClearCare
 {
     public static class HardcodedUUIDs
     {
-        // Doctore Exmaple
-        // public const string UserUUID = "uuid-doctor-1"; 
-        // public const string UserRole = "Doctor";
-
-        // Paitent Exmaple
+      
         public const string UserUUID = "uuid-alice";
         public const string UserRole = "Patient";
 
