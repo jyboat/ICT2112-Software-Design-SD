@@ -74,12 +74,7 @@ namespace ClearCare.Models.Control.M3T1
         // Response Notification for Patients, for FeedbackController, not implemented in any interfaces
         public bool responseNotification(string patientId)
         {
-            if (PatientNotificationObserver.NotificationMap.ContainsKey(patientId))
-            {
-                PatientNotificationObserver.NotificationMap.Remove(patientId);
-                return true;
-            }
-            return false;
+            return PatientNotificationObserver.CheckAndClearNotification(patientId);
         }
 
         // Combine feedbackList and responseList, for FeedbackController, not implemented in any interfaces
