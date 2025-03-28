@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ClearCare.Interfaces;
+using ClearCare.Models.Interface;
 using ClearCare.Models.Entities;
 using ClearCare.DataSource;
 
@@ -11,6 +12,7 @@ namespace ClearCare.Models.Control {
         private readonly INotificationSender _notificationSenderEmail; // Dependency for sending emails
         private readonly INotificationSender _notificationSenderEmailSMS; // Dependency for sending SMS
         private readonly INotificationPreferences _notificationPreference; // Dependency for accessing notification preferences
+        private readonly IUserDetails _userDetails;
 
         // Constructor: initialize NotificationGateway, attach as observer, and inject INotificationSender
         public NotificationManager() {
@@ -21,6 +23,7 @@ namespace ClearCare.Models.Control {
             _notificationSenderEmailSMS = new SMSNotificationDecorator(_notificationSenderEmail);
 
             _notificationPreference = new NotificationPreferenceManager();
+            _userDetails  = new ProfileManagement();
         }
 
         // createNotification: generates a new notification, stores it in the database, then triggers sending.
@@ -34,8 +37,16 @@ namespace ClearCare.Models.Control {
             var (methods, sendNow, sendTime) = await checkPreference(userId);
             DateTime timing = DateTime.UtcNow;
 
-            string email = "example@gmail.com"; // Placeholder
-            string phone = "+6500000000"; // Placeholder
+            var userdata = await _userDetails.getUserDetails(userId);
+            var user = userdata.getProfileData();
+            Console.WriteLine($"NotifManager: {user}");
+
+
+            // string email = "example@gmail.com"; // Placeholder
+            // string phone = "+6500000000"; // Placeholder
+
+            string email = user["Email"].ToString();
+            string phone = user["MobileNumber"].ToString();
             Console.WriteLine(TimeZoneInfo.Local.Id);
             sendTime = sendTime.ToUniversalTime();
             Console.WriteLine($"UserID: {userId}, Email: {email}, Phone: {phone}, Methods: {methods}, SendNow: {sendNow}, Send Time: {sendTime}");
