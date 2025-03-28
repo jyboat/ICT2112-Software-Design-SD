@@ -1,11 +1,15 @@
 @model ReplyToEnquiryViewModel
 @using ClearCare
+@using Microsoft.AspNetCore.Http
 
 @{
     ViewData["Title"] = "Reply to Enquiry";
     int currentPage = ViewBag.CurrentPage != null ? (int)ViewBag.CurrentPage : 1;
     int totalPages = ViewBag.TotalPages != null ? (int)ViewBag.TotalPages : 1;
     int totalReplies = ViewBag.TotalReplies != null ? (int)ViewBag.TotalReplies : 0;
+
+    // Retrieve the current user's UUID from session.
+    string currentUserUUID = Context.Session.GetString("UserUUID") ?? "";
 }
 
 <h2>Reply to Enquiry</h2>
@@ -18,7 +22,6 @@
             </div>
             <div class="card-body">
                 <dl class="row">
-                    
                     <dt class="col-sm-4">Name:</dt>
                     <dd class="col-sm-8">@Model.Enquiry.Name</dd>
                     
@@ -36,11 +39,14 @@
             </div>
             <div class="card-body">
                 <form asp-action="SendReply" method="post">
-                    <input type="hidden" name="senderName" value="@HardcodedUUIDs.UserUUID" />
+                    <!-- Retrieve sender's UUID from session instead of hardcoded value -->
+                    <input type="hidden" name="senderName" value="@currentUserUUID" />
                     <input type="hidden" name="enquiryId" value="@Model.Enquiry.FirestoreId" />
                     <input type="hidden" name="recipientName" value="@Model.Enquiry.Name" />
                     <input type="hidden" name="originalMessage" value="@Model.Enquiry.Message" />
-                    <input type="hidden" name="userUUID" value="@Model.Enquiry.UserUUID" />
+                    <!-- Optionally, if you want to pass the current user's UUID in this field -->
+                    <input type="hidden" name="userUUID" value="@currentUserUUID" />
+                    
                     <div class="form-group">
                         <label for="replyMessage">Reply Message</label>
                         <textarea class="form-control" id="replyMessage" name="message" rows="6" required></textarea>
@@ -69,18 +75,15 @@
         <div class="card-body">
             <ul class="list-group">
                @foreach (var reply in Model.Replies)
-{
-    <li class="list-group-item">
-        @* <strong>Subject:</strong> @reply.Subject <br /> *@
-                <strong>From:</strong> @reply.SenderName <br />
-        <strong>Message:</strong> @reply.Message <br />
-        <small class="text-muted">
-            Sent on: @reply.CreatedAt.ToLocalTime()
-        </small>
-        
-    </li>
-}
-
+               {
+                   <li class="list-group-item">
+                       <strong>From:</strong> @reply.SenderName <br />
+                       <strong>Message:</strong> @reply.Message <br />
+                       <small class="text-muted">
+                           Sent on: @reply.CreatedAt.ToLocalTime()
+                       </small>
+                   </li>
+               }
             </ul>
         </div>
     </div>

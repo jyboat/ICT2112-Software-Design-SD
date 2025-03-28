@@ -1,8 +1,11 @@
 @model List<ClearCare.Models.PrescriptionModel>
+@using Microsoft.AspNetCore.Http
+
 @{
     ViewData["Title"] = "Prescriptions";
-    // Example role check; adjust to your own logic
-    bool isDoctor = (HardcodedUUIDs.UserRole == "Doctor");
+    // Retrieve the user's role from session.
+    string userRole = Context.Session.GetString("UserRole") ?? "Unknown";
+    bool isDoctor = (userRole == "Doctor");
 }
 
 <h1>Prescription List</h1>

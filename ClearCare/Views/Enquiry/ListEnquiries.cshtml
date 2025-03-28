@@ -1,9 +1,11 @@
 @model List<ClearCare.Models.Enquiry>
 @using ClearCare
+@using Microsoft.AspNetCore.Http
 
 @{
     ViewData["Title"] = "List of Enquiries";
-    string userRole = HardcodedUUIDs.UserRole;
+    // Retrieve the user's role from session storage.
+    string userRole = Context.Session.GetString("UserRole") ?? "Unknown";
 }
 
 <div class="container mt-5">
@@ -51,14 +53,16 @@
                                     <td>@e.Topic</td>
                                 }
                                 <td>
-                                    <a href="@Url.Action("Reply", "Enquiry", new { id = e.FirestoreId })" class="btn btn-success btn-sm">Reply</a>
+                                    <a href="@Url.Action("Reply", "Enquiry", new { id = e.FirestoreId })" class="btn btn-success btn-sm">
+                                        Reply
+                                    </a>
                                 </td>
                             </tr>
                         }
                     </tbody>
                 </table>
             }
-            @* <a href="@Url.Action("Index", "Enquiry")" class="btn btn-secondary">Back</a> *@
+            @* Optionally, you can add a back button here. *@
         </div>
     </div>
 </div>

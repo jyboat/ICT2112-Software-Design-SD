@@ -1,9 +1,16 @@
 @model ClearCare.Models.PrescriptionModel
-@using ClearCare
+@using ClearCare  
+@using Microsoft.AspNetCore.Http
 
 @{
     ViewData["Title"] = "Create Prescription";
-    Model.DoctorId = HardcodedUUIDs.UserUUID;
+    
+    // Retrieve the current user's UUID from session.
+    string currentUserUUID = Context.Session.GetString("UserUUID") ?? "";
+    // Set the DoctorId on the model using the session value.
+    Model.DoctorId = currentUserUUID;
+    
+    // The patient list remains sourced from your hardcoded list.
     var patientList = HardcodedUUIDs.Patients;
 }
 
@@ -21,8 +28,10 @@
     </div>
 
     <div>
-<input type="hidden" asp-for="DoctorId" value="@HardcodedUUIDs.UserUUID" />
+        <!-- Hidden field for DoctorId is now populated from session -->
+        <input type="hidden" asp-for="DoctorId" value="@currentUserUUID" />
     </div>
+    
     <h4>Medications</h4>
     <div id="medications-container">
         @for (int i = 0; i < Model.Medications.Count; i++)
@@ -52,7 +61,6 @@
     </div>
 
     <button type="button" onclick="addMedicationRow()">Add Drug</button>
-
     <button type="submit">Save</button>
 </form>
 
