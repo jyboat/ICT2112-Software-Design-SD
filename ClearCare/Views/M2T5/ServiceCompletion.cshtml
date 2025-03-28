@@ -226,7 +226,7 @@ $(document).ready(function () {
 
         // Send the PUT request to update the appointment
         $.ajax({
-            url: '/ServiceCompletionInput/appointments/' + appointmentId, // PUT endpoint
+            url: '/ServiceCompletionInput/appointments/' + appointmentId + '?patientId=' + patientId + '&nurseId=' + nurseId,// PUT endpoint
             type: 'PUT',
             data: JSON.stringify(data),
             contentType: 'application/json',

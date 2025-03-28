@@ -14,13 +14,13 @@ namespace ClearCare.Controllers
     [Route("ServiceCompletionInput")]
     public class ServiceCompletionInputController : Controller
     {
-        private readonly ServiceCompletionManager _appointmentStatus;
+        private readonly ServiceCompletionManager _appointmentManager;
         // private readonly INotification _notificationManager;
 
         // Inject IAppointmentStatus and INotification through the constructor
-        public ServiceCompletionInputController(ServiceCompletionManager appointmentStatus)
+        public ServiceCompletionInputController(ServiceCompletionManager appointmentManager)
         {
-            _appointmentStatus = appointmentStatus;
+            _appointmentManager = appointmentManager;
             // _notificationManager = notificationManager;
         }
 
@@ -39,7 +39,7 @@ namespace ClearCare.Controllers
             }
 
             // Fetch the appointment details
-            List<ServiceAppointment> appointments = await _appointmentStatus.GetAllAppointmentDetails();
+            List<ServiceAppointment> appointments = await _appointmentManager.GetAllAppointmentDetails();
 
             // Map appointments to DTOs
             List<ServiceAppointmentDTO> appointmentDTOs = appointments
@@ -69,20 +69,21 @@ namespace ClearCare.Controllers
 
 
         [HttpPut("appointments/{appointmentId}")]
-        public async Task<IActionResult> UpdateAppointmentStatus(string appointmentId)
+        public async Task<IActionResult> UpdateAppointmentStatus(string appointmentId, [FromQuery] string patientId, [FromQuery] string nurseId)
         {
             try
             {
-                // Hardcoded integer userId for testing
-                string userId = "USR2";  // Use a valid integer value here
+                // // Hardcoded integer userId for testing
+                // string userId = "USR2";  // Use a valid integer value here
 
                 // Update appointment status
-                await _appointmentStatus.UpdateAppointmentStatus(appointmentId);
+                await _appointmentManager.UpdateAppointmentStatus(appointmentId, patientId, nurseId);
 
                 return NoContent(); // 204: Successfully updated, no content
             }
             catch (System.Exception ex)
-            {
+            {   
+                Console.WriteLine("CompletionInput: EROROREOREOREOR");
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
@@ -94,7 +95,7 @@ namespace ClearCare.Controllers
             {
                 // Console.WriteLine("Received JSON request body: " + JsonSerializer.Serialize(requestData));
 
-                var serviceHistoryId = await _appointmentStatus.CreateServiceHistory(
+                var serviceHistoryId = await _appointmentManager.CreateServiceHistory(
                     requestData["appointmentId"].GetString() ?? "",
                     requestData["service"].GetString() ?? "",
                     requestData["patientId"].GetString() ?? "",

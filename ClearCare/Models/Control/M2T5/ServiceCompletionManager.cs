@@ -33,7 +33,7 @@ namespace ClearCare.Models.Control
         }
 
         // Method to update the status of a specific appointment
-        public async Task UpdateAppointmentStatus(string appointmentId)
+        public async Task UpdateAppointmentStatus(string appointmentId, string patientId, string nurseId)
         {
             // Call the updateAppointmentStatus method from IAppointmentStatus
             await _appointmentStatus.updateAppointmentStatus(appointmentId);
@@ -41,8 +41,10 @@ namespace ClearCare.Models.Control
             
             // After updating the status, create a notification
             string notificationContent = $"The status of your appointment (ID: {appointmentId}) has been updated.";
-            string userId = "USR007"; // Example user ID, this should be dynamically determined
-            await _notificationManager.createNotification(userId, notificationContent); // Create the notification
+            // string userId = "USR007"; // Example user ID, this should be dynamically determined
+
+            await _notificationManager.createNotification(patientId, notificationContent); // Create the patient notification
+            await _notificationManager.createNotification(nurseId, notificationContent); // Create the nurse notification
         }
 
         public async Task<string> CreateServiceHistory(string appointmentId, string service, string patientId, 
