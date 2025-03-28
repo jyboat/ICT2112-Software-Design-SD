@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using ClearCare.Models.Control.M3T1;
 using ClearCare.Models.Entities.M3T1;
-using ClearCare.Interfaces.M3T1;
+using ClearCare.Models.Interfaces.M3T1;
 
 
 [Route("Resource")] // Updated to singular "Resource"
@@ -14,7 +14,8 @@ public class ResourceController : Controller
 
     public ResourceController()
     {
-        _manager = new ResourceManager();
+        var gateway = new ResourceGateway();
+        _manager = new ResourceManager(gateway);
     }
 
     [Route("")]
@@ -98,7 +99,7 @@ public class ResourceController : Controller
 
         try
         {
-            await _manager.ProcessResourceWithStrategy(
+            await _manager.processResourceWithStrategy(
                 title,
                 description,
                 uploadedBy,

@@ -1,13 +1,12 @@
 using ClearCare.DataSource.M3T1;
-using ClearCare.Interfaces.M3T1;
-
+using ClearCare.Models.Interfaces.M3T1;
 
 
 public class ArticleUrlStrategy : IResourceStrategy
 {
     private readonly ResourceGateway _gateway = new ResourceGateway();
 
-    public async Task<string> UploadAsync(
+    public async Task<string> uploadAsync(
         string title,
         string description,
         int uploadedBy,
