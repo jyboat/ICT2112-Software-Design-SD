@@ -4,6 +4,6 @@ namespace ClearCare.Models.Interfaces.M3T1
 {
     public interface IFeedbackObserver
     {
-        void Update(string feedbackId);
+        void update(string feedbackId);
     }
 }

@@ -19,17 +19,17 @@ namespace ClearCare.Models.Entities.M3T1
         [FirestoreProperty]
         private string DateResponded { get; set; }
 
-        private string GetId() => Id;
-        private string GetFeedbackId() => FeedbackId;
-        private string GetResponse() => Response;
-        private string GetUserId() => UserId;
-        private string GetDateResponded() => DateResponded;
+        private string getId() => Id;
+        private string getFeedbackId() => FeedbackId;
+        private string getResponse() => Response;
+        private string getUserId() => UserId;
+        private string getDateResponded() => DateResponded;
 
-        private void SetId(string id) => Id = id;
-        private void SetFeedbackId(string feedbackId) => FeedbackId = feedbackId;
-        private void SetResponse(string response) => Response = response;
-        private void SetUserId(string userId) => UserId = userId;
-        private void SetDateResponded(string dateResponded) => DateResponded = dateResponded;
+        private void setId(string id) => Id = id;
+        private void setFeedbackId(string feedbackId) => FeedbackId = feedbackId;
+        private void setResponse(string response) => Response = response;
+        private void setUserId(string userId) => UserId = userId;
+        private void setDateResponded(string dateResponded) => DateResponded = dateResponded;
 
         public FeedbackResponse() { }
 
@@ -42,15 +42,15 @@ namespace ClearCare.Models.Entities.M3T1
             DateResponded = dateResponded;
         }
 
-        public Dictionary<string, object> GetResponseDetails()
+        public Dictionary<string, object> getResponseDetails()
         {
             return new Dictionary<string, object>
             {
-                { "Id", GetId() },
-                { "FeedbackId", GetFeedbackId() },
-                { "Response", GetResponse() },
-                { "UserId", GetUserId() },
-                { "DateResponded", GetDateResponded() }
+                { "Id", getId() },
+                { "FeedbackId", getFeedbackId() },
+                { "Response", getResponse() },
+                { "UserId", getUserId() },
+                { "DateResponded", getDateResponded() }
             };
         }
 
@@ -61,11 +61,11 @@ namespace ClearCare.Models.Entities.M3T1
                 throw new ArgumentNullException(nameof(responseDetails));
             }
 
-            if (responseDetails.ContainsKey("Id")) SetId(responseDetails["Id"]?.ToString() ?? string.Empty);
-            if (responseDetails.ContainsKey("FeedbackId")) SetFeedbackId(responseDetails["FeedbackId"]?.ToString() ?? string.Empty);
-            if (responseDetails.ContainsKey("Response")) SetResponse(responseDetails["Response"]?.ToString() ?? string.Empty);
-            if (responseDetails.ContainsKey("UserId")) SetUserId(responseDetails["UserId"]?.ToString() ?? string.Empty);
-            if (responseDetails.ContainsKey("DateResponded")) SetDateResponded(responseDetails["DateResponded"]?.ToString() ?? string.Empty);
+            if (responseDetails.ContainsKey("Id")) setId(responseDetails["Id"]?.ToString() ?? string.Empty);
+            if (responseDetails.ContainsKey("FeedbackId")) setFeedbackId(responseDetails["FeedbackId"]?.ToString() ?? string.Empty);
+            if (responseDetails.ContainsKey("Response")) setResponse(responseDetails["Response"]?.ToString() ?? string.Empty);
+            if (responseDetails.ContainsKey("UserId")) setUserId(responseDetails["UserId"]?.ToString() ?? string.Empty);
+            if (responseDetails.ContainsKey("DateResponded")) setDateResponded(responseDetails["DateResponded"]?.ToString() ?? string.Empty);
         }
     }
 }

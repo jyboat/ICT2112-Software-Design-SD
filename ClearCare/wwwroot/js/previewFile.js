@@ -2,18 +2,18 @@
 
 if (customUpload) {
     customUpload.on('click', function () {
-        $('input[name="resourceFile"]').click()
+        $('input[name="coverImage"]').click()
     })
 
-    let poster = document.getElementsByName('resourceFile')[0]
+    let poster = document.getElementsByName('coverImage')[0]
 
     if (poster) {
-        $('input[name="resourceFile"]').on('change', function () {
+        $('input[name="coverImage"]').on('change', function () {
             previewImg(poster, $('.poster'))
         })
     }
     else {
-        $('input[name="resourceFile"]').on('change', function () {
+        $('input[name="coverImage"]').on('change', function () {
             previewFile(poster)
         })
     }
@@ -77,7 +77,7 @@ function removeFile() {
     $('.infos').addClass('d-none')
     $('.remove').addClass('d-none')
     $('.card-text').removeClass('d-none')
-    $('input[name="resourceFile"]').val('')
+    $('input[name="coverImage"]').val('')
     if ($('.poster')) {
         $('.poster').attr('src', '/img/placeholder.jpg')
     }

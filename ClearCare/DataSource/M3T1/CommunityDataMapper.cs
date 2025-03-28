@@ -1,11 +1,12 @@
 ﻿using ClearCare.Models.Entities.M3T1;
+using ClearCare.Models.Interfaces.M3T1;
 using Google.Cloud.Firestore;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace ClearCare.DataSource.M3T1
 {
-    public class CommunityDataMapper
+    public class CommunityDataMapper : IGroupSend, IPostSend, ICommentSend
     {
         private FirestoreDb _db;
 
@@ -126,7 +127,7 @@ namespace ClearCare.DataSource.M3T1
             }
         }
 
-        public async Task<bool> updateCommunityGroup(string id, string name, string description, List<string> memberIds)
+        public async Task<bool> updateGroup(string id, string name, string description)
         {
             try
             {
@@ -134,8 +135,7 @@ namespace ClearCare.DataSource.M3T1
                 var group = new Dictionary<string, object>
                 {
                     {"Name", name},
-                    {"Description", description},
-                    {"MemberIds", memberIds }
+                    {"Description", description}
                 };
 
                 await docRef.UpdateAsync(group);
@@ -146,6 +146,27 @@ namespace ClearCare.DataSource.M3T1
             {
                 Console.WriteLine($"Error updating community group: {ex.Message}");
                 throw new ApplicationException("An error occurred while updating the community group.", ex);
+            }
+        }
+
+        public async Task<bool> updateGroupMembers(string id, List<string> memberIds)
+        {
+            try
+            {
+                var docRef = _db.Collection("CommunityGroups").Document(id);
+                var group = new Dictionary<string, object>
+                {
+                    {"MemberIds", memberIds }
+                };
+
+                await docRef.UpdateAsync(group);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating community group members: {ex.Message}");
+                throw new ApplicationException("An error occurred while updating the community group members.", ex);
             }
         }
 
@@ -305,18 +326,24 @@ namespace ClearCare.DataSource.M3T1
             
         }
 
-        public async Task<string> insertPost(string title, string content, string postedBy)
+        public async Task<string> insertPost(string title, string content, string postedBy, string? groupId)
         {
             try
             {
                 var docRef = _db.Collection("CommunityPosts").Document();
+
+                if (string.IsNullOrEmpty(groupId))
+                {
+                    groupId = "";
+                }
+
                 var post = new Dictionary<string, object>
                 {
                     {"Title", title},
                     {"Content", content},
                     {"PostedBy", postedBy},
                     { "PostedAt", DateTime.Now.ToString("yyyy-MM-dd")},
-                    { "GrouopId", "" }
+                    { "GroupId", groupId }
                 };
 
                 await docRef.SetAsync(post);

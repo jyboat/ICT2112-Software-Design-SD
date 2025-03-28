@@ -38,30 +38,30 @@ namespace ClearCare.Models.Entities.M3T1
             GroupId =  groupId;
         }
 
-        private string GetId() => Id;
-        private string GetTitle() => Title;
-        private string GetContent() => Content;
-        private string GetPostedBy() => PostedBy;
-        private string GetPostedAt() => PostedAt;
-        private string GetGroupId() => GroupId;
+        private string getId() => Id;
+        private string getTitle() => Title;
+        private string getContent() => Content;
+        private string getPostedBy() => PostedBy;
+        private string getPostedAt() => PostedAt;
+        private string getGroupId() => GroupId;
 
-        private void SetId(string id) => Id = id;
-        private void SetTitle(string title) => Title = title;
-        private void SetContent(string content) => Content = content;
-        private void SetPostedBy(string postedBy) => PostedBy = postedBy;
-        private void SetCreationDate(string postedAt) => PostedAt = postedAt;
-        private void SetGroupId(string groupId) => GroupId = groupId;
+        private void setId(string id) => Id = id;
+        private void setTitle(string title) => Title = title;
+        private void setContent(string content) => Content = content;
+        private void setPostedBy(string postedBy) => PostedBy = postedBy;
+        private void setCreationDate(string postedAt) => PostedAt = postedAt;
+        private void setGroupId(string groupId) => GroupId = groupId;
 
         public Dictionary<string, object> getDetails()
         {
             return new Dictionary<string, object>
             {
-                { "Id", GetId() },
-                { "Title", GetTitle() },
-                { "Content", GetContent() },
-                { "PostedBy", GetPostedBy() },
-                { "PostedAt", GetPostedAt() },
-                { "GroupId", GetGroupId() }
+                { "Id", getId() },
+                { "Title", getTitle() },
+                { "Content", getContent() },
+                { "PostedBy", getPostedBy() },
+                { "PostedAt", getPostedAt() },
+                { "GroupId", getGroupId() }
             };
         }
     }

@@ -21,19 +21,19 @@ namespace ClearCare.Models.Entities.M3T1
         [FirestoreProperty]
         public bool HasResponded { get; set; }
 
-        private string GetId() => Id;
-        private string GetContent() => Content;
-        private int GetRating() => Rating;
-        private string GetUserId() => UserId;
-        private string GetDateCreated() => DateCreated;
-        private bool GetHasResponded() => HasResponded;
+        private string getId() => Id;
+        private string getContent() => Content;
+        private int getRating() => Rating;
+        private string getUserId() => UserId;
+        private string getDateCreated() => DateCreated;
+        private bool getHasResponded() => HasResponded;
 
-        private void SetId(string id) => Id = id;
-        private void SetContent(string content) => Content = content;
-        private void SetRating(int rating) => Rating = rating;
-        private void SetUserId(string userId) => UserId = userId;
-        private void SetDateCreated(string dateCreated) => DateCreated = dateCreated;
-        private void SetHasResponded(bool hasResponded) => HasResponded = hasResponded;
+        private void setId(string id) => Id = id;
+        private void setContent(string content) => Content = content;
+        private void setRating(int rating) => Rating = rating;
+        private void setUserId(string userId) => UserId = userId;
+        private void setDateCreated(string dateCreated) => DateCreated = dateCreated;
+        private void setHasResponded(bool hasResponded) => HasResponded = hasResponded;
 
         public Feedback() { }
 
@@ -47,16 +47,16 @@ namespace ClearCare.Models.Entities.M3T1
             HasResponded = hasResponded;
         }
 
-        public Dictionary<string, object> GetFeedbackDetails()
+        public Dictionary<string, object> getFeedbackDetails()
         {
             return new Dictionary<string, object>
             {
-                { "Id", GetId() },
-                { "Content", GetContent() },
-                { "Rating", GetRating() },
-                { "UserId", GetUserId() },
-                { "DateCreated", GetDateCreated() },
-                { "HasResponded", GetHasResponded() },
+                { "Id", getId() },
+                { "Content", getContent() },
+                { "Rating", getRating() },
+                { "UserId", getUserId() },
+                { "DateCreated", getDateCreated() },
+                { "HasResponded", getHasResponded() },
             };
         }
 
@@ -67,12 +67,12 @@ namespace ClearCare.Models.Entities.M3T1
                 throw new ArgumentNullException(nameof(feedbackDetails));
             }
 
-            if (feedbackDetails.ContainsKey("Id")) SetId(feedbackDetails["Id"]?.ToString() ?? string.Empty);
-            if (feedbackDetails.ContainsKey("Content")) SetContent(feedbackDetails["Content"]?.ToString() ?? string.Empty);
-            if (feedbackDetails.ContainsKey("Rating")) SetRating(Convert.ToInt32(feedbackDetails["Rating"] ?? 0));
-            if (feedbackDetails.ContainsKey("UserId")) SetUserId(feedbackDetails["UserId"]?.ToString() ?? string.Empty);
-            if (feedbackDetails.ContainsKey("DateCreated")) SetDateCreated(feedbackDetails["DateCreated"]?.ToString() ?? string.Empty);
-            if (feedbackDetails.ContainsKey("HasResponded")) SetHasResponded(Convert.ToBoolean(feedbackDetails["HasResponded"] ?? false));
+            if (feedbackDetails.ContainsKey("Id")) setId(feedbackDetails["Id"]?.ToString() ?? string.Empty);
+            if (feedbackDetails.ContainsKey("Content")) setContent(feedbackDetails["Content"]?.ToString() ?? string.Empty);
+            if (feedbackDetails.ContainsKey("Rating")) setRating(Convert.ToInt32(feedbackDetails["Rating"] ?? 0));
+            if (feedbackDetails.ContainsKey("UserId")) setUserId(feedbackDetails["UserId"]?.ToString() ?? string.Empty);
+            if (feedbackDetails.ContainsKey("DateCreated")) setDateCreated(feedbackDetails["DateCreated"]?.ToString() ?? string.Empty);
+            if (feedbackDetails.ContainsKey("HasResponded")) setHasResponded(Convert.ToBoolean(feedbackDetails["HasResponded"] ?? false));
         }
     }
 }

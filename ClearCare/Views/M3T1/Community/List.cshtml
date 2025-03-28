@@ -6,6 +6,9 @@
     var posts = Model.Posts;
     var groups = Model.AllGroups;
     var userPosts = Model.UserPosts;
+    bool groupView = Model.GroupView;
+    var selectedGroup = Model.Group;
+    var memberList = Model.GroupMembers;
 }
 
 <section class="container community">
@@ -44,11 +47,40 @@
             </div>
         </div>
         <div class="col-md-9">
-            <h2 class="mb-2">Community Posts</h2>
-            <div class="card mb-2 p-3">
+
+            @if (groupView && selectedGroup != null){
+                <div class="d-flex align-items-center mb-2">
+                    <h2>@selectedGroup["Name"]</h2>
+                    @if (selectedGroup["CreatedBy"].ToString() == "1"){ // Change to user id
+                        <a class="btn btn-sm btn-success ms-2" href="#" data-bs-toggle="modal" data-bs-target="#editGroupModal">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#removeMemberModal">
+                            <i class="bi bi-person-dash me-1"></i>Remove a Member
+                        </a>
+                    }
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="mb-0">@selectedGroup["Description"]</p>
+                    <span class="text-muted small ms-2">
+                        Created at:<i class="bi bi-clock ms-2 me-1"></i>@selectedGroup["CreationDate"]
+                    </span>
+                </div>
+
+                <hr class="w-100" />
+            }
+            else{
+                <h2 class="mb-2">Community Posts</h2>
+            }
+
+            <div class="card mb-2 mt-2 p-3">
                 <h5 class="card-title mb-3">What's on your mind?</h5>
                 <div class="card-body">
                     <form method="post" action="/Community/Post/Create">
+                        @if (groupView && selectedGroup != null){
+                            <input type="hidden" value="@selectedGroup["Id"]" name="groupId" />
+                        }
                         <div class="form-group">
                             <label for="title">Title</label>
                             <input type="text" id="title" name="title" class="form-control w-100" required />
@@ -188,9 +220,13 @@
                     {
                         @foreach (var group in groups)
                         {
-                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom groups" data-name="@group["Name"]">
                                 <span>@group["Name"]</span>
-                                <a href="@Url.Action("JoinGroup", "Community", new { groupId = group["Id"] })" class="btn btn-success btn-sm">Join</a>
+                                <form method="post" action="/Community/Group/Join">
+                                    @* @Html.AntiForgeryToken() <!-- CSRF Protection --> *@
+                                    <input type="hidden" name="groupId" value="@group["Id"]" />
+                                    <button type="submit" class="btn btn-success btn-sm">Join</button>
+                                </form>
                             </div>
                         }
                     }
@@ -229,15 +265,93 @@
     </div>
 </div>
 
+@if (groupView && selectedGroup != null && selectedGroup["CreatedBy"].ToString() == "1")
+{
+    <div class="modal fade" id="editGroupModal" tabindex="-1" aria-labelledby="editGroupModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Group Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/Community/Group/Edit" method="post">
+                        <input type="hidden" value="@selectedGroup["Id"]" name="groupId" />
+                        <div class="form-group">
+                            <label for="groupName">Name</label>
+                            <input type="text" id="groupName" class="form-control w-100" required name="name" value="@selectedGroup["Name"]" />
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="groupDesc">Description</label>
+                            <textarea rows="3" id="groupDesc" class="form-control w-100" required name="description">@selectedGroup["Description"]</textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-sm w-100 mt-3">Update Group</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="removeMemberModal" tabindex="-1" aria-labelledby="removeMemberModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Choose members to remove</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/Community/Group/Member/Remove" method="post">
+                        <input type="hidden" value="@selectedGroup["Id"]" name="groupId" />
+                        @foreach (var memberId in memberList)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="selectedMembers" value="@memberId" id="member_@memberId">
+                                <label class="form-check-label" for="member_@memberId">Member ID: @memberId</label>
+                            </div>
+                        }
+
+                        <button type="submit" class="btn btn-danger btn-sm w-100 mt-3">Remove</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <script>
     // Simple search filter for groups
-    document.getElementById("searchGroups").addEventListener("input", function () {
-        let filter = this.value.toLowerCase();
-        let groups = document.querySelectorAll("#groupList div");
+    $(document).ready(function () {
+        // Simple search filter for groups
+        $("#searchGroups").on("keyup", function () {
+            let groupDivs = $(".groups")
+            let input = $("#searchGroups").val()
+            let filter = input.toUpperCase()
 
-        groups.forEach(group => {
-            let text = group.textContent.toLowerCase();
-            group.style.display = text.includes(filter) ? "" : "none";
+            for (let i = 0, n = groupDivs.length; i < n; i++){
+                let focus = $(groupDivs[i])
+                let compare = $(focus).data("name")
+
+                if (compare.toUpperCase().includes(filter)){
+                    if ($(focus).hasClass('d-none')) {
+                        $(focus).removeClass('d-none');
+                        $(focus).fadeIn(500, function() {
+                            let _this = $(this);
+
+                            _this.addClass('d-flex');
+                        });
+                    }
+                }
+                else {
+                    if (!$(focus).hasClass('d-none')){
+                        $(focus).fadeOut(500, function(){
+                            let _this = $(this);
+
+                            _this.removeClass('d-flex');
+                            _this.addClass('d-none');
+                        })
+                    }
+                }
+            }
         });
     });
 </script>

@@ -2,91 +2,168 @@
 
 @{
     ViewData["Title"] = "Feedback List";
+    var query = Context.Request.Query;
 }
 
 <section class="container feedbacks">
     <h2>Feedbacks</h2>
-    @if (ViewBag.UserRole == "Patient"){
+    @if (ViewBag.UserRole == "Patient" || ViewBag.UserRole == "Caregiver")
+    {
         <div class="text-center mb-3">
             <a role="button" href="/Feedback/Submission" class="btn btn-md btn-success">Submit new Feedback<i class="bi bi-plus ms-1"></i></a>
         </div>
     }
 
-    <div class="row">
-    @foreach (var feedback in Model)
-        {
-    <div class="col-12">
-        <div class="card shadow p-3 mb-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="text-primary">Patient name</h5>
+    <!-- User Controls -->
+    <form id="filterForm" method="get" class="mb-4">
+        <input type="hidden" name="page" id="pageInput" value="@ViewBag.CurrentPage"/>
 
-                    <div class="d-flex align-items-center">
-                        <span class="text-muted small me-3">
-                            <i class="bi bi-clock me-1"></i>@feedback["DateCreated"]
-                        </span>
-
-                        @* Show "Replied" only when necessary *@
-                        @if (Convert.ToBoolean(feedback["HasResponded"])) // Replace with feedback replied flag
-                        {
-                            <span class="text-muted fst-italic">Replied</span>
-                        }
-                    </div>
-                </div>
-
-                <p class="mt-2">@feedback["Content"]</p>
-
-            <!-- Rating as stars -->
-            <div class="mb-2">
-                Rating:
-                @for (int i = 1; i <= 5; i++)
-                {
-                    if (i <= Convert.ToInt32(feedback["Rating"]))
-                    {
-                        <i class="bi bi-star-fill text-warning"></i> @* Filled star *@
-                    }
-                    else
-                    {
-                        <i class="bi bi-star text-warning"></i> @* Empty star *@
-                    }
-                }
+        <div class="row g-2 align-items-center">
+            <!-- Search -->
+            <div class="col-md-4">
+                <input type="text" name="search" id="searchInput" value="@query["search"]" class="form-control" placeholder="Search feedback or response..."/>
             </div>
 
-            <!-- Patient View Response Section -->
-            @if (ViewBag.UserRole == "Patient" && Convert.ToBoolean(feedback["HasResponded"]))
-            {
-                <div class="mt-3 p-3 bg-light border-start border-primary">
-                    <h6 class="text-primary mb-1">Doctor's Response</h6>
-                    <p class="mb-1">@feedback["Response"]</p>
-                    <span class="text-muted small">Responded on @feedback["DateResponded"]</span>
-                </div>
-            }
+            <!-- Response Filter -->
+            <div class="col-md-2">
+                <select name="responseFilter" id="responseFilter" class="form-select">
+                    <option value="All" selected="@(query["responseFilter"] == "All")">All</option>
+                    <option value="Responded" selected="@(query["responseFilter"] == "Responded")">Responded</option>
+                    <option value="Unresponded" selected="@(query["responseFilter"] == "Unresponded")">Unresponded</option>
+                </select>
+            </div>
 
-            <!-- Reply Section -->
-            @if (ViewBag.UserRole == "Doctor")
-                    { /// if user is doctor
-                if (!Convert.ToBoolean(feedback["HasResponded"])) // Replace with feedback replied flag (if not replied)
-                {
-                    <form action="/Feedback/Response/@feedback["Id"]" method="post">
-                        <textarea type="text" name="response" class="form-control" placeholder="Write a reply..." required></textarea>
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-sm btn-success mt-2">Reply</button>
-                        </div>
-                    </form>
-                }else{ // Replace action with update reply route, put reply content in textarea
-                    <form action="/Feedback/ResponseEdit/@feedback["ResponseId"]" method="post">
-                        <textarea type="text" name="response" class="form-control" placeholder="Write a reply..." required>@feedback["Response"]</textarea>
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-sm btn-success mt-2"><i class="bi bi-pencil-square me-2"></i>Edit</button>
-                            <a href="#" class="btn btn-sm btn-danger btn-delete mt-2 ms-2" data-id="@feedback["ResponseId"]" data-target="#deleteModal" data-toggle="modal"><i class="bi bi-trash me-2"></i>Delete</a>
-                        </div>
-                    </form>
-                }
-            }
+            <!-- Rating Filter -->
+            <div class="col-md-2">
+                <select name="ratingFilter" id="ratingFilter" class="form-select">
+                    <option value="0" selected="@(query["ratingFilter"] == "0")">All Ratings</option>
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i" selected="@(query["ratingFilter"] == i.ToString())">@i ★</option>
+                    }
+                </select>
+            </div>
 
+            <!-- Page Size -->
+            <div class="col-md-2">
+                <select name="pageSize" id="pageSize" class="form-select">
+                    <option value="10" selected="@(ViewBag.PageSize == 10)">10 per page</option>
+                    <option value="25" selected="@(ViewBag.PageSize == 25)">25 per page</option>
+                    <option value="50" selected="@(ViewBag.PageSize == 50)">50 per page</option>
+                    <option value="100" selected="@(ViewBag.PageSize == 100)">100 per page</option>
+                </select>
+            </div>
+
+            <!-- Reset -->
+            <div class="col-md-2">
+                <a href="/Feedback" class="btn btn-outline-dark w-100"><i class="bi bi-arrow-clockwise me-2"></i>Reset Filters</a>
             </div>
         </div>
+    </form>
+
+    <div class="row">
+        @foreach (var feedback in Model)
+        {
+            <div class="col-12">
+                <div class="card shadow p-3 mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="text-primary">Patient name</h5>
+
+                        <div class="d-flex align-items-center">
+                            <span class="text-muted small me-3">
+                                <i class="bi bi-clock me-1"></i>@feedback["DateCreated"]
+                            </span>
+
+                            @* Show "Replied" only when necessary *@
+                            @if (Convert.ToBoolean(feedback["HasResponded"])) // Replace with feedback replied flag
+                            {
+                                <span class="text-muted fst-italic">Replied</span>
+                            }
+                        </div>
+                    </div>
+
+                    <p class="mt-2">@feedback["Content"]</p>
+
+                    <!-- Rating as stars -->
+                    <div class="mb-2">
+                        Rating:
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= Convert.ToInt32(feedback["Rating"]))
+                            {
+                                <i class="bi bi-star-fill text-warning"></i> @* Filled star *@
+                            }
+                            else
+                            {
+                                <i class="bi bi-star text-warning"></i> @* Empty star *@
+                            }
+                        }
+                    </div>
+
+                    <!-- Patient View Response Section -->
+                    @if (ViewBag.UserRole == "Patient" && Convert.ToBoolean(feedback["HasResponded"]))
+                    {
+                        <div class="mt-3 p-3 bg-light border-start border-primary">
+                            <h6 class="text-primary mb-1">Doctor's Response</h6>
+                            <p class="mb-1">@feedback["Response"]</p>
+                            <span class="text-muted small">Responded on @feedback["DateResponded"]</span>
+                        </div>
+                    }
+
+                    <!-- Reply Section -->
+                    @if (ViewBag.UserRole == "Doctor")
+                    { /// if user is doctor
+                        if (!Convert.ToBoolean(feedback["HasResponded"])) // Replace with feedback replied flag (if not replied)
+                        {
+                            <form action="/Feedback/Response/@feedback["Id"]" method="post">
+                                <textarea type="text" name="response" class="form-control" placeholder="Write a reply..." required></textarea>
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-sm btn-success mt-2">Reply</button>
+                                </div>
+                            </form>
+                        }
+                        else
+                        { // Replace action with update reply route, put reply content in textarea
+                            <form action="/Feedback/ResponseEdit/@feedback["ResponseId"]" method="post">
+                                <textarea type="text" name="response" class="form-control" placeholder="Write a reply..." required>@feedback["Response"]</textarea>
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-sm btn-success mt-2"><i class="bi bi-pencil-square me-2"></i>Edit</button>
+                                    <a href="#" class="btn btn-sm btn-danger btn-delete mt-2 ms-2" data-id="@feedback["ResponseId"]" data-target="#deleteModal" data-toggle="modal"><i class="bi bi-trash me-2"></i>Delete</a>
+                                </div>
+                            </form>
+                        }
+                    }
+
+                </div>
+            </div>
         }
     </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation" class="d-flex justify-content-center mt-4">
+        <ul class="pagination">
+            @if (ViewBag.CurrentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="#">Previous</a>
+                </li>
+            }
+
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="#">@i</a>
+                </li>
+            }
+
+            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            }
+        </ul>
+    </nav>
 </section>
 
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
@@ -112,12 +189,47 @@
 </div>
 
 <script>
+    // DELETE MODAL
     $(document).ready(function(){
         $('.btn-delete').click(function(){
             let responseId = $(this).data('id')
             $('#deleteId').val(responseId)
             $('#deleteForm').attr('action', '/Feedback/ResponseDelete/' + responseId)
             $('#deleteModal').modal('show')
+        })
+
+        // SEARCH WITH DEBOUNCE (500MS)
+        let debounceTimeout
+        $('#searchInput').on('input', function(){
+            clearTimeout(debounceTimeout)
+            debounceTimeout = setTimeout(() => {
+                $('#pageInput').val(1)
+                $('#filterForm').submit()
+            }, 500)
+        })
+
+        // FILTER
+        $('#responseFilter, #ratingFilter, #pageSize').on('change', function(){
+            $('#pageInput').val(1)
+            $('#filterForm').submit()
+        })
+
+        // PAGINATION
+        $('.page-link').on('click', function(e){
+            e.preventDefault();
+            const text = $(this).text().trim();
+            let page = @ViewBag.CurrentPage;
+
+            if (text === "Previous"){
+                page = @ViewBag.CurrentPage - 1;
+            } else if (text === "Next") {
+                page = @ViewBag.CurrentPage + 1;
+            } else if (!isNaN(parseInt(text))){
+                page = parseInt(text);
+            }
+
+            $('#pageInput').val(page);
+            $('#filterForm').submit();
         })
     })
 </script>

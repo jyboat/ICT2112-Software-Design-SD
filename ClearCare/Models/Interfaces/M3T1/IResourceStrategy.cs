@@ -1,18 +1,20 @@
-namespace ClearCare.Interfaces.M3T1
+
+using ClearCare.Models.Entities.M3T1;
+
+
+namespace ClearCare.Models.Interfaces.M3T1
 {
- public interface IResourceStrategy
-{
-    Task<string> UploadAsync(
-        string title,
-        string description,
-        int uploadedBy,
-        string dateCreated,
-        Stream? fileStream,
-        string? fileName,
-        string? contentType,
-        string? articleUrl,
-        string coverImageUrl
-    );
+    public interface IResourceStrategy
+    {
+        Task<string> uploadAsync(
+            string title,
+            string description,
+            int uploadedBy,
+            string dateCreated,
+            byte[] image,
+            string coverImageName,
+            object? fileOrUrl
+        );
+    }
 }
 
-}

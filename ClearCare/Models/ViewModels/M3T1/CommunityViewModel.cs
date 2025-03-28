@@ -4,9 +4,9 @@ namespace ClearCare.Models.ViewModels.M3T1
 {
     public class CommunityViewModel
     {
-        public CommunityGroup? CommunityGroup { get; set; }
-
-        public CommunityPost? CommunityPost { get; set; }
+        public bool GroupView { get; set; } = false;
+        public Dictionary<string, object>? Group { get; set; }  
+        public List<string>? GroupMembers { get; set; }
 
         public List<Dictionary<string, object>>? AllGroups { get; set; }
         public List<Dictionary<string, object>>? UserGroups { get; set; }

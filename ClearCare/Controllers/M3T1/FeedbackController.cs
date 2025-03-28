@@ -7,6 +7,7 @@ using ClearCare.Models.Entities;
 using static Google.Rpc.Context.AttributeContext.Types;
 using ClearCare.Models.Control.M3T1;
 using ClearCare.Models.Entities.M3T1;
+using System.Collections.Generic;
 
 // Request Handling
 [Route("Feedback")]
@@ -19,18 +20,24 @@ public class FeedbackController : Controller
     {
         var feedbackMapper = new FeedbackMapper();
         _feedbackManager = new FeedbackManager(feedbackMapper);
-        _responseManager = new ResponseManager(feedbackMapper);
         feedbackMapper.feedbackReceiver = _feedbackManager;
+        _responseManager = new ResponseManager(feedbackMapper);
         feedbackMapper.responseReceiver = _responseManager;
 
         // Attach observer
         var patientObserver = new PatientNotificationObserver();
-        feedbackMapper.Attach(patientObserver);
+        feedbackMapper.attach(patientObserver);
     }
 
     [Route("")]
     [HttpGet]
-    public async Task<IActionResult> DisplayAllFeedback()
+    public async Task<IActionResult> displayAllFeedback(
+        int page = 1,
+        int pageSize = 10,
+        string search = "",
+        string responseFilter = "All",
+        int ratingFilter = 0)
+
     {
         List<Dictionary<string, object>> feedbackList = new List<Dictionary<string, object>>();
         List<Dictionary<string, object>> responseList = new List<Dictionary<string, object>>();
@@ -40,72 +47,51 @@ public class FeedbackController : Controller
         if (ViewBag.UserRole == "Doctor" || ViewBag.UserRole == "Nurse") {
             
             feedbackList = (await _feedbackManager.viewFeedback())
-                .Select(s => s.GetFeedbackDetails())
+                .Select(s => s.getFeedbackDetails())
                 .ToList();
 
             responseList = (await _responseManager.viewResponse())
-                .Select(r => r.GetResponseDetails())
+                .Select(r => r.getResponseDetails())
                 .ToList();
         }
-        else if (ViewBag.UserRole == "Patient")
+        else if (ViewBag.UserRole == "Patient" || ViewBag.UserRole == "Caregiver")
         {
             String patientId = "1"; // Hardcoded for testing
 
-            // Check if patient has new notifications
-            if (PatientNotificationObserver.NotificationMap.ContainsKey(patientId))
-            {
-                TempData["SuccessMessage"] = "One or more of your feedbacks received a response.";
-                PatientNotificationObserver.NotificationMap.Remove(patientId);
-            }
-
             feedbackList = (await _feedbackManager.viewFeedbackByUserId(patientId))
-                .Select(s => s.GetFeedbackDetails())
+                .Select(s => s.getFeedbackDetails())
                 .ToList();
 
-            // Fetch responses only for feedbacks belonging to this patient
-            foreach (var feedback in feedbackList)
+            // Fetch responses only for feedbacks belonging to this patient/caregiver
+            responseList = await _responseManager.getResponsesForFeedbackList(feedbackList);
+
+            // Check if patient has new notifications
+            if (_feedbackManager.responseNotification(patientId))
             {
-                string? feedbackId = feedback["Id"]?.ToString();
-                if (!string.IsNullOrEmpty(feedbackId))
-                {
-                    var response = await _responseManager.viewResponseByFeedbackId(feedbackId);
-                    if (response != null)
-                    {
-                        responseList.Add(response.GetResponseDetails());
-                    }
-                }
+                TempData["SuccessMessage"] = "One or more of your feedbacks received a response.";
             }
         }
-        else
-        {
-            return RedirectToAction("DisplayAllFeedback");
-        }
-
-        // Create lookup dictionary for responses by FeedbackId
-        var responseMap = responseList
-            .Where(r => r.ContainsKey("FeedbackId"))
-            .ToDictionary(r => r["FeedbackId"]?.ToString() ?? "", r => r);
 
         // Combine feedbackList and responseList
-        List<Dictionary<string, object>> combinedList = feedbackList.Select(fb =>
-        {
-            string feedbackId = fb["Id"]?.ToString() ?? "";
-            responseMap.TryGetValue(feedbackId, out var response);
+        List<Dictionary<string, object>> combinedList = _feedbackManager.combineFeedbackResponse(feedbackList, responseList);
 
-            fb["Response"] = response?["Response"] ?? "";
-            fb["DateResponded"] = response?["DateResponded"] ?? "";
-            fb["ResponseUserId"] = response?["UserId"] ?? "";
-            fb["ResponseId"] = response?["Id"] ?? "";
+        combinedList = _feedbackManager.applySearchFilter(combinedList, search);
+        combinedList = _feedbackManager.applyResponseFilter(combinedList, responseFilter);
+        combinedList = _feedbackManager.applyRatingFilter(combinedList, ratingFilter);
+        combinedList = _feedbackManager.applyPagination(combinedList, page, pageSize);
 
-            return fb;
-        }).ToList();
+        // Pass state to ViewBag
+        ViewBag.CurrentPage = page;
+        ViewBag.PageSize = pageSize;
+        ViewBag.TotalPages = (combinedList.Count + pageSize - 1)/pageSize;
+        ViewBag.TotalItems = combinedList.Count;
 
         return View("~/Views/M3T1/Feedback/List.cshtml", combinedList);
     }
 
     [Route("Submission")]
     [HttpGet]
-    public IActionResult DisplayAddForm()
+    public IActionResult displayAddForm()
     {
         return View("~/Views/M3T1/Feedback/Submission.cshtml");
     }
@@ -130,7 +116,7 @@ public class FeedbackController : Controller
 
     [Route("Response/{feedbackId}")]
     [HttpPost]
-    public async Task<IActionResult> PostRespondFeedback(string feedbackId, string response)
+    public async Task<IActionResult> postRespondFeedback(string feedbackId, string response)
     {
         if (string.IsNullOrEmpty(response))
         {
@@ -149,7 +135,7 @@ public class FeedbackController : Controller
 
     [Route("ResponseEdit/{responseId}")]
     [HttpPost]
-    public async Task<IActionResult> UpdateResponse(string responseId, string response)
+    public async Task<IActionResult> updateResponse(string responseId, string response)
     {
         if (string.IsNullOrEmpty(response))
         {
@@ -174,7 +160,7 @@ public class FeedbackController : Controller
 
     [Route("ResponseDelete/{responseId}")]
     [HttpPost]
-    public async Task<IActionResult> DeleteResponse(string responseId)
+    public async Task<IActionResult> deleteResponse(string responseId)
     {
         await _responseManager.deleteResponse(responseId);
 

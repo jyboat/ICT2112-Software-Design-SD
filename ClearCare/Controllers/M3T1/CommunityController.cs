@@ -4,19 +4,28 @@ using ClearCare.Models;
 using ClearCare.Models.ViewModels.M3T1;
 using ClearCare.Models.Entities.M3T1;
 using ClearCare.Models.Control.M3T1;
+using ClearCare.DataSource.M3T1;
 
 namespace ClearCare.Controllers.M3T1;
 
 [Route("Community")]
 public class CommunityController : Controller
 {
-    private readonly CommunityGroupManagement _communityGroup = new CommunityGroupManagement();
-    private readonly CommunityPostManagement _communityPost = new CommunityPostManagement();
-    private readonly CommunityCommentManagement _communityComment = new CommunityCommentManagement();
+    private readonly CommunityGroupManagement _communityGroup;
+    private readonly CommunityPostManagement _communityPost;
+    private readonly CommunityCommentManagement _communityComment;
+
+    public CommunityController()
+    {
+        var mapper = new CommunityDataMapper();
+        _communityGroup = new CommunityGroupManagement(mapper);
+        _communityPost = new CommunityPostManagement(mapper);
+        _communityComment = new CommunityCommentManagement(mapper);
+    }
 
     [HttpGet]
     [Route("")]
-    public async Task<IActionResult> List()
+    public async Task<IActionResult> list()
     {
         string userId = "1"; // Hardcoded user id
 
@@ -25,23 +34,11 @@ public class CommunityController : Controller
         .Select(s => s.getDetails())
         .ToList();
 
-        List<CommunityPost> userPosts = await _communityPost.viewUserPosts("1"); // Change to current user id
+        List<CommunityPost> userPosts = await _communityPost.viewUserPosts(userId); // Change to current user id
         var userPostList = userPosts.Select(s => s.getDetails()).ToList();
 
-        var allGroups = (await _communityGroup.getAllgroups()).Select(s => s.getDetails()).ToList();
-        List<Dictionary<string, object>> userGroups = new List<Dictionary<string, object>>();
-
-        foreach (var group in allGroups)
-        {
-            if (group.ContainsKey("MemberIds") && group["MemberIds"] is List<string> memberList)
-            {
-                // Check if the MemberList contains the target ID
-                if (memberList.Contains(userId))
-                {
-                    userGroups.Add(group); // Add the group if the ID is found
-                }
-            }
-        }
+        var userGroups = (await _communityGroup.getUserGroups(userId)).Select(s => s.getDetails()).ToList();
+        var allGroups = (await _communityGroup.getNonUserGroups(userId)).Select(s => s.getDetails()).ToList();
 
         var viewModel = new CommunityViewModel
         {
@@ -59,8 +56,6 @@ public class CommunityController : Controller
     public async Task<IActionResult> submitCreateGroup(string userId, string name, string description)
     {
         List<string> memberIds = new List<string>();
-        userId = "1"; // Hardcoded user id
-        memberIds.Add(userId);
 
         string id = await _communityGroup.createGroup(userId, name, description, memberIds);
 
@@ -73,15 +68,41 @@ public class CommunityController : Controller
             TempData["ErrorMessage"] = "Error in creating group";
         }
 
-        return RedirectToAction("List");
+        return RedirectToAction("list");
     }
 
     [HttpGet]
     [Route("Group/{groupId}")]
     public async Task<IActionResult> displayGroup(string groupId)
     {
-        // to display group posts, details
-        return View("~/Views/M3T1/Community/Group.cshtml");
+        string userId = "1"; // Hardcoded user id
+
+        List<CommunityPost> posts = await _communityPost.viewGroupPosts(groupId);
+        var postList = posts
+        .Select(s => s.getDetails())
+        .ToList();
+
+        List<CommunityPost> userPosts = await _communityPost.viewUserGroupPosts(userId, groupId); // Change to current user id
+        var userPostList = userPosts.Select(s => s.getDetails()).ToList();
+
+        var userGroups = (await _communityGroup.getUserGroups(userId)).Select(s => s.getDetails()).ToList();
+        var allGroups = (await _communityGroup.getNonUserGroups(userId)).Select(s => s.getDetails()).ToList();
+
+        var group = (await _communityGroup.viewGroupById(groupId)).getDetails();
+        var members = group["MemberIds"] as List<string>;
+
+        var viewModel = new CommunityViewModel
+        {
+            Posts = postList,
+            UserPosts = userPostList,
+            AllGroups = allGroups,
+            UserGroups = userGroups,
+            Group = group,
+            GroupView = true,
+            GroupMembers = members
+        };
+
+        return View("~/Views/M3T1/Community/List.cshtml", viewModel);
     }
 
     //[HttpPost]
@@ -92,19 +113,66 @@ public class CommunityController : Controller
     //    return RedirectToAction("Index");
     //}
 
-    //[HttpPost]
-    //[Route("EditGroup")]
-    //public async Task<IActionResult> editGroup(string groupId, string name, string description)
-    //{
-    //    await _communityGroup.updateGroup(groupId, name, description);
-    //    return RedirectToAction("Index");
-    //}
+    [HttpPost]
+    [Route("Group/Edit")]
+    public async Task<IActionResult> editGroup(string groupId, string name, string description)
+    {
+        bool success = await _communityGroup.updateGroup(groupId, name, description);
+        if (success)
+        {
+            TempData["SuccessMessage"] = "Group updated successfully!";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Error in updating group";
+        }
+
+        return RedirectToAction("displayGroup", new { groupId = groupId });
+    }
+
+    [HttpPost]
+    [Route("Group/Join")]
+    public async Task<IActionResult> addGroupMember(string groupId)
+    {
+        string userId = "1";
+        bool success = await _communityGroup.addMember(groupId, userId);
+        if (success)
+        {
+            TempData["SuccessMessage"] = "Joined Group successfully!";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Error joining group, please check if you have already joined.";
+        }
+        return RedirectToAction("list");
+    }
+
+    [HttpPost]
+    [Route("Group/Member/Remove")]
+    public async Task<IActionResult> removeGroupMember(string groupId, List<string> selectedMembers)
+    {
+        if (selectedMembers == null || !selectedMembers.Any())
+        {
+            TempData["ErrorMessage"] = "No members selected for removal.";
+            return RedirectToAction("displayGroup", new { groupId = groupId });
+        }
+        bool success = await _communityGroup.removeMember(groupId, selectedMembers);
+        if (success)
+        {
+            TempData["SuccessMessage"] = "Removed member successfully!";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Error removing member from group.";
+        }
+        return RedirectToAction("displayGroup", new { groupId = groupId });
+    }
 
     [HttpPost]
     [Route("Post/Create")]
-    public async Task<IActionResult> submitPost(string title, string content, string groupId)
+    public async Task<IActionResult> submitPost(string title, string content, string? groupId)
     {
-        string id = await _communityPost.createPost(title, content, "1"); // Change to current user id
+        string id = await _communityPost.createPost(title, content, "1", groupId); // Change to current user id
         if (!string.IsNullOrEmpty(id))
         {
             TempData["SuccessMessage"] = "Post created successfully!";
@@ -114,7 +182,14 @@ public class CommunityController : Controller
             TempData["ErrorMessage"] = "Error in creating post";
         }
 
-        return RedirectToAction("List");
+        if (string.IsNullOrEmpty(groupId))
+        {
+            return RedirectToAction("list");
+        }
+        else
+        {
+            return RedirectToAction("displayGroup", new { groupId = groupId });
+        }
     }
 
     [HttpPost]
@@ -130,7 +205,7 @@ public class CommunityController : Controller
         {
             TempData["ErrorMessage"] = "Error in deleting post";
         }
-        return RedirectToAction("List");
+        return RedirectToAction("list");
     }
 
     [HttpPost]
@@ -146,7 +221,7 @@ public class CommunityController : Controller
         {
             TempData["ErrorMessage"] = "Error in editing post";
         }
-        return RedirectToAction("List");
+        return RedirectToAction("list");
     }
 
     [HttpGet]

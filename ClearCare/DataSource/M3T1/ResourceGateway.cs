@@ -1,39 +1,51 @@
 using Google.Cloud.Firestore;
 using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using ClearCare.Models.Entities.M3T1;
+using ClearCare.Models.Interfaces.M3T1;
 
 namespace ClearCare.DataSource.M3T1
 {
-    public class ResourceGateway
+    public class ResourceGateway : IResourceSend
     {
         private readonly FirestoreDb _db;
+        private IResourceReceive _receiver;
+
 
         public ResourceGateway()
         {
             _db = FirebaseService.Initialize();
         }
 
-        public async Task<string> insertResource(string title, string description, int uploadedBy, string dateCreated, byte[] image, string coverImageName, string? targetUrl)
+        public IResourceReceive receiver
+        {
+            get => _receiver;
+            set => _receiver = value;
+        }
+
+        public async Task<string> insertResource(string title, string description, int uploadedBy, string dateCreated, byte[] image, string coverImageName, string? url)
         {
             DocumentReference docRef = _db.Collection("Resource").Document();
 
             var resource = new Dictionary<string, object>
-    {
-        { "Title", title },
-        { "Description", description },
-        { "UploadedBy", uploadedBy },
-        { "DateCreated", dateCreated },
-        { "CoverImage", image },
-        { "CoverImageName", coverImageName },
-        { "TargetUrl", targetUrl }
-    };
+            {
+                { "Title", title },
+                { "Description", description },
+                { "UploadedBy", uploadedBy },
+                { "DateCreated", dateCreated },
+                { "CoverImage", image },
+                { "CoverImageName", coverImageName },
+                { "Url", url }
+            };
 
             await docRef.SetAsync(resource);
+            if (_receiver != null)
+{
+    await _receiver.receiveInsertStatus(true);
+}
             return docRef.Id;
         }
-
 
         public async Task<List<Resource>> fetchResource()
         {
@@ -50,7 +62,7 @@ namespace ClearCare.DataSource.M3T1
                     string dateCreated = doc.ContainsField("DateCreated") ? doc.GetValue<string>("DateCreated") : "";
                     byte[] coverImage = doc.ContainsField("CoverImage") ? doc.GetValue<byte[]>("CoverImage") : Array.Empty<byte>();
                     string coverImageName = doc.ContainsField("CoverImageName") ? doc.GetValue<string>("CoverImageName") : "";
-                    string targetUrl = doc.ContainsField("TargetUrl") ? doc.GetValue<string>("TargetUrl") : "";
+                    string url = doc.ContainsField("Url") ? doc.GetValue<string>("Url") : "";
 
                     resources.Add(new Resource(
                         doc.Id,
@@ -60,11 +72,11 @@ namespace ClearCare.DataSource.M3T1
                         dateCreated,
                         coverImage,
                         coverImageName,
-                        targetUrl
+                        url
                     ));
                 }
             }
-
+            await _receiver.receiveResources(resources);
             return resources;
         }
 
@@ -80,9 +92,21 @@ namespace ClearCare.DataSource.M3T1
 
             if (!snapshot.Exists)
             {
-                return null; // Ensure null is returned instead of causing an error
+                return null;
             }
 
+            Resource resource = new Resource(
+    id,
+    snapshot.GetValue<string>("Title"),
+    snapshot.GetValue<string>("Description"),
+    snapshot.GetValue<int>("UploadedBy"),
+    snapshot.GetValue<string>("DateCreated"),
+    snapshot.GetValue<byte[]>("CoverImage"),
+    snapshot.GetValue<string>("CoverImageName"),
+    snapshot.GetValue<string>("Url")
+);
+
+            await _receiver.receiveResource(resource);
             return new Resource(
                 id,
                 snapshot.GetValue<string>("Title"),
@@ -91,13 +115,11 @@ namespace ClearCare.DataSource.M3T1
                 snapshot.GetValue<string>("DateCreated"),
                 snapshot.GetValue<byte[]>("CoverImage"),
                 snapshot.GetValue<string>("CoverImageName"),
-                snapshot.GetValue<string>("TargetUrl")
+                snapshot.GetValue<string>("Url")
             );
         }
 
-
-
-        public async Task<bool> updateResource(string id, string title, string description, int uploadedBy, byte[] image, string coverImageName, string targetUrl)
+        public async Task<bool> updateResource(string id, string title, string description, int uploadedBy, byte[] image, string coverImageName, string url)
         {
             DocumentReference docRef = _db.Collection("Resource").Document(id);
 
@@ -108,16 +130,18 @@ namespace ClearCare.DataSource.M3T1
                 { "UploadedBy", uploadedBy },
                 { "CoverImage", image },
                 { "CoverImageName", coverImageName },
-                { "TargetUrl", targetUrl }
+                { "Url", url }
             };
 
             await docRef.UpdateAsync(updatedData);
+            await _receiver.receiveUpdateStatus(true);
             return true;
         }
 
         public async Task<bool> deleteResource(string id)
         {
             await _db.Collection("Resource").Document(id).DeleteAsync();
+            await _receiver.receiveDeleteStatus(true);
             return true;
         }
     }

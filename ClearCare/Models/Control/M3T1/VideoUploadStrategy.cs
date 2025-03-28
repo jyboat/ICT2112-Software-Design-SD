@@ -1,43 +1,41 @@
-//using Google.Cloud.Storage.V1;
-//using System.IO;
-//using System.Threading.Tasks;
-//using ClearCare.Interfaces.M3T1;
-//using ClearCare.DataSource.M3T1;
+using ClearCare.DataSource.M3T1;
+using ClearCare.Models.Interfaces.M3T1;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using System;
+using System.Threading.Tasks;
 
-//public class VideoUploadStrategy : IResourceStrategy
-//{
-//    private readonly ResourceGateway _gateway = new ResourceGateway();
-//    private readonly string _bucketName = "your-bucket.appspot.com";
+public class VideoUploadStrategy : IResourceStrategy
+{
+    private readonly ResourceGateway _gateway = new ResourceGateway();
 
-//    public async Task<string> UploadAsync(
-//        string title,
-//        string description,
-//        int uploadedBy,
-//        string dateCreated,
-//        Stream? fileStream,
-//        string? fileName,
-//        string? contentType,
-//        string? articleUrl,
-//        string coverImageUrl)
-//    {
-//        if (fileStream == null || string.IsNullOrWhiteSpace(fileName))
-//            throw new ArgumentException("Video file must be provided.");
+    public async Task<string> uploadAsync(
+        string title,
+        string description,
+        int uploadedBy,
+        string dateCreated,
+        byte[] image,
+        string coverImageName,
+        object? fileOrUrl)
+    {
+            var videoFile = fileOrUrl as IFormFile;
 
-//        var storage = StorageClient.Create();
-//        string objectName = $"{Guid.NewGuid()}{Path.GetExtension(fileName)}";
+        if (videoFile == null || videoFile.Length == 0)
+            throw new ArgumentException("Video file is required.");
 
-//        await storage.UploadObjectAsync(
-//            _bucketName,
-//            objectName,
-//            contentType,
-//            fileStream,
-//            new UploadObjectOptions { PredefinedAcl = PredefinedObjectAcl.PublicRead }
-//        );
+        string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "videos");
+        Directory.CreateDirectory(uploadsFolder);
 
-//        string videoUrl = $"https://storage.googleapis.com/{_bucketName}/{objectName}";
+        string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(videoFile.FileName);
+        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-//        // Save everything to Firestore using the gateway
-//        return await _gateway.insertResource(title, description, uploadedBy, dateCreated, coverImageUrl, videoUrl);
-//    }
-//}
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await videoFile.CopyToAsync(stream);
+        }
 
+        string videoUrl = "/videos/" + uniqueFileName;
+
+        return await _gateway.insertResource(title, description, uploadedBy, dateCreated, image, coverImageName, videoUrl);
+    }
+}
