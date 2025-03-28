@@ -63,6 +63,7 @@ builder.Services.AddScoped<ServiceCompletionManager>();
 builder.Services.AddScoped<ServiceHistoryMapper>(); // Register ServiceHistoryMapper
 builder.Services.AddScoped<ServiceHistoryManager>(); // Register ServiceHistoryManager
 builder.Services.AddScoped<ServiceCompletionManager>();
+builder.Services.AddScoped<AnalyticsDashboardManager>();
 
 
 var app = builder.Build();

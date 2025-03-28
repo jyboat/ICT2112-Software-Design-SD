@@ -1,14 +1,20 @@
 using Microsoft.AspNetCore.Mvc;
-using ClearCare.Models.Control.M2T5;
+using ClearCare.Models.Control;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ClearCare.Controllers.M2T5
+namespace ClearCare.Controllers
 {
     [Route("Analytics")]
     public class AnalyticsController : Controller
     {
-        private readonly AnalyticsDashboardManager _manager = new AnalyticsDashboardManager();
+        private readonly AnalyticsDashboardManager _manager;
+
+        // DI via constructor injection
+        public AnalyticsController(AnalyticsDashboardManager manager)
+        {
+            _manager = manager;
+        }
 
         [HttpGet("Appointments")]
         public async Task<IActionResult> AppointmentsAnalytics(string status = "", string doctor = "", string type = "")
