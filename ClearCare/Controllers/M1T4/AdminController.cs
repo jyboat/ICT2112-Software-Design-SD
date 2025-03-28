@@ -214,6 +214,14 @@ namespace ClearCare.Controllers
                {
                     return View("~/Views/Admin/UpdateDoctorAccount.cshtml");
                }
+               else if (user.getProfileData()["Role"].ToString() == "Patient")
+               {
+                    return View("~/Views/Admin/UpdatePatientAccount.cshtml");
+               }
+               else if (user.getProfileData()["Role"].ToString() == "Caregiver")
+               {
+                    return View("~/Views/Admin/UpdateCaregiverAccount.cshtml");
+               }
                else
                {
                     TempData["ErrorMessage"] = "User ID not found.";
@@ -225,17 +233,16 @@ namespace ClearCare.Controllers
           [HttpPost]
           public async Task<IActionResult> updateAccount(string uid, string email, string name, string role, string address, long? mobileNumber, string? department, string? specialization)
           {
-               if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || mobileNumber == null || (string.IsNullOrEmpty(department) && string.IsNullOrEmpty(specialization)))
+               if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || mobileNumber == null)
                {
                     ViewBag.ErrorMessage = "Please fill in all required fields.";
-                    return RedirectToAction("LoadRoleForm", new { role = role });
                }
 
                Dictionary<string, object> updatedUserData = new Dictionary<string, object>
                {
                     { "Email", email },
                     { "Name", name },
-                    { "MobileNumber", mobileNumber },
+                    { "MobileNumber", mobileNumber ?? 0 },
                     { "Address", address },
                     { "Role", role }
                };
@@ -249,7 +256,7 @@ namespace ClearCare.Controllers
                     updatedUserData.Add("Specialization", specialization);
                }
 
-               string result = await _adminManagement.updateStaffAccount(uid, updatedUserData, _auditManagement);
+               string result = await _adminManagement.updateUserAccount(uid, updatedUserData, _auditManagement);
 
                if (result == "Account updated successfully.")
                {

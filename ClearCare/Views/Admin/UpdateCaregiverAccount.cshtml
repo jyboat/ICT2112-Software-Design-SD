@@ -56,6 +56,15 @@
                                     <label for="mobileNumber"><i class="bi bi-telephone me-1"></i>Mobile Number</label>
                                 </div>
                             </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" id="assignedPatientName" name="assignedPatientName" class="form-control" 
+                                        value="@(user?.getProfileData()["AssignedPatientName"] ?? "")" 
+                                        disabled>
+                                    <label for="assignedPatientName"><i class="bi bi-building me-1"></i>Assigned Patient</label>
+                                </div>
+                            </div>
                             
                             <div class="col-12">
                                 <div class="form-floating mb-3">
