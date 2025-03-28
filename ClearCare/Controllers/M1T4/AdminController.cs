@@ -24,6 +24,16 @@ namespace ClearCare.Controllers
           [HttpGet]
           public async Task<IActionResult> Dashboard(string currentView = "medical")
           {
+               // Check for userRole
+               var userRole = HttpContext.Session.GetString("Role");
+
+               // Restrict access to only Admin
+               if (userRole != "Admin")
+               {
+                    Console.WriteLine("You do not have permission to access this page.");
+                    return RedirectToAction("displayLogin", "Login");
+               }
+
                var users = await _adminManagement.retrieveAllUsers();
 
                if (users != null)
@@ -58,6 +68,16 @@ namespace ClearCare.Controllers
           [HttpGet]
           public async Task<IActionResult> AuditView()
           {
+               // Check for userRole
+               var userRole = HttpContext.Session.GetString("Role");
+
+               // Restrict access to only Admin
+               if (userRole != "Admin")
+               {
+                    Console.WriteLine("You do not have permission to access this page.");
+                    return RedirectToAction("displayLogin", "Login");
+               }
+
                List<AuditLog> auditLogs = await _auditManagement.GetAllAuditLogsAsync();
 
                // Ensure ViewData is not null
@@ -70,6 +90,16 @@ namespace ClearCare.Controllers
           [HttpGet]
           public IActionResult LoadCreateNurseAccount()
           {
+               // Check for userRole
+               var userRole = HttpContext.Session.GetString("Role");
+
+               // Restrict access to only Admin
+               if (userRole != "Admin")
+               {
+                    Console.WriteLine("You do not have permission to access this page.");
+                    return RedirectToAction("displayLogin", "Login");
+               }
+
                return View("~/Views/Admin/CreateNurseAccount.cshtml");
           }
 
@@ -77,6 +107,16 @@ namespace ClearCare.Controllers
           [HttpGet]
           public IActionResult LoadCreateDoctorAccount()
           {
+               // Check for userRole
+               var userRole = HttpContext.Session.GetString("Role");
+
+               // Restrict access to only Admin
+               if (userRole != "Admin")
+               {
+                    Console.WriteLine("You do not have permission to access this page.");
+                    return RedirectToAction("displayLogin", "Login");
+               }
+
                return View("~/Views/Admin/CreateDoctorAccount.cshtml");
           }
 
@@ -100,9 +140,19 @@ namespace ClearCare.Controllers
           [HttpPost]
           public async Task<IActionResult> createAccount(string email, string password, string name, string role, string address, long? mobileNumber, string? department, string? specialization)
           {
+               // Check for userRole
+               var userRole = HttpContext.Session.GetString("Role");
+
+               // Restrict access to only Admin
+               if (userRole != "Admin")
+               {
+                    Console.WriteLine("You do not have permission to access this page.");
+                    return RedirectToAction("displayLogin", "Login");
+               }
+
                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || mobileNumber == null || (string.IsNullOrEmpty(department) && string.IsNullOrEmpty(specialization)))
                {
-                    ViewBag.ErrorMessage = "Please fill in all required fields.";
+                    TempData["ErrorMessage"] = "Please fill in all required fields.";
                     return RedirectToAction("LoadRoleForm", new { role = role });
                }
 
@@ -119,16 +169,16 @@ namespace ClearCare.Controllers
 
                User newUser = UserFactory.createUser("", email, password, name, (int)mobileNumber, address, role, infoDictionary);
 
-               string result = await _adminManagement.createAccount(newUser!, password);
+               string result = await _adminManagement.createAccount(newUser!, password, _auditManagement);
 
                if (result == "Account created successfully.")
                {
-                    ViewBag.SuccessMessage = result;
+                    TempData["SuccessMessage"] = result;
                     return RedirectToAction("Dashboard");
                }
                else
                {
-                    ViewBag.ErrorMessage = result;
+                    TempData["ErrorMessage"] = result;
                     return RedirectToAction("LoadRoleForm", new { role });
                }
           }
@@ -137,6 +187,16 @@ namespace ClearCare.Controllers
           [HttpGet("/UpdateProfilePage/{uid}")]
           public async Task<IActionResult> manageUsers(string uid)
           {
+               // Check for userRole
+               var userRole = HttpContext.Session.GetString("Role");
+
+               // Restrict access to only Admin
+               if (userRole != "Admin")
+               {
+                    Console.WriteLine("You do not have permission to access this page.");
+                    return RedirectToAction("displayLogin", "Login");
+               }
+
                if (string.IsNullOrEmpty(uid))
                {
                     TempData["ErrorMessage"] = "User ID is required.";
@@ -189,7 +249,7 @@ namespace ClearCare.Controllers
                     updatedUserData.Add("Specialization", specialization);
                }
 
-               string result = await _adminManagement.updateStaffAccount(uid, updatedUserData);
+               string result = await _adminManagement.updateStaffAccount(uid, updatedUserData, _auditManagement);
 
                if (result == "Account updated successfully.")
                {
@@ -212,7 +272,7 @@ namespace ClearCare.Controllers
                     return RedirectToAction("Dashboard");
                }
 
-               string result = await _adminManagement.resetStaffPassword(uid);
+               string result = await _adminManagement.resetStaffPassword(uid, _auditManagement);
 
                if (result == "Failed to reset password.")
                {
@@ -226,28 +286,5 @@ namespace ClearCare.Controllers
                return RedirectToAction("Dashboard");
           }
 
-          // POST: /Admin/DeleteAccount
-          [HttpPost]
-          public async Task<IActionResult> deleteAccount(string uid)
-          {
-               if (string.IsNullOrEmpty(uid))
-               {
-                    TempData["ErrorMessage"] = "User ID is required.";
-                    return RedirectToAction("Dashboard");
-               }
-
-               string result = await _adminManagement.deleteAccount(uid);
-
-               if (result == "Account deleted successfully.")
-               {
-                    TempData["SuccessMessage"] = $"Successfully deleted user with ID: {uid}";
-               }
-               else
-               {
-                    TempData["ErrorMessage"] = $"Failed to delete user with ID: {uid}";
-               }
-
-               return RedirectToAction("Dashboard");
-          }
      }
 }

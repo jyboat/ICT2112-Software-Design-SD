@@ -3,10 +3,11 @@ using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
 using ClearCare.Models.Entities;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.DataSource
 {
-    public class ErratumGateway
+    public class ErratumGateway : IErratumDatabase
     {
         private FirestoreDb db;
 

@@ -13,19 +13,19 @@
     <link rel="stylesheet" href="~/ClearCare.styles.css" asp-append-version="true" />
 
     <script>
-        $(document).ready(function () {
-            let successMessage = '@TempData["SuccessMessage"]';
-            let errorMessage = '@TempData["ErrorMessage"]';
-
-            if (successMessage) {
-                toastr.success(successMessage, "Success");
-            }
-
-            if (errorMessage) {
-                toastr.error(errorMessage, "Error");
-            }
-        });
-    </script>
+         $(document).ready(function () {
+             let successMessage = '@TempData["SuccessMessage"]';
+             let errorMessage = '@TempData["ErrorMessage"]';
+ 
+             if (successMessage) {
+                 toastr.success(successMessage, "Success");
+             }
+ 
+             if (errorMessage) {
+                 toastr.error(errorMessage, "Error");
+             }
+         });
+     </script>
 </head>
 <body>
     <header>

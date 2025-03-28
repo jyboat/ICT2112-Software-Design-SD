@@ -5,7 +5,7 @@ using ClearCare.Models.Entities;
 
 namespace ClearCare.Models.Interface
 {
-    public interface IAdminDatabase
+    public interface IUserDatabase
     {
         Task<User> findUserByID(string userID);
         Task<User> findUserByEmail(string email);

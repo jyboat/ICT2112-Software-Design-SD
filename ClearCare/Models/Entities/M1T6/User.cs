@@ -20,8 +20,6 @@ namespace ClearCare.Models.Entities
         protected string Address { get; set; }
         [FirestoreProperty]
         protected string Role { get; set; }
-        [FirestoreProperty]
-        protected bool RequirePasswordChange { get; set; }
 
         // Getter and Setter
         protected string getUserID() => UserID;
@@ -52,7 +50,6 @@ namespace ClearCare.Models.Entities
             MobileNumber = mobileNumber;
             Address = address;
             Role = role;
-            RequirePasswordChange = false;
         }
 
         // Returns hashed password to compare when User logs in
@@ -63,23 +60,30 @@ namespace ClearCare.Models.Entities
 
 
         // Returns userID and Role to store in Session upon User login
-        public (string userID, string role) getSessionData()
+        public (string userID, string role, string name) getSessionData()
         {
-            return (getUserID(), getRole());
+            return (getUserID(), getRole(), getName());
         }
 
         // Returns all user data to be used in Profile
         public virtual Dictionary<string, object> getProfileData()
         {
+            // string mobileStr = getMobileNumber().ToString(); // new code for country code
+            // string countryCodeStr = mobileStr.Length >= 2 ? mobileStr.Substring(0, 2) : "0"; // new code for country code
+            // string mobilenumberStr = mobileStr.Length >= 2 ? mobileStr.Substring(2) : "0"; // new code for country code
+            // long.TryParse(countryCodeStr, out long countryCode); // new code for country code
+            // long.TryParse(mobilenumberStr, out long mobileNumber); // new code for country code
+
             return new Dictionary<string, object>
             {
                 { "UserID", getUserID() },
                 { "Email", getEmail() },
                 { "Name", getName() },
-                { "MobileNumber", getMobileNumber() },
+                { "MobileNumber", getMobileNumber() }, // commented out old code
+                // { "MobileNumber",mobileNumber }, // new code for country code
                 { "Address", getAddress() },
                 { "Role", getRole() },
-                { "RequirePasswordChange", RequirePasswordChange }
+                // { "CountryCode", countryCode } // new code for country code
             };
         }
 

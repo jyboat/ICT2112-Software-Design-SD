@@ -46,10 +46,16 @@ namespace ClearCare.Models.Control
           }
 
           public async Task<List<User>> retrieveAllUsers() => await _userGateway.getAllUsers();
+
+          public async Task<List<User>> retrieveAllDoctors() => await _userGateway.getAllDoctors();
+
+          public async Task<List<User>> retrieveAllPatients() => await _userGateway.getAllPatients();
+
+          public async Task<List<User>> retrieveAllNurses() => await _userGateway.getAllNurses();
           public async Task<User> retrieveUserByID(string uid) => await _userGateway.findUserByID(uid);
 
           // Method to create a new account
-          public async Task<string> createAccount(User newUser, String password)
+          public async Task<string> createAccount(User newUser, string password, IAuditSubject auditLog)
           {
                var email = newUser.getProfileData()["Email"]?.ToString();
                if (string.IsNullOrEmpty(email))
@@ -66,24 +72,27 @@ namespace ClearCare.Models.Control
 
                // validate that the fields are not empty, then create user
                var name = newUser.getProfileData()["Name"]?.ToString();
-               var mobileNumber = Convert.ToInt64(newUser.getProfileData()["MobileNumber"]);
+               var mobileNumber = Convert.ToInt64(newUser.getProfileData()["MobileNumber"]).ToString();
                var address = newUser.getProfileData()["Address"]?.ToString();
                var role = newUser.getProfileData()["Role"]?.ToString();
 
-               if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || string.IsNullOrEmpty(role))
+               if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || string.IsNullOrEmpty(role) || string.IsNullOrEmpty(mobileNumber))
                {
-                    return "Password, Name, Address and Role is required.";
+                    return "Password, Name, Phone Number, Address and Role is required.";
                }
 
                // Create a new User object with the necessary data
                string newUserId = await _userGateway.InsertUser(newUser, password);
+
+               // Insert audit log after account creation
+               string auditResult = await auditLog.InsertAuditLog("Created new account", newUserId);
 
                return newUserId != null ? "Account created successfully." : "Failed to create account.";
           }
 
 
           // Method to update user account
-          public async Task<string> updateStaffAccount(string uid, Dictionary<string, object> profileData)
+          public async Task<string> updateStaffAccount(string uid, Dictionary<string, object> profileData, IAuditSubject auditLog)
           {
                if (string.IsNullOrEmpty(uid))
                {
@@ -98,11 +107,14 @@ namespace ClearCare.Models.Control
 
                var result = await _userGateway.updateUser(uid, profileData);
 
+               // Insert audit log after successful account update
+               string auditResult = await auditLog.InsertAuditLog("Updated staff account", uid);
+
                return result ? "Account updated successfully." : "Failed to update account.";
           }
 
           // Method to reset password
-          public async Task<string> resetStaffPassword(string uid)
+          public async Task<string> resetStaffPassword(string uid, IAuditSubject auditLog)
           {
                var user = await _userGateway.findUserByID(uid);
                if (user == null)
@@ -113,9 +125,12 @@ namespace ClearCare.Models.Control
                var newPassword = GeneratePassword();
                // Set the temporary password and mark account for required password change
                var result = await _userGateway.resetPassword(uid, newPassword);
-               
+
                if (result)
                {
+                    // Insert audit log after successful password reset
+                    string auditResult = await auditLog.InsertAuditLog("Reset staff password", uid);
+
                     // Update user profile to require password change
                     var profileData = user.getProfileData();
 
@@ -142,26 +157,12 @@ namespace ClearCare.Models.Control
                          Console.WriteLine("Password reset successful but failed to send email notification.");
                          return "Password reset successful but failed to send email notification.";
                     }
-                    
+
                     Console.WriteLine("Password reset successful. User will be required to change password on next login.");
                     return "Password reset successful. User will be required to change password on next login.";
                }
 
                return "Failed to reset password.";
-          }
-
-          // Method to delete account
-          public async Task<string> deleteAccount(string uid)
-          {
-               var user = await _userGateway.findUserByID(uid);
-               if (user == null)
-               {
-                    return "Account does not exist.";
-               }
-
-               var result = await _userGateway.deleteUser(uid);
-
-               return result ? "Account deleted successfully." : "Failed to delete account.";
           }
      }
 }

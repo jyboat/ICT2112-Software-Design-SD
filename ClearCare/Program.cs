@@ -34,7 +34,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();  
 
 builder.Services.AddScoped<IEmail, EmailService>(); // Ensure EmailService implements IEmail
-builder.Services.AddScoped<IAuditLog, AuditManagement>();
+builder.Services.AddScoped<IAuditSubject, AuditManagement>();
 builder.Services.AddScoped<IPassword, EncryptionManagement>(); // Ensure EncryptionManagement implements IPassword
 builder.Services.AddScoped<IEncryption, EncryptionManagement>(); // Ensure EncryptionManagement implements IEncryption
 builder.Services.AddScoped<IMedicalRecord, ViewMedicalRecord>(); // Ensure ViewMedicalRecord implements IMedicalRecord

@@ -4,10 +4,11 @@ using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
 using ClearCare.Models.Entities;
 using Google.Protobuf;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.DataSource
 {
-    public class MedicalRecordGateway
+    public class MedicalRecordGateway : IManageRecordDatabase, IViewRecordDatabase
     {
         private FirestoreDb db;
 

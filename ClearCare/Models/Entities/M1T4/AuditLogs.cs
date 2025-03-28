@@ -24,8 +24,16 @@ namespace ClearCare.Models.Entities
         {
             Action = action;
             PerformedBy = performedBy;
-            EntryDate = Timestamp.FromDateTime(entryDate);
+
+            // Adjust the entryDate to UTC+8 (local time zone)
+            DateTime localEntryDate = entryDate.Kind == DateTimeKind.Utc 
+                ? entryDate.AddHours(8)  // If the DateTime is already in UTC, add 8 hours
+                : entryDate.ToUniversalTime().AddHours(8);  // Convert to UTC first, then add 8 hours
+
+            // Convert the adjusted local DateTime to Firestore Timestamp
+            EntryDate = Timestamp.FromDateTime(localEntryDate);
         }
+
 
         public Dictionary<string, object> GetAuditDetails()
         {
