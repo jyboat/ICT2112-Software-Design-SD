@@ -46,9 +46,11 @@ namespace ClearCare.Controllers
             var authenticatedUser = await LoginManagement.authenticateUser(email, password);
             if (authenticatedUser != null)
             {
-                var (userID, role) = authenticatedUser.getSessionData();
+                var (userID, role, name) = authenticatedUser.getSessionData();
                 HttpContext.Session.SetString("UserID", userID);
                 HttpContext.Session.SetString("Role", role);
+                HttpContext.Session.SetString("Name", name);
+                
 
                 TempData["SuccessMessage"] = "Logged in.";
                 return RedirectToAction("Index", "Home");
@@ -131,9 +133,10 @@ namespace ClearCare.Controllers
 
                 if (authenticatedUser != null)
                 {
-                    var (userID, role) = authenticatedUser.getSessionData();
+                    var (userID, role, name) = authenticatedUser.getSessionData();
                     HttpContext.Session.SetString("UserID", userID);
                     HttpContext.Session.SetString("Role", role);
+                    HttpContext.Session.SetString("Name", name);
                 }
 
                 return RedirectToAction("Index", "Home");

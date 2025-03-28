@@ -1,43 +1,9 @@
 @{
      ViewData["Title"] = "Create Doctor Account";
+}
 
-     string[] doctorSpecialization = {
-"Anaesthesiology",
-"Cardiology",
-"Cardiothoracic Surgery",
-"Dermatology",
-"Diagnostic Radiology",
-"Emergency Medicine",
-"Endocrinology",
-"Gastroenterology",
-"General Surgery",
-"Geriatric Medicine",
-"Haematology",
-"Hand Surgery",
-"Infectious Diseases",
-"Internal Medicine",
-"Medical Oncology",
-"Neurology",
-"Neurosurgery",
-"Nuclear Medicine",
-"Obstetrics & Gynaecology",
-"Occupational Medicine",
-"Ophthalmology",
-"Orthopaedic Surgery",
-"Otorhinolaryngology/ENT",
-"Paediatric Medicine",
-"Paediatric Surgery",
-"Pathology",
-"Plastic Surgery",
-"Psychiatry",
-"Public Health",
-"Radiation Oncology",
-"Rehabilitation Medicine",
-"Renal Medicine",
-"Respiratory Medicine",
-"Rheumatology",
-"Urology"
-};
+@{
+     string[] doctorSpecialization = { "Pre-Discharged", "Emergency Medicine" };
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -47,6 +13,7 @@
      <meta name="viewport" content="width=device-width, initial-scale=1">
      <title>@ViewData["Title"] - ClearCare</title>
      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
      <style>
           /* Remove arrows from number input */
           input[type=number]::-webkit-inner-spin-button,
@@ -58,67 +25,107 @@
           input[type=number] {
                -moz-appearance: textfield;
           }
-
-          .register-form {
-               max-width: 450px;
-               margin: 0 auto;
-          }
      </style>
 </head>
 
-<body class="bg-light">
-     <div class="container py-5">
-          <div class="register-form card shadow p-4">
-               <h2 class="text-center">Create Doctor Account</h2>
-               <div class="text-center mv-3">
-                    <a href="/Admin/LoadCreateNurseAccount" class="btn btn-link">Switch to Create Nurse Account</a>
-                    @* <a href="/Admin/LoadCreatePatientCaregiverAccount" class="btn btn-link">Switch to Create Patient/Caregiver Account</a> *@
-               </div>
-               <form method="post" action="/Admin/createAccount">
-                    <div class="mb-3" hidden>
-                         <label for="role" class="form-label">Role:</label>
-                         <select id="role" name="role" class="form-control" required>
-                              <option value="Doctor">Doctor</option>
-                         </select>
+<div class="container py-4">
+     <div class="row justify-content-center">
+          <div class="col-md-8 col-lg-6">
+               <div class="card shadow-lg border-0 rounded-3">
+                    <div class="card-header bg-gradient bg-primary text-white p-4">
+                         <h2 class="text-center mb-0">Create Doctor Account</h2>
                     </div>
-                    <div class="mb-3">
-                         <label for="email" class="form-label">Email:</label>
-                         <input type="email" id="email" name="email" class="form-control" required>
+                    <div class="card-body p-4">
+                         <div class="text-center mb-4">
+                              <a href="/Admin/LoadCreateNurseAccount"
+                                   class="btn btn-secondary flex-grow-1 py-2 shadow-sm">
+                                   Switch to Create Nurse Account </a>
+                         </div>
+
+                         <div class="alert alert-warning text-center mb-4">
+                              <strong>Disclaimer:</strong><br>Ensure all fields are filled correctly.
+                         </div>
+
+                         <form method="post" action="/Admin/createAccount">
+                              <div class="mb-3" hidden>
+                                   <label for="role" class="form-label">Role:</label>
+                                   <select id="role" name="role" class="form-control" required>
+                                        <option value="Doctor">Doctor</option>
+                                   </select>
+                              </div>
+
+                              <div class="row g-3">
+                                   <div class="col-md-6">
+                                        <div class="form-floating mb-3">
+                                             <input type="email" id="email" name="email" class="form-control" required>
+                                             <label for="email"><i class="bi bi-envelope me-1"></i>Email</label>
+                                        </div>
+                                   </div>
+
+                                   <div class="col-md-6">
+                                        <div class="form-floating mb-3">
+                                             <input type="password" id="password" name="password" class="form-control"
+                                                  required>
+                                             <label for="password"><i class="bi bi-key me-1"></i>Password</label>
+                                        </div>
+                                   </div>
+
+                                   <div class="col-12">
+                                        <div class="form-floating mb-3">
+                                             <input type="text" id="name" name="name" class="form-control" required>
+                                             <label for="name"><i class="bi bi-person me-1"></i>Name</label>
+                                        </div>
+                                   </div>
+
+                                   <div class="col-md-6">
+                                        <div class="form-floating mb-3">
+                                             <select id="specialization" name="specialization" class="form-control"
+                                                  required>
+                                                  <option value="">Select Specialization</option>
+                                                  @foreach (var specialty in doctorSpecialization)
+                                                  {
+                                                       <option value="@specialty">@specialty</option>
+                                                  }
+                                             </select>
+                                             <label for="specialization"><i
+                                                       class="bi bi-building me-1"></i>Specialization</label>
+                                        </div>
+                                   </div>
+
+                                   <div class="col-md-6">
+                                        <div class="form-floating mb-3">
+                                             <input type="number" id="mobileNumber" name="mobileNumber"
+                                                  class="form-control" required>
+                                             <label for="mobileNumber"><i class="bi bi-telephone me-1"></i>Mobile
+                                                  Number</label>
+                                        </div>
+                                   </div>
+
+                                   <div class="col-12">
+                                        <div class="form-floating mb-3">
+                                             <input type="text" id="address" name="address" class="form-control"
+                                                  required>
+                                             <label for="address"><i class="bi bi-geo-alt me-1"></i>Address</label>
+                                        </div>
+                                   </div>
+                              </div>
+
+                              <div class="mt-4 d-flex gap-3">
+                                   <a href="/Admin/Dashboard" class="btn btn-secondary flex-grow-1 py-2 shadow-sm">
+                                        <i class="bi bi-arrow-left me-2"></i>Back to User List
+                                   </a>
+                                   <button type="submit" class="btn btn-primary flex-grow-1 py-2 shadow-sm">
+                                        <i class="bi bi-check-circle me-2"></i>Create Account
+                                   </button>
+                              </div>
+                         </form>
                     </div>
-                    <div class="mb-3">
-                         <label for="password" class="form-label">Password:</label>
-                         <input type="password" id="password" name="password" class="form-control" required>
+                    <div class="card-footer text-center text-muted p-3">
+                         <small>ClearCare Medical Staff Management</small>
                     </div>
-                    <div class="mb-3">
-                         <label for="name" class="form-label">Name:</label>
-                         <input type="text" id="name" name="name" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                         <label for="specialization" class="form-label">Specialization:</label>
-                         <select id="specialization" name="specialization" class="form-control" required>
-                              <option value="">-- Select a specialization --</option>
-                              @foreach (var specialty in doctorSpecialization)
-                              {
-                                   <option value="@specialty">@specialty</option>
-                              }
-                         </select>
-                    </div>
-                    <div class="mb-3">
-                         <label for="mobileNumber" class="form-label">Mobile Number:</label>
-                         <input type="number" id="mobileNumber" name="mobileNumber" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                         <label for="address" class="form-label">Address:</label>
-                         <input type="text" id="address" name="address" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Create Account</button>
-               </form>
-               <div class="text-center mv-3 mt-3">
-                    <a href="/Admin/Dashboard" class="btn btn-link">Go Back to Dashboard</a>
                </div>
           </div>
      </div>
-     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+</div>
 
 </html>
