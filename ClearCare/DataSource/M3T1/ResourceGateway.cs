@@ -3,17 +3,25 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ClearCare.Models.Entities.M3T1;
-using ClearCare.Models.Interfaces.M3T1; // For IResourceSend
+using ClearCare.Models.Interfaces.M3T1;
 
 namespace ClearCare.DataSource.M3T1
 {
     public class ResourceGateway : IResourceSend
     {
         private readonly FirestoreDb _db;
+        private IResourceReceive _receiver;
+
 
         public ResourceGateway()
         {
             _db = FirebaseService.Initialize();
+        }
+
+        public IResourceReceive receiver
+        {
+            get => _receiver;
+            set => _receiver = value;
         }
 
         public async Task<string> insertResource(string title, string description, int uploadedBy, string dateCreated, byte[] image, string coverImageName, string? url)
@@ -32,6 +40,10 @@ namespace ClearCare.DataSource.M3T1
             };
 
             await docRef.SetAsync(resource);
+            if (_receiver != null)
+{
+    await _receiver.receiveInsertStatus(true);
+}
             return docRef.Id;
         }
 
@@ -64,7 +76,7 @@ namespace ClearCare.DataSource.M3T1
                     ));
                 }
             }
-
+            await _receiver.receiveResources(resources);
             return resources;
         }
 
@@ -83,6 +95,18 @@ namespace ClearCare.DataSource.M3T1
                 return null;
             }
 
+            Resource resource = new Resource(
+    id,
+    snapshot.GetValue<string>("Title"),
+    snapshot.GetValue<string>("Description"),
+    snapshot.GetValue<int>("UploadedBy"),
+    snapshot.GetValue<string>("DateCreated"),
+    snapshot.GetValue<byte[]>("CoverImage"),
+    snapshot.GetValue<string>("CoverImageName"),
+    snapshot.GetValue<string>("Url")
+);
+
+            await _receiver.receiveResource(resource);
             return new Resource(
                 id,
                 snapshot.GetValue<string>("Title"),
@@ -110,12 +134,14 @@ namespace ClearCare.DataSource.M3T1
             };
 
             await docRef.UpdateAsync(updatedData);
+            await _receiver.receiveUpdateStatus(true);
             return true;
         }
 
         public async Task<bool> deleteResource(string id)
         {
             await _db.Collection("Resource").Document(id).DeleteAsync();
+            await _receiver.receiveDeleteStatus(true);
             return true;
         }
     }

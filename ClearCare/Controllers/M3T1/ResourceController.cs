@@ -12,10 +12,13 @@ public class ResourceController : Controller
 {
     private readonly ResourceManager _manager;
 
+
     public ResourceController()
     {
         var gateway = new ResourceGateway();
         _manager = new ResourceManager(gateway);
+            gateway.receiver = _manager;
+
     }
 
     [Route("")]
