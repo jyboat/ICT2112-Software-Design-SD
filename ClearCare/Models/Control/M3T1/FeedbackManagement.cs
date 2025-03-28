@@ -74,7 +74,7 @@ namespace ClearCare.Models.Control.M3T1
         // Response Notification for Patients, for FeedbackController, not implemented in any interfaces
         public bool responseNotification(string patientId)
         {
-            return PatientNotificationObserver.CheckAndClearNotification(patientId);
+            return PatientNotificationObserver.checkAndClearNotification(patientId);
         }
 
         // Combine feedbackList and responseList, for FeedbackController, not implemented in any interfaces

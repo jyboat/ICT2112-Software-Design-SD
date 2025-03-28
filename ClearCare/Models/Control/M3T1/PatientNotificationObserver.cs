@@ -30,7 +30,7 @@ public class PatientNotificationObserver : IFeedbackObserver
     }
 
     // Checks if user has any pending feedback response notifications, and clears it if true.
-    public static bool CheckAndClearNotification(string userId)
+    public static bool checkAndClearNotification(string userId)
     {
         if (NotificationMap.ContainsKey(userId))
         {
