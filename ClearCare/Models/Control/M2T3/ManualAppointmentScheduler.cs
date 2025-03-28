@@ -7,13 +7,15 @@ namespace ClearCare.Models.Control
     public class ManualAppointmentScheduler
     {
         private readonly ICreateAppointment _iCreateAppointment;
+        private readonly IRetrieveAllAppointments _iRetrieveAppointment;
         private readonly INurseAvailability _iNurseAvailability;
         private readonly INotification _iNotification;
         public ManualAppointmentScheduler()
         {
-            _iCreateAppointment = new ServiceAppointmentManagement();
-            _iNurseAvailability = new NurseAvailabilityManagement();
-            _iNotification = new NotificationManager();
+            _iCreateAppointment = (ICreateAppointment) new ServiceAppointmentManagement();
+            _iNurseAvailability = (INurseAvailability) new NurseAvailabilityManagement();
+            _iNotification = (INotification) new NotificationManager();
+            _iRetrieveAppointment = (IRetrieveAllAppointments) new ServiceAppointmentStatusManagement();
         }
 
         public async Task<bool> ValidateAppointmentSlot(string patientId, string nurseId,
@@ -61,8 +63,8 @@ namespace ClearCare.Models.Control
             }
 
             // 2nd check: is the same nurse already booked for another appointment at this time?
-
-            var nurseAppointments = await _iCreateAppointment.RetrieveAllAppointmentsByNurse(nurseId);
+            
+            var nurseAppointments = await _iRetrieveAppointment.RetrieveAllAppointmentsByNurse(nurseId);
 
             foreach (var appointment in nurseAppointments)
             {
@@ -123,7 +125,7 @@ namespace ClearCare.Models.Control
             string doctorId, string Service, string status, DateTime dateTime, int slot, string location)
         {
             // retrieve the current appointment to compare changes
-            var currentAppointment = await _iCreateAppointment.getAppointmentByID(appointmentId);
+            var currentAppointment = await _iRetrieveAppointment.getServiceAppointmentById(appointmentId);
             if (currentAppointment == null)
             {
                 return false;

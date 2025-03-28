@@ -36,7 +36,7 @@ public class ServiceAppointmentsController : Controller
         
         _serviceTypeManagement = new ServiceTypeManager();
 
-        _calendarManagement = new CalendarManagement(ServiceAppointmentManagement, _nurseAvailabilityManagement);
+        _calendarManagement = new CalendarManagement();
 
         AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler();
         _manualAppointmentScheduler = new ManualAppointmentScheduler();

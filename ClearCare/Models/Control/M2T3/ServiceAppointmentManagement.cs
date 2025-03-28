@@ -11,13 +11,13 @@ using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
-    public class ServiceAppointmentManagement : IRetrieveAllAppointments, ICreateAppointment, IServiceAppointmentDB_Receive, IAppointmentTime, IServiceStatus
+    public class ServiceAppointmentManagement : ICreateAppointment, IServiceAppointmentDB_Receive, IAppointmentTime, IServiceStatus
     {
         private readonly IServiceType _iServiceType;
         private readonly IServiceAppointmentDB_Send _dbGateway;
         public ServiceAppointmentManagement()
         {
-            _iServiceType = new ServiceTypeManager();
+            _iServiceType = (IServiceType) new ServiceTypeManager();
             _dbGateway = (IServiceAppointmentDB_Send)new ServiceAppointmentGateway();
             _dbGateway.Receiver = this;
         }
@@ -55,16 +55,6 @@ namespace ClearCare.Models.Control
         {
             Console.WriteLine("1 Service Appointment Found.");
             return Task.CompletedTask;
-        }
-
-        public async Task<List<ServiceAppointment>> RetrieveAllAppointmentsByNurse(string nurseId)
-        {
-            List<ServiceAppointment> allAppointments = await _dbGateway.fetchAllServiceAppointments();
-            List<ServiceAppointment> nurseAppointments = allAppointments
-                .Where(a => a.GetAttribute("NurseId") == nurseId)
-                .ToList();
-
-            return nurseAppointments;
         }
 
         // Create Service Appointment

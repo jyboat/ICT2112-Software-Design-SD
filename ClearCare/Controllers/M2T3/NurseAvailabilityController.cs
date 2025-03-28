@@ -25,7 +25,7 @@ namespace ClearCare.Controllers
             _serviceAppointmentManagement = new ServiceAppointmentManagement();
          
 
-            _calendarManagement = new CalendarManagement((IRetrieveAllAppointments)_serviceAppointmentManagement, (INurseAvailability) _manager);
+            _calendarManagement = new CalendarManagement();
         }
 
         // methods to get Id from current session 
@@ -36,9 +36,9 @@ namespace ClearCare.Controllers
 
         // Displays Nurse Availability for Calendar
         [HttpGet]
-        [Route("GetAvailabilityByNurseIdForCalendar")]
-        // public async Task<JsonResult> GetAvailabilityByNurseIdForCalendar([FromQuery] string? nurseId)
+        [Route("getAvailabilityByNurseIdForCalendar")]
         public async Task<JsonResult> getAvailabilityByNurseIdForCalendar([FromQuery] string? nurseId)
+        //  public async Task<JsonResult> GetAvailabilityByNurseIdForCalendar([FromQuery] string? inputNurseId)
         {
             // return await _calendarManagement.getAvailabilityByNurseIdForCalendar("USR003"); // Dummy ID for testing
 
