@@ -39,9 +39,13 @@ namespace ClearCare.Controls
             _mapper = mapper;
         }
 
-        //Html stuff
         public async Task<List<PatientDrugLogModel>> getDrugLogAsync() {
             return await _mapper.getDrugLogAsync();
+        }
+
+        //Html stuff
+        public async Task<List<PatientDrugLogModel>> getAllDrugLogAsync() {
+            return await _mapper.getAllDrugLogAsync();
         }
 
         public async Task uploadDrugInfo(PatientDrugLogModel drugInfo) {

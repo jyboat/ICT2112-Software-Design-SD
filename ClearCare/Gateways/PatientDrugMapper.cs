@@ -45,6 +45,27 @@ namespace ClearCare.Gateways
             return DrugLog;
         }
 
+        public async Task<List<PatientDrugLogModel>> getAllDrugLogAsync() {
+            var DrugLog = new List<PatientDrugLogModel>(); 
+
+            try {
+                var collection = _db.Collection("DrugInformation");
+                var snapshot = await collection.GetSnapshotAsync(); 
+
+                foreach(var document in snapshot.Documents) {
+                    if (document.Exists) {
+                        var drugInfo = document.ConvertTo<PatientDrugLogModel>();
+                        DrugLog.Add(drugInfo);
+                    }
+                }
+            }
+            catch (Exception e) {
+                Console.WriteLine($"Error fetching drug log: {e.Message}");
+            }
+
+            return DrugLog;
+        }
+
         public async Task uploadDrugInfo(PatientDrugLogModel drugInfo) {
             try {
                 var collection = _db.Collection("DrugInformation");

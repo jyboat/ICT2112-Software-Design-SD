@@ -41,6 +41,12 @@ namespace ClearCare.Controllers
             return RedirectToAction("index", "PatientDrugLog");
         }
 
+        public IActionResult goToDoctorDrugLog()
+        {
+            // Redirects to the PatientDrugLogController's index action
+            return RedirectToAction("DoctorIndex", "PatientDrugLog");
+        }
+
         public IActionResult goToDrugInteraction()
         {
             // Redirects to the PatientDrugLogController's index action
