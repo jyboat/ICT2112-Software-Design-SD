@@ -39,12 +39,11 @@ public async Task<IActionResult> SaveNotificationPreference([FromBody] Dictionar
 
     try
     {
-        if (preferenceData == null || !preferenceData.ContainsKey("preference") || !preferenceData.ContainsKey("methods") || !preferenceData.ContainsKey("dndDays") || !preferenceData.ContainsKey("dndTimeRange"))
+        if (preferenceData == null || !preferenceData.ContainsKey("methods") || !preferenceData.ContainsKey("dndDays") || !preferenceData.ContainsKey("dndTimeRange"))
         {
             return BadRequest(new { message = "Invalid request body. Missing preference, methods, DND days, or DND time range." });
         }
 
-        var preference = preferenceData["preference"];
         var methods = preferenceData["methods"]; // Comma-separated methods
         var dndDays = preferenceData["dndDays"]; // Comma-separated days
         var dndTimeRange = preferenceData["dndTimeRange"];
@@ -95,7 +94,7 @@ else
 }
 
         // Save preferences
-        await _manager.SaveNotificationPreferenceAsync(userID, preference, methodsString, dndDays, dndTimeRangeObj);
+        await _manager.SaveNotificationPreferenceAsync(userID, methodsString, dndDays, dndTimeRangeObj);
 
         return Ok(new { message = "Preference saved successfully!" });
     }
@@ -126,7 +125,6 @@ public async Task<IActionResult> GetUserNotificationPreference()
         var response = preferences.Select(p => new 
         {
             UserID = p.GetUserID(),
-            Preference = p.GetPreference(),
             Methods = p.GetMethods(),
             DndDays = p.GetDndDays(),
             DndTimeRange = $"{p.GetDndTimeRange().GetStartTime()}-{p.GetDndTimeRange().GetEndTime()}"

@@ -26,7 +26,7 @@ namespace ClearCare.Controllers
         {
             string userId = HttpContext.Session.GetString("UserID");
             // Hardcoded parameters for testing:
-            string testUserId = userId; // Example userId
+            string testUserId = "USR003"; // Example userId
             string testContent = "Test";
 
             // Call the NotificationManager's createNotification method.

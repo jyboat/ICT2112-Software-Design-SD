@@ -28,7 +28,6 @@ namespace ClearCare.DataSource
             var data = new Dictionary<string, object>
             {
                 { "UserID", preference.GetUserID() },
-                { "Preference", preference.GetPreference() },
                 { "Methods", preference.GetMethods() },
                 { "DndDays", preference.GetDndDays() },
                 { "DndTimeRange", $"{preference.GetDndTimeRange().GetStartTime()}-{preference.GetDndTimeRange().GetEndTime()}" }
@@ -57,7 +56,6 @@ namespace ClearCare.DataSource
             {
                 var data = doc.ToDictionary();
                 var userID = data["UserID"].ToString();
-                var preference = data["Preference"].ToString();
 
                 // Handle Methods as comma-separated string and split it into a list
                 var methods = data.ContainsKey("Methods") ? data["Methods"].ToString().Split(',').ToList() : new List<string>();
@@ -72,7 +70,7 @@ namespace ClearCare.DataSource
                 var endTime = TimeSpan.Parse(timeRangeParts[1]);
                 var dndTimeRangeObj = new TimeRange(startTime, endTime);
 
-                preferences.Add(new NotificationPreference(userID, preference, string.Join(",", methods), dndDays, dndTimeRangeObj));
+                preferences.Add(new NotificationPreference(userID, string.Join(",", methods), dndDays, dndTimeRangeObj));
             }
             return preferences;
         }
