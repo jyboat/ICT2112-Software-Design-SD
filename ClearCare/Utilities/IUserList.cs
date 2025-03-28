@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ClearCare
+namespace ClearCare.List
 {
     // Minimal User class for demonstration
     public class User
