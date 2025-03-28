@@ -2,8 +2,12 @@ namespace ClearCare
 {
     public static class HardcodedUUIDs
     {
-      
-        public const string UserUUID = "uuid-alice";
+        // Doctore Exmaple
+        // public const string UserUUID = "uuid-doctor-1"; 
+        // public const string UserRole = "Doctor";
+
+        // Paitent Exmaple
+        public const string UserUUID = "uuid-patient-bob";
         public const string UserRole = "Doctor";
 
         // Used for Prescription Page Drop Done

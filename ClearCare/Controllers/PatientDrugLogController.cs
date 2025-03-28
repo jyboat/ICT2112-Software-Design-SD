@@ -31,6 +31,13 @@ namespace ClearCare.Controllers
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> DoctorIndex()
+        {
+            var drugLog = await _patientDrugLogControl.getAllDrugLogAsync();
+            return View("DoctorIndex", drugLog);
+        }
+
         //Method Name Matches CD ✅
         [HttpPost]
         public async Task<IActionResult> add(PatientDrugLogModel drugInfo)
