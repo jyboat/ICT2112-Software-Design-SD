@@ -58,6 +58,7 @@ builder.Services.AddScoped<IAppointmentStatus, ServiceAppointmentStatusManagemen
 builder.Services.AddScoped<INotification, NotificationManager>();
 builder.Services.AddScoped<NotificationManager>(); // Registers the concrete type
 builder.Services.AddSingleton<NotificationPreferenceManager>();
+builder.Services.AddScoped<IServiceCompletion, ServiceCompletionManager>();
 builder.Services.AddScoped<ServiceCompletionManager>();
 
 builder.Services.AddScoped<ServiceHistoryMapper>(); // Register ServiceHistoryMapper

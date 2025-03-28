@@ -8,7 +8,7 @@ using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
-    public class ServiceCompletionManager
+    public class ServiceCompletionManager: IServiceCompletion
     {
         private readonly IAppointmentStatus _appointmentStatus;
         private readonly INotification _notificationManager; // Add INotification dependency
@@ -32,7 +32,7 @@ namespace ClearCare.Models.Control
             return appointmentDetails;
         }
 
-        // Method to update the status of a specific appointment
+        //Method to update the status of a specific appointment
         public async Task UpdateAppointmentStatus(string appointmentId, string patientId, string nurseId)
         {
             // Call the updateAppointmentStatus method from IAppointmentStatus
