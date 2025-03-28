@@ -52,7 +52,6 @@ namespace ClearCare.Models.Control
           public async Task<List<User>> retrieveAllPatients() => await _userGateway.getAllPatients();
 
           public async Task<List<User>> retrieveAllNurses() => await _userGateway.getAllNurses();
-          public async Task<List<Caregiver>> retrieveAllCaregivers() => await _userGateway.getAllCaregivers();
 
           public async Task<User> retrieveUserByID(string uid) => await _userGateway.findUserByID(uid);
 

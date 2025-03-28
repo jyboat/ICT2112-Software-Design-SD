@@ -599,48 +599,6 @@ namespace ClearCare.DataSource
             return patientList;
         }
 
-        public async Task<List<Caregiver>> getAllCaregivers()
-        {
-            List<Caregiver> caregiverList = new List<Caregiver>();
-
-            Query query = db.Collection("User").WhereEqualTo("Role", "Caregiver");
-            QuerySnapshot snapshot = await query.GetSnapshotAsync();
-
-            foreach (DocumentSnapshot document in snapshot.Documents)
-            {
-                if (document.Exists)
-                {
-                    try
-                    {
-                        var docDictionary = document.ToDictionary();
-
-                        string userID = document.Id;
-                        string email = document.GetValue<string>("Email");
-                        string password = document.GetValue<string>("Password");
-                        string name = document.GetValue<string>("Name");
-                        long mobileNumber = document.GetValue<long>("MobileNumber");
-                        string address = document.GetValue<string>("Address");
-                        string role = document.GetValue<string>("Role");
-                        string assignedCaregiverName = document.GetValue<string>("AssignedCaregiverName");
-                        string assignedCaregiverID = document.GetValue<string>("AssignedCaregiverID");
-
-                        User user = UserFactory.createUser(userID, email, password, name, mobileNumber, address, role, docDictionary);
-
-                        if (user is Caregiver caregiver){
-                            Console.WriteLine("this caregiver is added! " + caregiver.getProfileData()["Name"]);
-                            caregiverList.Add(caregiver);
-                            }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error converting caregiver {document.Id}: {ex.Message}");
-                    }
-                }
-            }
-
-            return caregiverList;
-        }
-
         public async Task<List<User>> getAllNurses()
         {
             List<User> nurseList = new List<User>();
