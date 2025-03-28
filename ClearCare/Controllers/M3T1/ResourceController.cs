@@ -26,7 +26,7 @@ public class ResourceController : Controller
         List<Dictionary<string, object>> resourceList = (await _manager.viewResource())
             .Select(r =>
             {
-                var details = r.GetDetails();
+                var details = r.getDetails();
                 if (details.ContainsKey("CoverImage") && details["CoverImage"] is byte[] fileBytes && fileBytes.Length > 0)
                 {
                     string base64String = Convert.ToBase64String(fileBytes);

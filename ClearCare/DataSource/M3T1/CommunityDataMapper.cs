@@ -149,7 +149,7 @@ namespace ClearCare.DataSource.M3T1
             }
         }
 
-        public async Task<bool> updateGroupMembers(string id, string userId, List<string> memberIds)
+        public async Task<bool> updateGroupMembers(string id, List<string> memberIds)
         {
             try
             {

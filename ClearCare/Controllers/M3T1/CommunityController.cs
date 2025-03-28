@@ -56,8 +56,6 @@ public class CommunityController : Controller
     public async Task<IActionResult> submitCreateGroup(string userId, string name, string description)
     {
         List<string> memberIds = new List<string>();
-        userId = "1"; // Hardcoded user id
-        memberIds.Add(userId);
 
         string id = await _communityGroup.createGroup(userId, name, description, memberIds);
 
@@ -91,6 +89,7 @@ public class CommunityController : Controller
         var allGroups = (await _communityGroup.getNonUserGroups(userId)).Select(s => s.getDetails()).ToList();
 
         var group = (await _communityGroup.viewGroupById(groupId)).getDetails();
+        var members = group["MemberIds"] as List<string>;
 
         var viewModel = new CommunityViewModel
         {
@@ -99,7 +98,8 @@ public class CommunityController : Controller
             AllGroups = allGroups,
             UserGroups = userGroups,
             Group = group,
-            GroupView = true
+            GroupView = true,
+            GroupMembers = members
         };
 
         return View("~/Views/M3T1/Community/List.cshtml", viewModel);
@@ -145,6 +145,27 @@ public class CommunityController : Controller
             TempData["ErrorMessage"] = "Error joining group, please check if you have already joined.";
         }
         return RedirectToAction("list");
+    }
+
+    [HttpPost]
+    [Route("Group/Member/Remove")]
+    public async Task<IActionResult> removeGroupMember(string groupId, List<string> selectedMembers)
+    {
+        if (selectedMembers == null || !selectedMembers.Any())
+        {
+            TempData["ErrorMessage"] = "No members selected for removal.";
+            return RedirectToAction("displayGroup", new { groupId = groupId });
+        }
+        bool success = await _communityGroup.removeMember(groupId, selectedMembers);
+        if (success)
+        {
+            TempData["SuccessMessage"] = "Removed member successfully!";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Error removing member from group.";
+        }
+        return RedirectToAction("displayGroup", new { groupId = groupId });
     }
 
     [HttpPost]

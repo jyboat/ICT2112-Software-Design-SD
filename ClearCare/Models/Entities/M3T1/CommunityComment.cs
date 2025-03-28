@@ -29,27 +29,27 @@ namespace ClearCare.Models.Entities.M3T1
             CreatedAt = createdAt;
         }
 
-        private string GetId() => Id;
-        private string GetContent() => Content;
-        private string GetCreatedBy() => CreatedBy;
-        private string GetPostId() => PostId;
-        private string GetCreatedAt() => CreatedAt;
+        private string getId() => Id;
+        private string getContent() => Content;
+        private string getCreatedBy() => CreatedBy;
+        private string getPostId() => PostId;
+        private string getCreatedAt() => CreatedAt;
 
-        private void SetId(string id) => Id = id;
-        private void SetContent(string content) => Content = content;
-        private void SetCreatedBy(string createdBy) => CreatedBy = createdBy;
-        private void SetPostId(string postId) => PostId = postId;
-        private void SetCreatedAt(string createdAt) => CreatedAt = createdAt;
+        private void setId(string id) => Id = id;
+        private void setContent(string content) => Content = content;
+        private void setCreatedBy(string createdBy) => CreatedBy = createdBy;
+        private void setPostId(string postId) => PostId = postId;
+        private void setCreatedAt(string createdAt) => CreatedAt = createdAt;
 
         public Dictionary<string, object> getDetails()
         {
             return new Dictionary<string, object>
             {
-                { "Id", GetId() },
-                { "Content", GetContent() },
-                { "CreatedBy", GetCreatedBy() },
-                { "PostId", GetPostId() },
-                { "CreatedAt", GetCreatedAt() }
+                { "Id", getId() },
+                { "Content", getContent() },
+                { "CreatedBy", getCreatedBy() },
+                { "PostId", getPostId() },
+                { "CreatedAt", getCreatedAt() }
             };
         }
     }
