@@ -27,7 +27,7 @@ namespace ClearCare.Controllers.M2T5
             switch (filter.ToLower())
             {
                 case "servicetype":
-                    filtered = appointments.FindAll(a => a["ServiceTypeId"]?.ToString() == value);
+                    filtered = appointments.FindAll(a => a["Service"]?.ToString() == value);
                     ViewData["Title"] = $"🏥 Appointments for Service Type: {value}";
                     break;
                 case "doctor":
