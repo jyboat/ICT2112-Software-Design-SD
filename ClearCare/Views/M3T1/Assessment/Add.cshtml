@@ -9,33 +9,94 @@
     </div>
 }
 
-<form method="post" asp-action="AddAssessment">
+<form method="post" asp-action="Add" enctype="multipart/form-data">
+    <!-- Hazard Type Selection -->
     <div class="form-group">
-        <label for="severity">Severity</label>
-        <input type="text" class="form-control" id="severity" name="severity" required />
+        <label for="hazardType">Hazard Type</label>
+        <select class="form-control" id="hazardType" name="hazardType" required 
+                onchange="updateDoctors(this.value)">
+            <option value="">-- Select Hazard Type --</option>
+            <option value="Fire Safety">Fire Safety</option>
+            <option value="Fall Risk">Fall Risk</option>
+            <option value="Wet Condition">Wet Condition</option>
+        </select>
     </div>
+
+    <!-- Doctor Selection -->
+    <div class="form-group" id="doctorSection" style="display: none;">
+        <label for="doctorId">Assigned Doctor</label>
+        <select class="form-control" id="doctorId" name="doctorId" required>
+            <!-- Doctors will be populated by JavaScript -->
+        </select>
+    </div>
+
+    <!-- File Upload -->
     <div class="form-group">
-        <label for="notes">Notes</label>
-        <textarea class="form-control" id="notes" name="notes" rows="4" required></textarea>
+        <label for="file">Upload File (Image or Video)</label>
+        <input type="file" class="form-control-file" id="file" name="file" 
+               accept="image/*,video/*" required />
+        <small class="form-text text-muted">Only one file allowed.</small>
     </div>
+
     <div class="form-group">
-        <label for="dateCreated">Date Created</label>
-        <input type="date" class="form-control" id="dateCreated" name="dateCreated" required />
+        <button type="submit" class="btn btn-primary">Add Assessment</button>
+        <a asp-action="List" class="btn btn-secondary">Cancel</a>
     </div>
-    <div class="form-group">
-        <label for="patientId">Patient ID</label>
-        <input type="text" class="form-control" id="patientId" name="patientId" required />
-    </div>
-    <div class="form-group">
-        <label for="doctorId">Doctor ID</label>
-        <input type="text" class="form-control" id="doctorId" name="doctorId" required />
-    </div>
-    <div class="form-group">
-        <label for="imageUrls">Image URLs (optional)</label>
-        <input type="text" class="form-control" id="imageUrls" name="imageUrls" placeholder="Separate with commas" />
-    </div>
-    
-    <button type="submit" class="btn btn-success">Submit</button>
 </form>
 
-<a asp-action="List" class="btn btn-secondary">Back to List</a>
+@section Scripts {
+    <script>
+        // Doctor data
+        const doctorData = {
+            "Fire Safety": [
+                { id: "D1", name: "Dr. Smith (Respiratory Specialist)" },
+                { id: "D2", name: "Dr. Johnson (Emergency Medicine)" }
+            ],
+            "Fall Risk": [
+                { id: "D3", name: "Dr. Williams (Geriatrics)" },
+                { id: "D4", name: "Dr. Brown (Orthopedics)" }
+            ],
+            "Wet Condition": [
+                { id: "D5", name: "Dr. Davis (Dermatology)" },
+                { id: "D6", name: "Dr. Miller (General Practice)" }
+            ]
+        };
+
+        function updateDoctors(hazardType) {
+            const doctorSection = document.getElementById('doctorSection');
+            const doctorSelect = document.getElementById('doctorId');
+
+            if (!hazardType) {
+                doctorSection.style.display = 'none';
+                return;
+            }
+
+            const doctors = doctorData[hazardType];
+            if (!doctors) return;
+
+            // Update doctor selection
+            doctorSelect.innerHTML = doctors.map(doctor => 
+                `<option value="${doctor.id}">${doctor.name}</option>`
+            ).join('');
+
+            // Show section
+            doctorSection.style.display = 'block';
+        }
+
+        // Initialize on page load if hazard type is preselected
+        document.addEventListener('DOMContentLoaded', function() {
+            const hazardSelect = document.getElementById('hazardType');
+            if (hazardSelect.value) {
+                updateDoctors(hazardSelect.value);
+            }
+        });
+
+        // Ensure only one file is selected
+        document.getElementById('file').addEventListener('change', function(e) {
+            if (this.files.length > 1) {
+                alert('Only one file can be uploaded.');
+                this.value = '';
+            }
+        });
+    </script>
+}

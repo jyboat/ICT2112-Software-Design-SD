@@ -10,24 +10,71 @@
 }
 
 <div>
-    <p><strong>ID:</strong> @Model.GetId()</p>
-    <p><strong>Risk Level:</strong> @Model.GetRiskLevel()</p>
-    <p><strong>Recommendation:</strong> @Model.GetRecommendation()</p>
-    <p><strong>Created At:</strong> @Model.GetCreatedAt().ToString("yyyy-MM-dd HH:mm:ss")</p>
-    <p><strong>Patient ID:</strong> @Model.GetPatientId()</p>
+    <p><strong>ID:</strong> @Model.getId()</p>
+    <p><strong>Risk Level:</strong> @Model.getRiskLevel()</p>
+    <p><strong>Recommendation:</strong> @Model.getRecommendation()</p>
+    <p><strong>Created At:</strong> @Model.getCreatedAt().ToString("yyyy-MM-dd HH:mm:ss")</p>
+    <p><strong>Patient ID:</strong> @Model.getPatientId()</p>
 
-    <h3>Images</h3>
-    @if (Model.GetImagePath() != null && Model.GetImagePath().Any())
+    <h3>Media Files</h3>
+    @if (Model.getImagePath() != null && Model.getImagePath().Any())
     {
-        foreach (var imagePath in Model.GetImagePath())
+        foreach (var filePath in Model.getImagePath())
         {
-            <img src="@imagePath" alt="Assessment Image" width="200" />
+            <div class="media-file-container mb-3">
+                @if (filePath.EndsWith(".mp4") || filePath.EndsWith(".webm") || filePath.EndsWith(".ogg") || filePath.EndsWith(".mov"))
+                {
+                    <video width="300" controls>
+                        <source src="@filePath" type="video/@filePath.Split('.').Last()">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div class="mt-2">
+                        <a href="@filePath" download class="btn btn-sm btn-primary">
+                            <i class="fas fa-download"></i> Download Video
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <img src="@filePath" alt="Assessment Image" width="300" class="img-thumbnail" />
+                }
+            </div>
         }
     }
     else
     {
-        <p>No images available.</p>
+        <p>No media files available.</p>
     }
 </div>
 
 <a asp-action="List" class="btn btn-secondary">Back to List</a>
+
+<style>
+    .media-file-container {
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        display: inline-block;
+        margin-right: 15px;
+    }
+    .img-thumbnail, video {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Hide download buttons for non-video files
+        document.addEventListener('DOMContentLoaded', function() {
+            const mediaContainers = document.querySelectorAll('.media-file-container');
+            mediaContainers.forEach(container => {
+                const videoElement = container.querySelector('video');
+                if (!videoElement) {
+                    const downloadBtn = container.querySelector('a[download]');
+                    if (downloadBtn) downloadBtn.style.display = 'none';
+                }
+            });
+        });
+    </script>
+}

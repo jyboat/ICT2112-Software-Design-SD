@@ -9,33 +9,77 @@
     </div>
 }
 
-<form method="post" asp-action="">
-    <!-- Hidden field to pass the ID -->
-    <input type="hidden" name="id" value="@Model.GetId()" />
+<form method="post" asp-action="Edit" asp-route-id="@Model.getId()" enctype="multipart/form-data">
+    <input type="hidden" name="id" value="@Model.getId()" />
+    <input type="hidden" name="hazardType" value="@Model.getHazardType()" />
 
+    <!-- Doctor Selection -->
     <div class="form-group">
-        <label for="riskLevel">Risk Level</label>
-        <input type="text" class="form-control" id="riskLevel" name="riskLevel" value="@Model.GetRiskLevel()" required />
+        <label for="doctorId">Assigned Doctor</label>
+        <select class="form-control" id="doctorId" name="doctorId" required>
+            @foreach (var doctor in ViewBag.QualifiedDoctors)
+            {
+                <option value="@doctor["id"]" selected="@(doctor["id"] == Model.getDoctorId())">
+                    @doctor["name"]
+                </option>
+            }
+        </select>
+    </div>
+
+    <!-- File Upload Section -->
+    <div class="form-group">
+        <label>Current File</label>
+        @if (Model.getImagePath() != null && Model.getImagePath().Count > 0)
+        {
+            var currentFilePath = Model.getImagePath().First();
+            <div class="current-file mb-3">
+                @if (currentFilePath.EndsWith(".mp4") || currentFilePath.EndsWith(".webm") || currentFilePath.EndsWith(".ogg") || currentFilePath.EndsWith(".mov"))
+                {
+                    <video width="300" controls>
+                        <source src="@currentFilePath" type="video/@currentFilePath.Split('.').Last()">
+                        Your browser does not support the video tag.
+                    </video>
+                }
+                else
+                {
+                    <img src="@currentFilePath" width="300" class="img-thumbnail" />
+                }
+                <input type="hidden" name="existingFilePath" value="@currentFilePath" />
+                <div class="form-check mt-2">
+                    <input type="checkbox" class="form-check-input" 
+                           id="deleteFile" name="deleteFile" 
+                           value="true" />
+                    <label class="form-check-label" for="deleteFile">
+                        Remove current file
+                    </label>
+                </div>
+            </div>
+        }
+        else
+        {
+            <p>No file uploaded</p>
+            <input type="hidden" name="existingFilePath" value="" />
+        }
+
+        <label for="file">Upload New File (Image or Video)</label>
+        <input type="file" class="form-control-file" id="file" name="file" 
+               accept="image/*,video/*" />
     </div>
 
     <div class="form-group">
-        <label for="recommendation">Recommendation</label>
-        <textarea class="form-control" id="recommendation" name="recommendation" rows="4" required>@Model.GetRecommendation()</textarea>
+        <button type="submit" class="btn btn-success">Save Changes</button>
+        <a asp-action="List" class="btn btn-secondary">Back to List</a>
     </div>
-
-    <div class="form-group">
-        <label for="dateCreated">Date Created</label>
-        <input type="date" class="form-control" id="dateCreated" name="dateCreated" value="@Model.GetCreatedAt().ToString("yyyy-MM-dd")" required />
-    </div>
-
-    <div class="form-group">
-        <label for="imageUrls">Image URLs (optional)</label>
-        <input type="text" class="form-control" id="imageUrls" name="imageUrls" 
-               value="@string.Join(",", Model.GetImagePath() ?? new List<string>())" 
-               placeholder="Separate with commas" />
-    </div>
-
-    <button type="submit" class="btn btn-success">Save Changes</button>
 </form>
 
-<a asp-action="List" class="btn btn-secondary">Back to List</a>
+@section Scripts {
+    <script>
+        // Client-side validation for single file upload
+        document.getElementById('file').addEventListener('change', function(e) {
+            if (this.files.length > 1) {
+                alert('Only one file can be uploaded.');
+                this.value = '';
+            }
+        });
+    </script>
+}

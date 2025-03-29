@@ -16,8 +16,7 @@ namespace ClearCare.DataSource.M3T1
             _db = FirebaseService.Initialize();
         }
 
-        // Fetch all assessments
-        public async Task<List<Assessment>> fetchAssessments()
+            public async Task<List<Assessment>> fetchAssessments()
         {
             List<Assessment> assessments = new List<Assessment>();
             CollectionReference assessmentRef = _db.Collection("Assessment");
@@ -30,14 +29,43 @@ namespace ClearCare.DataSource.M3T1
                     try
                     {
                         string id = doc.Id;
-                        string riskLevel = doc.ContainsField("RiskLevel") ? doc.GetValue<string>("RiskLevel") : "";
-                        string recommendation = doc.ContainsField("Recommendation") ? doc.GetValue<string>("Recommendation") : "";
-                        DateTime createdAt = doc.ContainsField("CreatedAt") ? doc.GetValue<DateTime>("CreatedAt") : DateTime.Now;
-                        string doctorId = doc.ContainsField("DoctorID") ? doc.GetValue<string>("DoctorID") : "";
-                        string patientId = doc.ContainsField("PatientID") ? doc.GetValue<string>("PatientID") : "";
-                        List<string> imagePath = doc.ContainsField("ImagePath") ? doc.GetValue<List<string>>("ImagePath") : new List<string>();
+                        string hazardType = doc.GetValue<string>("HazardType");
+                        string riskLevel = doc.GetValue<string>("RiskLevel");
+                        string recommendation = doc.GetValue<string>("Recommendation");
 
-                        Assessment assessment = new Assessment(id, riskLevel, recommendation, createdAt, doctorId, patientId, imagePath);
+                        // Handle CreatedAt
+                        DateTime createdAt;
+                        if (doc.GetValue<object>("CreatedAt") is Timestamp timestamp)
+                        {
+                            createdAt = timestamp.ToDateTime();
+                        }
+                        else
+                        {
+                            string dateString = doc.GetValue<string>("CreatedAt");
+                            if (!DateTime.TryParse(dateString, out createdAt))
+                            {
+                                createdAt = DateTime.Now;
+                            }
+                        }
+
+                        // Handle optional fields
+                        string doctorId = doc.TryGetValue<string>("DoctorID", out var docId) ? docId : string.Empty;
+                        string patientId = doc.TryGetValue<string>("PatientID", out var patId) ? patId : string.Empty;
+                        List<string> imagePath = doc.TryGetValue<List<string>>("ImagePath", out var paths) ? paths : new List<string>();
+                        Dictionary<string, bool> checklist = doc.TryGetValue<Dictionary<string, bool>>("HomeAssessmentChecklist", out var chklist) ? chklist : new Dictionary<string, bool>();
+
+                        Assessment assessment = new Assessment(
+                            id: id,
+                            hazardType: hazardType,
+                            riskLevel: riskLevel,
+                            recommendation: recommendation,
+                            createdAt: createdAt,
+                            doctorId: doctorId,
+                            patientId: patientId,
+                            imagePath: imagePath,
+                            homeAssessmentChecklist: checklist
+                        );
+
                         assessments.Add(assessment);
                     }
                     catch (Exception ex)
@@ -50,7 +78,43 @@ namespace ClearCare.DataSource.M3T1
             return assessments;
         }
 
-        // Fetch assessment by ID
+        // In AssessmentMapper.cs
+        private async Task<Assessment> ConvertToAssessment(DocumentSnapshot doc)
+        {
+            string id = doc.Id;
+            string hazardType = doc.GetValue<string>("HazardType");
+            string riskLevel = doc.GetValue<string>("RiskLevel");
+            string recommendation = doc.GetValue<string>("Recommendation");
+
+            DateTime createdAt;
+            if (doc.GetValue<object>("CreatedAt") is Timestamp timestamp)
+            {
+                createdAt = timestamp.ToDateTime();
+            }
+            else
+            {
+                string dateString = doc.GetValue<string>("CreatedAt");
+                createdAt = DateTime.TryParse(dateString, out var date) ? date : DateTime.Now;
+            }
+
+            string doctorId = doc.GetValue<string>("DoctorID");
+            string patientId = doc.TryGetValue<string>("PatientID", out var pid) ? pid : "DEFAULT_PATIENT";
+            List<string> imagePath = doc.TryGetValue<List<string>>("ImagePath", out var paths) ? paths : new List<string>();
+            Dictionary<string, bool> checklist = doc.TryGetValue<Dictionary<string, bool>>("HomeAssessmentChecklist", out var chklist) ? chklist : new Dictionary<string, bool>();
+
+            return new Assessment(
+                id: id,
+                hazardType: hazardType,  // Now passing hazardType
+                riskLevel: riskLevel,
+                recommendation: recommendation,
+                createdAt: createdAt,
+                doctorId: doctorId,
+                patientId: patientId,
+                imagePath: imagePath,
+                homeAssessmentChecklist: checklist
+            );
+        }
+
         public async Task<Assessment> fetchAssessmentById(string id)
         {
             DocumentReference docRef = _db.Collection("Assessment").Document(id);
@@ -62,67 +126,10 @@ namespace ClearCare.DataSource.M3T1
                 return null;
             }
 
-            string riskLevel = snapshot.GetValue<string>("RiskLevel");
-            string recommendation = snapshot.GetValue<string>("Recommendation");
-            DateTime createdAt = snapshot.GetValue<DateTime>("CreatedAt");
-            string doctorId = snapshot.GetValue<string>("DoctorID");
-            string patientId = snapshot.GetValue<string>("PatientID");
-            List<string> imagePath = snapshot.GetValue<List<string>>("ImagePath");
-
-            return new Assessment(id, riskLevel, recommendation, createdAt, doctorId, patientId, imagePath);
+            return await ConvertToAssessment(snapshot);
         }
+        
 
-        // Insert assessment
-        public async Task<string> insertAssessment(string riskLevel, string recommendation, string createdAt, string patientId,string doctorId, List<string> imagePath)
-        {
-            // Parse the createdAt string into a DateTime object
-            if (!DateTime.TryParse(createdAt, out DateTime parsedDate))
-            {
-                throw new ArgumentException("Invalid date format.");
-            }
-
-            // Convert the DateTime object to a Firestore Timestamp
-            var timestamp = Timestamp.FromDateTime(parsedDate.ToUniversalTime());
-
-            DocumentReference docRef = _db.Collection("Assessment").Document();
-
-            var assessmentData = new Dictionary<string, object>
-            {
-                { "RiskLevel", riskLevel },
-                { "Recommendation", recommendation },
-                { "CreatedAt", timestamp }, // Store as Firestore Timestamp
-                { "DoctorID", doctorId},
-                { "PatientID", patientId },
-                { "ImagePath", imagePath }
-            };
-
-            await docRef.SetAsync(assessmentData);
-            return docRef.Id;
-        }
-        // Update assessment
-        public async Task<bool> updateAssessment(string id, string riskLevel, string recommendation, string createdAt, List<string> imagePath)
-        {
-            DocumentReference docRef = _db.Collection("Assessment").Document(id);
-
-            var updatedData = new Dictionary<string, object>
-            {
-                { "RiskLevel", riskLevel },
-                { "Recommendation", recommendation },
-                { "CreatedAt", createdAt },
-                { "ImagePath", imagePath }
-            };
-
-            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
-            if (!snapshot.Exists)
-            {
-                return false;
-            }
-
-            await docRef.UpdateAsync(updatedData);
-            return true;
-        }
-
-        // Delete assessment
         public async Task<bool> deleteAssessment(string id)
         {
             DocumentReference docRef = _db.Collection("Assessment").Document(id);
@@ -134,6 +141,56 @@ namespace ClearCare.DataSource.M3T1
             }
 
             await docRef.DeleteAsync();
+            return true;
+        }
+
+        public async Task<string> insertAssessment(string hazardType, string doctorId, List<string> imagePath, string riskLevel, string recommendation, string createdAt)
+        {
+            if (!DateTime.TryParse(createdAt, out DateTime parsedDate))
+            {
+                throw new ArgumentException("Invalid date format.");
+            }
+
+            var timestamp = Timestamp.FromDateTime(parsedDate.ToUniversalTime());
+            DocumentReference docRef = _db.Collection("Assessment").Document();
+
+            var assessmentData = new Dictionary<string, object>
+            {
+                { "HazardType", hazardType },
+                { "DoctorID", doctorId },
+                { "ImagePath", imagePath },
+                { "RiskLevel", riskLevel },
+                { "Recommendation", recommendation },
+                { "CreatedAt", timestamp },
+                { "HomeAssessmentChecklist", new Dictionary<string, bool>() }
+            };
+
+            await docRef.SetAsync(assessmentData);
+            return docRef.Id;
+        }
+
+        public async Task<bool> updateAssessment(string id, string doctorId, List<string> imagePath, string riskLevel, string recommendation, string createdAt, Dictionary<string, bool> checklist = null)
+        {
+            DocumentReference docRef = _db.Collection("Assessment").Document(id);
+            
+            var updatedData = new Dictionary<string, object>
+            {
+                { "DoctorID", doctorId },
+                { "ImagePath", imagePath },
+                { "RiskLevel", riskLevel },
+                { "Recommendation", recommendation },
+                { "CreatedAt", createdAt }
+            };
+
+            if (checklist != null)
+            {
+                updatedData["HomeAssessmentChecklist"] = checklist;
+            }
+
+            DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
+            if (!snapshot.Exists) return false;
+
+            await docRef.UpdateAsync(updatedData);
             return true;
         }
     }
