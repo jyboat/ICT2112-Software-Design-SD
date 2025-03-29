@@ -24,8 +24,8 @@
             <table class="table table-striped mt-3">
                 <thead>
                     <tr>
-                        <th>Backlog ID</th>
-                        <th>Appointment ID</th>
+                        @* <th>Backlog ID</th>
+                        <th>Appointment ID</th> *@
                         <th>DateTime</th>
                         <th>Patient</th>
                         <th>Nurse</th>
@@ -38,16 +38,17 @@
                     @foreach (var backlog in Model)
                     {
                         <tr>
-                            <td>@backlog.BacklogId</td>
-                            <td>@backlog.AppointmentId</td>
+                            @* <td>@backlog.BacklogId</td>
+                            <td>@backlog.AppointmentId</td> *@
                             <td>@backlog.DateTime.ToString("yyyy-MM-dd HH:mm")</td>
                             <td>@backlog.PatientId</td>
                             <td>@backlog.NurseId</td>
                             <td>@backlog.DoctorId</td>
                             <td>@backlog.ServiceType</td>
                             <td>
-                                <form method="post" asp-action="Delete" asp-route-id="@backlog.BacklogId" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete the backlog with ID @backlog.BacklogId?');">
-                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                <form id="deleteForm" method="post" asp-action="Delete" asp-route-id="@backlog.BacklogId" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete the backlog with ID @backlog.BacklogId?');">
+                                    <button type="button" class="btn btn-danger btn-sm"
+                                    onclick="openDeletePopup('@backlog.PatientId', '@backlog.DoctorId', '@backlog.ServiceType')">Delete</button>
                                 </form>
                                 <form method="get" asp-action="Reassign" asp-route-id="@backlog.BacklogId" style="display:inline;" onsubmit="return confirm('Are you sure you want to reassign the backlog with ID @backlog.BacklogId?');">
                                     <button type="button" class="btn btn-warning btn-sm"
@@ -102,17 +103,6 @@
                             <input type="text" class="form-control" id="editNurseId">
                         </div>
 
-                        @* <div class="form-group">
-                            <label for="editDateAndTime">Date and Time</label>
-                            <input type="datetime-local" class="form-control" id="editDateAndTime">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="editSlot">Slot</label>
-                            <input type="text" class="form-control" id="editSlot">
-                        </div> *@
-
-                        @* Separate Date and Time selection *@
                         <div class="form-group">
                             <label for="editDate">Date:</label>
                             <input type="date" class="form-control" id="editDate" name="Date" required>
@@ -150,8 +140,61 @@
             </div>
         </div>
 
+        <!-- Delete Modal -->
+        <div id="deleteModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">Delete Service Backlog</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeDeleteModal()">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete the backlog with the following details?</p>
+                        <div class="form-group">
+                            <label for="modalPatientId">Patient ID</label>
+                            <input type="text" class="form-control" id="modalPatientId" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="modalDoctorId">Doctor ID</label>
+                            <input type="text" class="form-control" id="modalDoctorId" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="modalServiceType">Service Type</label>
+                            <input type="text" class="form-control" id="modalServiceType" readonly>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="confirmDelete">Confirm Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
     </div>
     <script>
+
+        function openDeletePopup(patientId, doctorId, serviceType) {
+            document.getElementById('modalPatientId').value = patientId;
+            document.getElementById('modalDoctorId').value = doctorId;
+            document.getElementById('modalServiceType').value = serviceType;
+
+            $('#deleteModal').modal('show');
+        }
+
+        function closeDeleteModal() {
+            $('#deleteModal').modal('hide');
+        }
+
+        document.getElementById('confirmDelete').onclick = function () {
+            document.getElementById('deleteForm').submit();
+        }
+
         function openReassignPopup(backlogId, appointmentId, patientId, doctorId, nurseId, dateTime, serviceType) {
             // Populate modal fields
             document.getElementById("modalBacklogId").value = backlogId;
@@ -190,7 +233,6 @@
             return;
         }
 
-        // calc hour based on the selected time slot
         let hour = parseInt(slot);
         
         // manually construct the ISO DateTime string
@@ -199,7 +241,7 @@
         console.log("Sending data to server:");
         console.log({ backlogId, appointmentId, doctorId, patientId, nurseId, isoDateTime, slot, location, serviceType });
 
-        fetch("/ServiceBacklog/ReassignManual", {
+        fetch("/ServiceBacklog/Reassign", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: new URLSearchParams({
@@ -223,7 +265,9 @@
         .then(data => {
             toastr.success(data.message, "Success");
             closeModal();
+            setTimeout(() => {
             window.location.reload();
+            }, 600);
         })
         .catch(error => {
             toastr.error(error.message, "Error");

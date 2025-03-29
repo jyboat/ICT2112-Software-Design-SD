@@ -38,19 +38,9 @@ namespace ClearCare.Controllers
             return await Index();
         }
         
-
-        [HttpGet]
-        [Route("Reassign/{id}")]
-        public async Task<IActionResult> Reassign(string id)
-        {
-            ViewBag.Nurses = new ServiceAppointmentManagement().GetAllNurses(); // temporary placeholder for M1
-            var backlog = await _manager.getBacklogDetails(id);
-            return View("~/Views/M2T3/ServiceBacklog/Reassign.cshtml", backlog);
-        }
-
         [HttpPost]
-        [Route("ReassignManual")] 
-        public async Task<IActionResult> ReassignManual([FromForm] string BacklogId,
+        [Route("Reassign")] 
+        public async Task<IActionResult> Reassign([FromForm] string BacklogId,
                 [FromForm] string AppointmentId,
                 [FromForm] string PatientId,
                 [FromForm] string DoctorId,
