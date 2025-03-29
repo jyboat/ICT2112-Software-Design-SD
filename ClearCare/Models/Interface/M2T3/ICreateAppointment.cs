@@ -14,8 +14,7 @@ namespace ClearCare.Interfaces
         // Implemented by Service Appointment Management: Models/Control/ServiceAppointmentManagement.cs
         // Used by Automatic Appointment Management: TBC [TO BE CODED]
         // Used by ManualAppointment Management : TBC [TO BE CODED]
-        Task<string> CreateAppointment(string patientId, string nurseId,
-            string doctorId, string Service, string status, DateTime dateTime, int slot, string location);
+        Task<string> CreateAppointment(string patientId, string nurseId, string doctorId, string Service, string status, DateTime dateTime, int slot, string location);
         Task<bool> UpdateAppointment(ServiceAppointment appointment);
         Task<bool> DeleteAppointment (string appointmentId);
     }
