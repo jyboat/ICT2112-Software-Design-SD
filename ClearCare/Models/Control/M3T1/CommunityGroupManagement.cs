@@ -64,7 +64,7 @@ namespace ClearCare.Models.Control.M3T1
                 return false;
             }
 
-            if (currentMembers.Contains(groupDetails["CreatedBy"])) return false;
+            if (memberIds.Contains(groupDetails["CreatedBy"])) return false;
 
             // Remove all selected members
             currentMembers.RemoveAll(member => memberIds.Contains(member));
