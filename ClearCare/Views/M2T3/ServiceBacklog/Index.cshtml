@@ -218,6 +218,10 @@
 
         // Handle Reassignment via POST Request
     $("#confirmReassign").click(function () {
+        var button = $(this);
+        button.prop("disabled", true);
+        button.text("Processing...");
+
         var backlogId = $("#modalBacklogId").val();
         var appointmentId = $("#modalAppointmentId").val();
         var patientId = $("#editPatientId").val();
@@ -272,6 +276,8 @@
         .catch(error => {
             toastr.error(error.message, "Error");
             console.error("Error:", error);
+            button.prop("disabled", false);
+            button.text("Confirm Reassign");
         });
 
     });
