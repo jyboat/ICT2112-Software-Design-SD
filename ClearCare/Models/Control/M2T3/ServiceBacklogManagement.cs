@@ -53,7 +53,7 @@ namespace ClearCare.Models.Control
                 var appointment = await serviceAppointmentManagement.getAppointmentByID(appointmentId);
                 if (appointment != null)
                 {
-                    var viewModel = await createViewModel(serviceBacklog, appointment);
+                    var viewModel = await createDTO(serviceBacklog, appointment);
                     ServiceBacklogDTOs.Add(viewModel);
                 }
             }
@@ -71,7 +71,7 @@ namespace ClearCare.Models.Control
 
             var appointment = await  new ServiceAppointmentManagement().getAppointmentByID(serviceBacklog.getBacklogInformation()["appointmentId"]);
 
-            var ServiceBacklogDTO = await createViewModel(serviceBacklog, appointment);
+            var ServiceBacklogDTO = await createDTO(serviceBacklog, appointment);
 
             return ServiceBacklogDTO;
         }
@@ -210,7 +210,7 @@ namespace ClearCare.Models.Control
             return appointmentIds;
         }
 
-        private Task<ServiceBacklogDTO> createViewModel(ServiceBacklog serviceBacklog, ServiceAppointment appointment)
+        private Task<ServiceBacklogDTO> createDTO(ServiceBacklog serviceBacklog, ServiceAppointment appointment)
         {
             return Task.FromResult(new ServiceBacklogDTO {
                 BacklogId = serviceBacklog.getBacklogInformation()["backlogId"],
