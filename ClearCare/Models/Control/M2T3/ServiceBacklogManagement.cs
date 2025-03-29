@@ -38,12 +38,12 @@ namespace ClearCare.Models.Control
         }
 
         // Get all backlogs including details of each service
-        public async Task<List<ServiceBacklogViewModel>> getAllBacklogDetails()
+        public async Task<List<ServiceBacklogDTO>> getAllBacklogDetails()
         {
             // get all backlogs
             List<ServiceBacklog> serviceBacklogs = await getAllBacklogs();
 
-            var serviceBacklogViewModels = new List<ServiceBacklogViewModel>();
+            var ServiceBacklogDTOs = new List<ServiceBacklogDTO>();
             var serviceAppointmentManagement = new ServiceAppointmentManagement();
 
             // Get details for each service backlog
@@ -54,15 +54,15 @@ namespace ClearCare.Models.Control
                 if (appointment != null)
                 {
                     var viewModel = await createViewModel(serviceBacklog, appointment);
-                    serviceBacklogViewModels.Add(viewModel);
+                    ServiceBacklogDTOs.Add(viewModel);
                 }
             }
 
-            return serviceBacklogViewModels;
+            return ServiceBacklogDTOs;
         }
 
         // Get single backlog details
-        public async Task<ServiceBacklogViewModel> getBacklogDetails(string backlogId)
+        public async Task<ServiceBacklogDTO> getBacklogDetails(string backlogId)
         {
             Dictionary<string, string> backlogDTO = await _dbGateway.fetchServiceBacklogById(backlogId);
             
@@ -71,9 +71,9 @@ namespace ClearCare.Models.Control
 
             var appointment = await  new ServiceAppointmentManagement().getAppointmentByID(serviceBacklog.getBacklogInformation()["appointmentId"]);
 
-            var serviceBacklogViewModel = await createViewModel(serviceBacklog, appointment);
+            var ServiceBacklogDTO = await createViewModel(serviceBacklog, appointment);
 
-            return serviceBacklogViewModel;
+            return ServiceBacklogDTO;
         }
 
         public async Task<bool> reassignBacklog(
@@ -210,9 +210,9 @@ namespace ClearCare.Models.Control
             return appointmentIds;
         }
 
-        private Task<ServiceBacklogViewModel> createViewModel(ServiceBacklog serviceBacklog, ServiceAppointment appointment)
+        private Task<ServiceBacklogDTO> createViewModel(ServiceBacklog serviceBacklog, ServiceAppointment appointment)
         {
-            return Task.FromResult(new ServiceBacklogViewModel {
+            return Task.FromResult(new ServiceBacklogDTO {
                 BacklogId = serviceBacklog.getBacklogInformation()["backlogId"],
                 AppointmentId = serviceBacklog.getBacklogInformation()["appointmentId"],
                 DateTime = (DateTime)appointment.GetAppointmentDateTime(appointment),
