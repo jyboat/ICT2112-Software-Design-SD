@@ -49,46 +49,54 @@ namespace ClearCare.Controllers
         }
 
         [HttpPost]
+        [Route("ReassignManual")] 
         public async Task<IActionResult> ReassignManual([FromForm] string BacklogId,
-                        [FromForm] string AppointmentId,
-                        [FromForm] string PatientId,
-                        [FromForm] string DoctorId,
-                        [FromForm] string ServiceType,
-                        [FromForm] int NurseId,
-                        [FromForm] DateTime DateTime,
-                        [FromForm] int Slot,
-                        [FromForm] string Location)
-        {
-            Console.WriteLine($"BacklogId: {BacklogId}");
-            Console.WriteLine($"AppointmentId: {AppointmentId}");
-            Console.WriteLine($"PatientId: {PatientId}");
-            Console.WriteLine($"DoctorId: {DoctorId}");
-            Console.WriteLine($"ServiceType: {ServiceType}");
-            Console.WriteLine($"NurseId: {NurseId}");
-            Console.WriteLine($"DateTime: {DateTime}");
-            Console.WriteLine($"Slot: {Slot}");
-            Console.WriteLine($"Location: {Location}");
-            
+                [FromForm] string AppointmentId,
+                [FromForm] string PatientId,
+                [FromForm] string DoctorId,
+                [FromForm] string ServiceType,
+                [FromForm] string NurseId,
+                [FromForm] string _DateTime,
+                [FromForm] string Slot,
+                [FromForm] string Location)
+        {   
+            DateTime parsedDateTime = DateTime.Parse(_DateTime);
+            Console.WriteLine($"DEBUG1: {parsedDateTime}");
+
             bool success = await _manager.reassignBacklog(
-                BacklogId:BacklogId,
-                AppointmentId:AppointmentId,
-                PatientId:PatientId,
-                DoctorId:DoctorId,
-                ServiceType:ServiceType,
-                NurseId:NurseId,
-                DateTime:DateTime,
-                Slot:Slot,
-                Location: Location
+                    BacklogId:BacklogId,
+                    AppointmentId:AppointmentId,
+                    PatientId:PatientId,
+                    DoctorId:DoctorId,
+                    ServiceType:ServiceType,
+                    NurseId:NurseId,
+                    _DateTime:parsedDateTime,
+                    Slot:int.Parse(Slot),
+                    Location: Location
             );
             
             if (success)
             {
-                return RedirectToAction("Index");
+                return Ok(new { message = "Backlog successfully rescheduled!" });
             }
-            else {
-                // might swap to ajax to handle fail on the same page
-                return RedirectToAction("Reassign");
+            else
+            {
+                return BadRequest(new { message = "Failed to reschedule backlog." });
             }
+        }
+
+        [HttpPost]
+        [Route("GenerateDummy")] 
+        public async Task<IActionResult> GenerateDummyBacklogs()
+        {
+            ServiceAppointmentManagement svcMgr = new ServiceAppointmentManagement();
+            var allAppointments = (await svcMgr.RetrieveAllAppointments()).Take(5);
+            foreach (var appointment in allAppointments)
+            {
+                await _manager.addBacklog(appointment.GetAttribute("AppointmentId"));
+            }
+
+            return Ok(new { message = "dummy dummy done!" });
         }
     }
 }

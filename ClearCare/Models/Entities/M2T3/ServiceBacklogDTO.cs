@@ -1,7 +1,7 @@
 
 namespace ClearCare.Models.Entities
 {
-    public class ServiceBacklogViewModel
+    public class ServiceBacklogDTO
     {
         public string BacklogId { get; set; }
         public string AppointmentId { get; set; }

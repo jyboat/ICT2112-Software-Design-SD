@@ -1,4 +1,4 @@
-@model List<ClearCare.Models.Entities.ServiceBacklogViewModel>
+@model List<ClearCare.Models.Entities.ServiceBacklogDTO>
 
 @{
     ViewData["Title"] = "Service Backlogs";
@@ -16,6 +16,8 @@
 <body>
     <div class="container"></div>
         <h1 class="my-4">@ViewData["Title"]</h1>
+
+        <button id="generateDummy" class="btn btn-primary mb-3">Generate Dummy Backlogs</button>
 
         @if (Model != null && Model.Count > 0)
         {
@@ -48,7 +50,10 @@
                                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                 </form>
                                 <form method="get" asp-action="Reassign" asp-route-id="@backlog.BacklogId" style="display:inline;" onsubmit="return confirm('Are you sure you want to reassign the backlog with ID @backlog.BacklogId?');">
-                                    <button type="submit" class="btn btn-warning btn-sm">Reassign</button>
+                                    <button type="button" class="btn btn-warning btn-sm"
+                                        onclick="openReassignPopup('@backlog.BacklogId', '@backlog.AppointmentId', '@backlog.PatientId', '@backlog.DoctorId', '@backlog.NurseId', '@backlog.DateTime.ToString("yyyy-MM-ddTHH:mm")', '@backlog.ServiceType')">
+                                        Reassign
+                                    </button>                                
                                 </form>
                             </td>
                         </tr>
@@ -60,6 +65,194 @@
         {
             <div class="alert alert-warning mt-3">No backlogs found.</div>
         }
+
+        <!-- Reassign Modal -->
+        <div id="reassignModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reassign Service Backlog</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="modalBacklogId">Backlog ID</label>
+                            <input type="text" class="form-control" id="modalBacklogId" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="modalAppointmentId">Appointment ID</label>
+                            <input type="text" class="form-control" id="modalAppointmentId" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editDoctorId">Doctor ID</label>
+                            <input type="text" class="form-control" id="editDoctorId" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editPatientId">Patient ID</label>
+                            <input type="text" class="form-control" id="editPatientId" readonly >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editNurseId">Nurse ID</label>
+                            <input type="text" class="form-control" id="editNurseId">
+                        </div>
+
+                        @* <div class="form-group">
+                            <label for="editDateAndTime">Date and Time</label>
+                            <input type="datetime-local" class="form-control" id="editDateAndTime">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editSlot">Slot</label>
+                            <input type="text" class="form-control" id="editSlot">
+                        </div> *@
+
+                        @* Separate Date and Time selection *@
+                        <div class="form-group">
+                            <label for="editDate">Date:</label>
+                            <input type="date" class="form-control" id="editDate" name="Date" required>
+
+                            <label for="editSlot">Time Slot:</label>
+                            <select id="editSlot" class="form-control" name="TimeSlot" required>
+                                <option value="">Select Time Slot</option>
+                                <option value="0">08:00 - 09:00</option>
+                                <option value="1">09:00 - 10:00</option>
+                                <option value="2">10:00 - 11:00</option>
+                                <option value="3">11:00 - 12:00</option>
+                                <option value="4">12:00 - 13:00</option>
+                                <option value="5">13:00 - 14:00</option>
+                                <option value="6">14:00 - 15:00</option>
+                                <option value="7">15:00 - 16:00</option>
+                            </select>
+                        </div> 
+                        
+                        <div class="form-group">
+                            <label for="editLocation">Location</label>
+                            <input type="text" class="form-control" id="editLocation">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editServiceType">Service Type</label>
+                            <input type="text" class="form-control" id="editServiceType" readonly>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirmReassign">Confirm Reassign</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
+    <script>
+        function openReassignPopup(backlogId, appointmentId, patientId, doctorId, nurseId, dateTime, serviceType) {
+            // Populate modal fields
+            document.getElementById("modalBacklogId").value = backlogId;
+            document.getElementById("modalAppointmentId").value = appointmentId;
+            document.getElementById("editPatientId").value = patientId;
+            document.getElementById("editDoctorId").value = doctorId;
+            document.getElementById("editNurseId").value = nurseId;
+            document.getElementById("editDate").value = dateTime;
+            @* document.getElementById("editSlot").value = slot;
+            document.getElementById("editLocation").value = location; *@
+            document.getElementById("editServiceType").value = serviceType;
+            @* document.getElementById("editStatus").value = status; *@
+
+            // Show the modal
+            $("#reassignModal").modal("show");
+        }
+
+        function closeModal() {
+            $("#reassignModal").modal("hide");
+        }
+
+        // Handle Reassignment via POST Request
+    $("#confirmReassign").click(function () {
+        var backlogId = $("#modalBacklogId").val();
+        var appointmentId = $("#modalAppointmentId").val();
+        var patientId = $("#editPatientId").val();
+        var doctorId = $("#editDoctorId").val();
+        var serviceType = $("#editServiceType").val();
+        var nurseId = $("#editNurseId").val();
+        var dateTime = $("#editDate").val();
+        var slot = $("#editSlot").val();
+        var location = $("#editLocation").val();
+
+        if (!dateTime || slot === "") {
+            toastr.warning("Please select both a date and time slot.", "Warning");
+            return;
+        }
+
+        // calc hour based on the selected time slot
+        let hour = parseInt(slot);
+        
+        // manually construct the ISO DateTime string
+        let isoDateTime = `${dateTime}T${hour.toString().padStart(2, '0')}:00:00.000Z`;
+
+        console.log("Sending data to server:");
+        console.log({ backlogId, appointmentId, doctorId, patientId, nurseId, isoDateTime, slot, location, serviceType });
+
+        fetch("/ServiceBacklog/ReassignManual", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+                BacklogId: backlogId,
+                AppointmentId: appointmentId,
+                PatientId: patientId,
+                DoctorId: doctorId,
+                ServiceType: serviceType,
+                NurseId: nurseId,
+                _DateTime: isoDateTime,
+                Slot: slot,
+                Location: location
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Error reassigning backlog.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            toastr.success(data.message, "Success");
+            closeModal();
+            window.location.reload();
+        })
+        .catch(error => {
+            toastr.error(error.message, "Error");
+            console.error("Error:", error);
+        });
+
+    });
+
+    document.getElementById("generateDummy").addEventListener("click", function() {
+        fetch("/ServiceBacklog/GenerateDummy", {
+            method: "POST"
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to generate dummy backlogs.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert("Dummy backlogs generated successfully.");
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Error generating dummy backlogs.");
+        });
+    });
+    </script>
+
+
 </body>
 </html>
