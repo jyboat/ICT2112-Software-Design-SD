@@ -20,6 +20,7 @@ namespace ClearCare.Models.Control
         private readonly INotification _iNotification;
          private readonly IServiceType _iServiceType;
         private readonly IRetrieveAllAppointments _iRetrieveAppointment;
+        private readonly IBacklogAppointments _iBacklogAppointment;
         private IAutomaticScheduleStrategy? _iAutomaticScheduleStrategy;
        
         private FirestoreDb db;
@@ -42,6 +43,7 @@ namespace ClearCare.Models.Control
             _iNotification = (INotification) new NotificationManager();
             _iServiceType = (IServiceType) new ServiceTypeManager();
             _iRetrieveAppointment = (IRetrieveAllAppointments) new ServiceAppointmentStatusManagement();
+            _iBacklogAppointment = (IBacklogAppointments) new ServiceBacklogManagement();
             // To be set at runtime later
             _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; 
             db = FirebaseService.Initialize();
@@ -74,17 +76,19 @@ namespace ClearCare.Models.Control
         // To Do: Modify HTML to showcase how auto scheduling works
         // To Do: Add more interface for serviceAppointment db operations
 
-        public async void AutomaticallyScheduleAppointment(List<ServiceAppointment> unscheduledAppointment)
+        public async Task<List<ServiceAppointment>> AutomaticallyScheduleAppointment(List<ServiceAppointment> unscheduledAppointment)
         {
             var timeslot = new Dictionary<int, DateTime>
             {
+                { 0, DateTime.Parse("8:00 AM").ToUniversalTime()  },
                 { 1, DateTime.Parse("4:00 PM").ToUniversalTime()  },
                 { 2, DateTime.Parse("5:00 PM").ToUniversalTime()  },
                 { 3, DateTime.Parse("6:00 PM").ToUniversalTime()  },
                 { 4, DateTime.Parse("7:00 PM").ToUniversalTime()  },
                 { 5, DateTime.Parse("9:00 PM").ToUniversalTime()  },
                 { 6, DateTime.Parse("10:00 PM").ToUniversalTime()  },
-                { 7, DateTime.Parse("11:00 PM").ToUniversalTime()  }
+                { 7, DateTime.Parse("11:00 PM").ToUniversalTime()  },
+                { 8, DateTime.Parse("12:00 PM").ToUniversalTime()  }
             };
 
             // Attach listener only when scheduling is called
@@ -234,15 +238,12 @@ namespace ClearCare.Models.Control
                 }
             }
 
-            // Hardcoded data
             var backlogEntries = new List<ServiceAppointment>();
 
-            Query BLQuery = db.Collection("ServiceBacklogs");
-            QuerySnapshot snapshot = await BLQuery.GetSnapshotAsync();
+            var backlogIDs = await  _iBacklogAppointment.getAllBacklogAppointmentID();
 
-            foreach (DocumentSnapshot document in snapshot.Documents)
-            {
-                string appointmentId = document.GetValue<string>("appointmentId");
+            foreach(var backlog in backlogIDs){
+                string appointmentId = backlog;
                 ServiceAppointment appointment = await _iRetrieveAppointment.getServiceAppointmentById(appointmentId);
                 appointment.updateServiceAppointementById(
                     appointment, 
@@ -260,6 +261,30 @@ namespace ClearCare.Models.Control
 
                 backlogEntries.Add(appointment);
             }
+
+            // Query BLQuery = db.Collection("ServiceBacklogs");
+            // QuerySnapshot snapshot = await BLQuery.GetSnapshotAsync();
+
+            // foreach (DocumentSnapshot document in snapshot.Documents)
+            // {
+            //     string appointmentId = document.GetValue<string>("appointmentId");
+            //     ServiceAppointment appointment = await _iRetrieveAppointment.getServiceAppointmentById(appointmentId);
+            //     appointment.updateServiceAppointementById(
+            //         appointment, 
+            //         appointment.GetAttribute("PatientId"), 
+            //         appointment.GetAttribute("NurseId"), 
+            //         appointment.GetAttribute("DoctorId"), 
+            //         appointment.GetAttribute("Service"), 
+            //         appointment.GetAttribute("Status"), 
+            //         DateTime.Now, 
+            //         Convert.ToInt32(appointment.GetAttribute("Slot")), 
+            //         appointment.GetAttribute("Location")
+            //     );
+            //     // entry["DateTime"] = DateTime.Now; 
+            //     // ServiceAppointment appointment = ServiceAppointment.FromFirestoreData(appointmentId, entry);
+
+            //     backlogEntries.Add(appointment);
+            // }
 
             // Call the auto-assignment function
             var serviceAppointment = _iAutomaticScheduleStrategy.AutomaticallySchedule(
@@ -306,7 +331,7 @@ namespace ClearCare.Models.Control
                         serviceAppt.GetAttribute("NurseId"),
                         "Hardcode Doctor",
                         serviceAppt.GetAttribute("Service"),
-                        "Backlog",
+                        "Scheduled",
                         timeslot[serviceAppt.GetIntAttribute("Slot")],
                         serviceAppt.GetIntAttribute("Slot"),
                         "Physical"
@@ -325,6 +350,8 @@ namespace ClearCare.Models.Control
                     }
                 }
             }
+
+            return serviceAppointment;
         }
 
         // public async Task TestInterface()

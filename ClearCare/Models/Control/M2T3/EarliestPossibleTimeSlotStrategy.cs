@@ -47,8 +47,8 @@ namespace ClearCare.Control
             int nurseIndex = 0;
 
             var sortedNurses = nurses.OrderBy(n =>
-            (!nurseSlotTracker.ContainsKey(n) || nurseSlotTracker[n].Count == 0) ? 0 : 1)
-            .ToList();
+                nurseSlotTracker.ContainsKey(n) ? nurseSlotTracker[n].Count : 0
+            ).ToList();
 
             // Concat backlog entries with the newly created appointments
             var combinedAppointments = backlogEntries.Concat(unscheduledAppointment).ToList();
@@ -115,6 +115,7 @@ namespace ClearCare.Control
                     
                     // Rotate nurse index for round-robin scheduling
                     // Inside the for loop as theres no need for nurse to be tied to patient
+                    // Might have a issue
                     nurseIndex = (nurseIndex + 1) % sortedNurses.Count;
                 }
             }
