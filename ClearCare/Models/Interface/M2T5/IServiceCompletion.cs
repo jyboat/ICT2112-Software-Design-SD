@@ -6,6 +6,6 @@ using ClearCare.Models.Entities;
     {
         public interface IServiceCompletion
         {
-            Task UpdateAppointmentStatus(string appointmentId, string patientId, string nurseId);
+            Task updateServiceCompletionStatus(string appointmentId, string patientId, string nurseId);
         }
     }
