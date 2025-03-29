@@ -5,6 +5,7 @@ using ClearCare.DataSource;
 using System.Threading.Tasks;
 using Google.Cloud.Firestore;
 using ClearCare.Models.Interface;
+using System.Globalization;
 
 namespace ClearCare.Controllers
 {
@@ -30,7 +31,7 @@ namespace ClearCare.Controllers
 
         // POST: /Account/Register
         [HttpPost]
-        public async Task<IActionResult> Register(string email, string password, string name, long mobileNumber, string address, string role, long countryCode)
+        public async Task<IActionResult> Register(string email, string password, string name, long mobileNumber, string address, string role, long countryCode, string dateOfBirth)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(name))
             {
@@ -44,7 +45,21 @@ namespace ClearCare.Controllers
             {
                 infoDictionary.Add("AssignedCaregiverName", "");
                 infoDictionary.Add("AssignedCaregiverID", "");
-                infoDictionary.Add("DateOfBirth", Timestamp.FromDateTime(DateTime.UtcNow));
+                // infoDictionary.Add("DateOfBirth", Timestamp.FromDateTime(DateTime.UtcNow));
+                if (!string.IsNullOrWhiteSpace(dateOfBirth))
+                {
+                    if (DateTime.TryParseExact(dateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dobParsed))
+                    {
+                        // Convert from UTC+8 to UTC
+                        DateTime dobUtc = dobParsed.AddHours(-8);
+                        infoDictionary.Add("DateOfBirth", Timestamp.FromDateTime(DateTime.SpecifyKind(dobUtc, DateTimeKind.Utc)));
+                    }
+                    else
+                    {
+                        ViewBag.ErrorMessage = "Invalid Date of Birth format.";
+                        return View("~/Views/Register/Register.cshtml");
+                    }
+                }
             }
             else if (role == "Caregiver")
             {

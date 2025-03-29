@@ -147,17 +147,15 @@ namespace ClearCare.Controllers
             {
                 try
                 {
-                    // Parse user input from "datetime-local" (which is in UTC+8)
-                    if (DateTime.TryParseExact(dateOfBirth, "yyyy-MM-ddTHH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDob))
+                    // Accept date format from input type="date"
+                    if (DateTime.TryParseExact(dateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDob))
                     {
-                        // Convert from UTC+8 to UTC before storing in Firestore
-                        DateTime dobUtc = parsedDob.AddHours(-8); // Subtract 8 hours to store in UTC
-
+                        DateTime dobUtc = parsedDob; // no time zone adjustment needed if you only care about date
                         updatedFields["DateOfBirth"] = Timestamp.FromDateTime(DateTime.SpecifyKind(dobUtc, DateTimeKind.Utc));
                     }
                     else
                     {
-                        TempData["ErrorMessage"] = "Invalid date format. Please enter a valid date and time.";
+                        TempData["ErrorMessage"] = "Invalid date format. Please enter a valid date.";
                         return RedirectToAction("displayProfile");
                     }
                 }

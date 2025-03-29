@@ -39,42 +39,54 @@
                     {
                         <tr>
                             <td class="fw-bold text-primary">Specialization:</td>
-                            <td>@profileData["Specialization"]</td>
+                            @* <td>@profileData["Specialization"]</td> *@
+                            <td>@(string.IsNullOrWhiteSpace(profileData["Specialization"]?.ToString()) ? "N/A" : profileData["Specialization"])</td>
                         </tr>
                     }
                     @if (profileData.ContainsKey("Department"))
                     {
                         <tr>
                             <td class="fw-bold text-primary">Department:</td>
-                            <td>@profileData["Department"]</td>
+                            @* <td>@profileData["Department"]</td> *@
+                            <td>@(string.IsNullOrWhiteSpace(profileData["Department"]?.ToString()) ? "N/A" : profileData["Department"])</td>
                         </tr>
                     }
-                    @if (profileData.ContainsKey("DateOfBirth"))
+                    @if (profileData.ContainsKey("DateOfBirth") && profileData["DateOfBirth"] is Google.Cloud.Firestore.Timestamp ts)
                     {
-                        <tr><td class="fw-bold text-primary">Date of Birth:</td><td>@profileData["DateOfBirth"]</td></tr>
+                        <tr><td class="fw-bold text-primary">Date of Birth:</td>
+                            @* <td>@profileData["DateOfBirth"]</td>  *@
+                            <td>@ts.ToDateTime().AddHours(8).ToString("dd MMM yyyy")</td> 
+                        </tr>
                     }
                     @if (profileData.ContainsKey("AssignedPatientID"))
                     {
-                        <tr><td class="fw-bold text-primary">Assigned Patient ID:</td><td>@profileData["AssignedPatientID"]</td></tr>
-
+                        <tr><td class="fw-bold text-primary">Assigned Patient ID:</td>
+                            @* <td>@profileData["AssignedPatientID"]</td> *@
+                            <td>@(string.IsNullOrWhiteSpace(profileData["AssignedPatientID"]?.ToString()) ? "N/A" : profileData["AssignedPatientID"])</td>
+                        </tr>
                     }
                     @if (profileData.ContainsKey("AssignedPatientName"))
                     {
-                        <tr><td class="fw-bold text-primary">Assigned Patient Name:</td><td>@profileData["AssignedPatientName"]</td></tr>
+                        <tr><td class="fw-bold text-primary">Assigned Patient Name:</td>
+                            @* <td>@profileData["AssignedPatientName"]</td> *@
+                            <td>@(string.IsNullOrWhiteSpace(profileData["AssignedPatientName"]?.ToString()) ? "N/A" : profileData["AssignedPatientName"])</td>
+                        </tr>
 
                     }
-                    @if (profileData.ContainsKey("AssignedCaregiverID") && !string.IsNullOrEmpty(profileData["AssignedCaregiverID"].ToString()))
+                    @if (profileData.ContainsKey("AssignedCaregiverID"))
                     {
                         <tr>
                             <td class="fw-bold text-primary">Assigned Caregiver ID:</td>
-                            <td>@profileData["AssignedCaregiverID"]</td>
+                            @* <td>@profileData["AssignedCaregiverID"]</td> *@
+                            <td>@(string.IsNullOrWhiteSpace(profileData["AssignedCaregiverID"]?.ToString()) ? "N/A" : profileData["AssignedCaregiverID"])</td>
                         </tr>
                     }
-                    @if (profileData.ContainsKey("AssignedCaregiverName") && !string.IsNullOrEmpty(profileData["AssignedCaregiverName"].ToString()))
+                    @if (profileData.ContainsKey("AssignedCaregiverName"))
                     {
                         <tr>
                             <td class="fw-bold text-primary">Assigned Caregiver:</td>
-                            <td>@profileData["AssignedCaregiverName"]</td>
+                            @* <td>@profileData["AssignedCaregiverName"]</td> *@
+                            <td>@(string.IsNullOrWhiteSpace(profileData["AssignedCaregiverName"]?.ToString()) ? "N/A" : profileData["AssignedCaregiverName"])</td>
                         </tr>
                     }
                 </tbody>

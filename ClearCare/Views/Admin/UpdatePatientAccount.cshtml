@@ -78,6 +78,20 @@
                                     <label for="address"><i class="bi bi-geo-alt me-1"></i>Address</label>
                                 </div>
                             </div>
+
+                            @if (user?.getProfileData().ContainsKey("DateOfBirth") == true && user.getProfileData()["DateOfBirth"] is Google.Cloud.Firestore.Timestamp ts)
+                            {
+                                var dob = ts.ToDateTime().ToString("yyyy-MM-dd"); <!-- format for `<input type="date">` -->
+
+                                <div class="col-12">
+                                    <div class="form-floating mb-3">
+                                        <input type="date" id="dateOfBirth" name="dateOfBirth" class="form-control"
+                                            value="@dob" required />
+                                        <label for="dateOfBirth"><i class="bi bi-calendar me-1"></i>Date of Birth</label>
+                                    </div>
+                                </div>
+                            }
+
                         </div>
                         
                         <div class="mt-4">

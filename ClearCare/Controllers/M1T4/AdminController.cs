@@ -5,6 +5,8 @@ using ClearCare.DataSource;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Globalization;
+using Google.Cloud.Firestore;
 
 namespace ClearCare.Controllers
 {
@@ -231,7 +233,7 @@ namespace ClearCare.Controllers
 
           // POST: /Admin/updateAccount
           [HttpPost]
-          public async Task<IActionResult> updateAccount(string uid, string email, string name, string role, string address, long? mobileNumber, string? department, string? specialization)
+          public async Task<IActionResult> updateAccount(string uid, string email, string name, string role, string address, long? mobileNumber, string? department, string? specialization, string? dateOfBirth)
           {
                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || mobileNumber == null)
                {
@@ -244,8 +246,23 @@ namespace ClearCare.Controllers
                     { "Name", name },
                     { "MobileNumber", mobileNumber ?? 0 },
                     { "Address", address },
-                    { "Role", role }
+                    { "Role", role },
+                    { "DateOfBirth", dateOfBirth}
                };
+
+               
+               if (!string.IsNullOrEmpty(dateOfBirth))
+               {
+               if (DateTime.TryParseExact(dateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDob))
+               {
+                    updatedUserData["DateOfBirth"] = Timestamp.FromDateTime(DateTime.SpecifyKind(parsedDob, DateTimeKind.Utc));
+               }
+               else
+               {
+                    TempData["ErrorMessage"] = "Invalid Date of Birth format.";
+                    return RedirectToAction("Dashboard");
+               }
+               }
 
                if (role == "Nurse" && !string.IsNullOrEmpty(department))
                {

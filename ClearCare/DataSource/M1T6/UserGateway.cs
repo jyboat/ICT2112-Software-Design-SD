@@ -344,6 +344,7 @@ namespace ClearCare.DataSource
             DocumentReference newUserRef = usersRef.Document(nextUserID);
             await newUserRef.SetAsync(userData);
 
+            // Console.WriteLine($"Inserting DOB for user: {userData["DateOfBirth"]?.GetType()} = {userData["DateOfBirth"]}");
             Console.WriteLine($"User inserted successfully with Firestore ID: {nextUserID}");
 
             return nextUserID;

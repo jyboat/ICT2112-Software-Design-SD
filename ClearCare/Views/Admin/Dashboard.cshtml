@@ -176,6 +176,16 @@
                         <div class="list-group list-group-flush">
                             <div class="list-group-item d-flex px-0">
                                 <div class="me-3">
+                                    <i class="bi bi-fingerprint text-muted"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted">User ID</small>
+                                    <p class="mb-0">@user?.getProfileData()["UserID"]</p>
+                                </div>
+                            </div>
+
+                            <div class="list-group-item d-flex px-0">
+                                <div class="me-3">
                                     <i class="bi bi-envelope text-muted"></i>
                                 </div>
                                 <div>
@@ -203,16 +213,20 @@
                                     <p class="mb-0">@user?.getProfileData()["Address"]</p>
                                 </div>
                             </div>
-                            
-                            <div class="list-group-item d-flex px-0">
-                                <div class="me-3">
-                                    <i class="bi bi-fingerprint text-muted"></i>
+
+                            @if (user?.getProfileData()["Role"]?.ToString() == "Patient" && user?.getProfileData()["DateOfBirth"] is Google.Cloud.Firestore.Timestamp dobTs)
+                            {
+                                <div class="list-group-item d-flex px-0">
+                                    <div class="me-3">
+                                        <i class="bi bi-calendar-event text-muted"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted">Date of Birth</small>
+                                        <p class="mb-0">@dobTs.ToDateTime().AddHours(8).ToString("dd MMM yyyy")</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <small class="text-muted">User ID</small>
-                                    <p class="mb-0">@user?.getProfileData()["UserID"]</p>
-                                </div>
-                            </div>
+                            }
+
                             
                             @if (user?.getProfileData()["Role"].ToString() == "Patient" && user?.getProfileData()["AssignedCaregiverID"] != null)
                             {
