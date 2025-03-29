@@ -25,7 +25,7 @@ namespace ClearCare.Controllers
             _serviceAppointmentManagement = new ServiceAppointmentManagement();
          
 
-            _calendarManagement = new CalendarManagement((IRetrieveAllAppointments)_serviceAppointmentManagement, (INurseAvailability) _manager);
+            _calendarManagement = new CalendarManagement();
         }
 
         // methods to get Id from current session 
