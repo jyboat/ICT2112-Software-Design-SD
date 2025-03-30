@@ -249,20 +249,22 @@
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: new URLSearchParams({
-                BacklogId: backlogId,
-                AppointmentId: appointmentId,
-                PatientId: patientId,
-                DoctorId: doctorId,
-                ServiceType: serviceType,
-                NurseId: nurseId,
-                _DateTime: isoDateTime,
-                Slot: slot,
-                Location: location
+            BacklogId: backlogId,
+            AppointmentId: appointmentId,
+            PatientId: patientId,
+            DoctorId: doctorId,
+            ServiceType: serviceType,
+            NurseId: nurseId,
+            _DateTime: isoDateTime,
+            Slot: slot,
+            Location: location
             })
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error("Error reassigning backlog.");
+            return response.json().then(data => {
+                throw new Error(data.message || "Error reassigning backlog.");
+            });
             }
             return response.json();
         })

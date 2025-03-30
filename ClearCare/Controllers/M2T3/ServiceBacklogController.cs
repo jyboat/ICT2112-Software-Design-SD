@@ -48,21 +48,20 @@ namespace ClearCare.Controllers
                 [FromForm] string NurseId,
                 [FromForm] string _DateTime,
                 [FromForm] string Slot,
-                [FromForm] string Location)
-        {   
+                [FromForm] string Location
+        ) {   
             DateTime parsedDateTime = DateTime.Parse(_DateTime);
-            Console.WriteLine($"DEBUG1: {parsedDateTime}");
 
-            bool success = await _manager.reassignBacklog(
-                    BacklogId:BacklogId,
-                    AppointmentId:AppointmentId,
-                    PatientId:PatientId,
-                    DoctorId:DoctorId,
-                    ServiceType:ServiceType,
-                    NurseId:NurseId,
-                    _DateTime:parsedDateTime,
-                    Slot:int.Parse(Slot),
-                    Location: Location
+            var (success, errorMessage) = await _manager.reassignBacklog(
+                BacklogId: BacklogId,
+                AppointmentId: AppointmentId,
+                PatientId: PatientId,
+                DoctorId: DoctorId,
+                ServiceType: ServiceType,
+                NurseId: NurseId,
+                _DateTime: parsedDateTime,
+                Slot: int.Parse(Slot),
+                Location: Location
             );
             
             if (success)
@@ -71,7 +70,7 @@ namespace ClearCare.Controllers
             }
             else
             {
-                return BadRequest(new { message = "Failed to reschedule backlog." });
+                return BadRequest(new { message = errorMessage });
             }
         }
 
