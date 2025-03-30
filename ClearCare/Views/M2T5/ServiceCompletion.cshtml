@@ -2,6 +2,9 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
+@{
+    ViewData["Title"] = "Service Completion";
+}
 
 <h2>Service Completion</h2>
 
@@ -31,9 +34,9 @@
             {
                 <tr>
                     <td>@appointment.AppointmentId</td>
-                    <td>@appointment.PatientId</td>
-                    <td>@appointment.NurseId</td>
-                    <td>@appointment.DoctorId</td>
+                    <td>@appointment.PatientName</td>
+                    <td>@appointment.NurseName</td>
+                    <td>@appointment.DoctorName</td>
                     <td>@appointment.Service</td>
                     <td>@appointment.Status</td>
                     <td>
@@ -43,9 +46,12 @@
                                 data-patient-id="@appointment.PatientId"
                                 data-nurse-id="@appointment.NurseId"
                                 data-doctor-id="@appointment.DoctorId"
+                                data-patient-name="@appointment.PatientName"
+                                data-nurse-name="@appointment.NurseName"
+                                data-doctor-name="@appointment.DoctorName"
                                 data-service="@appointment.Service"
                                 data-status="@appointment.Status">
-                            Update Status
+                            Mark as Complete
                         </button>
                     </td>
                 </tr>
@@ -63,7 +69,7 @@ else
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="appointmentModalLabel">Update Appointment Status</h5>
+                <h5 class="modal-title" id="appointmentModalLabel">Mark Service as Complete</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -72,17 +78,32 @@ else
                         <label for="appointmentId">Appointment ID</label>
                         <input type="text" class="form-control" id="appointmentId" disabled>
                     </div>
-                    <div class="form-group">
-                        <label for="patientId">Patient ID</label>
+                    @* <div class="form-group">
+                        <label for="patientId">Patient</label>
                         <input type="text" class="form-control" id="patientId" disabled>
                     </div>
                     <div class="form-group">
-                        <label for="nurseId">Nurse ID</label>
+                        <label for="nurseId">Nurse</label>
                         <input type="text" class="form-control" id="nurseId" disabled>
                     </div>
                     <div class="form-group">
-                        <label for="doctorId">Doctor ID</label>
+                        <label for="doctorId">Doctor</label>
                         <input type="text" class="form-control" id="doctorId" disabled>
+                    </div> *@
+                    <div class="form-group">
+                        <label for="patientName">Patient</label>
+                        <input type="text" class="form-control" id="patientName" disabled>
+                        <input type="hidden" id="patientId">
+                    </div>
+                    <div class="form-group">
+                        <label for="nurseName">Nurse</label>
+                        <input type="text" class="form-control" id="nurseName" disabled>
+                        <input type="hidden" id="nurseId">
+                    </div>
+                    <div class="form-group">
+                        <label for="doctorName">Doctor</label>
+                        <input type="text" class="form-control" id="doctorName" disabled>
+                        <input type="hidden" id="doctorId">
                     </div>
                     <div class="form-group">
                         <label for="service">Service Type</label>
@@ -112,7 +133,7 @@ else
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="updateStatusBtn">Update Status</button>
+                <button type="button" class="btn btn-primary" id="updateStatusBtn">Mark as Complete</button>
             </div>
         </div>
     </div>
@@ -131,6 +152,9 @@ $(document).ready(function () {
         var patientId = $(this).data('patient-id');
         var nurseId = $(this).data('nurse-id');
         var doctorId = $(this).data('doctor-id');
+        var patientName = $(this).data('patient-name');
+        var nurseName = $(this).data('nurse-name');
+        var doctorName = $(this).data('doctor-name');
         var service = $(this).data('service');
         var status = $(this).data('status');
 
@@ -147,9 +171,15 @@ $(document).ready(function () {
 
         // Populate the modal with current appointment data
         $('#appointmentId').val(appointmentId);
-        $('#patientId').val(patientId);
-        $('#nurseId').val(nurseId);
-        $('#doctorId').val(doctorId);
+
+        $('#patientName').val(patientName);
+        $('#nurseName').val(nurseName);
+        $('#doctorName').val(doctorName);
+
+        $('#patientId').val(patientId); // Hidden field for updates
+        $('#nurseId').val(nurseId);     // Hidden field for updates
+        $('#doctorId').val(doctorId);   // Hidden field for updates
+
         $('#service').val(service);
         $('#status').val(status);
 

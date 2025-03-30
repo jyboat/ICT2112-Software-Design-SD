@@ -23,6 +23,11 @@ namespace ClearCare.Models.DTO
         private int _slot;
         private string _location;
 
+        // New properties for names
+        private string _patientName;
+        private string _nurseName;
+        private string _doctorName;
+
         // Constructor that maps data from ServiceAppointment entity
         public ServiceAppointmentDTO(ServiceAppointment appointment)
         {
@@ -66,5 +71,32 @@ namespace ClearCare.Models.DTO
         public DateTime DateTime => _dateTime;
         public int Slot => _slot;
         public string Location => _location;
+
+        public string PatientName
+        {
+            get => _patientName;
+            private set => _patientName = value;
+        }
+
+        public string NurseName
+        {
+            get => _nurseName;
+            private set => _nurseName = value;
+        }
+
+        public string DoctorName
+        {
+            get => _doctorName;
+            private set => _doctorName = value;
+        }
+
+        // Public method to set all names at once
+        public void SetNames(string patientName, string nurseName, string doctorName)
+        {
+            PatientName = patientName;
+            NurseName = nurseName;
+            DoctorName = doctorName;
+        }
+
     }
 }

@@ -28,7 +28,6 @@
                         <th>Nurse</th>
                         <th>Doctor</th>
                         <th>Service Date</th>
-                        @* <th>Status</th> *@
                         <th>Location</th>
                         <th>Service Outcomes</th>
                     </tr>
@@ -39,21 +38,12 @@
                         <tr>
                             <td>@history["ServiceHistoryId"]</td>
                             <td>@history["Service"]</td>
-                            <td>@history["PatientId"]</td>
-                            <td>@history["NurseId"]</td>
-                            <td>@history["DoctorId"]</td>
+                            <td>@history["PatientName"]</td>
+                            <td>@history["NurseName"]</td>
+                            <td>@history["DoctorName"]</td>
                             <td>@history["ServiceDate"]</td>
                             <td>@history["Location"]</td>
-                            @* <td>@history["Status"]</td> *@
                             <td>@history["ServiceOutcomes"]</td>
-                            @* <td>
-                                <form method="post" asp-action="Delete" asp-route-id="@backlog.BacklogId" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete the backlog with ID @backlog.BacklogId?');">
-                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                </form>
-                                <form method="get" asp-action="Reassign" asp-route-id="@backlog.BacklogId" style="display:inline;" onsubmit="return confirm('Are you sure you want to reassign the backlog with ID @backlog.BacklogId?');">
-                                    <button type="submit" class="btn btn-warning btn-sm">Reassign</button>
-                                </form>
-                            </td> *@
                         </tr>
                     }
                 </tbody>
