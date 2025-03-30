@@ -62,7 +62,7 @@ public class ServiceAppointmentsController : Controller
     {
         ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
         ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
-        ViewBag.ServiceNames = await ServiceAppointmentManagement.GetServiceTypeNames();
+        ViewBag.ServiceNames = await _manualAppointmentScheduler.getServices();
         ViewBag.DoctorId = "DOC001"; // TODO - hardcoded for now, will retrieve from session later
 
         return View("~/Views/M2T3/ServiceAppointments/Calendar.cshtml");
@@ -70,11 +70,14 @@ public class ServiceAppointmentsController : Controller
 
     [HttpGet]
     [Route("CreatePage")]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        
         ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
         ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
-        return View("~/Views/M2T3/ServiceAppointments/CreateServiceAppt.cshtml"); // Render the form
+        ViewBag.Service = await _manualAppointmentScheduler.getServices(); 
+
+        return View("~/Views/M2T3/ServiceAppointments/CreateServiceAppt.cshtml"); 
     }
 
     [HttpGet]
@@ -94,7 +97,7 @@ public class ServiceAppointmentsController : Controller
     [Route("Create")]
     public async Task<IActionResult> CreateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
     {
-        var appointment = await ServiceAppointmentManagement.CreateAppointment(
+        var appointment = await _manualAppointmentScheduler.ScheduleAppointment(
             requestData["PatientId"].GetString() ?? "",
             requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
             requestData["DoctorId"].GetString() ?? "",

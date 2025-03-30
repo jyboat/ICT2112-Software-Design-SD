@@ -32,7 +32,17 @@
     <input type="text" id="doctorId" name="DoctorId"><br><br>
 
     <label for="Service">Service Type:</label>
-    <input type="text" id="Service" name="Service" required><br><br>
+    <select id="Service" name="Service" required>
+        <option value="" disabled selected>Select a service</option>
+        @if (ViewBag.Service != null)
+        {
+            foreach (var service in ViewBag.Service)
+            {
+                <option value="@service.Name">@service.Name</option>
+            }
+        }
+    </select><br><br>
+
 
     <label for="status">Status:</label>
     <input type="text" id="status" name="Status" required><br><br>
