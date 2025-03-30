@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Side Effects";
+    var isDoctor = ClearCare.IUserList.CurrentUserRole == "Doctor";
 }
 
 <div class="container py-4">
@@ -15,7 +16,10 @@
         <table class="table table-bordered">
             <thead class="table-light">
                 <tr>
-                    <th>Patient ID</th>
+                    @if (isDoctor)
+                    {
+                        <th>Patient Name</th>
+                    }
                     <th>Drug Name</th>
                     <th>Drug Information</th>
                     <th>Side Effects</th>
@@ -25,7 +29,10 @@
                 @foreach (var sideEffect in Model)
                 {
                     <tr>
+                    @if (isDoctor)
+                    {
                         <td>@sideEffect.PatientId</td>
+                    }
                         <td>@sideEffect.DrugName</td>
                         <td>@sideEffect.DrugInformation</td>
                         <td>@sideEffect.SideEffects</td>

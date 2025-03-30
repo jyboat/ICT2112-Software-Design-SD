@@ -1,6 +1,7 @@
 using ClearCare.Models;
 using ClearCare.Gateways;
 using ClearCare.Observer;
+using ClearCare.Interfaces;
 
 namespace ClearCare.Controls
 {
@@ -48,7 +49,15 @@ namespace ClearCare.Controls
         //=============================
         public async Task<List<SideEffectModel>> getSideEffectsAsync()
         {
-            return await _sideEffectsMapper.getAllSideEffectsAsync();
+            var allSideEffects = await _sideEffectsMapper.getAllSideEffectsAsync();
+            
+            // Filter based on user role
+            if (IUserList.CurrentUserRole == "Patient")
+            {
+                return allSideEffects.Where(se => se.PatientId == IUserList.CurrentUserUUID).ToList();
+            }
+            
+            return allSideEffects;
         }
 
         public async Task addSideEffectAsync(SideEffectModel sideEffect)
