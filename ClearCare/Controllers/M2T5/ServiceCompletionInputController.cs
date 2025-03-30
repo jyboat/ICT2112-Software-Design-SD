@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using ClearCare.Models.Interface;
 using ClearCare.Models.DTO;
 using ClearCare.Models.Control;
+using ClearCare.DataSource;
 using System.Text.Json;
 
 namespace ClearCare.Controllers
@@ -15,12 +16,14 @@ namespace ClearCare.Controllers
     public class ServiceCompletionInputController : Controller
     {
         private readonly ServiceCompletionManager _appointmentManager;
+        private readonly IUserList _UserList;
         // private readonly INotification _notificationManager;
 
         // Inject IAppointmentStatus and INotification through the constructor
         public ServiceCompletionInputController(ServiceCompletionManager appointmentManager)
         {
             _appointmentManager = appointmentManager;
+            _UserList = new AdminManagement(new UserGateway());
             // _notificationManager = notificationManager;
         }
 
@@ -52,6 +55,22 @@ namespace ClearCare.Controllers
                 appointmentDTOs = appointmentDTOs
                     .Where(dto => dto.NurseId == userId) // Only appointments for this doctor
                     .ToList();
+            }
+
+            List<User> users = await _UserList.retrieveAllUsers();
+
+            // Fetch user names from IUserList
+            foreach (var dto in appointmentDTOs)
+            {
+                var patient = users.FirstOrDefault(u => u.getProfileData()["UserID"].ToString() == dto.PatientId);
+                var nurse = users.FirstOrDefault(u => u.getProfileData()["UserID"].ToString() == dto.NurseId);
+                var doctor = users.FirstOrDefault(u => u.getProfileData()["UserID"].ToString() == dto.DoctorId);
+
+                var patientName = patient != null ? patient.getProfileData()["Name"].ToString() ?? "Unknown" : "Unknown";
+                var nurseName = nurse != null ? nurse.getProfileData()["Name"].ToString() ?? "Unknown" : "Unknown";
+                var doctorName = doctor != null ? doctor.getProfileData()["Name"].ToString() ?? "Unknown" : "Unknown";
+                
+                dto.SetNames(patientName, nurseName, doctorName);
             }
 
             // Create the message to display in the view or return as part of the JSON
