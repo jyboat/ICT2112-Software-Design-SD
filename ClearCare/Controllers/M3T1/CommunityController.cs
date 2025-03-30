@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models;
-using ClearCare.Models.ViewModels.M3T1;
+using ClearCare.Models.DTO.M3T1;
 using ClearCare.Models.Entities.M3T1;
 using ClearCare.Models.Control.M3T1;
 using ClearCare.DataSource.M3T1;
@@ -39,7 +39,7 @@ public class CommunityController : Controller
         var userGroups = (await _communityGroup.getUserGroups(userId)).Select(s => s.getDetails()).ToList();
         var allGroups = (await _communityGroup.getNonUserGroups(userId)).Select(s => s.getDetails()).ToList();
 
-        var viewModel = new CommunityViewModel
+        var viewModel = new CommunityDTO
         {
             Posts = postList,
             UserPosts = userPostList,
@@ -88,7 +88,7 @@ public class CommunityController : Controller
         var group = (await _communityGroup.viewGroupById(groupId)).getDetails();
         var members = group["MemberIds"] as List<string>;
 
-        var viewModel = new CommunityViewModel
+        var viewModel = new CommunityDTO
         {
             Posts = postList,
             UserPosts = userPostList,

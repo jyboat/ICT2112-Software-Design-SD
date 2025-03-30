@@ -7,16 +7,16 @@ using ClearCare.Models.Interfaces.M3T1;
 
 namespace ClearCare.DataSource.M3T1
 {
-    public class AssessmentMapper : IAssessmentSend
+    public class AssessmentGateway : IAssessmentSend
     {
         private readonly FirestoreDb _db;
 
-        public AssessmentMapper()
+        public AssessmentGateway()
         {
             _db = FirebaseService.Initialize();
         }
 
-            public async Task<List<Assessment>> fetchAssessments()
+        public async Task<List<Assessment>> fetchAssessments()
         {
             List<Assessment> assessments = new List<Assessment>();
             CollectionReference assessmentRef = _db.Collection("Assessment");
@@ -28,10 +28,10 @@ namespace ClearCare.DataSource.M3T1
                 {
                     try
                     {
-                        string id = doc.Id;
-                        string hazardType = doc.GetValue<string>("HazardType");
-                        string riskLevel = doc.GetValue<string>("RiskLevel");
-                        string recommendation = doc.GetValue<string>("Recommendation");
+                        string id = doc.ContainsField("Id") ? doc.GetValue<string>("Id") : doc.Id;
+                        string hazardType = doc.ContainsField("HazardType") ? doc.GetValue<string>("HazardType") : "";
+                        string riskLevel = doc.ContainsField("RiskLevel") ? doc.GetValue<string>("RiskLevel") : "";
+                        string recommendation = doc.ContainsField("Recommendation") ? doc.GetValue<string>("Recommendation") : "";
 
                         // Handle CreatedAt
                         DateTime createdAt;
@@ -49,9 +49,8 @@ namespace ClearCare.DataSource.M3T1
                         }
 
                         // Handle optional fields
-                        string doctorId = doc.TryGetValue<string>("DoctorID", out var docId) ? docId : string.Empty;
-                        string patientId = doc.TryGetValue<string>("PatientID", out var patId) ? patId : string.Empty;
-                        List<string> imagePath = doc.TryGetValue<List<string>>("ImagePath", out var paths) ? paths : new List<string>();
+                        string patientId = doc.TryGetValue<string>("PatientId", out var patId) ? patId : string.Empty;
+                        string imagePath = doc.TryGetValue<string>("ImagePath", out var paths) ? paths : "";
                         Dictionary<string, bool> checklist = doc.TryGetValue<Dictionary<string, bool>>("HomeAssessmentChecklist", out var chklist) ? chklist : new Dictionary<string, bool>();
 
                         Assessment assessment = new Assessment(
@@ -60,7 +59,6 @@ namespace ClearCare.DataSource.M3T1
                             riskLevel: riskLevel,
                             recommendation: recommendation,
                             createdAt: createdAt,
-                            doctorId: doctorId,
                             patientId: patientId,
                             imagePath: imagePath,
                             homeAssessmentChecklist: checklist
@@ -78,43 +76,6 @@ namespace ClearCare.DataSource.M3T1
             return assessments;
         }
 
-        // In AssessmentMapper.cs
-        private async Task<Assessment> ConvertToAssessment(DocumentSnapshot doc)
-        {
-            string id = doc.Id;
-            string hazardType = doc.GetValue<string>("HazardType");
-            string riskLevel = doc.GetValue<string>("RiskLevel");
-            string recommendation = doc.GetValue<string>("Recommendation");
-
-            DateTime createdAt;
-            if (doc.GetValue<object>("CreatedAt") is Timestamp timestamp)
-            {
-                createdAt = timestamp.ToDateTime();
-            }
-            else
-            {
-                string dateString = doc.GetValue<string>("CreatedAt");
-                createdAt = DateTime.TryParse(dateString, out var date) ? date : DateTime.Now;
-            }
-
-            string doctorId = doc.GetValue<string>("DoctorID");
-            string patientId = doc.TryGetValue<string>("PatientID", out var pid) ? pid : "DEFAULT_PATIENT";
-            List<string> imagePath = doc.TryGetValue<List<string>>("ImagePath", out var paths) ? paths : new List<string>();
-            Dictionary<string, bool> checklist = doc.TryGetValue<Dictionary<string, bool>>("HomeAssessmentChecklist", out var chklist) ? chklist : new Dictionary<string, bool>();
-
-            return new Assessment(
-                id: id,
-                hazardType: hazardType,  // Now passing hazardType
-                riskLevel: riskLevel,
-                recommendation: recommendation,
-                createdAt: createdAt,
-                doctorId: doctorId,
-                patientId: patientId,
-                imagePath: imagePath,
-                homeAssessmentChecklist: checklist
-            );
-        }
-
         public async Task<Assessment> fetchAssessmentById(string id)
         {
             DocumentReference docRef = _db.Collection("Assessment").Document(id);
@@ -126,7 +87,37 @@ namespace ClearCare.DataSource.M3T1
                 return null;
             }
 
-            return await ConvertToAssessment(snapshot);
+            string hazardType = snapshot.ContainsField("HazardType") ? snapshot.GetValue<string>("HazardType") : "";
+            string riskLevel = snapshot.ContainsField("RiskLevel") ? snapshot.GetValue<string>("RiskLevel") : "";
+            string recommendation = snapshot.ContainsField("Recommendation") ? snapshot.GetValue<string>("Recommendation") : "";
+
+            DateTime createdAt;
+            if (snapshot.GetValue<object>("CreatedAt") is Timestamp timestamp)
+            {
+                createdAt = timestamp.ToDateTime();
+            }
+            else
+            {
+                string dateString = snapshot.GetValue<string>("CreatedAt");
+                createdAt = DateTime.TryParse(dateString, out var date) ? date : DateTime.Now;
+            }
+
+            string patientId = snapshot.TryGetValue<string>("PatientId", out var pid) ? pid : "DEFAULT_PATIENT";
+            string imagePath = snapshot.TryGetValue<string>("ImagePath", out var paths) ? paths : "";
+            Dictionary<string, bool> checklist = snapshot.TryGetValue<Dictionary<string, bool>>("HomeAssessmentChecklist", out var chklist) ? chklist : new Dictionary<string, bool>();
+
+            Assessment assessment = new Assessment(
+                id: id,
+                hazardType: hazardType,  // Now passing hazardType
+                riskLevel: riskLevel,
+                recommendation: recommendation,
+                createdAt: createdAt,
+                patientId: patientId,
+                imagePath: imagePath,
+                homeAssessmentChecklist: checklist
+            );
+
+            return assessment;
         }
         
 
@@ -144,7 +135,7 @@ namespace ClearCare.DataSource.M3T1
             return true;
         }
 
-        public async Task<string> insertAssessment(string hazardType, string doctorId, List<string> imagePath, string riskLevel, string recommendation, string createdAt)
+        public async Task<string> insertAssessment(string imagePath, string riskLevel, string recommendation, string createdAt, string patientId)
         {
             if (!DateTime.TryParse(createdAt, out DateTime parsedDate))
             {
@@ -156,30 +147,26 @@ namespace ClearCare.DataSource.M3T1
 
             var assessmentData = new Dictionary<string, object>
             {
-                { "HazardType", hazardType },
-                { "DoctorID", doctorId },
                 { "ImagePath", imagePath },
                 { "RiskLevel", riskLevel },
                 { "Recommendation", recommendation },
                 { "CreatedAt", timestamp },
-                { "HomeAssessmentChecklist", new Dictionary<string, bool>() }
+                { "HomeAssessmentChecklist", new Dictionary<string, bool>() },
+                { "PatientId", patientId }
             };
 
             await docRef.SetAsync(assessmentData);
             return docRef.Id;
         }
 
-        public async Task<bool> updateAssessment(string id, string doctorId, List<string> imagePath, string riskLevel, string recommendation, string createdAt, Dictionary<string, bool> checklist = null)
+        public async Task<bool> updateAssessment(string id, string riskLevel, string recommendation, Dictionary<string, bool> checklist = null)
         {
             DocumentReference docRef = _db.Collection("Assessment").Document(id);
             
             var updatedData = new Dictionary<string, object>
             {
-                { "DoctorID", doctorId },
-                { "ImagePath", imagePath },
                 { "RiskLevel", riskLevel },
-                { "Recommendation", recommendation },
-                { "CreatedAt", createdAt }
+                { "Recommendation", recommendation }
             };
 
             if (checklist != null)

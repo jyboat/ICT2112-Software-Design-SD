@@ -1,80 +1,46 @@
 @model ClearCare.Models.Entities.M3T1.Assessment
 
-<h2>Assessment Details</h2>
-
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
+@{
+    ViewData["Title"] = "Analyze risks";
+    var assessment = Model.getAssessmentDetails();
+    var filePath = assessment["ImagePath"].ToString();
 }
 
-<div>
-    <p><strong>ID:</strong> @Model.getId()</p>
-    <p><strong>Risk Level:</strong> @Model.getRiskLevel()</p>
-    <p><strong>Recommendation:</strong> @Model.getRecommendation()</p>
-    <p><strong>Created At:</strong> @Model.getCreatedAt().ToString("yyyy-MM-dd HH:mm:ss")</p>
-    <p><strong>Patient ID:</strong> @Model.getPatientId()</p>
+<h2 class="mb-2">Assessment details</h2>
 
-    <h3>Media Files</h3>
-    @if (Model.getImagePath() != null && Model.getImagePath().Any())
-    {
-        foreach (var filePath in Model.getImagePath())
+<div class="container">
+    <a asp-action="List" class="btn btn-outline-secondary btn-sm mb-3">
+        <i class="bi bi-arrow-left"></i>Back
+    </a>
+
+    <div class="card w-100">
+        @if (filePath.EndsWith(".mp4") || filePath.EndsWith(".webm") || filePath.EndsWith(".ogg") || filePath.EndsWith(".mov"))
         {
-            <div class="media-file-container mb-3">
-                @if (filePath.EndsWith(".mp4") || filePath.EndsWith(".webm") || filePath.EndsWith(".ogg") || filePath.EndsWith(".mov"))
-                {
-                    <video width="300" controls>
-                        <source src="@filePath" type="video/@filePath.Split('.').Last()">
-                        Your browser does not support the video tag.
-                    </video>
-                    <div class="mt-2">
-                        <a href="@filePath" download class="btn btn-sm btn-primary">
-                            <i class="fas fa-download"></i> Download Video
-                        </a>
-                    </div>
-                }
-                else
-                {
-                    <img src="@filePath" alt="Assessment Image" width="300" class="img-thumbnail" />
-                }
+            <video class="card-img-top video-thumbnail" controls>
+                    <source src="@filePath" type="video/@filePath.Split('.').Last()">
+                Your browser does not support the video tag.
+            </video>
+            <div class="mt-2 text-center">
+                <a href="@filePath" download class="btn btn-sm btn-primary">
+                    <i class="fas fa-download"></i> Download Video
+                </a>
             </div>
         }
-    }
-    else
-    {
-        <p>No media files available.</p>
-    }
+        <img loading="lazy" class="card-img-top img-thumbnail" src="@filePath"
+             onerror="this.src='@Url.Content("~/img/default.jpg")'" alt="Assessment image" />
+
+        <div class="card-body">
+            <h4 class="card-title mt-2">For patient: @assessment["PatientId"]</h4>
+            <span class="text-muted small">
+                <i class="bi bi-clock me-1"></i>@assessment["CreatedAt"].ToString()
+            </span>
+
+            <hr class="w-100" />
+
+            <div class="card-text">
+                <p><strong>Risk Level: </strong>@assessment["RiskLevel"]</p>
+                <p><strong>Recommendations: </strong>@assessment["Recommendation"]</p>
+            </div>
+        </div>
+    </div>
 </div>
-
-<a asp-action="List" class="btn btn-secondary">Back to List</a>
-
-<style>
-    .media-file-container {
-        border: 1px solid #ddd;
-        padding: 15px;
-        border-radius: 5px;
-        display: inline-block;
-        margin-right: 15px;
-    }
-    .img-thumbnail, video {
-        max-width: 100%;
-        height: auto;
-    }
-</style>
-
-@section Scripts {
-    <script>
-        // Hide download buttons for non-video files
-        document.addEventListener('DOMContentLoaded', function() {
-            const mediaContainers = document.querySelectorAll('.media-file-container');
-            mediaContainers.forEach(container => {
-                const videoElement = container.querySelector('video');
-                if (!videoElement) {
-                    const downloadBtn = container.querySelector('a[download]');
-                    if (downloadBtn) downloadBtn.style.display = 'none';
-                }
-            });
-        });
-    </script>
-}

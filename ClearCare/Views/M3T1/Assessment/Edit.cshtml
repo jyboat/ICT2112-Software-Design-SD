@@ -1,85 +1,60 @@
 @model ClearCare.Models.Entities.M3T1.Assessment
 
-<h2>Edit Assessment</h2>
-
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
+@{
+    ViewData["Title"] = "Analyze risks";
+    var assessment = Model.getAssessmentDetails();
 }
 
-<form method="post" asp-action="Edit" asp-route-id="@Model.getId()" enctype="multipart/form-data">
-    <input type="hidden" name="id" value="@Model.getId()" />
-    <input type="hidden" name="hazardType" value="@Model.getHazardType()" />
 
-    <!-- Doctor Selection -->
-    <div class="form-group">
-        <label for="doctorId">Assigned Doctor</label>
-        <select class="form-control" id="doctorId" name="doctorId" required>
-            @foreach (var doctor in ViewBag.QualifiedDoctors)
-            {
-                <option value="@doctor["id"]" selected="@(doctor["id"] == Model.getDoctorId())">
-                    @doctor["name"]
-                </option>
-            }
-        </select>
-    </div>
+<section class="container">
+    <h2 class="mb-2">Doctor Assessment Edit</h2>
 
-    <!-- File Upload Section -->
-    <div class="form-group">
-        <label>Current File</label>
-        @if (Model.getImagePath() != null && Model.getImagePath().Count > 0)
+    <form asp-controller="Assessment" asp-action="updateDoctorAssessment" asp-route-assessmentId="@assessment["Id"]" method="post">
+        <input type="hidden" name="id" value="@assessment["Id"]" />
+
+        <!-- Hazard Type Selection -->
+        <div class="form-group">
+            <label for="hazardType">Hazard Type</label>
+            <select class="form-control" id="hazardType" name="hazardType" required>
+                <option value="">-- Select Hazard Type --</option>
+                <option value="Fire Safety">Fire Safety</option>
+                <option value="Fall Risk">Fall Risk</option>
+                <option value="Wet Condition">Wet Condition</option>
+            </select>
+        </div>
+
+
+        <div class="form-group">
+            <label for="riskLevel">Risk Level (1-5):</label>
+            <select class="form-control" id="riskLevel" name="riskLevel" required>
+                <option value="">Select Risk Level</option>
+                <option value="1" selected="@(assessment["RiskLevel"].ToString() == "1")">1 - Minimal Risk</option>
+                <option value="2" selected="@(assessment["RiskLevel"].ToString() == "2")">2 - Low Risk</option>
+                <option value="3" selected="@(assessment["RiskLevel"].ToString() == "3")">3 - Moderate Risk</option>
+                <option value="4" selected="@(assessment["RiskLevel"].ToString() == "4")">4 - High Risk</option>
+                <option value="5" selected="@(assessment["RiskLevel"].ToString() == "5")">5 - Severe Risk</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="recommendation">Recommendation:</label>
+            <textarea class="form-control" id="recommendation" name="recommendation" rows="3" required>@assessment["Recommendation"]</textarea>
+        </div>
+
+        <h4>Checklist</h4>
+        @foreach (var item in ViewBag.ChecklistItems as Dictionary<string, bool>)
         {
-            var currentFilePath = Model.getImagePath().First();
-            <div class="current-file mb-3">
-                @if (currentFilePath.EndsWith(".mp4") || currentFilePath.EndsWith(".webm") || currentFilePath.EndsWith(".ogg") || currentFilePath.EndsWith(".mov"))
-                {
-                    <video width="300" controls>
-                        <source src="@currentFilePath" type="video/@currentFilePath.Split('.').Last()">
-                        Your browser does not support the video tag.
-                    </video>
-                }
-                else
-                {
-                    <img src="@currentFilePath" width="300" class="img-thumbnail" />
-                }
-                <input type="hidden" name="existingFilePath" value="@currentFilePath" />
-                <div class="form-check mt-2">
-                    <input type="checkbox" class="form-check-input" 
-                           id="deleteFile" name="deleteFile" 
-                           value="true" />
-                    <label class="form-check-label" for="deleteFile">
-                        Remove current file
-                    </label>
-                </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox"
+                       id="checklist_@item.Key" name="checklist[@item.Key]"
+                       value="true" @(item.Value ? "checked" : "")>
+                <label class="form-check-label" for="checklist_@item.Key">
+                    @item.Key
+                </label>
             </div>
         }
-        else
-        {
-            <p>No file uploaded</p>
-            <input type="hidden" name="existingFilePath" value="" />
-        }
 
-        <label for="file">Upload New File (Image or Video)</label>
-        <input type="file" class="form-control-file" id="file" name="file" 
-               accept="image/*,video/*" />
-    </div>
-
-    <div class="form-group">
-        <button type="submit" class="btn btn-success">Save Changes</button>
-        <a asp-action="List" class="btn btn-secondary">Back to List</a>
-    </div>
-</form>
-
-@section Scripts {
-    <script>
-        // Client-side validation for single file upload
-        document.getElementById('file').addEventListener('change', function(e) {
-            if (this.files.length > 1) {
-                alert('Only one file can be uploaded.');
-                this.value = '';
-            }
-        });
-    </script>
-}
+        <button type="submit" class="btn btn-success mt-3">Submit analysis</button>
+        <a asp-action="List" class="btn btn-danger mt-3">Cancel</a>
+    </form>
+</section>

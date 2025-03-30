@@ -21,7 +21,7 @@ public class SummaryController : Controller
 
     [Route("")]
     [HttpGet]
-    public async Task<IActionResult> List()
+    public async Task<IActionResult> list()
     {
         List<DischargeSummary> summaries = await _manager.getSummaries();
 
@@ -32,25 +32,25 @@ public class SummaryController : Controller
 
     [Route("View/{summaryId}")]
     [HttpGet]
-    public async Task<IActionResult> ViewSummary(string summaryId)
+    public async Task<IActionResult> viewSummary(string summaryId)
     {
         var summary = await _manager.getSummary(summaryId);
         if (summary == null)
         {
-            return View("List");
+            return View("list");
         }
         return View("~/Views/M3T1/Summary/Index.cshtml", summary);
     }
 
     [Route("Add")]
     [HttpGet]
-    public IActionResult ViewAdd() { 
+    public IActionResult viewAdd() { 
         return View("~/Views/M3T1/Summary/Add.cshtml");
     }
 
     [Route("Add")]
     [HttpPost]
-    public async Task<IActionResult> AddSummary(string details, string instructions)
+    public async Task<IActionResult> addSummary(string details, string instructions)
     {
         if (string.IsNullOrEmpty(details) || string.IsNullOrEmpty(instructions))
         {
@@ -64,24 +64,24 @@ public class SummaryController : Controller
 
         TempData["SuccessMessage"] = "Summary added successfully!";
 
-        return RedirectToAction("List");
+        return RedirectToAction("list");
     }
 
     [Route("Edit/{summaryId}")]
     [HttpGet]
-    public async Task<IActionResult> ViewEdit(string summaryId)
+    public async Task<IActionResult> viewEdit(string summaryId)
     {
         var summary = await _manager.getSummary(summaryId);
         if (summary == null)
         {
-            return RedirectToAction("List");
+            return RedirectToAction("list");
         }
         return View("~/Views/M3T1/Summary/Edit.cshtml", summary);
     }
 
     [Route("Edit/{summaryId}")]
     [HttpPost]
-    public async Task<IActionResult> UpdateSummary(string summaryId, string details, string instructions)
+    public async Task<IActionResult> updateSummary(string summaryId, string details, string instructions)
     {
         if (string.IsNullOrEmpty(details) || string.IsNullOrEmpty(instructions))
         {
@@ -92,7 +92,7 @@ public class SummaryController : Controller
 
         TempData["SuccessMessage"] = "Summary updated successfully!";
 
-        return RedirectToAction("List");
+        return RedirectToAction("list");
     }
 
     [Route("Delete/{summaryId}")]
@@ -103,6 +103,6 @@ public class SummaryController : Controller
 
         TempData["SuccessMessage"] = "Summary deleted successfully!";
 
-        return RedirectToAction("List");
+        return RedirectToAction("list");
     }
 }

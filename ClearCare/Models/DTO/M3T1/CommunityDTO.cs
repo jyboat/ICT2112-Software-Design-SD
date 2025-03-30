@@ -1,8 +1,8 @@
 ﻿using ClearCare.Models.Entities.M3T1;
 
-namespace ClearCare.Models.ViewModels.M3T1
+namespace ClearCare.Models.DTO.M3T1
 {
-    public class CommunityViewModel
+    public class CommunityDTO
     {
         public bool GroupView { get; set; } = false;
         public Dictionary<string, object>? Group { get; set; }  
