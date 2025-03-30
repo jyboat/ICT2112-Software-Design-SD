@@ -17,47 +17,50 @@
 
 @if (Model != null && Model.Any())
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Appointment ID</th>
-                <th>Patient</th>
-                <th>Nurse</th>
-                <th>Doctor</th>
-                <th>Service Type</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var appointment in Model)
-            {
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered" id="apptTable">
+            <thead class="table-primary">
                 <tr>
-                    <td>@appointment.AppointmentId</td>
-                    <td>@appointment.PatientName</td>
-                    <td>@appointment.NurseName</td>
-                    <td>@appointment.DoctorName</td>
-                    <td>@appointment.Service</td>
-                    <td>@appointment.Status</td>
-                    <td>
-                        <!-- Update Button -->
-                        <button class="btn btn-primary update-btn"
-                                data-appointment-id="@appointment.AppointmentId"
-                                data-patient-id="@appointment.PatientId"
-                                data-nurse-id="@appointment.NurseId"
-                                data-doctor-id="@appointment.DoctorId"
-                                data-patient-name="@appointment.PatientName"
-                                data-nurse-name="@appointment.NurseName"
-                                data-doctor-name="@appointment.DoctorName"
-                                data-service="@appointment.Service"
-                                data-status="@appointment.Status">
-                            Mark as Complete
-                        </button>
-                    </td>
+                    <th>Appointment ID</th>
+                    <th>Patient</th>
+                    <th>Nurse</th>
+                    <th>Doctor</th>
+                    <th>Service Type</th>
+                    <th>Status</th>
+                    <th>Action</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var appointment in Model)
+                {
+                    <tr>
+                        <td>@appointment.AppointmentId</td>
+                        <td>@appointment.PatientName</td>
+                        <td>@appointment.NurseName</td>
+                        <td>@appointment.DoctorName</td>
+                        <td>@appointment.Service</td>
+                        <td>@appointment.Status</td>
+                        <td>
+                            <!-- Update Button -->
+                            <button class="btn btn-primary update-btn"
+                                    data-appointment-id="@appointment.AppointmentId"
+                                    data-patient-id="@appointment.PatientId"
+                                    data-nurse-id="@appointment.NurseId"
+                                    data-doctor-id="@appointment.DoctorId"
+                                    data-patient-name="@appointment.PatientName"
+                                    data-nurse-name="@appointment.NurseName"
+                                    data-doctor-name="@appointment.DoctorName"
+                                    data-service="@appointment.Service"
+                                    data-status="@appointment.Status">
+                                Mark as Complete
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    
 }
 else
 {
@@ -78,18 +81,6 @@ else
                         <label for="appointmentId">Appointment ID</label>
                         <input type="text" class="form-control" id="appointmentId" disabled>
                     </div>
-                    @* <div class="form-group">
-                        <label for="patientId">Patient</label>
-                        <input type="text" class="form-control" id="patientId" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="nurseId">Nurse</label>
-                        <input type="text" class="form-control" id="nurseId" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="doctorId">Doctor</label>
-                        <input type="text" class="form-control" id="doctorId" disabled>
-                    </div> *@
                     <div class="form-group">
                         <label for="patientName">Patient</label>
                         <input type="text" class="form-control" id="patientName" disabled>
@@ -197,8 +188,6 @@ $(document).ready(function () {
        // $('#appointmentModal').modal('show');
         var modal = new bootstrap.Modal(document.getElementById('appointmentModal'));
         modal.show();
-
-
     });
 
     // Handle the Update Status button click inside the modal

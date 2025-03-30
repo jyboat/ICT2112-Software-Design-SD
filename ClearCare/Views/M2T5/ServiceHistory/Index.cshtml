@@ -15,15 +15,30 @@
 
 <body>
     <div class="container"></div>
-        <h1 class="my-4">@ViewData["Title"]</h1>
+    <h1 class="my-4">@ViewData["Title"]</h1>
 
-        @if (Model != null && Model.Count > 0)
-        {
-            <table class="table table-striped mt-3">
-                <thead>
+    @if (Model != null && Model.Count > 0)
+    {
+        @* <!-- Filter Options --> *@
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="searchFilter">Search:</label>
+                <input type="text" id="searchFilter" class="form-control" placeholder="Search history...">
+            </div>
+            <div class="col-md-4">
+                <label for="dateFilter">Filter by Date:</label>
+                <input type="date" id="dateFilter" class="form-control">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button id="resetFilters" class="btn btn-secondary">Reset</button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered" id="historyTable">
+                <thead class="table-primary">
                     <tr>
-                        <th>Service History ID</th>
-                        <th>Service Type</th>
+                        <th>Service</th>
                         <th>Patient</th>
                         <th>Nurse</th>
                         <th>Doctor</th>
@@ -36,7 +51,6 @@
                     @foreach (var history in Model)
                     {
                         <tr>
-                            <td>@history["ServiceHistoryId"]</td>
                             <td>@history["Service"]</td>
                             <td>@history["PatientName"]</td>
                             <td>@history["NurseName"]</td>
@@ -48,11 +62,134 @@
                     }
                 </tbody>
             </table>
-        }
-        else
-        {
-            <div class="alert alert-warning mt-3">No service history found.</div>
-        }
-    </div>
+        </div>
+
+        @* Pagination Controls *@
+        <div class="d-flex justify-content-center mt-3">
+            <nav>
+                <ul class="pagination" id="pagination"></ul>
+            </nav>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning mt-3">No service history found.</div>
+    }
+
+    <script>
+        $(document).ready(function () {
+            let currentPage = 1;
+            const rowsPerPage = 10; // Set number of rows per page
+            let filteredData = [];
+
+            // Function to filter the table
+            function filterTable() {
+                let searchTerm = $("#searchFilter").val().toLowerCase();
+                let selectedDate = $("#dateFilter").val();
+
+                filteredData = [];
+
+                $("#historyTable tbody tr").each(function () {
+                    let nurse = $(this).find("td:eq(2)").text().toLowerCase();
+                    let doctor = $(this).find("td:eq(3)").text().toLowerCase();
+                    let serviceType = $(this).find("td:eq(0)").text().toLowerCase();
+                    let patientName = $(this).find("td:eq(1)").text().toLowerCase();
+                    let location = $(this).find("td:eq(5)").text().toLowerCase();
+                    let serviceDate = $(this).find("td:eq(4)").text(); // Full datetime string
+                    let serviceOutcomes = $(this).find("td:eq(6)").text().toLowerCase();
+
+                    // Convert serviceDate to YYYY-MM-DD format for comparison
+                    let formattedServiceDate = formatServiceDate(serviceDate);
+
+                    let searchMatch = 
+                        serviceType.includes(searchTerm) ||
+                        patientName.includes(searchTerm) ||
+                        nurse.includes(searchTerm) ||
+                        doctor.includes(searchTerm) ||
+                        location.includes(searchTerm) ||
+                        serviceOutcomes.includes(searchTerm);
+                    
+                    // Check if the date matches
+                    let dateMatch = selectedDate === "" || formattedServiceDate === selectedDate;
+
+                    if (searchMatch && dateMatch) {
+                        filteredData.push($(this)); // Store the matching rows
+                    }
+                });
+
+                // Show pagination after filtering
+                paginateTable();
+            }
+
+            // Function to format serviceDate (25/3/2025 5:25:01 pm) to YYYY-MM-DD
+            function formatServiceDate(serviceDate) {
+                // Convert to a Date object using Date.parse()
+                let dateParts = serviceDate.split(" ")[0].split("/"); // Split the date part "25/3/2025"
+
+                // Check if month is a single digit, and if so, add a leading zero
+                let month = dateParts[1].padStart(2, '0'); // Adds '0' if the month is a single digit
+
+                // Reformat the date to a Date object
+                let formattedDate = `${dateParts[2]}-${month}-${dateParts[0]}`;
+                return formattedDate; // Return in YYYY-MM-DD format
+            }
+
+            // Function to paginate the table
+            function paginateTable() {
+                let totalRows = filteredData.length;
+                let totalPages = Math.ceil(totalRows / rowsPerPage);
+
+                // Hide all rows initially
+                $("#historyTable tbody tr").hide();
+
+                // Show only the rows for the current page
+                let start = (currentPage - 1) * rowsPerPage;
+                let end = currentPage * rowsPerPage;
+
+                // Show rows for current page from filtered data
+                filteredData.slice(start, end).forEach(function (row) {
+                    row.show();
+                });
+
+                updatePagination(totalPages);
+            }
+
+            // Function to update pagination controls
+            function updatePagination(totalPages) {
+                let paginationHtml = "";
+                for (let i = 1; i <= totalPages; i++) {
+                    paginationHtml += `<li class="page-item ${currentPage === i ? 'active' : ''}">
+                                        <a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+                }
+                $("#pagination").html(paginationHtml);
+            }
+
+            // Handle filter changes (search, date)
+            $("#searchFilter, #dateFilter").on("input change", function () {
+                currentPage = 1; // Reset to first page on filter change
+                filterTable();
+            });
+
+            // Handle page click
+            $(document).on("click", "#pagination .page-link", function (e) {
+                e.preventDefault();
+                currentPage = $(this).data("page");
+                paginateTable();
+            });
+
+            // Reset filters
+            $("#resetFilters").on("click", function () {
+                $("#searchFilter").val("");
+                $("#dateFilter").val("");
+                currentPage = 1;
+                filterTable();
+            });
+
+            // Initial table filtering
+            filterTable();
+        });
+    </script>
+
 </body>
+
 </html>

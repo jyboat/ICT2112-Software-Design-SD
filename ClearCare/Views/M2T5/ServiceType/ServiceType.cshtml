@@ -28,41 +28,42 @@
     </div>
 </div>
 
-
-<table class="table table-bordered mt-3">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Duration</th>
-            <th>Modality</th>
-            <th>Requirements</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var service in Model)
-        {
-            <tr id="service-@service.ServiceTypeId">
-                <td>@service.ServiceTypeId</td>
-                <td>@service.Name</td>
-                <td>@service.Duration</td>
-                <td>@service.Modality</td>
-                <td>@service.Requirements</td>
-                <td>
-                    <button class="btn btn-warning" data-bs-toggle="modal"
-                        data-bs-target="#editServiceModal-@service.ServiceTypeId">
-                        Edit
-                    </button>
-                    <button class="btn btn-danger" onclick="loadDiscontinueModal(@service.ServiceTypeId)">
-                        Discontinue
-                    </button>
-                </td>
+<div class="table-responsive">
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-primary">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Duration</th>
+                <th>Modality</th>
+                <th>Requirements</th>
+                <th>Actions</th>
             </tr>
-        }
-    </tbody>
+        </thead>
+        <tbody>
+            @foreach (var service in Model)
+            {
+                <tr id="service-@service.ServiceTypeId">
+                    <td>@service.ServiceTypeId</td>
+                    <td>@service.Name</td>
+                    <td>@service.Duration</td>
+                    <td>@service.Modality</td>
+                    <td>@service.Requirements</td>
+                    <td>
+                        <button class="btn btn-warning" data-bs-toggle="modal"
+                            data-bs-target="#editServiceModal-@service.ServiceTypeId">
+                            Edit
+                        </button>
+                        <button class="btn btn-danger" onclick="loadDiscontinueModal(@service.ServiceTypeId)">
+                            Discontinue
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
 
-</table>
+    </table>
+</div>
 
 <!-- Modal container -- Discontinue service -->
 <div class="modal fade" id="discontinueModal" tabindex="-1">
