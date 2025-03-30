@@ -53,7 +53,7 @@ namespace ClearCare.Models.Control
                 var appointment = await serviceAppointmentManagement.getAppointmentByID(appointmentId);
                 if (appointment != null)
                 {
-                    var viewModel = await createViewModel(serviceBacklog, appointment);
+                    var viewModel = await createDTO(serviceBacklog, appointment);
                     ServiceBacklogDTOs.Add(viewModel);
                 }
             }
@@ -71,12 +71,12 @@ namespace ClearCare.Models.Control
 
             var appointment = await  new ServiceAppointmentManagement().getAppointmentByID(serviceBacklog.getBacklogInformation()["appointmentId"]);
 
-            var ServiceBacklogDTO = await createViewModel(serviceBacklog, appointment);
+            var ServiceBacklogDTO = await createDTO(serviceBacklog, appointment);
 
             return ServiceBacklogDTO;
         }
 
-        public async Task<bool> reassignBacklog(
+        public async Task<(bool Success, string ErrorMessage)> reassignBacklog(
             string BacklogId,
             string AppointmentId,
             string PatientId,
@@ -91,9 +91,8 @@ namespace ClearCare.Models.Control
             try
             {
                 var scheduler = new ManualAppointmentScheduler();
-                Console.WriteLine($"Hello Datetime log {_DateTime} Type: {_DateTime.GetType()}, Kind: {_DateTime.Kind}");
                 bool updateSuccess = await scheduler.RescheduleAppointment(
-                    appointmentId:AppointmentId,
+                    appointmentId: AppointmentId,
                     patientId: PatientId,
                     nurseId: NurseId,
                     doctorId: DoctorId,
@@ -104,24 +103,25 @@ namespace ClearCare.Models.Control
                     location: Location
                 );
 
+                if (!updateSuccess)
+                {
+                    return (false, "Failed to update the appointment.");
+                }
+
                 // Delete service backlog if updating is successful
-                bool deleteSuccess = false;
-                if (updateSuccess)
+                bool deleteSuccess = await _dbGateway.deleteServiceBacklog(BacklogId);
+                if (!deleteSuccess)
                 {
-                    deleteSuccess = await _dbGateway.deleteServiceBacklog(BacklogId);
+                    return (false, "Failed to delete the service backlog.");
                 }
-                if (updateSuccess && deleteSuccess)
-                {
-                    return true;
-                }
-                return true;
+
+                return (true, string.Empty);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error reassigning backlog: {ex.Message}");
-                return false;
+                return (false, $"{ex.Message}");
             }
-
         }
 
         public async Task addBacklog(string serviceAppointmentId)
@@ -210,7 +210,7 @@ namespace ClearCare.Models.Control
             return appointmentIds;
         }
 
-        private Task<ServiceBacklogDTO> createViewModel(ServiceBacklog serviceBacklog, ServiceAppointment appointment)
+        private Task<ServiceBacklogDTO> createDTO(ServiceBacklog serviceBacklog, ServiceAppointment appointment)
         {
             return Task.FromResult(new ServiceBacklogDTO {
                 BacklogId = serviceBacklog.getBacklogInformation()["backlogId"],
