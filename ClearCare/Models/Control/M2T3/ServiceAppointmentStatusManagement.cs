@@ -20,15 +20,15 @@ namespace ClearCare.Models.Control
             _iCreateAppointment = (ICreateAppointment) new ServiceAppointmentManagement();
         }
 
-        public async Task<List<ServiceAppointment>> getAllAppointmentDetails() {
-        // Fetch all appointments - no need to convert
-        List<ServiceAppointment> appointments = await _iServiceStatus.RetrieveAllAppointments();
-        return appointments;
-        }
+        // public async Task<List<ServiceAppointment>> getAllAppointmentDetails() {
+        // // Fetch all appointments - no need to convert
+        // List<ServiceAppointment> appointments = await _iServiceStatus.RetrieveAllAppointments();
+        // return appointments;
+        // }
 
         public async Task<List<ServiceAppointment>> getAppointmentDetails() {
             // Fetch all appointments - no need to convert
-            List<ServiceAppointment> appointments = await _iServiceStatus.RetrieveAllAppointments();
+            List<ServiceAppointment> appointments = await this.getAllServiceAppointments();
 
             // Filter out completed appointments
             List<ServiceAppointment> filteredAppointments = appointments

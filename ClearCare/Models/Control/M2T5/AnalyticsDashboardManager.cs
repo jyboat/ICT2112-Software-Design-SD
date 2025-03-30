@@ -23,7 +23,7 @@ namespace ClearCare.Models.Control
             // return await _gateway.GetAppointmentAnalytics();
 
             // Retrieve appointments as ServiceAppointment objects via IAppointmentStatus
-            List<ServiceAppointment> appointments = await _appointmentStatusManager.getAllAppointmentDetails();
+            List<ServiceAppointment> appointments = await _appointmentStatusManager.getAllServiceAppointments();
             
             if (appointments == null || appointments.Count == 0)
             {

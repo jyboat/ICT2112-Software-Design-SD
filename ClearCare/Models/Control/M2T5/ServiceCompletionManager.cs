@@ -25,7 +25,7 @@ namespace ClearCare.Models.Control
         }
 
         // Method to get all appointment details
-        public async Task<List<ServiceAppointment>> GetAllAppointmentDetails()
+        public async Task<List<ServiceAppointment>> getAllServiceCompletion()
         {
             // Call the getAppointmentDetails method from IAppointmentStatus
             var appointmentDetails = await _appointmentStatus.getAppointmentDetails();
@@ -33,7 +33,7 @@ namespace ClearCare.Models.Control
         }
 
         //Method to update the status of a specific appointment
-        public async Task UpdateAppointmentStatus(string appointmentId, string patientId, string nurseId)
+        public async Task updateServiceCompletionStatus(string appointmentId, string patientId, string nurseId)
         {
             // Call the updateAppointmentStatus method from IAppointmentStatus
             await _appointmentStatus.updateAppointmentStatus(appointmentId);
@@ -47,7 +47,7 @@ namespace ClearCare.Models.Control
             await _notificationManager.createNotification(nurseId, notificationContent); // Create the nurse notification
         }
 
-        public async Task<string> CreateServiceHistory(string appointmentId, string service, string patientId, 
+        public async Task<string> logServiceCompletion(string appointmentId, string service, string patientId, 
             string nurseId, string doctorId, DateTime serviceDate, string location, string serviceOutcomes)
         {
 

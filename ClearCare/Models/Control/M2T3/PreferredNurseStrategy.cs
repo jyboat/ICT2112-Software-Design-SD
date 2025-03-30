@@ -47,8 +47,8 @@ namespace ClearCare.Control
             int nurseIndex = 0;
 
             var sortedNurses = nurses.OrderBy(n =>
-            (!nurseSlotTracker.ContainsKey(n) || nurseSlotTracker[n].Count == 0) ? 0 : 1)
-            .ToList();
+                nurseSlotTracker.ContainsKey(n) ? nurseSlotTracker[n].Count : 0
+            ).ToList();
 
             // Concat backlog entries with the newly created appointments
             var combinedAppointments = backlogEntries.Concat(unscheduledAppointment).ToList();

@@ -246,12 +246,12 @@ namespace ClearCare.Models.Control
             public string Name { get; set; } = string.Empty;
         }
 
-        public async Task<List<Dictionary<string, object>>> getUnscheduledPatients()
+        public async Task<(List<Dictionary<string, object>> appointments, Dictionary<string, string> patientNames)> getUnscheduledPatients()
         {
-            // Call the gateway to get the unscheduled patients.
-            List<Dictionary<string, object>> serviceAppointment = await _dbGateway.fetchAllUnscheduledPatients();
+            // Call the gateway to get the unscheduled patients and patient names
+            var (appointments, patientNames) = await _dbGateway.fetchAllUnscheduledPatients();
 
-            return serviceAppointment;
+            return (appointments, patientNames);
         }
 
         public async Task<List<string>> getAllServices()

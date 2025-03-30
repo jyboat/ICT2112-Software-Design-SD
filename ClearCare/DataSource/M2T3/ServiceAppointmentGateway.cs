@@ -273,11 +273,12 @@ namespace ClearCare.DataSource
         }
 
         // To do: Retrieve from firebase/interface
-        public async Task<List<Dictionary<string, object>>> fetchAllUnscheduledPatients()
+        public async Task<(List<Dictionary<string, object>> appointments, Dictionary<string, string> patientNames)> fetchAllUnscheduledPatients()
         {
 
             // TODO: Change to interface
             var patients = new List<string>();
+            var patientNameMap = new Dictionary<string, string>();
             
             Query patientQuery = _db.Collection("User")
                                     .WhereEqualTo("Role", "Patient");
@@ -286,6 +287,8 @@ namespace ClearCare.DataSource
             foreach(DocumentSnapshot document in userPatientSnapshot.Documents)
             {
                 patients.Add(document.Id);
+                patientNameMap[document.Id] = document.ContainsField("Name")
+                                            ? document.GetValue<string>("Name"): "Unknown"; 
             }
 
             var unscheduledPatients = new List<ServiceAppointment>();
@@ -327,7 +330,7 @@ namespace ClearCare.DataSource
                 .Select(appointment => appointment.ToFirestoreDictionary())
                 .ToList();
 
-            return result;
+            return (result, patientNameMap);
         }
 
     }

@@ -2,86 +2,169 @@
     ViewData["Title"] = "Add Patients to Auto Schedule";
 }
 
+<!-- Styles and Scripts -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<h2>Add Patients to Auto Schedule</h2>
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .card {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    .select2-container--default .select2-selection--multiple {
+        min-height: 38px;
+    }
+</style>
 
-<form id="appointmentForm" method="post" action="/api/ServiceAppointments/TestAutoAppointment">
-    <br />
+<div class="container mt-5">
+    <div class="card p-4">
+        <h2 class="mb-4 text-center text-primary">Auto Scheduler</h2>
 
-    <!-- Dropdown for algorithm -->
-    <label for="algorithm">Algorithm:</label>
-    <select id="algorithm" name="algorithm" class="select3" required>
-        <option disabled selected value="">Select Algorithm</option>
-        <option value="Preferred">Preferred</option>
-        <option value="Earliest">Earliest</option>
-    </select>
+        <form id="appointmentForm">
+            <div class="mb-3">
+                <label for="algorithm" class="form-label fw-semibold">Select Scheduling Algorithm:</label>
+                <select id="algorithm" name="algorithm" class="form-select select3" required>
+                    <option disabled selected value="">-- Choose Algorithm --</option>
+                    <option value="Preferred">Preferred</option>
+                    <option value="Earliest">Earliest</option>
+                </select>
+            </div>
 
-    <br /><br />
+            <div class="mb-3">
+                <label for="appointmentsList" class="form-label fw-semibold">Select Patient & Service:</label>
+                <select id="appointmentsList" name="appointments[]" multiple="multiple" class="select2 form-control">
+                    @foreach (var appointment in ViewBag.Appointment)
+                    {
+                        string patientId = appointment["PatientId"];
+                        string service = appointment["Service"];
+                        string name = ViewBag.PatientNames.ContainsKey(patientId)
+                            ? ViewBag.PatientNames[patientId]
+                            : "Unknown";
 
-    <h3>Appointments to Schedule:</h3>
-    
-    <!-- Multi-select for patients and services -->
-    <select id="appointmentsList" name="appointments[]" multiple="multiple" style="width: 100%;" class="select2">
-        @foreach (var appointment in ViewBag.Appointment)
-        {
-            <option value="@appointment["PatientId"]-@appointment["Service"]">@appointment["PatientId"] - @appointment["Service"]</option>
-        }
-    </select>
+                        <option value="@patientId-@service">@name (@patientId) - @service</option>
+                    }
+                </select>
+            </div>
 
-    <br />
-    <button type="submit">Submit</button>
-</form>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success btn-lg">Schedule Appointments</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bootstrap Modal for Results -->
+<div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="resultModalLabel">Scheduled Appointments</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul id="modalAppointmentList" class="list-group"></ul>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     $(document).ready(function () {
-        // Initialize select2 for the multi-select dropdown
-        $('.select2').select2();
+        // Initialize Select2
+        $('.select2').select2({
+            placeholder: "Select appointments...",
+            width: '100%'
+        });
 
-        // Handle form submission to collect selected appointments and send to the server
+        // Refresh page when modal is closed
+        $('#resultModal').on('hidden.bs.modal', function () {
+            location.reload();
+        });
+
+        // Handle form submission
         $('#appointmentForm').submit(function (event) {
-            event.preventDefault();  // Prevent default form submission
+            event.preventDefault();
 
             const selectedAppointments = [];
-            // Collect the selected appointments
+
             $("#appointmentsList option:selected").each(function () {
                 const selectedValue = $(this).val().split('-');
                 const patientId = selectedValue[0];
-                const Service = selectedValue[1];
+                const service = selectedValue[1];
 
                 selectedAppointments.push({
                     patientId: patientId,
-                    Service: Service
+                    Service: service
                 });
             });
 
             if (selectedAppointments.length === 0) {
                 alert("Please select at least one appointment.");
-                return false;
+                return;
             }
 
-            // Prepare the appointments data in JSON format and send it to the server
-            const appointmentsJson = JSON.stringify(selectedAppointments);
-
-            // Submit the form with the additional appointmentsJson and algorithm data
             $.ajax({
                 type: "POST",
                 url: "/api/ServiceAppointments/TestAutoAppointment",
                 data: {
-                    appointmentsJson: appointmentsJson,
+                    appointmentsJson: JSON.stringify(selectedAppointments),
                     algorithm: $('#algorithm').val()
                 },
                 success: function (response) {
-                    alert("Auto appointment scheduling initiated.");
-                    @* location.reload(); *@
+                    const assigned = response.Assigned || response.assigned;
+
+                    const timeSlots = {
+                        1: "8:00 AM",
+                        2: "9:00 AM",
+                        3: "10:00 AM",
+                        4: "11:00 AM",
+                        5: "1:00 PM",
+                        6: "2:00 PM",
+                        7: "3:00 PM",
+                        8: "4:00 PM"
+                    };
+
+                    if (assigned && assigned.length > 0) {
+                        const list = $("#modalAppointmentList");
+                        list.empty();
+
+                        assigned.forEach(appt => {
+                            const slot = appt.slot;
+                            const time = timeSlots[slot] || "Unknown";
+                            const type = appt.appointmentId ? "From Backlog" : "New Appointment";
+
+                            list.append(
+                                `<li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div><strong>Patient:</strong> ${appt.patientId}</div>
+                                        <div><strong>Service:</strong> ${appt.service}</div>
+                                        <div><strong>Type:</strong> ${type}</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div><strong>Nurse:</strong> ${appt.nurseId}</div>
+                                        <div><strong>Time:</strong> ${time}</div>
+                                    </div>
+                                </li>`
+                            );
+                        });
+
+                        const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+                        modal.show();
+                    } else {
+                        alert("No appointments were scheduled.");
+                    }
                 },
-                error: function (error) {
+                error: function (xhr) {
+                    console.error("Error:", xhr.responseText);
                     alert("An error occurred while processing your request.");
                 }
             });
         });
     });
 </script>
-

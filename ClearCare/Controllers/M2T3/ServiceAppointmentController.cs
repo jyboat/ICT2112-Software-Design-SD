@@ -100,8 +100,9 @@ public class ServiceAppointmentsController : Controller
     [Route("AutoScheduling")]
     public async Task<IActionResult> AddPatients()
     {
-        ViewBag.Appointment = await ServiceAppointmentManagement.getUnscheduledPatients();
-        // ViewBag.Services = await ServiceAppointmentManagement.getAllServices();
+        var (appointments, patientNames) = await ServiceAppointmentManagement.getUnscheduledPatients();
+        ViewBag.Appointment = appointments;
+        ViewBag.PatientNames = patientNames;
         return View("~/Views/M2T3/ServiceAppointments/AddPatientsAutoScheduling.cshtml");
     }
 
@@ -259,14 +260,12 @@ public class ServiceAppointmentsController : Controller
         {
             return StatusCode(500, new { Success = false, Message = "An error occurred", Error = ex.Message });
         }
-
-
     }
 
     // Test Auto Interface
     [HttpPost]
     [Route("TestAutoAppointment")]
-    public IActionResult TestAutoAppointment([FromForm] string appointmentsJson, [FromForm] string algorithm)
+    public async Task<IActionResult> TestAutoAppointment([FromForm] string appointmentsJson, [FromForm] string algorithm)
     {
         // Deserialize the JSON into a list of dictionaries
         var rawData = JsonSerializer.Deserialize<List<Dictionary<string, object>>>(appointmentsJson);
@@ -314,13 +313,21 @@ public class ServiceAppointmentsController : Controller
         }
 
         // Pass this full appointment list to your scheduler
-        AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(appointments);
+        var assignedAppointments = await AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(appointments);
 
-        return Ok(new { Message = "Auto appointment scheduling initiated." });
+        return Ok(new
+        {
+            Message = "Auto appointment scheduling complete.",
+            Assigned = assignedAppointments.Select(a => new {
+                AppointmentId = a.GetAttribute("AppointmentId"),
+                PatientId = a.GetAttribute("PatientId"),
+                NurseId = a.GetAttribute("NurseId"),
+                Service = a.GetAttribute("Service"),
+                Slot = a.GetAttribute("Slot"),
+                Datetime = a.GetAttribute("Datetime")
+            })
+        });
     }
-
-
-
 
     [HttpPost]
     [Route("AddAppt")]

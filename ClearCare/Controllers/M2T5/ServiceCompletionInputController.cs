@@ -39,7 +39,7 @@ namespace ClearCare.Controllers
             }
 
             // Fetch the appointment details
-            List<ServiceAppointment> appointments = await _appointmentManager.GetAllAppointmentDetails();
+            List<ServiceAppointment> appointments = await _appointmentManager.getAllServiceCompletion();
 
             // Map appointments to DTOs
             List<ServiceAppointmentDTO> appointmentDTOs = appointments
@@ -69,7 +69,7 @@ namespace ClearCare.Controllers
 
 
         [HttpPut("appointments/{appointmentId}")]
-        public async Task<IActionResult> UpdateAppointmentStatus(string appointmentId, [FromQuery] string patientId, [FromQuery] string nurseId)
+        public async Task<IActionResult> editServiceCompletionStatus(string appointmentId, [FromQuery] string patientId, [FromQuery] string nurseId)
         {
             try
             {
@@ -77,7 +77,7 @@ namespace ClearCare.Controllers
                 // string userId = "USR2";  // Use a valid integer value here
 
                 // Update appointment status
-                await _appointmentManager.UpdateAppointmentStatus(appointmentId, patientId, nurseId);
+                await _appointmentManager.updateServiceCompletionStatus(appointmentId, patientId, nurseId);
 
                 return NoContent(); // 204: Successfully updated, no content
             }
@@ -88,14 +88,14 @@ namespace ClearCare.Controllers
             }
         }
 
-        [HttpPost("createServiceHistory")]
-        public async Task<IActionResult> createServiceHistory([FromBody] Dictionary<string, JsonElement> requestData)
+        [HttpPost("createServiceCompletionHistory")]
+        public async Task<IActionResult> createServiceCompletionHistory([FromBody] Dictionary<string, JsonElement> requestData)
         {
             try
             {
                 // Console.WriteLine("Received JSON request body: " + JsonSerializer.Serialize(requestData));
 
-                var serviceHistoryId = await _appointmentManager.CreateServiceHistory(
+                var serviceHistoryId = await _appointmentManager.logServiceCompletion(
                     requestData["appointmentId"].GetString() ?? "",
                     requestData["service"].GetString() ?? "",
                     requestData["patientId"].GetString() ?? "",
