@@ -401,7 +401,7 @@
 <body>
     <h2 style="text-align: center;">Service Appointments Calendar</h2>
 
-    <form>
+    <form class="mb-4">
         <div class="form-row">
             <div class="col">
                 <input type="text" id="doctorInput" class="form-control" placeholder="Enter Doctor ID">
@@ -427,6 +427,11 @@
             <button id="resetButton" class="btn btn-primary">Reset Filters</button>
         </div>
     </form>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="/api/ServiceAppointments/CreatePage" class="btn btn-primary me-2">Manual Assign Appointment</a>
+        <a href="/api/ServiceAppointments/AutoScheduling" class="btn btn-primary me-2">Auto Assign Appointment</a>
+        <a href="/ServiceBacklog/Index" class="btn btn-primary">Backlog 🤮</a>
+    </div>
 
     <div id="calendar"></div>
 
