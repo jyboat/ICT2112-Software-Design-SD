@@ -1,5 +1,4 @@
 using ClearCare.Models.Entities;
-using ClearCare.Interfaces;
 using Google.Cloud.Firestore;
 
 namespace ClearCare.DataSource
@@ -54,15 +53,8 @@ namespace ClearCare.DataSource
                 // Convert input data to Firestore data format for insert
                 Dictionary<string, object> serviceHistoryData = serviceHistory.getServiceHistoryDetails();
 
-                // Console.WriteLine($"ServiceHistoryMapper.cs");
-                // foreach (var ele in serviceHistoryData)
-                // {
-                //     Console.WriteLine($"Key: {ele.Key}, Value: {ele.Value}");
-                // }
-
                 // Overwrite field if exist, creat new if doesn't exist
                 await docRef.SetAsync(serviceHistoryData);
-                // Console.WriteLine($"Service History created: {serviceHistoryData["ServiceHistoryId"]}");
 
                 notifyObservers(true);
                 return docRef.Id;

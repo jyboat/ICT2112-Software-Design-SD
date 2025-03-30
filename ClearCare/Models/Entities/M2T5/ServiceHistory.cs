@@ -53,9 +53,6 @@ namespace ClearCare.Models.Entities
         private void setLocation(string location) => Location = location;
         private void setServiceOutcomes(string serviceOutcomes) => ServiceOutcomes = serviceOutcomes;
         
-        // public constructor
-        // public ServiceHistory() {}
-
         // public getters and setters
         public Dictionary<string, object> getServiceHistoryDetails()
         {

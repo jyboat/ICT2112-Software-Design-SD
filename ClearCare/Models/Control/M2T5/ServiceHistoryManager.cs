@@ -5,7 +5,6 @@ using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
-    //TODO: add IUserList to display names for patient, nurse doctor?
     public class ServiceHistoryManager : IDatabaseObserver, IServiceHistory
     {
         private readonly ServiceHistoryMapper _ServiceHistoryMapper;
