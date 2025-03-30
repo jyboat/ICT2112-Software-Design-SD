@@ -16,8 +16,14 @@ namespace ClearCare.Controllers
 
         // GET: Render the form for adding a new side effect
         [HttpGet]
-        public IActionResult add()
+        public async Task<IActionResult> add()
         {
+            if (IUserList.CurrentUserRole == "Patient")
+            {
+                var medications = await _sideEffectControl.GetPatientMedications();
+                ViewData["Medications"] = medications;
+            }
+
             return View();
         }
 

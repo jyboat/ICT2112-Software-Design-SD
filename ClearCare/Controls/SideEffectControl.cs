@@ -9,13 +9,15 @@ namespace ClearCare.Controls
     public class SideEffectControl : ISubject<SideEffectModel>
     {
         private readonly SideEffectsMapper _sideEffectsMapper;
+    private readonly IFetchPrescriptions _prescriptionFetcher;
 
         // A list to keep all observers
         private readonly List<Observer.IObserver<SideEffectModel>> _observers = new();
 
-        public SideEffectControl(SideEffectsMapper sideEffectsMapper)
+        public SideEffectControl(SideEffectsMapper sideEffectsMapper,IFetchPrescriptions prescriptionFetcher)
         {
             _sideEffectsMapper = sideEffectsMapper;
+            _prescriptionFetcher = prescriptionFetcher;
         }
 
         //=============================
@@ -64,6 +66,26 @@ namespace ClearCare.Controls
         {
             await _sideEffectsMapper.addSideEffectAsync(sideEffect);
             notifyCreated(sideEffect);
+        }
+
+        public async Task<List<DrugDosage>> GetPatientMedications()
+        {
+            if (IUserList.CurrentUserRole != "Patient")
+                return new List<DrugDosage>();
+
+            // Get all prescriptions and filter client-side
+            var allPrescriptions = await _prescriptionFetcher.fetchPrescriptions();
+
+            return allPrescriptions
+                .Where(p => p.PatientId == IUserList.CurrentUserUUID)
+                .SelectMany(p => p.Medications)
+                .GroupBy(m => m.DrugName) 
+                .Select(g => new DrugDosage
+                {
+                    DrugName = g.Key,
+                    Dosage = ""
+                })
+                .ToList();
         }
     }
 }

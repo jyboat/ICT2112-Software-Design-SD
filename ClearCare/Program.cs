@@ -40,6 +40,7 @@ builder.Services.AddScoped<SideEffectControl>();
 // Remove duplicate registration of PatientDrugLogControl if exists.
 builder.Services.AddScoped<PatientDrugLogControl>();
 
+builder.Services.AddScoped<IFetchPrescriptions, PrescriptionControl>();
 builder.Services.AddSingleton<PrescriptionMapper>();
 builder.Services.AddScoped<PrescriptionControl>();
 
