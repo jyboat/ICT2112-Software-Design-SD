@@ -218,6 +218,10 @@
 
         // Handle Reassignment via POST Request
     $("#confirmReassign").click(function () {
+        var button = $(this);
+        button.prop("disabled", true);
+        button.text("Processing...");
+
         var backlogId = $("#modalBacklogId").val();
         var appointmentId = $("#modalAppointmentId").val();
         var patientId = $("#editPatientId").val();
@@ -245,20 +249,22 @@
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: new URLSearchParams({
-                BacklogId: backlogId,
-                AppointmentId: appointmentId,
-                PatientId: patientId,
-                DoctorId: doctorId,
-                ServiceType: serviceType,
-                NurseId: nurseId,
-                _DateTime: isoDateTime,
-                Slot: slot,
-                Location: location
+            BacklogId: backlogId,
+            AppointmentId: appointmentId,
+            PatientId: patientId,
+            DoctorId: doctorId,
+            ServiceType: serviceType,
+            NurseId: nurseId,
+            _DateTime: isoDateTime,
+            Slot: slot,
+            Location: location
             })
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error("Error reassigning backlog.");
+            return response.json().then(data => {
+                throw new Error(data.message || "Error reassigning backlog.");
+            });
             }
             return response.json();
         })
@@ -272,6 +278,8 @@
         .catch(error => {
             toastr.error(error.message, "Error");
             console.error("Error:", error);
+            button.prop("disabled", false);
+            button.text("Confirm Reassign");
         });
 
     });
