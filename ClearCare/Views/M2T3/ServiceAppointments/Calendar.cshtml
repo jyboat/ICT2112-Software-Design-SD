@@ -16,6 +16,15 @@
             max-width: 1200px;
             margin: 40px auto;
         }
+        .patient-card {
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+        .patient-card.selected {
+            border-left: 3px solid blue;
+            background-color: #f0f8ff;
+        }
+
     </style>
     <script>
         const patientsData = @Html.Raw(Json.Serialize(ViewBag.Patients));
@@ -75,7 +84,7 @@
                     document.getElementById("addDate").value = info.dateStr;
                     document.getElementById("addDate").readOnly = true;
                     
-                    openAddModal();
+                    openAddModal(info.dateStr);
                 }
 
             });
@@ -85,6 +94,8 @@
         document.addEventListener('DOMContentLoaded', function () {
             // init calendar
             loadCalendar();
+
+            
 
             // filter button
             document.getElementById('filterButton').addEventListener('click', function () {
@@ -133,25 +144,27 @@
                 document.getElementById("editLocation").value = extendedProps.location;
                 document.getElementById("editStatus").value = extendedProps.status;
                 document.getElementById("editDoctorId").value = extendedProps.doctorId;
+
             }, 300);
 
             $('#editAppointmentModal').modal('show');
         }
 
-        function openAddModal() {
+        function openAddModal(selectedDateTime) {
             // clear the form fields
             document.getElementById("addTimeSlot").value = "";
             document.getElementById("addLocation").value = "";
             document.getElementById("addPatientId").value = "";
             document.getElementById("addNurseId").value = "";
             document.getElementById("addServiceType").value = "";
-
             document.getElementById("addDate").readOnly = true;
 
             populateDropdowns();
 
             // show the modal
             $('#addAppointmentModal').modal('show');
+
+            loadSuggestedPatients(selectedDateTime);
         }
 
         function closeModal() {
@@ -344,7 +357,7 @@
             let nurseId = document.getElementById("addNurseId").value;
             let doctorId = document.getElementById("addDoctorID").value;
             let serviceType = document.getElementById("addServiceType").value;
-            let status = "PENDING" // default status
+            let status = "Scheduled"; // default status
             let selectedDate = document.getElementById("addDate").value;
             let selectedTimeSlot = document.getElementById("addTimeSlot").value;
             let location = document.getElementById("addLocation").value;
@@ -395,6 +408,93 @@
                     console.error("Error:", error);
                 });
         }
+
+
+        const suggestedPatients = [
+    {
+        id: 101,
+        name: "Test User A",
+        age: 31,
+        services: [
+            { name: "Check-up", completed: false },
+            { name: "X-Ray", completed: true }
+        ]
+    },
+    {
+        id: 102,
+        name: "Test User B",
+        age: 27,
+        services: [
+            { name: "Follow-up", completed: false },
+            { name: "Vaccination", completed: false }
+        ]
+    },
+    {
+        id: 103,
+        name: "Test User C",
+        age: 45,
+        services: [
+            { name: "Check-up", completed: true },
+            { name: "Blood Test", completed: true }
+        ]
+    },
+    {
+        id: 104,
+        name: "Test User D",
+        age: 60,
+        services: [
+            { name: "Eye Exam", completed: true }
+        ]
+    },
+    {
+        id: 105,
+        name: "Test User E",
+        age: 39,
+        services: [
+            { name: "Consultation", completed: false },
+            { name: "EKG", completed: false }
+        ]
+    }
+];
+
+
+        function loadSuggestedPatients(selectedDateTime) {
+        console.log("Date: " + selectedDateTime);
+        const container = document.getElementById('suggestedPatients');
+        container.innerHTML = '';
+
+        suggestedPatients.slice(0, 5).forEach(patient => { // limit to first 5 for scrollable effect
+            const completed = patient.services.filter(s => s.completed).length;
+            const total = patient.services.length;
+
+            const card = document.createElement('div');
+            card.className = 'card mb-2 patient-card';
+            card.innerHTML = `
+                <div class="card-body py-2">
+                    <h6 class="card-title mb-1">${patient.name}</h6>
+                    <p class="card-text mb-1 small">Age: ${patient.age}</p>
+                    <div class="services-status">
+                        Services: ${completed}/${total}
+                        ${patient.services.map(service => 
+                            `<span class="service-dot ${service.completed ? 'service-complete' : 'service-pending'}" 
+                                title="${service.name}: ${service.completed ? 'Completed' : 'Pending'}"></span>`
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+
+            // (Optional) hook to select this patient
+            card.addEventListener('click', function() {
+                selectedPatient = patient;
+                document.querySelectorAll('.patient-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                updateServiceTracking();
+            });
+
+            container.appendChild(card);
+        });
+    }
+
     </script>
 </head>
 
@@ -528,9 +628,10 @@
                             <label for="editStatus">Status</label>
                             <select class="form-control" id="editStatus" required>
                                 <option value="">Select Status...</option>
-                                <option value="PENDING">Pending</option>
-                                <option value="CONFIRMED">Missed</option>
-                                <option value="COMPLETED">Completed</option>
+                                <option value="Scheduled">Scheduled</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Backlog" hidden>Backlog</option>
+                                <option value="Missed" hidden>Missed</option>
                             </select>
                             <div class="invalid-feedback">Please select a status</div>
                         </div>
@@ -642,6 +743,12 @@
                             <button type="button" class="btn btn-primary" onclick="addAppointment()">Add Appointment</button>
                         </div>
                     </form>
+
+                    <hr class="my-4">
+                    <h6>Suggested Patients</h6>
+                    <div id="suggestedPatients" style="max-height: 250px; overflow-y: auto;">
+                        <!-- Cards will be loaded here -->
+                    </div>
                 </div>
             </div>
         </div>
