@@ -5,7 +5,7 @@ using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
-    public class ServiceHistoryManager : IDatabaseObserver, IServiceHistory
+    public class ServiceHistoryManager : IDatabaseObserver
     {
         private readonly ServiceHistoryMapper _ServiceHistoryMapper;
         private readonly IUserList _UserList;
