@@ -57,7 +57,7 @@ public class ServiceAppointmentsController : Controller
     }
 
     [HttpGet]
-    // [Route("Calendar")]
+    [Route("Index")]
     public async Task<IActionResult> Calendar()
     {
         ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
@@ -285,7 +285,7 @@ public class ServiceAppointmentsController : Controller
         string nurseId = requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "";
         string doctorId = requestData["DoctorId"].GetString() ?? "";
         string Service = requestData["Service"].GetString() ?? "";
-        string status = "PENDING"; // hardcoded to always set PENDING as the default status
+        string status = "Scheduled"; // hardcoded to always set Scheduled as the default status
         DateTime dateTime = requestData["DateTime"].GetDateTime();
         int slot = requestData["Slot"].GetInt32();
         string location = requestData["Location"].GetString() ?? "";
