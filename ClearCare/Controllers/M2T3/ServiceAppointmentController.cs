@@ -57,12 +57,12 @@ public class ServiceAppointmentsController : Controller
     }
 
     [HttpGet]
-    // [Route("Calendar")]
+    [Route("Index")]
     public async Task<IActionResult> Calendar()
     {
         ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
         ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
-        ViewBag.ServiceNames = await ServiceAppointmentManagement.GetServiceTypeNames();
+        ViewBag.ServiceNames = await _manualAppointmentScheduler.getServices();
         ViewBag.DoctorId = "DOC001"; // TODO - hardcoded for now, will retrieve from session later
 
         return View("~/Views/M2T3/ServiceAppointments/Calendar.cshtml");
@@ -70,11 +70,14 @@ public class ServiceAppointmentsController : Controller
 
     [HttpGet]
     [Route("CreatePage")]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        
         ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
         ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
-        return View("~/Views/M2T3/ServiceAppointments/CreateServiceAppt.cshtml"); // Render the form
+        ViewBag.Service = await _manualAppointmentScheduler.getServices(); 
+
+        return View("~/Views/M2T3/ServiceAppointments/CreateServiceAppt.cshtml"); 
     }
 
     [HttpGet]
@@ -94,7 +97,7 @@ public class ServiceAppointmentsController : Controller
     [Route("Create")]
     public async Task<IActionResult> CreateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
     {
-        var appointment = await ServiceAppointmentManagement.CreateAppointment(
+        var appointment = await _manualAppointmentScheduler.ScheduleAppointment(
             requestData["PatientId"].GetString() ?? "",
             requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
             requestData["DoctorId"].GetString() ?? "",
@@ -133,47 +136,6 @@ public class ServiceAppointmentsController : Controller
             return NotFound(new { Message = "Error" });
         }
     }
-
-    // update appointment
-    // [HttpPut]
-    // [Route("Update")]
-    // public async Task<IActionResult> UpdateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
-    // {
-    //     try
-    //     {
-    //         Console.WriteLine("Received JSON request body: " + JsonSerializer.Serialize(requestData));
-    //
-    //         ServiceAppointment appointment = await ServiceAppointmentManagement.getAppointmentByID(requestData["AppointmentId"].GetString());
-    //         // Entity Method 
-    //         ServiceAppointment appt = appointment.updateServiceAppointementById(
-    //                 appointment,
-    //                 requestData["PatientId"].GetString() ?? "",
-    //                 requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
-    //                 requestData["DoctorId"].GetString() ?? "",
-    //                 requestData["Service"].GetString() ?? "",
-    //                 requestData["Status"].GetString() ?? "",
-    //                 requestData["DateTime"].GetDateTime(),
-    //                 requestData["Slot"].GetInt32(),
-    //                 requestData["Location"].GetString() ?? ""
-    //                 );
-    //         var result = await ServiceAppointmentManagement.UpdateAppointment(appt);
-    //
-    //
-    //         // TODO - Should we strictly return a view or can we return a JSON response? - dinie
-    //         if (result)
-    //         {
-    //             return Ok(new { Success = true, Message = "Appointment updated successfully" });
-    //         }
-    //         else
-    //         {
-    //             return BadRequest(new { Success = false, Message = "Failed to update appointment" });
-    //         }
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         return StatusCode(500, new { Success = false, Message = "An error occurred", Error = ex.Message });
-    //     }
-    // }
     
     [HttpPut]
     [Route("Update")]
@@ -323,7 +285,7 @@ public class ServiceAppointmentsController : Controller
         string nurseId = requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "";
         string doctorId = requestData["DoctorId"].GetString() ?? "";
         string Service = requestData["Service"].GetString() ?? "";
-        string status = "PENDING"; // hardcoded to always set PENDING as the default status
+        string status = "Scheduled"; // hardcoded to always set Scheduled as the default status
         DateTime dateTime = requestData["DateTime"].GetDateTime();
         int slot = requestData["Slot"].GetInt32();
         string location = requestData["Location"].GetString() ?? "";

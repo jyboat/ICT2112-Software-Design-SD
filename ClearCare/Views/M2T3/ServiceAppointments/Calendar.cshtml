@@ -288,8 +288,8 @@
                 // Handle string values for service types
                 options.forEach(option => {
                     const optionElement = document.createElement("option");
-                    optionElement.value = option;  // Use the string as both value
-                    optionElement.text = option;   // and display text
+                    optionElement.value = option.name;  // Use the string as both value
+                    optionElement.text = option.name;   // and display text
                     dropdown.appendChild(optionElement);
                 });
             }
@@ -473,7 +473,13 @@
                         <div class="form-group mb-3">
                             <label for="editServiceType">Select Service Type</label>
                             <select class="form-control" id="editServiceType" required>
-                                <option value="">Select Service Type...</option>
+                               @if (ViewBag.ServiceNames != null)
+                                {
+                                    foreach (ClearCare.Models.Entities.ServiceType_SDM service in ViewBag.ServiceNames)
+                                    {
+                                        <option value="@service.Name">@service.Name</option>
+                                    }
+                                }
                             </select>
                             <div class="invalid-feedback">Please select a service type</div>
                         </div>
@@ -579,7 +585,14 @@
                         <div class="form-group mb-3">
                             <label for="addServiceType">Select Service Type</label>
                             <select class="form-control" id="addServiceType" required>
-                                <option value="">Select Service Type...</option>
+                                  <option value="">Select Service Type</option>
+                                @if (ViewBag.ServiceNames != null)
+                                {
+                                    foreach (ClearCare.Models.Entities.ServiceType_SDM service in ViewBag.ServiceNames)
+                                    {
+                                        <option value="@service.Name">@service.Name</option>
+                                    }
+                                }
                             </select>
                             <div class="invalid-feedback">Please select a service type</div>
                         </div>

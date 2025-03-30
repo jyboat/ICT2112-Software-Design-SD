@@ -1,6 +1,7 @@
 using ClearCare.Interfaces;
 using ClearCare.Models.Entities;
 using System.Text.Json;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
@@ -10,12 +11,20 @@ namespace ClearCare.Models.Control
         private readonly IRetrieveAllAppointments _iRetrieveAppointment;
         private readonly INurseAvailability _iNurseAvailability;
         private readonly INotification _iNotification;
+        private readonly IServiceType _iServiceType;
+
         public ManualAppointmentScheduler()
         {
             _iCreateAppointment = (ICreateAppointment) new ServiceAppointmentManagement();
             _iNurseAvailability = (INurseAvailability) new NurseAvailabilityManagement();
             _iNotification = (INotification) new NotificationManager();
             _iRetrieveAppointment = (IRetrieveAllAppointments) new ServiceAppointmentStatusManagement();
+            _iServiceType = (IServiceType) new ServiceTypeManager();
+        }
+
+        public async Task<List<ServiceType_SDM>> getServices () {
+            List<ServiceType_SDM> services = await _iServiceType.GetServiceTypes();
+            return services; 
         }
 
         public async Task<bool> ValidateAppointmentSlot(string patientId, string nurseId,
