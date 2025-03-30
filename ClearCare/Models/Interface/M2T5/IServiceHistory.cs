@@ -5,6 +5,6 @@ namespace ClearCare.Models.Control
 {
     public interface IServiceHistory
     {
-        Task<List<Dictionary<string, object>>> getAllServiceHistory();
+        Task<List<Dictionary<string, object>>> getAllServiceHistory(string userRole, string userId);
     }
 }

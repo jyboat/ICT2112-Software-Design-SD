@@ -34,7 +34,11 @@ namespace ClearCare.Controllers
         [Route("Index")]
         public async Task<IActionResult> displayServiceHistory()
         {
-            List<Dictionary<string, object>> serviceHistoryList = await _ServiceHistoryManager.getAllServiceHistory();
+            // Get logged-in user role and ID from session
+            string userRole = HttpContext.Session.GetString("Role") ?? "";
+            string userId = HttpContext.Session.GetString("UserID") ?? "";
+
+            List<Dictionary<string, object>> serviceHistoryList = await _ServiceHistoryManager.getAllServiceHistory(userRole, userId);
             return View("~/Views/M2T5/ServiceHistory/Index.cshtml", serviceHistoryList);
         }
 

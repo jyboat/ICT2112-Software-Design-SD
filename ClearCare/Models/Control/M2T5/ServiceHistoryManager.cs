@@ -19,7 +19,7 @@ namespace ClearCare.Models.Control
         }
 
         // GET ALL SERVICE HISTORY
-        public async Task<List<Dictionary<string, object>>> getAllServiceHistory()
+        public async Task<List<Dictionary<string, object>>> getAllServiceHistory(string userRole, string userId)
         {
             List<ServiceHistory> serviceHistoryList = await _ServiceHistoryMapper.fetchAllServiceHistory();
             List<Dictionary<string, object>> serviceHistoryDictionaryList = new();
@@ -34,17 +34,22 @@ namespace ClearCare.Models.Control
                 string nurseId = historyDictionary["NurseId"].ToString();
                 string doctorId = historyDictionary["DoctorId"].ToString();
 
-                // Find the matching user profiles
-                var patient = users.FirstOrDefault(u => u.getProfileData()["UserID"].ToString() == patientId);
-                var nurse = users.FirstOrDefault(u => u.getProfileData()["UserID"].ToString() == nurseId);
-                var doctor = users.FirstOrDefault(u => u.getProfileData()["UserID"].ToString() == doctorId);
+                // Filter based on role
+                if ((userRole == "Nurse" && userId == nurseId) ||
+                    (userRole == "Doctor" && userId == doctorId))
+                {
+                    // Find the matching user profiles
+                    var patient = users.FirstOrDefault(u => u.getProfileData()["UserID"].ToString() == patientId);
+                    var nurse = users.FirstOrDefault(u => u.getProfileData()["UserID"].ToString() == nurseId);
+                    var doctor = users.FirstOrDefault(u => u.getProfileData()["UserID"].ToString() == doctorId);
 
-                // Replace IDs with names
-                historyDictionary["PatientName"] = patient != null ? patient.getProfileData()["Name"] : "Unknown";
-                historyDictionary["NurseName"] = nurse != null ? nurse.getProfileData()["Name"] : "Unknown";
-                historyDictionary["DoctorName"] = doctor != null ? doctor.getProfileData()["Name"] : "Unknown";
+                    // Replace IDs with names
+                    historyDictionary["PatientName"] = patient != null ? patient.getProfileData()["Name"] : "Unknown";
+                    historyDictionary["NurseName"] = nurse != null ? nurse.getProfileData()["Name"] : "Unknown";
+                    historyDictionary["DoctorName"] = doctor != null ? doctor.getProfileData()["Name"] : "Unknown";
 
-                serviceHistoryDictionaryList.Add(historyDictionary);
+                    serviceHistoryDictionaryList.Add(historyDictionary);
+                }
             }
 
             return serviceHistoryDictionaryList;
