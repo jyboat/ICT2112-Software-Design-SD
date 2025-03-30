@@ -43,25 +43,6 @@ public class ServiceAppointmentsController : Controller
 
     }
 
-    // GET All appointment
-    [HttpGet]
-    public async Task<IActionResult> RetrieveAllAppointment()
-    {
-        // retrieve appointments
-        var appointments = await ServiceAppointmentManagement.RetrieveAllAppointments();
-    
-        // check if appointments exist
-        if (appointments != null && appointments.Any())
-        {
-            // convert to dictionary format for the view
-            // var appointmentDicts = appointments.Select(a => a.ToFirestoreDictionary()).ToList();
-            return View("~/Views/M2T3/ServiceAppointments/Index.cshtml", appointments);
-        }
-        else
-        {
-            return NotFound(new { Message = "Appointment not found" });
-        }
-    }
 
     [HttpGet]
     [Route("GetAppointmentsForCalendar")]
@@ -76,7 +57,7 @@ public class ServiceAppointmentsController : Controller
     }
 
     [HttpGet]
-    [Route("Calendar")]
+    // [Route("Calendar")]
     public async Task<IActionResult> Calendar()
     {
         ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
