@@ -133,47 +133,6 @@ public class ServiceAppointmentsController : Controller
             return NotFound(new { Message = "Error" });
         }
     }
-
-    // update appointment
-    // [HttpPut]
-    // [Route("Update")]
-    // public async Task<IActionResult> UpdateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
-    // {
-    //     try
-    //     {
-    //         Console.WriteLine("Received JSON request body: " + JsonSerializer.Serialize(requestData));
-    //
-    //         ServiceAppointment appointment = await ServiceAppointmentManagement.getAppointmentByID(requestData["AppointmentId"].GetString());
-    //         // Entity Method 
-    //         ServiceAppointment appt = appointment.updateServiceAppointementById(
-    //                 appointment,
-    //                 requestData["PatientId"].GetString() ?? "",
-    //                 requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
-    //                 requestData["DoctorId"].GetString() ?? "",
-    //                 requestData["Service"].GetString() ?? "",
-    //                 requestData["Status"].GetString() ?? "",
-    //                 requestData["DateTime"].GetDateTime(),
-    //                 requestData["Slot"].GetInt32(),
-    //                 requestData["Location"].GetString() ?? ""
-    //                 );
-    //         var result = await ServiceAppointmentManagement.UpdateAppointment(appt);
-    //
-    //
-    //         // TODO - Should we strictly return a view or can we return a JSON response? - dinie
-    //         if (result)
-    //         {
-    //             return Ok(new { Success = true, Message = "Appointment updated successfully" });
-    //         }
-    //         else
-    //         {
-    //             return BadRequest(new { Success = false, Message = "Failed to update appointment" });
-    //         }
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         return StatusCode(500, new { Success = false, Message = "An error occurred", Error = ex.Message });
-    //     }
-    // }
     
     [HttpPut]
     [Route("Update")]
