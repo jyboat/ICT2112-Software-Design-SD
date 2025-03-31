@@ -187,6 +187,5 @@ namespace ClearCare.Control
                 Console.WriteLine($"NurseId: {kvp.Key} -> Slots: {string.Join(", ", kvp.Value)}");
             }
         }
-
     }
 }

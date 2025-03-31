@@ -117,31 +117,28 @@ namespace ClearCare.Models.Control
                 }
             }
             
-            // To Do: Check with today's date
-            // var nurses = new List<string>();
-
-            // var AvailableNurse = await _iNurseAvailability.getAllStaffAvailability();
-
-            // foreach (var nurse in AvailableNurse)
-            // {
-            //     var availabilityDetails = nurse.getAvailabilityDetails();
-            //     if (availabilityDetails.ContainsKey("nurseID"))
-            //     {
-            //         nurses.Add(new Nurse
-            //         {
-            //             NurseId = availabilityDetails["nurseID"].ToString() ?? " "    
-            //         });
-            //     }
-            // }
-            
             // var serviceSlotTracker = new Dictionary<string, Dictionary<int, int>>();
             var nurseSlotTracker = new Dictionary<string, List<int>>();
+                        
+            // Grab all nurses that's available today
+            var nurses = new List<string>();
 
-            // TO DO Need to add available nurse to the list only.
-            var nurses = userList
-                .Where(p => p.getProfileData()["Role"].ToString()?.ToLower() == "nurse")
-                .Select(p => p.getProfileData()["UserID"].ToString())
-                .ToList();
+            var AvailableNurse = await _iNurseAvailability.getAllStaffAvailability();
+
+            foreach (var nurse in AvailableNurse)
+            {
+                string today = DateTime.Today.ToString("yyyy-MM-dd");
+                var availabilityDetails = nurse.getAvailabilityDetails();
+                if (availabilityDetails.ContainsKey("nurseID") && availabilityDetails.ContainsKey("date"))
+                {
+                    var date = availabilityDetails["date"].ToString();
+
+                    if (date == today)
+                    {
+                        nurses.Add(availabilityDetails["nurseID"]?.ToString() ?? "");
+                    }
+                }
+            }
 
             foreach(var nurse in nurses){
                 Query nurseSlotList = db.Collection("ServiceAppointments")
@@ -256,10 +253,13 @@ namespace ClearCare.Models.Control
                         servicesModality[serviceAppt.GetAttribute("Service")]
                     );
 
-                    var message = "Your Appointment at";
+                    var message = "Your Appointment for " +
+                                serviceAppt.GetAttribute("Service") +
+                                "has been scheduled at " +
+                                timeslot[serviceAppt.GetIntAttribute("Slot")].ToString() +
+                                "Location: "+ servicesModality[serviceAppt.GetAttribute("Service")].ToString();
 
-                    await _iNotification.createNotification("USR22"
-                    , message);
+                    await _iNotification.createNotification(serviceAppt.GetAttribute("PatientId"), message);
 
                     // Console.WriteLine($"Successfully rescheduled Appointment: {serviceAppt.GetAttribute("AppointmentId")}");
                     notify(serviceAppt.GetAttribute("AppointmentId"), "success");
@@ -277,10 +277,13 @@ namespace ClearCare.Models.Control
                         servicesModality[serviceAppt.GetAttribute("Service")]
                     );
 
-                    var message = "Your Appointment at";
+                    var message = "Your Appointment for " +
+                                serviceAppt.GetAttribute("Service") +
+                                "has been scheduled at " +
+                                timeslot[serviceAppt.GetIntAttribute("Slot")].ToString() +
+                                "Location: "+ servicesModality[serviceAppt.GetAttribute("Service")].ToString();
 
-                    await _iNotification.createNotification("USR22"
-                    , message);
+                    await _iNotification.createNotification(serviceAppt.GetAttribute("PatientId"), message);
 
                     // When appointment isn't scheduled
                     if (string.IsNullOrEmpty(serviceAppt.GetAttribute("NurseId")))

@@ -275,8 +275,6 @@ namespace ClearCare.DataSource
         // To do: Retrieve from firebase/interface
         public async Task<(List<Dictionary<string, object>> appointments, Dictionary<string, string> patientNames)> fetchAllUnscheduledPatients()
         {
-
-            // TODO: Change to interface
             var patients = new List<string>();
             var patientNameMap = new Dictionary<string, string>();
             
