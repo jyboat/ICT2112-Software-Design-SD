@@ -83,25 +83,21 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> GetReassignDetails()
         {
             var users = await _userList.retrieveAllUsers();
-            var nurses = users
-            .Where(p => p.getProfileData()["Role"].ToString()?.ToLower() == "nurse")
+            var usersFiltered = users
             .Select(p => new 
             { 
                 UserID = p.getProfileData()["UserID"].ToString(),
-                Name = p.getProfileData()["Name"].ToString()
+                Name = p.getProfileData()["Name"].ToString(),
+                Role = p.getProfileData()["Role"].ToString()
             })
             .ToList();
 
-            foreach (var n in nurses)
-            {
-                Console.WriteLine($"UserID: {n.UserID}, Name: {n.Name}");
-            }
-            if (nurses == null || !nurses.Any())
+            if (usersFiltered == null || !usersFiltered.Any())
             {
                 return NotFound(new { message = "No nurses found." });
             }
 
-            return Ok(nurses);
+            return Ok(usersFiltered);
         }
 
         [HttpPost]

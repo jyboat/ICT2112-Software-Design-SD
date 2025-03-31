@@ -11,6 +11,16 @@
     <title>Service Backlogs</title>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #editDoctorDisplay, #editPatientDisplay {
+            background-color: #e9ecef;
+            border-radius: 4px;
+            min-height: 38px
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+        }
+    </style>
 </head>
 
 <body>
@@ -28,7 +38,7 @@
                         <th>Appointment ID</th> *@
                         <th>DateTime</th>
                         <th>Patient</th>
-                        <th>Nurse</th>
+                        @* <th>Nurse</th> *@
                         <th>Doctor</th>
                         <th>Service Type</th>
                         <th>Actions</th>
@@ -42,7 +52,7 @@
                             <td>@backlog.AppointmentId</td> *@
                             <td>@backlog.DateTime.ToString("yyyy-MM-dd HH:mm")</td>
                             <td>@backlog.PatientId</td>
-                            <td>@backlog.NurseId</td>
+                            @* <td>@backlog.NurseId</td> *@
                             <td>@backlog.DoctorId</td>
                             <td>@backlog.ServiceType</td>
                             <td>
@@ -88,7 +98,7 @@
                             <input type="hidden" class="form-control" id="modalAppointmentId" readonly>
                         </div>
 
-                        <div class="form-group">
+                        @* <div class="form-group">
                             <label for="editDoctorId">Doctor ID</label>
                             <input type="text" class="form-control" id="editDoctorId" readonly>
                         </div>
@@ -96,7 +106,18 @@
                         <div class="form-group">
                             <label for="editPatientId">Patient ID</label>
                             <input type="text" class="form-control" id="editPatientId" readonly >
-                        </div>
+                        </div> *@
+<div class="form-group">
+    <label for="editDoctorId">Doctor</label>
+    <input type="hidden" id="editDoctorId" name="editDoctorId"> <!-- Hidden field for ID -->
+    <p class="form-control-plaintext border px-2" id="editDoctorDisplay"></p> <!-- Mimic readonly input -->
+</div>
+
+<div class="form-group">
+    <label for="editPatientId">Patient</label>
+    <input type="hidden" id="editPatientId" name="editPatientId"> <!-- Hidden field for ID -->
+    <p class="form-control-plaintext border px-2" id="editPatientDisplay"></p> <!-- Mimic readonly input -->
+</div>
 
                         <div class="form-group">
                             <label for="editNurseId">Nurse</label>
@@ -180,29 +201,62 @@
         
     </div>
     <script>
-
+    
         document.addEventListener("DOMContentLoaded", function () {
             fetch('/ServiceBacklog/GetReassignDetails')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch nurse details.');
+            .then(response => {
+                if (!response.ok) {
+                throw new Error('Failed to fetch nurse details.');
+                }
+                return response.json();
+            })
+            .then(data => {
+
+                // Filter doctors and patients separately
+                const doctors = data.filter(user => user.role.toLowerCase() === "doctor");
+                const patients = data.filter(user => user.role.toLowerCase() === "patient");
+
+                window.doctorMap = {};
+                doctors.forEach(doctor => window.doctorMap[doctor.userID] = doctor.name);
+
+                window.patientMap = {};
+                patients.forEach(patient => window.patientMap[patient.userID] = patient.name);
+
+                // Update the table with names
+                document.querySelectorAll("tbody tr").forEach(row => {
+                    const patientIdCell = row.children[1]; // Assuming Patient ID is the second <td>
+                    const doctorIdCell = row.children[3]; // Assuming Doctor ID is the fourth <td>
+
+                    const patientId = patientIdCell.textContent.trim();
+                    const doctorId = doctorIdCell.textContent.trim();
+
+                    if (patientMap[patientId]) {
+                        patientIdCell.textContent += `: ${patientMap[patientId]}`;
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    const nurseDropdown = document.getElementById('editNurseId');
-                    data.forEach(nurse => {
-                        console.log(nurse);
-                        const option = document.createElement('option');
-                        option.value = nurse.userID;
-                        option.textContent = nurse.name;
-                        nurseDropdown.appendChild(option);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching nurse details:', error);
-                    toastr.error('Error fetching nurse details.', 'Error');
+
+                    if (doctorMap[doctorId]) {
+                        doctorIdCell.textContent += `: ${doctorMap[doctorId]}`;
+                    }
                 });
+
+                const nurseDropdown = document.getElementById('editNurseId');
+                const nurses = data.filter(user => user.role.toLowerCase() === "nurse");
+                if (nurses.length === 0) {
+                toastr.warning('No nurses found.', 'Warning');
+                return;
+                }
+                nurses.forEach(nurse => {
+                console.log(nurse);
+                const option = document.createElement('option');
+                option.value = nurse.userID;
+                option.textContent = `${nurse.userID}: ${nurse.name}`;
+                nurseDropdown.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching nurse details:', error);
+                toastr.error('Error fetching nurse details.', 'Error');
+            });
         });
         
         function openDeletePopup(patientId, doctorId, serviceType) {
@@ -227,6 +281,9 @@
             document.getElementById("modalAppointmentId").value = appointmentId;
             document.getElementById("editPatientId").value = patientId;
             document.getElementById("editDoctorId").value = doctorId;
+            document.getElementById("editDoctorDisplay").textContent = `${doctorId}: ${window.doctorMap[doctorId]}`;
+            document.getElementById("editPatientDisplay").textContent = `${patientId}: ${window.patientMap[patientId]}`;
+
             @* document.getElementById("editNurseId").value = nurseId; *@
             document.getElementById("editDate").value = dateTime;
             @* document.getElementById("editSlot").value = slot; *@
