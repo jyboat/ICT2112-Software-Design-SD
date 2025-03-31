@@ -7,32 +7,6 @@ namespace ClearCare.Control
 {
     public class EarliestsPossibleTimeSlotStrategy : IAutomaticScheduleStrategy
     {
-        // Inital insert of service appointment w/o nurse and slot attribute filled
-        // public List<ServiceAppointment> InitialInsert(List<string> patients, List<string> allServices)
-        // {
-        //     var services = allServices;
-        //     var appointments = new List<ServiceAppointment>();
-
-        //     foreach (var patient in patients)
-        //     {
-        //         foreach (var service in services)
-        //         {
-        //             appointments.Add(ServiceAppointment.setApptDetails(
-        //                 patientId: patient,
-        //                 nurseId: "",
-        //                 doctorId: "",
-        //                 Service: service,
-        //                 status: "Pending",
-        //                 dateTime: DateTime.UtcNow,
-        //                 slot: 0,
-        //                 location: "Physical"
-        //             ));
-        //         }
-        //     }
-
-        //     return appointments;
-        // }
-
         public List<ServiceAppointment> AutomaticallySchedule(
             List<ServiceAppointment> unscheduledAppointment,
             List<string> nurses, 
@@ -55,10 +29,6 @@ namespace ClearCare.Control
 
             // Group and sort backlog will be scheduled first if any
             var combinedGroups = GetCombinedAppointmentGroups(unscheduledAppointment, backlogEntries);
-
-            // Tracking dictionaries
-            // var patientSlotTracker = new Dictionary<string, List<int>>();
-            // var serviceSlotTracker = new Dictionary<string, Dictionary<int, int>>();
 
             foreach (var patientAppointments in combinedGroups)
             {
