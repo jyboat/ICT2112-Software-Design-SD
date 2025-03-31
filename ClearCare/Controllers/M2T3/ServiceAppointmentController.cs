@@ -311,4 +311,16 @@ public class ServiceAppointmentsController : Controller
             return StatusCode(500, new { Message = "An unexpected error occurred." });
         }
     }
+
+    [HttpGet]
+    [Route("GetSuggestedPatients")]
+    public async Task<IActionResult> GetSuggestedPatients()
+    {
+       
+        var result = await _calendarManagement.getSuggestedPatients();
+        return Ok(result);
+    }
+
+
+
 }

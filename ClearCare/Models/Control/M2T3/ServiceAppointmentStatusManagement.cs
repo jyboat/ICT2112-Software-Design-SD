@@ -6,18 +6,24 @@ using ClearCare.Models.Entities;
 using Google.Protobuf.WellKnownTypes;
 using ClearCare.Interfaces;
 using ClearCare.Models.Interface;
+using ClearCare.Models.Interface.M2T3;
+using System.Text.Json;
 
 
 namespace ClearCare.Models.Control
 {
-    public class ServiceAppointmentStatusManagement: IAppointmentStatus, IRetrieveAllAppointments
+    public class ServiceAppointmentStatusManagement: AbstractSchedulingNotifier, IAppointmentStatus, IRetrieveAllAppointments
     {
         private readonly IServiceStatus _iServiceStatus;
         private readonly ICreateAppointment _iCreateAppointment;
+        private readonly IServiceType _iServiceType;
         public ServiceAppointmentStatusManagement() {
             
             _iServiceStatus = (IServiceStatus) new ServiceAppointmentManagement();
             _iCreateAppointment = (ICreateAppointment) new ServiceAppointmentManagement();
+            _iServiceType = (IServiceType) new ServiceTypeManager();
+            // attach backlog upon creation of service.
+            attach(new ServiceBacklogManagement());
         }
 
         // public async Task<List<ServiceAppointment>> getAllAppointmentDetails() {
@@ -127,6 +133,66 @@ namespace ClearCare.Models.Control
 
             return nurseAppointments;
         }
+
+        private bool CheckAndMarkAsMissed(ServiceAppointment appointment)
+        {   
+            Console.WriteLine("Ttest");
+         
+            if (appointment.GetAttribute("Status") != "Completed" && appointment.GetAppointmentDateTime(appointment) < DateTime.Now && appointment.GetAttribute("Status")  != "Missed")
+            {
+                appointment.UpdateStatus("Missed");
+                return true; 
+            }
+            return false;
+        }       
+
+        public async Task<object> suggestPatients()
+        {
+            var services = await _iServiceType.GetServiceTypes(); // all available services
+            var allAppointments = await this.getAllServiceAppointments();
+
+            var patientList = allAppointments
+                .GroupBy(appt => appt.GetAttribute("PatientId"))
+                .Select(patientGroup =>
+                {
+                    string patientId = patientGroup.Key;
+                    var patientAppointments = patientGroup.ToList();
+
+                    var patientServices = services.Select(service =>
+                    {
+                        var latestAppt = patientAppointments
+                            .Where(appt => appt.GetAttribute("Service") == service.Name)
+                            .OrderByDescending(appt => appt.GetAppointmentDateTime(appt))
+                            .FirstOrDefault();
+
+                        return new
+                        {
+                            Service = service.Name,
+                            AppointmentId = latestAppt?.GetAttribute("AppointmentId"),
+                            NurseId = latestAppt?.GetAttribute("NurseId"),
+                            DoctorId = latestAppt?.GetAttribute("DoctorId"),
+                            Status = latestAppt?.GetAttribute("Status"),
+                            DateTime = latestAppt?.GetAttribute("Datetime"),
+                            Slot = latestAppt?.GetAttribute("Slot"),
+                            Location = latestAppt?.GetAttribute("Location")
+                        };
+                    }).ToList();
+
+                    return new
+                    {
+                        PatientId = patientId,
+                        Services = patientServices
+                    };
+                })
+                .ToList();
+
+            // Optional logging
+            // string jsonOutput = JsonSerializer.Serialize(patientList, new JsonSerializerOptions { WriteIndented = true });
+            // Console.WriteLine($"Formatted Patient List:\n{jsonOutput}");
+
+            return patientList;
+        }
+
 
 
        

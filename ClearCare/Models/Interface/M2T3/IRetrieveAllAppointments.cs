@@ -7,5 +7,6 @@ namespace ClearCare.Models.Control
         Task<List<ServiceAppointment>> getAllServiceAppointments();
         Task<ServiceAppointment> getServiceAppointmentById(string apptId);
         Task<List<ServiceAppointment>> RetrieveAllAppointmentsByNurse(string nurseId);
+        Task<object> suggestPatients();
     }
 }

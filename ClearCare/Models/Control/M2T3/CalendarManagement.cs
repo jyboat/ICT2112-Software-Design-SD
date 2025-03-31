@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ClearCare.Models.Entities;
+using System.Text.Json;
 
 // TODO: 
 // +getAppointmentsByPatient(patientId: Int): <List> ServiceAppointment
@@ -113,5 +115,55 @@ namespace ClearCare.Models.Control
 
             return new JsonResult(eventList);
         }
+
+        
+       public async Task<object> getSuggestedPatients()
+        {
+            var result = await _retrieveAllAppointments.suggestPatients();
+
+            var asList = result as IEnumerable<object>;
+            if (asList == null)
+            {
+               
+                return new List<object>();
+            }
+            
+            var filtered = asList
+            .Where(patient =>
+            {
+                var patientType = patient.GetType();
+                var servicesProp = patientType.GetProperty("Services");
+                var services = servicesProp?.GetValue(patient) as IEnumerable<object>;
+
+                if (services == null)
+                    return false;
+
+                foreach (var service in services)
+                {
+                    var status = service?.GetType().GetProperty("Status")?.GetValue(service)?.ToString();
+                    if (!string.IsNullOrEmpty(status) && status != "Completed" && status != "Scheduled")
+                        return true;
+                }
+
+                return false;
+            })
+            .ToList();     
+
+            // Optional: raw JSON
+            // string rawJson = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
+            // Console.WriteLine($"Raw suggestPatients() result:\n{rawJson}");
+
+             string filteredJson = JsonSerializer.Serialize(filtered, new JsonSerializerOptions { WriteIndented = true });
+                Console.WriteLine($"✅ Filtered Patients:\n{filteredJson}");
+
+
+            return filtered;
+        }
+
+
+
+
+
+
     }
 }

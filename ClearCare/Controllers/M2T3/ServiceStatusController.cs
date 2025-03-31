@@ -20,12 +20,15 @@ namespace ClearCare.Controllers
         }
 
         [HttpGet]
-        [Route("RetrieveServiceAppointmentStatus")]
-        public async Task<IActionResult> Test()
+        [Route("Index")]
+        public async Task<IActionResult> display(String? patientId)
         {
-            
+            if (patientId != null) {
+                Console.WriteLine($"PATIENTID: {patientId}");
+                 ViewBag.PatientIdFilter = patientId;
+            }
             //  await to wait for task complete or data to retrieve before executing
-            var appointment = await _manager.getAppointmentDetails();
+            var appointment =  await _manager.getAppointmentDetails();
             
             
             // No record exists
@@ -41,16 +44,6 @@ namespace ClearCare.Controllers
                
             }
 
-        [HttpGet]
-        [Route("update/{apptId}")]
-        public async Task<IActionResult> Test(string apptId)
-        {
-            
-            //  await to wait for task complete or data to retrieve before executing
-            await _manager.updateAppointmentStatus(apptId);
-            
-            return NotFound();
-        }
 
 
     }

@@ -25,6 +25,36 @@
             background-color: #f0f8ff;
         }
 
+       .service-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .service-complete {
+            background-color: green;
+        }
+
+        .service-scheduled {
+            background-color: grey;
+        }
+
+        .service-missed {
+            background-color: red;
+        }
+
+        .service-backlog {
+            background-color: red;
+        }
+
+        .service-unknown {
+            background-color: red;
+        }
+
+
+
     </style>
     <script>
         const patientsData = @Html.Raw(Json.Serialize(ViewBag.Patients));
@@ -410,89 +440,81 @@
         }
 
 
-        const suggestedPatients = [
-    {
-        id: 101,
-        name: "Test User A",
-        age: 31,
-        services: [
-            { name: "Check-up", completed: false },
-            { name: "X-Ray", completed: true }
-        ]
-    },
-    {
-        id: 102,
-        name: "Test User B",
-        age: 27,
-        services: [
-            { name: "Follow-up", completed: false },
-            { name: "Vaccination", completed: false }
-        ]
-    },
-    {
-        id: 103,
-        name: "Test User C",
-        age: 45,
-        services: [
-            { name: "Check-up", completed: true },
-            { name: "Blood Test", completed: true }
-        ]
-    },
-    {
-        id: 104,
-        name: "Test User D",
-        age: 60,
-        services: [
-            { name: "Eye Exam", completed: true }
-        ]
-    },
-    {
-        id: 105,
-        name: "Test User E",
-        age: 39,
-        services: [
-            { name: "Consultation", completed: false },
-            { name: "EKG", completed: false }
-        ]
-    }
-];
+    function loadSuggestedPatients(selectedDateTime) {
+    const container = document.getElementById('suggestedPatients');
+    container.innerHTML = '';
 
+    // fetch(`/api/ServiceAppointments/GetPatientsByDate?selectedDateTime=${selectedDateTime}`)
+    fetch(`/api/ServiceAppointments/GetSuggestedPatients`)
+        .then(async response => {
+            if (!response.ok) {
+                throw new Error("Server returned error: " + response.status);
+            }
 
-        function loadSuggestedPatients(selectedDateTime) {
-        console.log("Date: " + selectedDateTime);
-        const container = document.getElementById('suggestedPatients');
-        container.innerHTML = '';
+            const contentType = response.headers.get("Content-Type") || "";
+            if (!contentType.includes("application/json")) {
+                throw new Error("Expected JSON but got: " + contentType);
+            }
 
-        suggestedPatients.slice(0, 5).forEach(patient => { // limit to first 5 for scrollable effect
-            const completed = patient.services.filter(s => s.completed).length;
-            const total = patient.services.length;
+            return response.json(); // only run if JSON is valid
+            })
+            .then(data => {
+                const patients = Array.isArray(data) ? data : [data];
 
-            const card = document.createElement('div');
-            card.className = 'card mb-2 patient-card';
-            card.innerHTML = `
-                <div class="card-body py-2">
-                    <h6 class="card-title mb-1">${patient.name}</h6>
-                    <p class="card-text mb-1 small">Age: ${patient.age}</p>
-                    <div class="services-status">
-                        Services: ${completed}/${total}
-                        ${patient.services.map(service => 
-                            `<span class="service-dot ${service.completed ? 'service-complete' : 'service-pending'}" 
-                                title="${service.name}: ${service.completed ? 'Completed' : 'Pending'}"></span>`
-                        ).join('')}
+                patients.forEach(patient => {
+                const services = Array.isArray(patient.services) ? patient.services : [];
+
+                const card = document.createElement('div');
+                card.className = 'card mb-2 patient-card';
+                card.innerHTML = `
+                    <div class="card-body py-2">
+                        <h6 class="card-title mb-1">Patient ID: ${patient.patientId}</h6>
+                        <div>
+                            ${services.map(service =>
+                                `<span class="service-dot ${getDotClass(service.status)}"
+                                    title="${service.service}: ${service.status}"></span>`
+                            ).join('')}
+                        </div>
+
+                        <div class="mt-2">
+                        <strong>Services Requiring Attention:</strong>
+                        <ol>
+                            ${services
+                            .filter(service => !service.status || service.status === "Missed" || service.status === "Backlog")
+                            .map(service => `<li>${service.service}</li>`)
+                            .join('')}
+                        </ol>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
 
-            // (Optional) hook to select this patient
-            card.addEventListener('click', function() {
-                selectedPatient = patient;
-                document.querySelectorAll('.patient-card').forEach(c => c.classList.remove('selected'));
-                this.classList.add('selected');
-                updateServiceTracking();
+                // Add click handler
+                card.addEventListener('click', () => {
+                    // Redirect to another page with patientId as a query parameter
+                   
+                     window.location.href = `/ServiceStatus/Index?patientId=${patient.patientId}`;
+                });
+
+
+                container.appendChild(card);
             });
 
-            container.appendChild(card);
-        });
+            })
+            .catch(error => {
+                console.error("Error loading patients:", error);
+                toastr.error("Failed to load patients.");
+            });
+    }
+
+
+    function getDotClass(status) {
+        switch ((status || "").toLowerCase()) {
+            case "completed": return "service-complete";
+            case "scheduled": return "service-scheduled"; 
+            case "missed": return "service-missed";
+            case "backlog": return "service-backlog";
+            default: return "service-unknown";
+        }
     }
 
     </script>
