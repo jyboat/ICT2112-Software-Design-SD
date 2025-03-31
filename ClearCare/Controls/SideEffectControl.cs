@@ -49,14 +49,13 @@ namespace ClearCare.Controls
         //=============================
         // Public Methods
         //=============================
-        public async Task<List<SideEffectModel>> getSideEffectsAsync()
+        public async Task<List<SideEffectModel>> getSideEffectsAsync(string userRole, string userUUID)
         {
             var allSideEffects = await _sideEffectsMapper.getAllSideEffectsAsync();
-            
-            // Filter based on user role
-            if (IUserList.CurrentUserRole == "Patient")
+
+            if (userRole == "Patient")
             {
-                return allSideEffects.Where(se => se.PatientId == IUserList.CurrentUserUUID).ToList();
+                return allSideEffects.Where(se => se.PatientId == userUUID).ToList();
             }
             
             return allSideEffects;
@@ -68,16 +67,16 @@ namespace ClearCare.Controls
             notifyCreated(sideEffect);
         }
 
-        public async Task<List<DrugDosage>> GetPatientMedications()
+        public async Task<List<DrugDosage>> GetPatientMedications(string userRole, string userUUID)
         {
-            if (IUserList.CurrentUserRole != "Patient")
+            if (userRole != "Patient")
                 return new List<DrugDosage>();
 
             // Get all prescriptions and filter client-side
             var allPrescriptions = await _prescriptionFetcher.fetchPrescriptions();
 
             return allPrescriptions
-                .Where(p => p.PatientId == IUserList.CurrentUserUUID)
+                .Where(p => p.PatientId == userUUID)
                 .SelectMany(p => p.Medications)
                 .GroupBy(m => m.DrugName) 
                 .Select(g => new DrugDosage

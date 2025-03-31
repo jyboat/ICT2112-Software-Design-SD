@@ -18,9 +18,12 @@ namespace ClearCare.Controllers
         [HttpGet]
         public async Task<IActionResult> add()
         {
-            if (IUserList.CurrentUserRole == "Patient")
+            string userRole = HttpContext.Session.GetString("UserRole") ?? "Unknown";
+            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "Unknown";
+
+            if (userRole == "Patient")
             {
-                var medications = await _sideEffectControl.GetPatientMedications();
+                var medications = await _sideEffectControl.GetPatientMedications(userRole, userUUID);
                 ViewData["Medications"] = medications;
             }
 
@@ -30,7 +33,10 @@ namespace ClearCare.Controllers
         [HttpGet]
         public async Task<IActionResult> index()
         {
-            var sideEffects = await _sideEffectControl.getSideEffectsAsync();
+            string userRole = HttpContext.Session.GetString("UserRole") ?? "Unknown";
+            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "Unknown";
+
+            var sideEffects = await _sideEffectControl.getSideEffectsAsync(userRole, userUUID);
             return View(sideEffects);
         }
 

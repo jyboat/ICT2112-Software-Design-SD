@@ -2,7 +2,9 @@
 
 @{
     ViewData["Title"] = "Side Effects";
-    var isDoctor = ClearCare.IUserList.CurrentUserRole == "Doctor";
+    
+    // Retrieve the user's role from session storage.
+    string userRole = Context.Session.GetString("UserRole") ?? "Unknown";
 }
 
 <div class="container py-4">
@@ -16,7 +18,7 @@
         <table class="table table-bordered">
             <thead class="table-light">
                 <tr>
-                    @if (isDoctor)
+                    @if (userRole == "Doctor")
                     {
                         <th>Patient Name</th>
                     }
@@ -29,7 +31,7 @@
                 @foreach (var sideEffect in Model)
                 {
                     <tr>
-                    @if (isDoctor)
+                    @if (userRole == "Doctor")
                     {
                         <td>@sideEffect.PatientId</td>
                     }
