@@ -317,10 +317,14 @@
 
         if (!dateTime || slot === "") {
             toastr.warning("Please select both a date and time slot.", "Warning");
+            button.prop("disabled", false);
+            button.text("Confirm Reassign");
             return;
         }
         if (!nurseId) {
             toastr.warning("Please select a nurse.", "Warning");
+            button.prop("disabled", false);
+            button.text("Confirm Reassign");
             return;
         }
 
