@@ -6,7 +6,5 @@ namespace ClearCare.Models.Interfaces.M3T1
     {
         string HazardType { get; }
         Dictionary<string, bool> getDefaultChecklist();
-        List<Dictionary<string, string>> getQualifiedDoctors();
-        bool canHandle(string hazardType);
     }
 }

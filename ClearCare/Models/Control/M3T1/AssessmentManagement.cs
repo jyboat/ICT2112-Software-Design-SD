@@ -131,7 +131,7 @@ namespace ClearCare.Models.Control.M3T1
             return await _gateway.deleteAssessment(id);
         }
 
-        public async Task<bool> updateAssessment(string id, string riskLevel, string recommendation, Dictionary<string, bool> checklist)
+        public async Task<bool> updateAssessment(string id, string riskLevel, string recommendation, string hazardType, Dictionary<string, bool> checklist)
         {
             var assessment = await _gateway.fetchAssessmentById(id);
             if (assessment == null) return false;
@@ -140,6 +140,7 @@ namespace ClearCare.Models.Control.M3T1
                 id: id,
                 riskLevel: riskLevel,
                 recommendation: recommendation,
+                hazardType: hazardType,
                 checklist: checklist
             );
         }

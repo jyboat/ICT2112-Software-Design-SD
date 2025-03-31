@@ -12,8 +12,5 @@ namespace ClearCare.Models.Control.M3T1
     {
         public abstract string HazardType { get; }
         public abstract Dictionary<string, bool> getDefaultChecklist();
-        public abstract List<Dictionary<string, string>> getQualifiedDoctors(); // Changed to Dictionary
-        public virtual bool canHandle(string hazardType) => 
-            string.Equals(HazardType, hazardType, StringComparison.OrdinalIgnoreCase);
     }
 }

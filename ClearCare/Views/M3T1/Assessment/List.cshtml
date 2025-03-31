@@ -25,7 +25,17 @@
                     <tr class="animated faster">
                         <td class="align-middle">@assessment["CreatedAt"].ToString()</td>
                         <td class="align-middle">@assessment["PatientId"]</td>
-                        <td class="align-middle">@assessment["RiskLevel"]</td>
+                        <td class="align-middle">
+                            @(assessment["RiskLevel"]) - @(
+                        assessment["RiskLevel"] != null && int.TryParse(assessment["RiskLevel"].ToString(), out int i)
+                        ? (i == 1 ? "Minimal Risk" :
+                        i == 2 ? "Low Risk" :
+                        i == 3 ? "Moderate Risk" :
+                        i == 4 ? "High Risk" :
+                        "Severe Risk")
+                        : "Unknown Risk"
+                        )
+                        </td>
                         <td class="align-middle">
                             <a href="/Assessment/View/@assessment["Id"]"
                                 class="btn btn-sm btn-primary me-2">

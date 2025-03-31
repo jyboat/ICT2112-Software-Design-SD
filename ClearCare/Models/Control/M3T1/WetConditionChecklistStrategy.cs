@@ -20,14 +20,5 @@ namespace ClearCare.Models.Control.M3T1
                 { "Are floor surfaces slip-resistant when wet?", false }
             };
         }
-
-        public override List<Dictionary<string, string>> getQualifiedDoctors() => new()
-        {
-            new Dictionary<string, string> { {"id", "D5"}, {"name","Dr. Davis (Dermatology)"} },
-            new Dictionary<string, string> { {"id", "D6"}, {"name","Dr. Miller (General Practice)"} },
-            new Dictionary<string, string> { {"id", "D7"}, {"name","Dr. Rodriguez (Podiatry)"} },
-            new Dictionary<string, string> { {"id", "D8"}, {"name","Dr. Wilson (Sports Medicine)"} },
-            new Dictionary<string, string> { {"id", "D9"}, {"name","Dr. Taylor (Occupational Medicine)"} }
-        };
     }
 }

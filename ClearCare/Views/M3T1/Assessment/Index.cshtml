@@ -26,8 +26,10 @@
                 </a>
             </div>
         }
-        <img loading="lazy" class="card-img-top img-thumbnail" src="@filePath"
-             onerror="this.src='@Url.Content("~/img/default.jpg")'" alt="Assessment image" />
+        else{
+            <img loading="lazy" class="card-img-top img-thumbnail" src="@filePath"
+                 onerror="this.src='@Url.Content("~/img/default.jpg")'" alt="Assessment image" />
+        }
 
         <div class="card-body">
             <h4 class="card-title mt-2">For patient: @assessment["PatientId"]</h4>

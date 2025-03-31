@@ -87,13 +87,14 @@ namespace ClearCare.Models.Entities.M3T1
                 { "Recommendation", getRecommendation() },
                 { "CreatedAt", getCreatedAt() },
                 { "PatientId", getPatientId() },
-                { "ImagePath", getImagePath() }
+                { "ImagePath", getImagePath() },
+                { "HazardType", getHazardType() }
             };
             
             // Add checklist if it has items
-            if (HomeAssessmentChecklist.Count > 0)
+            if (getHomeAssessmentChecklist().Count > 0)
             {
-                details.Add("HomeAssessmentChecklist", HomeAssessmentChecklist);
+                details.Add("HomeAssessmentChecklist", getHomeAssessmentChecklist());
             }
             
             return details;

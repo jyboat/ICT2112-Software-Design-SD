@@ -3,58 +3,116 @@
 @{
     ViewData["Title"] = "Analyze risks";
     var assessment = Model.getAssessmentDetails();
+    var filePath = assessment["ImagePath"].ToString();
 }
 
-
 <section class="container">
-    <h2 class="mb-2">Doctor Assessment Edit</h2>
+    <h2 class="mb-2">Assessing Risk</h2>
 
-    <form asp-controller="Assessment" asp-action="updateDoctorAssessment" asp-route-assessmentId="@assessment["Id"]" method="post">
-        <input type="hidden" name="id" value="@assessment["Id"]" />
+    @if (filePath.EndsWith(".mp4") || filePath.EndsWith(".webm") || filePath.EndsWith(".ogg") || filePath.EndsWith(".mov"))
+    {
+        <video class="video-thumbnail" controls>
+            <source src="@filePath" type="video/@filePath.Split('.').Last()">
+            Your browser does not support the video tag.
+        </video>
+    }
+    else
+    {
+        <img loading="lazy" class="img-thumbnail" src="@filePath"
+             onerror="this.src='@Url.Content("~/img/default.jpg")'" alt="Assessment image" />
+    }
+    <form asp-controller="Assessment" asp-action="updateAssessment" asp-route-assessmentId="@assessment["Id"]" method="post">
 
         <!-- Hazard Type Selection -->
         <div class="form-group">
             <label for="hazardType">Hazard Type</label>
             <select class="form-control" id="hazardType" name="hazardType" required>
                 <option value="">-- Select Hazard Type --</option>
-                <option value="Fire Safety">Fire Safety</option>
-                <option value="Fall Risk">Fall Risk</option>
-                <option value="Wet Condition">Wet Condition</option>
+                @foreach (string hazard in (List<string>)ViewBag.HazardTypes)
+                {
+                    <option value="@hazard" selected="@(assessment["HazardType"]?.ToString() == hazard ? "selected" : null)">
+                        @hazard
+                    </option>
+                }
             </select>
         </div>
 
-
+        <!-- Risk Level -->
         <div class="form-group">
             <label for="riskLevel">Risk Level (1-5):</label>
             <select class="form-control" id="riskLevel" name="riskLevel" required>
                 <option value="">Select Risk Level</option>
-                <option value="1" selected="@(assessment["RiskLevel"].ToString() == "1")">1 - Minimal Risk</option>
-                <option value="2" selected="@(assessment["RiskLevel"].ToString() == "2")">2 - Low Risk</option>
-                <option value="3" selected="@(assessment["RiskLevel"].ToString() == "3")">3 - Moderate Risk</option>
-                <option value="4" selected="@(assessment["RiskLevel"].ToString() == "4")">4 - High Risk</option>
-                <option value="5" selected="@(assessment["RiskLevel"].ToString() == "5")">5 - Severe Risk</option>
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <option value="@i" selected="@(assessment["RiskLevel"].ToString() == i.ToString())">
+                        @i - @(i == 1 ? "Minimal Risk" :
+                       i == 2 ? "Low Risk" :
+                       i == 3 ? "Moderate Risk" :
+                       i == 4 ? "High Risk" :
+                       "Severe Risk")
+                    </option>
+                }
             </select>
         </div>
 
+        <!-- Recommendation -->
         <div class="form-group">
             <label for="recommendation">Recommendation:</label>
             <textarea class="form-control" id="recommendation" name="recommendation" rows="3" required>@assessment["Recommendation"]</textarea>
         </div>
 
-        <h4>Checklist</h4>
-        @foreach (var item in ViewBag.ChecklistItems as Dictionary<string, bool>)
-        {
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox"
-                       id="checklist_@item.Key" name="checklist[@item.Key]"
-                       value="true" @(item.Value ? "checked" : "")>
-                <label class="form-check-label" for="checklist_@item.Key">
-                    @item.Key
-                </label>
+        <!-- Checklist -->
+        <div id="checklistSection" style="display: @(string.IsNullOrEmpty(assessment["HazardType"]?.ToString()) ? "none" : "block")">
+            <h4>Checklist</h4>
+            <div id="checklistContainer">
+                @if (ViewBag.ChecklistItems != null)
+                {
+                    foreach (var item in ViewBag.ChecklistItems as Dictionary<string, bool>)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   id="checklist_@item.Key" name="checklist[@item.Key]"
+                                   value="true" @(item.Value ? "checked" : "")>
+                            <label class="form-check-label" for="checklist_@item.Key">
+                                @item.Key
+                            </label>
+                        </div>
+                    }
+                }
             </div>
-        }
+        </div>
 
         <button type="submit" class="btn btn-success mt-3">Submit analysis</button>
         <a asp-action="List" class="btn btn-danger mt-3">Cancel</a>
     </form>
 </section>
+
+<script>
+    document.getElementById("hazardType").addEventListener("change", function () {
+        let selectedHazard = this.value;
+        const checklistSection = document.getElementById("checklistSection");
+
+        if (selectedHazard) {
+            fetch(`/Assessment/GetChecklist?hazardType=${encodeURIComponent(selectedHazard)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const checklistContainer = document.getElementById("checklistContainer");
+                    checklistContainer.innerHTML = "";
+
+                    Object.keys(data).forEach(key => {
+                        const checked = data[key] ? "checked" : "";
+                        checklistContainer.innerHTML += `
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="checklist_${key}" name="checklist[${key}]" value="true" ${checked}>
+                                <label class="form-check-label" for="checklist_${key}">${key}</label>
+                            </div>
+                        `;
+                    });
+
+                    checklistSection.style.display = "block";
+                });
+        } else {
+            checklistSection.style.display = "none";
+        }
+    });
+</script>

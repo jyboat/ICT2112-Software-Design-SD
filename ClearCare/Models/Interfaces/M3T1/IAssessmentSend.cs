@@ -11,7 +11,7 @@ namespace ClearCare.Models.Interfaces.M3T1
         
         Task<string> insertAssessment(string imagePath, string riskLevel, string recommendation, string createdAt, string patientId);
         
-        Task<bool> updateAssessment(string id, string riskLevel, string recommendation, Dictionary<string, bool> checklist = null);
+        Task<bool> updateAssessment(string id, string riskLevel, string recommendation, string hazardType, Dictionary<string, bool> checklist = null);
             
         Task<bool> deleteAssessment(string id);
     }

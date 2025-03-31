@@ -17,14 +17,5 @@ namespace ClearCare.Models.Control.M3T1
             { "Are floors kept free of tripping hazards?", false },
             { "Is proper footwear available and worn?", false }
         };
-
-        public override List<Dictionary<string, string>> getQualifiedDoctors() => new()
-        {
-            new Dictionary<string, string> { {"id", "D3"}, {"name", "Dr. Williams (Geriatrics)"} },
-            new Dictionary<string, string> { {"id", "D4"}, {"name", "Dr. Brown (Orthopedics)"} },
-            new Dictionary<string, string> { {"id", "D10"}, {"name", "Dr. Lee (Physical Medicine & Rehabilitation)"} },
-            new Dictionary<string, string> { {"id", "D11"}, {"name", "Dr. Garcia (Rheumatology)"} },
-            new Dictionary<string, string> { {"id", "D12"}, {"name", "Dr. Chen (Neurology)"} }
-        };
     }
 }

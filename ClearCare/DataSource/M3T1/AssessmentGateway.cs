@@ -159,13 +159,14 @@ namespace ClearCare.DataSource.M3T1
             return docRef.Id;
         }
 
-        public async Task<bool> updateAssessment(string id, string riskLevel, string recommendation, Dictionary<string, bool> checklist = null)
+        public async Task<bool> updateAssessment(string id, string riskLevel, string recommendation, string hazardType, Dictionary<string, bool> checklist = null)
         {
             DocumentReference docRef = _db.Collection("Assessment").Document(id);
             
             var updatedData = new Dictionary<string, object>
             {
                 { "RiskLevel", riskLevel },
+                { "HazardType", hazardType },
                 { "Recommendation", recommendation }
             };
 

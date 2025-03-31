@@ -6,6 +6,7 @@ using ClearCare.Models.Control.M3T1;
 using ClearCare.Models.Entities.M3T1;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 [Route("Assessment")]
 public class AssessmentController : Controller
@@ -60,25 +61,6 @@ public class AssessmentController : Controller
     {
         return View("~/Views/M3T1/Assessment/Add.cshtml");
     }
-
-    //[Route("Edit/{assessmentId}")]
-    //[HttpGet]
-    //public async Task<IActionResult> viewEdit(string assessmentId)
-    //{
-    //    var assessment = await _manager.getAssessment(assessmentId);
-    //    if (assessment == null)
-    //    {
-    //        return RedirectToAction("List");
-    //    }
-
-    //    // set hazard type from assessment before getting doctors/checklist
-    //    _manager.setHazardType(assessment.getHazardType());
-        
-    //    ViewBag.QualifiedDoctors = _manager.getQualifiedDoctors();
-    //    ViewBag.ChecklistItems = _manager.getDefaultChecklist();
-
-    //    return View("~/Views/M3T1/Assessment/Edit.cshtml", assessment);
-    //}
 
     //[Route("Delete/{assessmentId}")]
     //[HttpPost]
@@ -178,8 +160,27 @@ public class AssessmentController : Controller
             "Wet Condition"
         };
 
-        // _manager.setHazardType(assessment.getHazardType());
-        ViewBag.ChecklistItems = _manager.getDefaultChecklist();
+        var assessmentDetails = assessment.getAssessmentDetails();
+
+        Dictionary<string, bool> defaultChecklist = new Dictionary<string, bool>();
+
+        if (assessmentDetails.ContainsKey("HazardType") && !string.IsNullOrEmpty(assessmentDetails["HazardType"]?.ToString())){
+            _manager.setHazardType(assessmentDetails["HazardType"].ToString());
+            defaultChecklist = _manager.getDefaultChecklist();
+        }
+
+        if (assessmentDetails.ContainsKey("HomeAssessmentChecklist") && assessmentDetails["HomeAssessmentChecklist"] is Dictionary<string, bool> rawChecklist)
+        {
+            foreach (var key in rawChecklist.Keys)
+            {
+                if (defaultChecklist.ContainsKey(key))
+                {
+                    defaultChecklist[key] = rawChecklist[key];
+                }
+            }
+        }
+        
+        ViewBag.ChecklistItems = defaultChecklist;
 
         return View("~/Views/M3T1/Assessment/Edit.cshtml", assessment);
     }
@@ -190,6 +191,7 @@ public class AssessmentController : Controller
         string assessmentId,
         string riskLevel,
         string recommendation,
+        string hazardType,
         Dictionary<string, bool> checklist)
     {
         try
@@ -204,6 +206,7 @@ public class AssessmentController : Controller
                 id: assessmentId,
                 riskLevel: riskLevel,
                 recommendation: recommendation,
+                hazardType: hazardType,
                 checklist: checklist
             );
 
@@ -222,5 +225,22 @@ public class AssessmentController : Controller
             return RedirectToAction("Edit", new { assessmentId });
         }
     }
-        
+
+    [Route("GetChecklist")]
+    [HttpGet]
+    public IActionResult GetChecklist([FromQuery] string hazardType)
+    {
+        try
+        {
+            _manager.setHazardType(hazardType);
+            var checklist = _manager.getDefaultChecklist();
+            return Json(checklist);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Error: {ex.Message}");
+        }
+    }
+
+
 }

@@ -17,14 +17,5 @@ namespace ClearCare.Models.Control.M3T1
             { "Is there an emergency evacuation plan posted?", false },
             { "Is a fire blanket available in kitchen areas?", false }
         };
-
-        public override List<Dictionary<string, string>> getQualifiedDoctors() => new()
-        {
-            new Dictionary<string, string> { {"id", "D1"}, {"name", "Dr. Smith (Respiratory)"} },
-            new Dictionary<string, string> { {"id", "D2"}, {"name", "Dr. Johnson (Emergency)"} },
-            new Dictionary<string, string> { {"id", "D13"}, {"name", "Dr. Patel (Burn Specialist)"} },
-            new Dictionary<string, string> { {"id", "D14"}, {"name", "Dr. Wong (Pulmonology)"} },
-            new Dictionary<string, string> { {"id", "D15"}, {"name", "Dr. Kim (Critical Care)"} }
-        };
     }
 }
