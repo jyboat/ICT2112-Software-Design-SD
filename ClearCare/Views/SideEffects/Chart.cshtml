@@ -1,0 +1,65 @@
+@model List<ClearCare.Models.SideEffectModel>
+
+@{
+    ViewData["Title"] = "Side Effects";
+    
+    // Retrieve the user's role from session storage.
+    string userRole = Context.Session.GetString("UserRole") ?? "Unknown";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Side Effects Analytics</h1>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="card mt-4">
+            <div class="card-body">
+                <canvas id="sideEffectsChart" height="300"></canvas>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">No side effects found.</div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('sideEffectsChart');
+            const rawData = @Html.Raw(Json.Serialize(ViewBag.ChartData));
+            
+            if (!rawData || rawData.length === 0) {
+                console.warn("No chart data available");
+                return;
+            }
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: rawData.map(item => item.drugName),
+                    datasets: [{
+                        label: 'Side Effects Reported',
+                        data: rawData.map(item => item.count),
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

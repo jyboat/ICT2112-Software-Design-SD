@@ -37,6 +37,7 @@ namespace ClearCare.Controllers
             string userUUID = HttpContext.Session.GetString("UserUUID") ?? "Unknown";
 
             var sideEffects = await _sideEffectControl.getSideEffectsAsync(userRole, userUUID);
+            
             return View(sideEffects);
         }
 
@@ -51,6 +52,24 @@ namespace ClearCare.Controllers
             }
 
             return View(sideEffect);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> chart()
+        {
+            string userRole = HttpContext.Session.GetString("UserRole") ?? "Unknown";
+            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "Unknown";
+
+            var sideEffects = await _sideEffectControl.getSideEffectsAsync(userRole, userUUID);
+            
+            // Group by DrugName (example)
+            var drugGroups = sideEffects
+                .GroupBy(se => se.DrugName)
+                .Select(g => new { DrugName = g.Key, Count = g.Count() })
+                .ToList();
+
+            ViewBag.ChartData = drugGroups;
+            return View(sideEffects);
         }
     }
 }
