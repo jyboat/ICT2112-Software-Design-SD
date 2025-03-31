@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ClearCare.Interfaces;
 using System.Text.Json;
 using System.Linq.Expressions;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.Controllers
 {
@@ -14,11 +15,13 @@ namespace ClearCare.Controllers
     public class ServiceBacklogController : Controller
     {
         private readonly ServiceBacklogManagement _manager;
+        private readonly IUserList _userList;
 
         public ServiceBacklogController()
         {
             _manager = new ServiceBacklogManagement();
             _manager.setController(this);
+            _userList = (IUserList) new AdminManagement(new UserGateway());
         }
 
         // Displays All Backlogs
@@ -72,6 +75,33 @@ namespace ClearCare.Controllers
             {
                 return BadRequest(new { message = errorMessage });
             }
+        }
+
+
+        [HttpGet]
+        [Route("GetReassignDetails")]
+        public async Task<IActionResult> GetReassignDetails()
+        {
+            var users = await _userList.retrieveAllUsers();
+            var nurses = users
+            .Where(p => p.getProfileData()["Role"].ToString()?.ToLower() == "nurse")
+            .Select(p => new 
+            { 
+                UserID = p.getProfileData()["UserID"].ToString(),
+                Name = p.getProfileData()["Name"].ToString()
+            })
+            .ToList();
+
+            foreach (var n in nurses)
+            {
+                Console.WriteLine($"UserID: {n.UserID}, Name: {n.Name}");
+            }
+            if (nurses == null || !nurses.Any())
+            {
+                return NotFound(new { message = "No nurses found." });
+            }
+
+            return Ok(nurses);
         }
 
         [HttpPost]

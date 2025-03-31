@@ -220,7 +220,8 @@ namespace ClearCare.Models.Control
                 PatientId = (string)appointment.GetAttribute("PatientId"),
                 DoctorId = (string)appointment.GetAttribute("DoctorId"),
                 NurseId = (string)appointment.GetAttribute("NurseId"),
-                ServiceType = (string)appointment.GetAttribute("Service")
+                ServiceType = (string)appointment.GetAttribute("Service"),
+                Location = (string)appointment.GetAttribute("Location")
             });
         }
 

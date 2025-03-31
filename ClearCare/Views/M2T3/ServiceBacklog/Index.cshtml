@@ -52,7 +52,7 @@
                                 </form>
                                 <form method="get" asp-action="Reassign" asp-route-id="@backlog.BacklogId" style="display:inline;" onsubmit="return confirm('Are you sure you want to reassign the backlog with ID @backlog.BacklogId?');">
                                     <button type="button" class="btn btn-warning btn-sm"
-                                        onclick="openReassignPopup('@backlog.BacklogId', '@backlog.AppointmentId', '@backlog.PatientId', '@backlog.DoctorId', '@backlog.NurseId', '@backlog.DateTime.ToString("yyyy-MM-ddTHH:mm")', '@backlog.ServiceType')">
+                                        onclick="openReassignPopup('@backlog.BacklogId', '@backlog.AppointmentId', '@backlog.PatientId', '@backlog.DoctorId', '@backlog.NurseId', '@backlog.DateTime.ToString("yyyy-MM-ddTHH:mm")', '@backlog.ServiceType', '@backlog.Location')">
                                         Reassign
                                     </button>                                
                                 </form>
@@ -79,13 +79,13 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="modalBacklogId">Backlog ID</label>
-                            <input type="text" class="form-control" id="modalBacklogId" readonly>
+                            @* <label for="modalBacklogId">Backlog ID</label> *@
+                            <input type="hidden" class="form-control" id="modalBacklogId" readonly>
                         </div>
 
                         <div class="form-group">
-                            <label for="modalAppointmentId">Appointment ID</label>
-                            <input type="text" class="form-control" id="modalAppointmentId" readonly>
+                            @* <label for="modalAppointmentId">Appointment ID</label> *@
+                            <input type="hidden" class="form-control" id="modalAppointmentId" readonly>
                         </div>
 
                         <div class="form-group">
@@ -99,8 +99,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="editNurseId">Nurse ID</label>
-                            <input type="text" class="form-control" id="editNurseId">
+                            <label for="editNurseId">Nurse</label>
+                            <select id="editNurseId" class="form-control" name="NurseId" required>
+                                <option value="">Select Nurse</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
@@ -122,8 +124,8 @@
                         </div> 
                         
                         <div class="form-group">
-                            <label for="editLocation">Location</label>
-                            <input type="text" class="form-control" id="editLocation">
+                            @* <label for="editLocation">Location</label> *@
+                            <input type="hidden" class="form-control" id="editLocation">
                         </div>
 
                         <div class="form-group">
@@ -179,6 +181,30 @@
     </div>
     <script>
 
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/ServiceBacklog/GetReassignDetails')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch nurse details.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const nurseDropdown = document.getElementById('editNurseId');
+                    data.forEach(nurse => {
+                        console.log(nurse);
+                        const option = document.createElement('option');
+                        option.value = nurse.userID;
+                        option.textContent = nurse.name;
+                        nurseDropdown.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching nurse details:', error);
+                    toastr.error('Error fetching nurse details.', 'Error');
+                });
+        });
+        
         function openDeletePopup(patientId, doctorId, serviceType) {
             document.getElementById('modalPatientId').value = patientId;
             document.getElementById('modalDoctorId').value = doctorId;
@@ -195,16 +221,16 @@
             document.getElementById('deleteForm').submit();
         }
 
-        function openReassignPopup(backlogId, appointmentId, patientId, doctorId, nurseId, dateTime, serviceType) {
+        function openReassignPopup(backlogId, appointmentId, patientId, doctorId, nurseId, dateTime, serviceType, location) {
             // Populate modal fields
             document.getElementById("modalBacklogId").value = backlogId;
             document.getElementById("modalAppointmentId").value = appointmentId;
             document.getElementById("editPatientId").value = patientId;
             document.getElementById("editDoctorId").value = doctorId;
-            document.getElementById("editNurseId").value = nurseId;
+            @* document.getElementById("editNurseId").value = nurseId; *@
             document.getElementById("editDate").value = dateTime;
-            @* document.getElementById("editSlot").value = slot;
-            document.getElementById("editLocation").value = location; *@
+            @* document.getElementById("editSlot").value = slot; *@
+            document.getElementById("editLocation").value = location;
             document.getElementById("editServiceType").value = serviceType;
             @* document.getElementById("editStatus").value = status; *@
 
@@ -234,6 +260,10 @@
 
         if (!dateTime || slot === "") {
             toastr.warning("Please select both a date and time slot.", "Warning");
+            return;
+        }
+        if (!nurseId) {
+            toastr.warning("Please select a nurse.", "Warning");
             return;
         }
 

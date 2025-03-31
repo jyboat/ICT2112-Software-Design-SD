@@ -11,5 +11,6 @@ namespace ClearCare.Models.Entities
         public string NurseId { get; set; }
         public string DoctorId { get; set; }
         public string ServiceType { get; set; }
+        public string Location { get; set; }
     }
 }
