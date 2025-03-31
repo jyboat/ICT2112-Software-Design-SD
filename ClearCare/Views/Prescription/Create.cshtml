@@ -28,41 +28,55 @@
         </select>
     </div>
 
-    <div>
+    <div class="container py-2">
         <!-- Hidden field for DoctorId is now populated from session -->
         <input type="hidden" asp-for="DoctorId" value="@currentUserUUID" />
     </div>
     
-    <h4>Medications</h4>
-    <div id="medications-container">
-        @for (int i = 0; i < Model.Medications.Count; i++)
-        {
-            <div class="medication-row">
-                <label>Drug Name:</label>
-                <input asp-for="Medications[@i].DrugName" />
+    <div>
+        <h4>Medications</h4>
+        <div id="medications-container">
+            @for (int i = 0; i < Model.Medications.Count; i++)
+            {
 
-                <label>Dosage:</label>
-                <input asp-for="Medications[@i].Dosage" />
-
-                <button type="button" onclick="removeRow(this)">Remove</button>
-            </div>
-        }
-    </div>
-
-    <div id="medication-template" style="display:none;">
-        <div class="medication-row">
-            <label>Drug Name:</label>
-            <input name="Medications[IDX].DrugName" value="" />
-
-            <label>Dosage:</label>
-            <input name="Medications[IDX].Dosage" value="" />
-
-            <button type="button" onclick="removeRow(this)">Remove</button>
+                <div class="medication-row row mb-3 d-flex">
+                    <div class="col-md-4">
+                        <label class="mb-0">Drug Name:</label>
+                        <input class="form-control w-100" name="Medications[@i].DrugName" value="" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="mb-0">Dosage:</label>
+                        <input class="form-control w-100" name="Medications[@i].Dosage" value="" />
+                    </div>
+                    <div class="col-md-2 d-flex flex-column justify-content-end">
+                        <button class="btn btn-danger" type="button" onclick="removeRow(this)">Remove</button>
+                    </div>
+                </div>
+            }
         </div>
+
+        <div id="medication-template" style="display:none;">
+            <div class="medication-row row mb-3 d-flex">
+                <div class="col-md-4">
+                    <label class="mb-0">Drug Name:</label>
+                    <input class="form-control w-100" name="Medications[IDX].DrugName" value="" />
+                </div>
+                <div class="col-md-4">
+                    <label class="mb-0">Dosage:</label>
+                    <input class="form-control w-100" name="Medications[IDX].Dosage" value="" />
+                </div>
+                <div class="col-md-2 d-flex flex-column justify-content-end">
+                    <button class="btn btn-danger" type="button" onclick="removeRow(this)">Remove</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <button type="button" onclick="addMedicationRow()">Add Drug</button>
-    <button type="submit">Save</button>
+    <br>
+
+    <button class="btn btn-primary" type="button" onclick="addMedicationRow()">Add Drug</button>
+    <button class="btn btn-success" type="submit">Save</button>
 </form>
 
 @section Scripts {
@@ -75,7 +89,7 @@
             document.getElementById("medications-container").insertAdjacentHTML('beforeend', newRowHtml);
         }
         function removeRow(btn) {
-            btn.parentElement.remove();
+            btn.closest('.medication-row').remove();
         }
     </script>
 }
