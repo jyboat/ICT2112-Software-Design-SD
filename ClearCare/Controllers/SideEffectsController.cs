@@ -23,7 +23,7 @@ namespace ClearCare.Controllers
 
             if (userRole == "Patient")
             {
-                var medications = await _sideEffectControl.GetPatientMedications(userRole, userUUID);
+                var medications = await _sideEffectControl.getPatientMedications(userRole, userUUID);
                 ViewData["Medications"] = medications;
             }
 

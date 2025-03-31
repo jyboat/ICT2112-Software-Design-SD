@@ -45,9 +45,22 @@ namespace ClearCare.Controls
             await _mapper.fetchSharedPrescriptionsAsync(userId);
         }
 
-        public async Task<List<PrescriptionModel>> getAllPrescriptionsAsync()
+        public async Task<List<PrescriptionModel>> getAllPrescriptionsAsync(string userRole, string userUUID)
         {
-            return await _mapper.getAllPrescriptionsAsync();
+            var allPrescription = await _mapper.getAllPrescriptionsAsync();
+
+            if (userRole == "Patient")
+            {
+                return allPrescription.Where(se => se.PatientId == userUUID).ToList();
+            }
+            else if (userRole == "Doctor")
+            {
+                return allPrescription.Where(se => se.DoctorId == userUUID).ToList();
+            }
+            
+            return allPrescription;
+
+            // return await _mapper.getAllPrescriptionsAsync();
         }
 
         public async Task addPrescriptionAsync(PrescriptionModel model)

@@ -8,45 +8,59 @@
     bool isDoctor = (userRole == "Doctor");
 }
 
-<h1>Prescription List</h1>
 
-<table class="table table-striped table-hover">
-    <thead class="thead-dark">
-        <tr>
-            <th scope="col">Patient ID</th>
-            <th scope="col">Doctor ID</th>
-            <th scope="col">Medications</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.PatientId</td>
-                <td>@item.DoctorId</td>
-                <td>
-                    <ul class="mb-0">
-                        @foreach (var med in item.Medications)
-                        {
-                            <li>
-                                <strong>Drug:</strong> @med.DrugName,
-                                <strong>Dosage:</strong> @med.Dosage
-                            </li>
-                        }
-                    </ul>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="container py-4">
 
-@if (isDoctor)
-{
-    <a asp-controller="Prescription" asp-action="Create" class="btn btn-primary">
-        Add New Prescription
-    </a>
-}
-else
-{
-    <p>You do not have permission to add new prescriptions.</p>
-}
+    <h1 class="mb-4">Prescriptions</h1>
+
+    @if (isDoctor)
+    {
+        <a asp-controller="Prescription" asp-action="Create" class="btn btn-primary mb-3">
+            Add New Prescription
+        </a>
+    }
+    else
+    {
+        <p>You do not have permission to add new prescriptions.</p>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">Patient ID</th>
+                    <th scope="col">Doctor ID</th>
+                    <th scope="col">Medications</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.PatientId</td>
+                        <td>@item.DoctorId</td>
+                        <td>
+                            <ul class="mb-0">
+                                @foreach (var med in item.Medications)
+                                {
+                                    <li>
+                                        <strong>Drug:</strong> @med.DrugName,
+                                        <strong>Dosage:</strong> @med.Dosage
+                                    </li>
+                                }
+                            </ul>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            No prescriptions found.
+        </div>
+    }
+</div>
+

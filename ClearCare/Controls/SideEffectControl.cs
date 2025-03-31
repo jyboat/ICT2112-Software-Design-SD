@@ -67,7 +67,7 @@ namespace ClearCare.Controls
             notifyCreated(sideEffect);
         }
 
-        public async Task<List<DrugDosage>> GetPatientMedications(string userRole, string userUUID)
+        public async Task<List<DrugDosage>> getPatientMedications(string userRole, string userUUID)
         {
             if (userRole != "Patient")
                 return new List<DrugDosage>();
