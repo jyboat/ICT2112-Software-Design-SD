@@ -77,6 +77,12 @@
                             <i class="bi bi-chat-dots me-1"></i> Enquiry
                         </a>
                     </li>
+                }
+                @* Check if user is patient *@
+                @if (true){
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Consultation" asp-action="listConsultations"><i class="bi bi-people-fill me-1"></i>Consultations</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Application" asp-action="goToSideEffects">
                             <i class="bi bi-chat-dots me-1"></i> SideEffects
