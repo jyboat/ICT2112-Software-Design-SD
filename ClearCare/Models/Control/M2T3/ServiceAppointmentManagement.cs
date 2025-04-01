@@ -179,6 +179,14 @@ namespace ClearCare.Models.Control
         }
 
         // i hardcode the "retrieval" of services, nurse and patients first, later once get from mod 1, will update
+        public List<Dictionary<string, string>> GetAllDoctors()
+        {
+            return new List<Dictionary<string, string>>
+                {
+                    new Dictionary<string, string> {{"id", "1"}, {"name", "John Doe"}},
+                    new Dictionary<string, string> {{"id", "2"}, {"name", "Jane Doe"}},
+                };
+        }
         public List<Dictionary<string, string>> GetAllPatients()
         {
             return new List<Dictionary<string, string>>

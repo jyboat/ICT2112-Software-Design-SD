@@ -56,10 +56,11 @@
         }
     </style>
     <script>
+        const doctorsData = @Html.Raw(Json.Serialize(ViewBag.Doctors));
         const patientsData = @Html.Raw(Json.Serialize(ViewBag.Patients));
         const nursesData = @Html.Raw(Json.Serialize(ViewBag.Nurses));
         const serviceTypes = @Html.Raw(Json.Serialize(ViewBag.ServiceNames));
-        const DoctorId = @Html.Raw(Json.Serialize(ViewBag.DoctorId));
+        const currentDoctorID = @Html.Raw(Json.Serialize(ViewBag.DoctorId));
 
         function loadCalendar(doctorId, patientId, nurseId, location, service) {
             var queryParams = [];
@@ -127,10 +128,15 @@
             // filter button
             document.getElementById('filterButton').addEventListener('click', function () {
                 event.preventDefault();
-                var doctorId = document.getElementById('doctorInput').value.trim();
+                @* var doctorId = document.getElementById('doctorInput').value.trim();
                 var patientId = document.getElementById('patientInput').value.trim();
                 var nurseId = document.getElementById('nurseInput').value.trim();
-                var location = document.getElementById('locationInput').value.trim();
+                var location = document.getElementById('locationInput').value.trim(); *@
+                var doctorId = "";
+                var patientId = "";
+                var nurseId = "";
+                var location = "";
+
                 var service = document.getElementById('serviceInput').value.trim();
                 document.getElementById('calendar').innerHTML = '';  // clear calendar
                 loadCalendar(doctorId, patientId, nurseId, location, service);
@@ -183,7 +189,7 @@
             document.getElementById("addPatientId").value = "";
             document.getElementById("addNurseId").value = "";
             document.getElementById("addServiceType").value = "";
-            document.getElementById("addDoctorID").value = DoctorId;
+            document.getElementById("addDoctorID").value = currentDoctorID; // use currentDoctorID from viewbag
             document.getElementById("addDate").readOnly = true;
 
             populateDropdowns();
@@ -244,7 +250,7 @@
                 AppointmentId: id,
                 PatientId: patientId,
                 NurseId: nurseId,
-                DoctorId: DoctorId, // use DoctorId from viewbag
+                DoctorId: currentDoctorID, // use currentDoctorID from viewbag
                 Service: serviceType,
                 Status: status,
                 DateTime: isoDateTime,
@@ -292,6 +298,7 @@
         console.log("Patients data:", patientsData);
         console.log("Nurses data:", nursesData);
         console.log("Services data:", serviceTypes);
+        console.log("Doctors data:", doctorsData);
 
 
         function generateAppointmentId(length = 20) {
@@ -404,7 +411,7 @@
                 AppointmentId: id,
                 PatientId: patientId,
                 NurseId: nurseId,
-                DoctorId: DoctorId, // use DoctorId from viewbag
+                DoctorId: currentDoctorID, // use currentDoctorID from viewbag
                 Service: serviceType,
                 Status: status,
                 DateTime: isoDateTime,
@@ -526,30 +533,73 @@
 
     <form class="mb-4">
         <div class="form-row">
-            <div class="col">
-                <input type="text" id="doctorInput" class="form-control" placeholder="Enter Doctor ID">
-            </div>
-            <div class="col">
-                <input type="text" id="patientInput" class="form-control" placeholder="Enter Patient ID">
+            <!-- Doctor Dropdown -->
+            @* <div class="col">
+                <label for="doctorInput">Doctor</label>
+                <select id="doctorInput" class="form-control">
+                    <option value="">Select Doctor...</option>
+                    @foreach (var doctor in ViewBag.Doctors)
+                    {
+                        <option value="@doctor.id">@doctor.id</option>
+                    }
+                </select>
+            </div> *@
 
-            </div>
+            <!-- Patient Dropdown -->
+            @* <div class="col">
+                <label for="patientInput">Patient</label>
+                <select id="patientInput" class="form-control">
+                    <option value="">Select Patient...</option>
+                    @foreach (var patient in ViewBag.Patients)
+                    {
+                        <option value="@patient.id">@patient.id</option>
+                    }
+                </select>
+            </div> *@
+
+            <!-- Nurse Dropdown -->
+            @* <div class="col">
+                <label for="nurseInput">Nurse</label>
+                <select id="nurseInput" class="form-control">
+                    <option value="">Select Nurse...</option>
+                    @foreach (var nurse in ViewBag.Nurses)
+                    {
+                        <option value="@nurse.id">@nurse.id</option>
+                    }
+                </select>
+            </div> *@
+
+            <!-- Location Dropdown -->
+            @* <div class="col">
+                <label for="locationInput">Location</label>
+                <select id="locationInput" class="form-control">
+                    <option value="">Select Location...</option>
+                    @foreach (var location in ViewBag.Locations)
+                    {
+                        <option value="@location.id">@location.id</option>
+                    }
+                </select>
+            </div> *@
+
+            <!-- Service Dropdown -->
             <div class="col">
-                <input type="text" id="nurseInput" class="form-control" placeholder="Enter Nurse ID">
-
+                <select id="serviceInput" class="form-control">
+                    <option value="">Select Service...</option>
+                    @foreach (var service in ViewBag.ServiceNames)
+                    {
+                        <option value="@service.Name">@service.Name</option>
+                    }
+                </select>
             </div>
+
+            <!-- Filter and Reset Buttons -->
             <div class="col">
-                <input type="text" id="locationInput" class="form-control" placeholder="Enter Location">
-
+                <button id="filterButton" class="btn btn-success">Filter</button>
+                <button id="resetButton" class="btn btn-primary">Reset Filters</button>
             </div>
-
-            <div class="col">
-                <input type="text" id="serviceInput" class="form-control" placeholder="Enter Service">
-            </div>
-
-            <button id="filterButton" class="btn btn-success">Filter</button>
-            <button id="resetButton" class="btn btn-primary">Reset Filters</button>
         </div>
     </form>
+
     <div class="d-flex flex-wrap gap-2">
         <a href="/api/ServiceAppointments/CreatePage" class="btn btn-primary me-2">Manual Assign Appointment</a>
         <a href="/api/ServiceAppointments/AutoScheduling" class="btn btn-primary me-2">Auto Assign Appointment</a>

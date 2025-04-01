@@ -61,10 +61,11 @@ public class ServiceAppointmentsController : Controller
     [Route("Index")]
     public async Task<IActionResult> Calendar()
     {
+        ViewBag.Doctors = ServiceAppointmentManagement.GetAllDoctors();
         ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
         ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
         ViewBag.ServiceNames = await _manualAppointmentScheduler.getServices();
-        ViewBag.DoctorId = HttpContext.Session.GetString("UserID");
+        ViewBag.CurrentDoctorId = HttpContext.Session.GetString("UserID");
 
         return View("~/Views/M2T3/ServiceAppointments/Calendar.cshtml");
     }
