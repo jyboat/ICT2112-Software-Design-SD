@@ -60,7 +60,6 @@
         const nursesData = @Html.Raw(Json.Serialize(ViewBag.Nurses));
         const serviceTypes = @Html.Raw(Json.Serialize(ViewBag.ServiceNames));
         const DoctorId = @Html.Raw(Json.Serialize(ViewBag.DoctorId));
-        console.log(DoctorId)
 
         function loadCalendar(doctorId, patientId, nurseId, location, service) {
             var queryParams = [];
@@ -98,8 +97,6 @@
 
 
                 dateClick: function (info) {
-                    console.log("Clicked date:", info.dateStr);
-
                     const clickedDate = new Date(info.dateStr);
                     const today = new Date();
 
@@ -392,7 +389,6 @@
 
             serviceTypes.forEach(function (service) {
                 if (serviceType == service.name) {
-                    console.log('hit');
                     location = service.modality; // set location == modality
                 }
             });
@@ -435,7 +431,6 @@
                 })
                 .then(data => {
                     toastr.success("Appointment created successfully.", "Success");
-                    console.log("Response:", data);
                     $('#addAppointmentModal').modal('hide');
                     loadCalendar();
                 })
