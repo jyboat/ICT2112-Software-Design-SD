@@ -61,7 +61,7 @@
         const nursesData = @Html.Raw(Json.Serialize(ViewBag.Nurses));
         const serviceTypes = @Html.Raw(Json.Serialize(ViewBag.ServiceNames));
         const uniqueLocations = @Html.Raw(Json.Serialize(ViewBag.UniqueLocations));
-        const currentDoctorID = @Html.Raw(Json.Serialize(ViewBag.DoctorId));
+        const currentDoctorID = @Html.Raw(Json.Serialize(ViewBag.CurrentDoctorId));
 
         function loadCalendar(doctorId, patientId, nurseId, location, service) {
             var queryParams = [];
