@@ -24,6 +24,7 @@ public class ServiceAppointmentsController : Controller
     private readonly NotificationManager _notificationManagement;
     private readonly ServiceTypeManager _serviceTypeManagement;
     private readonly ManualAppointmentScheduler _manualAppointmentScheduler;
+    private readonly IUserList _userList;
 
     public ServiceAppointmentsController()
     {
@@ -40,7 +41,10 @@ public class ServiceAppointmentsController : Controller
         _calendarManagement = new CalendarManagement();
 
         AutomaticAppointmentScheduler = new AutomaticAppointmentScheduler();
+
         _manualAppointmentScheduler = new ManualAppointmentScheduler();
+
+        _userList = new AdminManagement(new UserGateway());
 
     }
 
@@ -61,6 +65,31 @@ public class ServiceAppointmentsController : Controller
     [Route("Index")]
     public async Task<IActionResult> Calendar()
     {
+        var users = await _userList.retrieveAllUsers();
+        var usersFiltered = users
+        .Select(p => new
+        {
+            UserID = p.getProfileData()["UserID"].ToString(),
+            Name = p.getProfileData()["Name"].ToString(),
+            Role = p.getProfileData()["Role"].ToString()
+        })
+        .ToList();
+
+        // Filter for Doctors
+        ViewBag.Doctors = usersFiltered
+            .Where(u => u.Role == "Doctor")
+            .ToList();
+
+        // Filter for Patients
+        ViewBag.Patients = usersFiltered
+            .Where(u => u.Role == "Patient")
+            .ToList();
+
+        // Filter for Nurses
+        ViewBag.Nurses = usersFiltered
+            .Where(u => u.Role == "Nurse")
+            .ToList();
+
         var services = await _manualAppointmentScheduler.getServices();
 
         var uniqueLocations = services
@@ -68,13 +97,8 @@ public class ServiceAppointmentsController : Controller
         .Select(g => g.First())    // Take the first element from each group (removes duplicates)
         .ToList();
 
-        // Pass the filtered list of unique locations to the view
-        ViewBag.UniqueLocations = uniqueLocations;  // Pass the unique locations to the view
-        
+        ViewBag.UniqueLocations = uniqueLocations;
         ViewBag.ServiceNames = services;
-        ViewBag.Doctors = ServiceAppointmentManagement.GetAllDoctors();
-        ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
-        ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
         ViewBag.CurrentDoctorId = HttpContext.Session.GetString("UserID");
 
         return View("~/Views/M2T3/ServiceAppointments/Calendar.cshtml");
