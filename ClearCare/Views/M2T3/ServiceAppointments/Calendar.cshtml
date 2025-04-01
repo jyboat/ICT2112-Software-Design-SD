@@ -16,16 +16,18 @@
             max-width: 1200px;
             margin: 40px auto;
         }
+
         .patient-card {
             cursor: pointer;
             border-left: 3px solid transparent;
         }
+
         .patient-card.selected {
             border-left: 3px solid blue;
             background-color: #f0f8ff;
         }
 
-       .service-dot {
+        .service-dot {
             display: inline-block;
             width: 10px;
             height: 10px;
@@ -52,9 +54,6 @@
         .service-unknown {
             background-color: red;
         }
-
-
-
     </style>
     <script>
         const patientsData = @Html.Raw(Json.Serialize(ViewBag.Patients));
@@ -99,10 +98,10 @@
 
                 dateClick: function (info) {
                     console.log("Clicked date:", info.dateStr);
-                    
+
                     const clickedDate = new Date(info.dateStr);
                     const today = new Date();
-                    
+
                     today.setHours(0, 0, 0, 0); // Reset time part of 'today' so we only compare dates
 
                     if (clickedDate < today) {
@@ -113,7 +112,7 @@
                     // set the date value in the modal form & make the date field read-only
                     document.getElementById("addDate").value = info.dateStr;
                     document.getElementById("addDate").readOnly = true;
-                    
+
                     openAddModal(info.dateStr);
                 }
 
@@ -125,11 +124,11 @@
             // init calendar
             loadCalendar();
 
-            
+
 
             // filter button
             document.getElementById('filterButton').addEventListener('click', function () {
-                event.preventDefault(); 
+                event.preventDefault();
                 var doctorId = document.getElementById('doctorInput').value.trim();
                 var patientId = document.getElementById('patientInput').value.trim();
                 var nurseId = document.getElementById('nurseInput').value.trim();
@@ -141,7 +140,7 @@
 
             // reset button
             document.getElementById('resetButton').addEventListener('click', function () {
-                event.preventDefault(); 
+                event.preventDefault();
                 document.getElementById('doctorInput').value = '';
                 document.getElementById('patientInput').value = '';
                 document.getElementById('nurseInput').value = '';
@@ -183,7 +182,6 @@
         function openAddModal(selectedDateTime) {
             // clear the form fields
             document.getElementById("addTimeSlot").value = "";
-            document.getElementById("addLocation").value = "";
             document.getElementById("addPatientId").value = "";
             document.getElementById("addNurseId").value = "";
             document.getElementById("addServiceType").value = "";
@@ -357,7 +355,7 @@
             const form = document.getElementById('addAppointment');
 
             // check each required field
-            const fields = ['addPatientId', 'addNurseId', 'addServiceType', 'addTimeSlot', 'addLocation'];
+            const fields = ['addPatientId', 'addNurseId', 'addServiceType', 'addTimeSlot'];
 
             fields.forEach(fieldId => {
                 const field = document.getElementById(fieldId);
@@ -390,7 +388,15 @@
             let status = "Scheduled"; // default status
             let selectedDate = document.getElementById("addDate").value;
             let selectedTimeSlot = document.getElementById("addTimeSlot").value;
-            let location = document.getElementById("addLocation").value;
+            let location;
+
+            serviceTypes.forEach(function (service) {
+                if (serviceType == service.name) {
+                    console.log('hit');
+                    location = service.modality; // set location == modality
+                }
+            });
+
 
             // calc hour based on the selected time slot
             let hour = 8 + parseInt(selectedTimeSlot);
@@ -440,82 +446,82 @@
         }
 
 
-    function loadSuggestedPatients(selectedDateTime) {
-    const container = document.getElementById('suggestedPatients');
-    container.innerHTML = '';
+        function loadSuggestedPatients(selectedDateTime) {
+            const container = document.getElementById('suggestedPatients');
+            container.innerHTML = '';
 
-    // fetch(`/api/ServiceAppointments/GetPatientsByDate?selectedDateTime=${selectedDateTime}`)
-    fetch(`/api/ServiceAppointments/GetSuggestedPatients`)
-        .then(async response => {
-            if (!response.ok) {
-                throw new Error("Server returned error: " + response.status);
-            }
+            // fetch(`/api/ServiceAppointments/GetPatientsByDate?selectedDateTime=${selectedDateTime}`)
+            fetch(`/api/ServiceAppointments/GetSuggestedPatients`)
+                .then(async response => {
+                    if (!response.ok) {
+                        throw new Error("Server returned error: " + response.status);
+                    }
 
-            const contentType = response.headers.get("Content-Type") || "";
-            if (!contentType.includes("application/json")) {
-                throw new Error("Expected JSON but got: " + contentType);
-            }
+                    const contentType = response.headers.get("Content-Type") || "";
+                    if (!contentType.includes("application/json")) {
+                        throw new Error("Expected JSON but got: " + contentType);
+                    }
 
-            return response.json(); // only run if JSON is valid
-            })
-            .then(data => {
-                const patients = Array.isArray(data) ? data : [data];
+                    return response.json(); // only run if JSON is valid
+                })
+                .then(data => {
+                    const patients = Array.isArray(data) ? data : [data];
 
-                patients.forEach(patient => {
-                const services = Array.isArray(patient.services) ? patient.services : [];
+                    patients.forEach(patient => {
+                        const services = Array.isArray(patient.services) ? patient.services : [];
 
-                const card = document.createElement('div');
-                card.className = 'card mb-2 patient-card';
-                card.innerHTML = `
+                        const card = document.createElement('div');
+                        card.className = 'card mb-2 patient-card';
+                        card.innerHTML = `
                     <div class="card-body py-2">
                         <h6 class="card-title mb-1">Patient ID: ${patient.patientId}</h6>
                         <div>
                             ${services.map(service =>
-                                `<span class="service-dot ${getDotClass(service.status)}"
+                            `<span class="service-dot ${getDotClass(service.status)}"
                                     title="${service.service}: ${service.status}"></span>`
-                            ).join('')}
+                        ).join('')}
                         </div>
 
                         <div class="mt-2">
                         <strong>Services Requiring Attention:</strong>
                         <ol>
                             ${services
-                            .filter(service => !service.status || service.status === "Missed" || service.status === "Backlog")
-                            .map(service => `<li>${service.service}</li>`)
-                            .join('')}
+                                .filter(service => !service.status || service.status === "Missed" || service.status === "Backlog")
+                                .map(service => `<li>${service.service}</li>`)
+                                .join('')}
                         </ol>
                         </div>
                     </div>
                 `;
 
-                // Add click handler
-                card.addEventListener('click', () => {
-                    // Redirect to another page with patientId as a query parameter
-                   
-                     window.location.href = `/ServiceStatus/Index?patientId=${patient.patientId}`;
+                        // Add click handler
+                        card.addEventListener('click', () => {
+                            // Redirect to another page with patientId as a query parameter
+
+                            window.location.href = `/ServiceStatus/Index?patientId=${patient.patientId}`;
+                        });
+
+
+                        container.appendChild(card);
+                    });
+
+                })
+                .catch(error => {
+                    console.error("Error loading patients:", error);
+                    toastr.error("Failed to load patients.");
                 });
-
-
-                container.appendChild(card);
-            });
-
-            })
-            .catch(error => {
-                console.error("Error loading patients:", error);
-                toastr.error("Failed to load patients.");
-            });
-    }
-
-
-    function getDotClass(status) {
-        switch ((status || "").toLowerCase()) {
-            case "completed": return "service-complete";
-            case "scheduled": return "service-scheduled"; 
-            case "missed": return "service-missed";
-            case "backlog": return "service-backlog";
-            default: return "service-unknown";
         }
-    }
+
+
+        function getDotClass(status) {
+            switch ((status || "").toLowerCase()) {
+                case "completed": return "service-complete";
+                case "scheduled": return "service-scheduled";
+                case "missed": return "service-missed";
+                case "backlog": return "service-backlog";
+                default: return "service-unknown";
+            }
+        }
 
     </script>
 </head>
@@ -563,7 +569,8 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">Edit Appointment</h5>
-                    <button type="button" class="close text-white btn btn-danger" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
+                    <button type="button" class="close text-white btn btn-danger" data-dismiss="modal"
+                        aria-label="Close" onclick="closeModal()">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -595,7 +602,7 @@
                         <div class="form-group mb-3">
                             <label for="editServiceType">Select Service Type</label>
                             <select class="form-control" id="editServiceType" required>
-                               @if (ViewBag.ServiceNames != null)
+                                @if (ViewBag.ServiceNames != null)
                                 {
                                     foreach (ClearCare.Models.Entities.ServiceType_SDM service in ViewBag.ServiceNames)
                                     {
@@ -604,6 +611,13 @@
                                 }
                             </select>
                             <div class="invalid-feedback">Please select a service type</div>
+                        </div>
+
+                        <!-- Location Selection -->
+                        <div class="form-group mb-3">
+                            <label for="editLocation">Location</label>
+                            <input class="form-control" id="editLocation" readonly>
+                            <div class="invalid-feedback">Please select a location</div>
                         </div>
 
                         <!-- Date and Time Selection -->
@@ -633,18 +647,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Location Selection -->
-                        <div class="form-group mb-3">
-                            <label for="editLocation">Location</label>
-                            <select class="form-control" id="editLocation" required>
-                                <option value="">Select Location...</option>
-                                <option value="PHYSICAL">Physical</option>
-                                <option value="VIRTUAL">Virtual</option>
-                            </select>
-                            <div class="invalid-feedback">Please select a location</div>
-                        </div>
-
                         <!-- Status Selection -->
                         <div class="form-group mb-3">
                             <label for="editStatus">Status</label>
@@ -660,8 +662,10 @@
 
                         <!-- Action Buttons -->
                         <div class="form-group text-right mt-4">
-                            <button type="button" class="btn btn-danger mr-2" onclick="deleteAppointment(document.getElementById('editAppointmentId').value)">Delete</button>
-                            <button type="button" class="btn btn-primary" onclick="updateAppointment()">Save Changes</button>
+                            <button type="button" class="btn btn-danger mr-2"
+                                onclick="deleteAppointment(document.getElementById('editAppointmentId').value)">Delete</button>
+                            <button type="button" class="btn btn-primary" onclick="updateAppointment()">Save
+                                Changes</button>
                         </div>
                     </form>
                 </div>
@@ -675,7 +679,8 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">Add Appointment</h5>
-                    <button type="button" class="close text-white btn btn-danger" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
+                    <button type="button" class="close text-white btn btn-danger" data-dismiss="modal"
+                        aria-label="Close" onclick="closeModal()">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -708,7 +713,7 @@
                         <div class="form-group mb-3">
                             <label for="addServiceType">Select Service Type</label>
                             <select class="form-control" id="addServiceType" required>
-                                  <option value="">Select Service Type</option>
+                                <option value="">Select Service Type</option>
                                 @if (ViewBag.ServiceNames != null)
                                 {
                                     foreach (ClearCare.Models.Entities.ServiceType_SDM service in ViewBag.ServiceNames)
@@ -725,7 +730,8 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="addDate">Date:</label>
-                                    <input type="date" id="addDate" name="Date" class="form-control bg-light" required readonly>
+                                    <input type="date" id="addDate" name="Date" class="form-control bg-light" required
+                                        readonly>
                                     <small class="text-muted">Selected from calendar</small>
                                 </div>
                             </div>
@@ -748,21 +754,11 @@
                             </div>
                         </div>
 
-                        <!-- Location Selection -->
-                        <div class="form-group mb-3">
-                            <label for="addLocation">Location</label>
-                            <select class="form-control" id="addLocation" required>
-                                <option value="">Select Location...</option>
-                                <option value="PHYSICAL">Physical</option>
-                                <option value="VIRTUAL">Virtual</option>
-                            </select>
-                            <div class="invalid-feedback">Please select a location</div>
-                        </div>
-
                         <!-- Action Buttons -->
                         <div class="form-group text-right mt-4">
                             <button type="button" class="btn btn-secondary mr-2" onclick="closeModal()">Cancel</button>
-                            <button type="button" class="btn btn-primary" onclick="addAppointment()">Add Appointment</button>
+                            <button type="button" class="btn btn-primary" onclick="addAppointment()">Add
+                                Appointment</button>
                         </div>
                     </form>
 
