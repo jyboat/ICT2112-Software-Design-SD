@@ -9,7 +9,7 @@
 
 <section class="container consultations">
     <h2>Consultation Sessions</h2>
-    @if (ViewBag.UserRole == "Patient" || ViewBag.UserRole == "Caregiver")
+    @if (ViewBag.UserRole == "Caregiver" || ViewBag.UserRole == "Doctor")
     {
         <div class="text-center mb-3">
             <a role="button" href="/Consultation/Submission" class="btn btn-md btn-success">Submit new Session<i
