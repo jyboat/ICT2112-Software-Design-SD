@@ -30,6 +30,22 @@ public class ConsultationManagement : IConsultReceive
         return _gateway.fetchConsultationById(id);
     }
 
+    // This is mainly for displaying a list of appointments in the creation page
+    public Task<List<Appointment>> getAppointments()
+    {
+        // Return a hard-coded list for now
+        var appointments = new List<Appointment>
+        {
+            new Appointment("A1", "Doctor's Visitation - Follow-Up", DateTime.Now),
+            new Appointment("A2", "Monthly Healthcare Check-In", new DateTime(2025, 6, 1, 12, 30, 0)),
+            new Appointment("A3", "Medicine Check", new DateTime(2025, 7, 20, 14, 0, 0)),
+            new Appointment("A4", "Scheduled Doctor's Appointment", new DateTime(2025, 8, 20, 14, 0, 0)),
+            new Appointment("A5", "Welfare Check", new DateTime(2025, 9, 5, 11, 40, 0)),
+        };
+
+        return Task.FromResult(appointments);
+    }
+
     public Task receiveConsultations(List<ConsultationSession> sessions)
     {
         throw new NotImplementedException();
