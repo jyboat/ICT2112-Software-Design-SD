@@ -126,6 +126,11 @@ namespace ClearCare.Models.Control.M3T1
             return await _gateway.fetchAssessmentById(id);
         }
 
+        public async Task<Assessment> getAssessmentByPatientId(string patientId)
+        {
+            return await _gateway.fetchAssessmentByPatientId(patientId);
+        }
+
         public async Task<bool> deleteAssessment(string id)
         {
             return await _gateway.deleteAssessment(id);

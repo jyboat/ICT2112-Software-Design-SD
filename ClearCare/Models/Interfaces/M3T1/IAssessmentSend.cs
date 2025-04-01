@@ -8,6 +8,7 @@ namespace ClearCare.Models.Interfaces.M3T1
     {
         Task<List<Assessment>> fetchAssessments();
         Task<Assessment> fetchAssessmentById(string id);
+        Task<Assessment> fetchAssessmentByPatientId(string patientId);
         
         Task<string> insertAssessment(string imagePath, string riskLevel, string recommendation, string createdAt, string patientId);
         

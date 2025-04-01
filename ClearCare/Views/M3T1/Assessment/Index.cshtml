@@ -42,6 +42,22 @@
             <div class="card-text">
                 <p><strong>Risk Level: </strong>@assessment["RiskLevel"]</p>
                 <p><strong>Recommendations: </strong>@assessment["Recommendation"]</p>
+                @if (assessment.ContainsKey("HomeAssessmentChecklist") && assessment["HomeAssessmentChecklist"] is Dictionary<string, bool> checklist)
+                {
+                    <p class="mt-2"><strong>Home Assessment Checklist:</strong></p>
+                    <ul>
+                        @foreach (var item in checklist)
+                        {
+                            <li>
+                                @item.Key: <strong>@(item.Value ? "Yes" : "No")</strong>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted">No checklist available.</p>
+                }
             </div>
         </div>
     </div>

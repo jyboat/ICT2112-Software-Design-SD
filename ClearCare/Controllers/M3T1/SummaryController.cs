@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 using System.Text.Json;
 using ClearCare.Models.Control.M3T1;
 using ClearCare.Models.Entities.M3T1;
+using ClearCare.Models.Interfaces.M3T1;
+using ClearCare.Models.DTO.M3T1;
 
 // Request Handling
 [Route("Summary")]
@@ -15,7 +17,8 @@ public class SummaryController : Controller
     public SummaryController()
     {
         var gateway = new SummaryGateway();
-        _manager = new DischargeSummaryManager(gateway);
+        IAssessment fetcher = new AssessmentGateway();
+        _manager = new DischargeSummaryManager(gateway, fetcher);
         gateway.receiver = _manager;
     }
 
@@ -35,11 +38,22 @@ public class SummaryController : Controller
     public async Task<IActionResult> viewSummary(string summaryId)
     {
         var summary = await _manager.getSummary(summaryId);
+
         if (summary == null)
         {
             return View("list");
         }
-        return View("~/Views/M3T1/Summary/Index.cshtml", summary);
+
+        string patientId = (string)summary.GetSummaryDetails()["PatientId"];
+        var assessment = await _manager.getAssessment(patientId);
+
+        var dto = new SummaryDTO
+        {
+            Summary = summary,
+            Assessment = assessment
+        };
+
+        return View("~/Views/M3T1/Summary/Index.cshtml", dto);
     }
 
     [Route("Add")]

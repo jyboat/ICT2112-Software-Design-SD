@@ -11,10 +11,12 @@ namespace ClearCare.Models.Control.M3T1
     public class DischargeSummaryManager : ISummaryReceive
     {
         private readonly ISummarySend _gateway;
+        private readonly IAssessment _fetchAssessment;
 
-        public DischargeSummaryManager(ISummarySend gateway)
+        public DischargeSummaryManager(ISummarySend gateway, IAssessment fetcher)
         {
             _gateway = gateway;
+            _fetchAssessment = fetcher;
         }
 
         public Task receiveSummaries(List<DischargeSummary> summaries)
@@ -67,6 +69,12 @@ namespace ClearCare.Models.Control.M3T1
                 Console.WriteLine("Failed to update summary");
             }
             return Task.CompletedTask;
+        }
+
+        public async Task<Assessment> getAssessment(string patientId)
+        {
+            Assessment assessment = await _fetchAssessment.fetchAssessmentByPatientId(patientId);
+            return assessment;
         }
 
         public async Task<bool> updateSummary(string id, string details, string instructions, string patientId)

@@ -1,8 +1,9 @@
-﻿@model ClearCare.Models.Entities.M3T1.DischargeSummary
+﻿@model ClearCare.Models.DTO.M3T1.SummaryDTO
 
 @{
     ViewData["Title"] = "View Summary";
-    var summary = Model.GetSummaryDetails();
+    var summary = Model.Summary.GetSummaryDetails();
+    var assessment = Model.Assessment.getAssessmentDetails();
 }
 
 <div class="container view-summary">
@@ -33,6 +34,31 @@
                             <th>Follow-up instructions:</th>
                             <td>
                             @summary["Instructions"]
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Home assessment recommendations:</th>
+                            <td>
+                                @assessment["Recommendation"]
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Assessment checklist:</th>
+                            <td>
+                                @if (assessment.ContainsKey("HomeAssessmentChecklist") && assessment["HomeAssessmentChecklist"] is Dictionary<string, bool> checklist)
+                                {
+                                    <ul>
+                                        @foreach (var item in checklist)
+                                        {
+                                            <li>
+                                                @item.Key: <strong>@(item.Value ? "Yes" : "No")</strong>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                                else{
+                                    <p>None to show</p>
+                                }
                             </td>
                         </tr>
                     </tbody>

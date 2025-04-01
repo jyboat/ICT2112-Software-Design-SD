@@ -7,7 +7,7 @@ using ClearCare.Models.Interfaces.M3T1;
 
 namespace ClearCare.DataSource.M3T1
 {
-    public class AssessmentGateway : IAssessmentSend
+    public class AssessmentGateway : IAssessmentSend, IAssessment
     {
         private readonly FirestoreDb _db;
 
@@ -119,7 +119,57 @@ namespace ClearCare.DataSource.M3T1
 
             return assessment;
         }
-        
+
+        public async Task<Assessment> fetchAssessmentByPatientId(string patientId)
+        {
+            CollectionReference assessmentRef = _db.Collection("Assessment");
+            QuerySnapshot query = await assessmentRef
+                .WhereEqualTo("PatientId", patientId)
+                .OrderByDescending("CreatedAt") 
+                .Limit(1) 
+                .GetSnapshotAsync();
+
+            if (!query.Documents.Any())
+            {
+                Console.WriteLine($"No assessment found with patient ID {patientId}");
+                return null;
+            }
+            DocumentSnapshot snapshot = query.Documents.FirstOrDefault();
+
+
+            string id = snapshot.ContainsField("Id") ? snapshot.GetValue<string>("Id") : snapshot.Id;
+            string hazardType = snapshot.ContainsField("HazardType") ? snapshot.GetValue<string>("HazardType") : "";
+            string riskLevel = snapshot.ContainsField("RiskLevel") ? snapshot.GetValue<string>("RiskLevel") : "";
+            string recommendation = snapshot.ContainsField("Recommendation") ? snapshot.GetValue<string>("Recommendation") : "";
+
+            DateTime createdAt;
+            if (snapshot.GetValue<object>("CreatedAt") is Timestamp timestamp)
+            {
+                createdAt = timestamp.ToDateTime();
+            }
+            else
+            {
+                string dateString = snapshot.GetValue<string>("CreatedAt");
+                createdAt = DateTime.TryParse(dateString, out var date) ? date : DateTime.Now;
+            }
+
+            string imagePath = snapshot.TryGetValue<string>("ImagePath", out var paths) ? paths : "";
+            Dictionary<string, bool> checklist = snapshot.TryGetValue<Dictionary<string, bool>>("HomeAssessmentChecklist", out var chklist) ? chklist : new Dictionary<string, bool>();
+
+            Assessment assessment = new Assessment(
+                id: id,
+                hazardType: hazardType,  // Now passing hazardType
+                riskLevel: riskLevel,
+                recommendation: recommendation,
+                createdAt: createdAt,
+                patientId: patientId,
+                imagePath: imagePath,
+                homeAssessmentChecklist: checklist
+            );
+
+            return assessment;
+        }
+
 
         public async Task<bool> deleteAssessment(string id)
         {
