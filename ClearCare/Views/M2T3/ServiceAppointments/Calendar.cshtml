@@ -63,13 +63,14 @@
         const uniqueLocations = @Html.Raw(Json.Serialize(ViewBag.UniqueLocations));
         const currentDoctorID = @Html.Raw(Json.Serialize(ViewBag.CurrentDoctorId));
 
-        function loadCalendar(doctorId, patientId, nurseId, location, service) {
+        function loadCalendar(doctorId, patientId, nurseId, location, service, timeSlot) {
             var queryParams = [];
             if (doctorId) queryParams.push('doctorId=' + doctorId);
             if (patientId) queryParams.push('patientId=' + patientId);
             if (nurseId) queryParams.push('nurseId=' + nurseId);
             if (location) queryParams.push('location=' + location);
             if (service) queryParams.push('service=' + service);
+            if (timeSlot) queryParams.push('timeSlot=' + timeSlot);
             var queryString = queryParams.length ? '?' + queryParams.join('&') : '';
 
             var calendarEl = document.getElementById('calendar');
@@ -134,8 +135,9 @@
                 var nurseId = document.getElementById('nurseInput').value.trim();
                 var location = document.getElementById('locationInput').value.trim();
                 var service = document.getElementById('serviceInput').value.trim();
+                var timeSlot = document.getElementById('timeSlotInput').value.trim();
                 document.getElementById('calendar').innerHTML = '';  // clear calendar
-                loadCalendar(doctorId, patientId, nurseId, location, service);
+                loadCalendar(doctorId, patientId, nurseId, location, service, timeSlot);
             });
 
             // reset button
@@ -331,8 +333,8 @@
             if (elementId.includes("PatientId")) {
                 options.forEach(option => {
                     const optionElement = document.createElement("option");
-                    optionElement.value = option.userID;  
-                    optionElement.text = option.userID;   
+                    optionElement.value = option.userID;
+                    optionElement.text = option.userID;
                     dropdown.appendChild(optionElement);
                 });
             }
@@ -340,8 +342,8 @@
             if (elementId.includes("NurseId")) {
                 options.forEach(option => {
                     const optionElement = document.createElement("option");
-                    optionElement.value = option.userID;  
-                    optionElement.text = option.userID;   
+                    optionElement.value = option.userID;
+                    optionElement.text = option.userID;
                     dropdown.appendChild(optionElement);
                 });
             }
@@ -589,11 +591,24 @@
                 </select>
             </div>
 
-            <!-- Filter and Reset Buttons -->
+            <!-- Time Slot Dropdown -->
             <div class="col">
+                <select id="timeSlotInput" class="form-control">
+                    <option value="">Select Time Slot</option>
+                    <option value="0">08:00 - 09:00</option>
+                    <option value="1">09:00 - 10:00</option>
+                    <option value="2">10:00 - 11:00</option>
+                    <option value="3">11:00 - 12:00</option>
+                    <option value="4">12:00 - 13:00</option>
+                    <option value="5">13:00 - 14:00</option>
+                    <option value="6">14:00 - 15:00</option>
+                    <option value="7">15:00 - 16:00</option>
+                </select>
+            </div>
+            
+            <!-- Filter and Reset Buttons -->
                 <button id="filterButton" class="btn btn-success">Filter</button>
                 <button id="resetButton" class="btn btn-primary">Reset Filters</button>
-            </div>
         </div>
     </form>
 
