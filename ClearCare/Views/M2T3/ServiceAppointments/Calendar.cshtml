@@ -130,11 +130,8 @@
             document.getElementById('filterButton').addEventListener('click', function () {
                 event.preventDefault();
                 var doctorId = document.getElementById('doctorInput').value.trim();
-                @* var patientId = document.getElementById('patientInput').value.trim();
+                var patientId = document.getElementById('patientInput').value.trim();
                 var nurseId = document.getElementById('nurseInput').value.trim();
-                var location = document.getElementById('locationInput').value.trim(); *@
-                var patientId = "";
-                var nurseId = "";
                 var location = document.getElementById('locationInput').value.trim();
                 var service = document.getElementById('serviceInput').value.trim();
                 document.getElementById('calendar').innerHTML = '';  // clear calendar
@@ -317,11 +314,13 @@
             // Populate patient dropdowns
             populateDropdown("addPatientId", patientsData);
             populateDropdown("editPatientId", patientsData);
-            populateDropdown("editServiceType", serviceTypes);
 
             // Populate nurse dropdowns
             populateDropdown("addNurseId", nursesData);
             populateDropdown("editNurseId", nursesData);
+
+            // Populate service dropdowns
+            populateDropdown("editServiceType", serviceTypes);
             populateDropdown("addServiceType", serviceTypes);
         }
 
@@ -329,27 +328,29 @@
             const dropdown = document.getElementById(elementId);
             dropdown.innerHTML = '<option value="">Select...</option>';
 
-            // Check if we're dealing with service types (which are just strings)
+            if (elementId.includes("PatientId")) {
+                options.forEach(option => {
+                    const optionElement = document.createElement("option");
+                    optionElement.value = option.userID;  
+                    optionElement.text = option.userID;   
+                    dropdown.appendChild(optionElement);
+                });
+            }
+
+            if (elementId.includes("NurseId")) {
+                options.forEach(option => {
+                    const optionElement = document.createElement("option");
+                    optionElement.value = option.userID;  
+                    optionElement.text = option.userID;   
+                    dropdown.appendChild(optionElement);
+                });
+            }
+
             if (elementId.includes("ServiceType")) {
-                // Handle string values for service types
                 options.forEach(option => {
                     const optionElement = document.createElement("option");
                     optionElement.value = option.name;  // Use the string as both value
                     optionElement.text = option.name;   // and display text
-                    dropdown.appendChild(optionElement);
-                });
-            }
-            // Skip populating status dropdowns as they're already defined in HTML
-            else if (elementId.includes("Status")) {
-                // Status dropdown is already populated in HTML
-                return;
-            }
-            else {
-                // Handle objects with id/name for patients and nurses
-                options.forEach(option => {
-                    const optionElement = document.createElement("option");
-                    optionElement.value = option.id;
-                    optionElement.text = option.name;
                     dropdown.appendChild(optionElement);
                 });
             }
@@ -545,28 +546,26 @@
             </div>
 
             <!-- Patient Dropdown -->
-            @* <div class="col">
-                <label for="patientInput">Patient</label>
+            <div class="col">
                 <select id="patientInput" class="form-control">
                     <option value="">Select Patient...</option>
                     @foreach (var patient in ViewBag.Patients)
                     {
-                        <option value="@patient.id">@patient.id</option>
+                        <option value="@patient.UserID">@patient.UserID</option>
                     }
                 </select>
-            </div> *@
+            </div>
 
             <!-- Nurse Dropdown -->
-            @* <div class="col">
-                <label for="nurseInput">Nurse</label>
+            <div class="col">
                 <select id="nurseInput" class="form-control">
                     <option value="">Select Nurse...</option>
                     @foreach (var nurse in ViewBag.Nurses)
                     {
-                        <option value="@nurse.id">@nurse.id</option>
+                        <option value="@nurse.UserID">@nurse.UserID</option>
                     }
                 </select>
-            </div> *@
+            </div>
 
             <!-- Location Dropdown -->
             <div class="col">
