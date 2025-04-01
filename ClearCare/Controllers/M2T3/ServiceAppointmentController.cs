@@ -32,9 +32,9 @@ public class ServiceAppointmentsController : Controller
 
 
         _nurseAvailabilityManagement = new NurseAvailabilityManagement();
-        
+
         _notificationManagement = new NotificationManager();
-        
+
         _serviceTypeManagement = new ServiceTypeManager();
 
         _calendarManagement = new CalendarManagement();
@@ -61,10 +61,20 @@ public class ServiceAppointmentsController : Controller
     [Route("Index")]
     public async Task<IActionResult> Calendar()
     {
+        var services = await _manualAppointmentScheduler.getServices();
+
+        var uniqueLocations = services
+        .GroupBy(s => s.Modality)  // Group by 'Modality' (location)
+        .Select(g => g.First())    // Take the first element from each group (removes duplicates)
+        .ToList();
+
+        // Pass the filtered list of unique locations to the view
+        ViewBag.UniqueLocations = uniqueLocations;  // Pass the unique locations to the view
+        
+        ViewBag.ServiceNames = services;
         ViewBag.Doctors = ServiceAppointmentManagement.GetAllDoctors();
         ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
         ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
-        ViewBag.ServiceNames = await _manualAppointmentScheduler.getServices();
         ViewBag.CurrentDoctorId = HttpContext.Session.GetString("UserID");
 
         return View("~/Views/M2T3/ServiceAppointments/Calendar.cshtml");
@@ -74,12 +84,12 @@ public class ServiceAppointmentsController : Controller
     [Route("CreatePage")]
     public async Task<IActionResult> Create()
     {
-        
+
         ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
         ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
-        ViewBag.Service = await _manualAppointmentScheduler.getServices(); 
+        ViewBag.Service = await _manualAppointmentScheduler.getServices();
 
-        return View("~/Views/M2T3/ServiceAppointments/CreateServiceAppt.cshtml"); 
+        return View("~/Views/M2T3/ServiceAppointments/CreateServiceAppt.cshtml");
     }
 
     [HttpGet]
@@ -138,7 +148,7 @@ public class ServiceAppointmentsController : Controller
             return NotFound(new { Message = "Error" });
         }
     }
-    
+
     [HttpPut]
     [Route("Update")]
     public async Task<IActionResult> UpdateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
@@ -263,7 +273,8 @@ public class ServiceAppointmentsController : Controller
         return Ok(new
         {
             Message = "Auto appointment scheduling complete.",
-            Assigned = assignedAppointments.Select(a => new {
+            Assigned = assignedAppointments.Select(a => new
+            {
                 AppointmentId = a.GetAttribute("AppointmentId"),
                 PatientId = a.GetAttribute("PatientId"),
                 NurseId = a.GetAttribute("NurseId"),
@@ -318,7 +329,7 @@ public class ServiceAppointmentsController : Controller
     [Route("GetSuggestedPatients")]
     public async Task<IActionResult> GetSuggestedPatients()
     {
-       
+
         var result = await _calendarManagement.getSuggestedPatients();
         return Ok(result);
     }

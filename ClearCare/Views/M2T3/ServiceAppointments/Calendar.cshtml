@@ -60,6 +60,7 @@
         const patientsData = @Html.Raw(Json.Serialize(ViewBag.Patients));
         const nursesData = @Html.Raw(Json.Serialize(ViewBag.Nurses));
         const serviceTypes = @Html.Raw(Json.Serialize(ViewBag.ServiceNames));
+        const uniqueLocations = @Html.Raw(Json.Serialize(ViewBag.UniqueLocations));
         const currentDoctorID = @Html.Raw(Json.Serialize(ViewBag.DoctorId));
 
         function loadCalendar(doctorId, patientId, nurseId, location, service) {
@@ -135,8 +136,7 @@
                 var doctorId = "";
                 var patientId = "";
                 var nurseId = "";
-                var location = "";
-
+                var location = document.getElementById('locationInput').value.trim();
                 var service = document.getElementById('serviceInput').value.trim();
                 document.getElementById('calendar').innerHTML = '';  // clear calendar
                 loadCalendar(doctorId, patientId, nurseId, location, service);
@@ -299,6 +299,7 @@
         console.log("Nurses data:", nursesData);
         console.log("Services data:", serviceTypes);
         console.log("Doctors data:", doctorsData);
+        console.log("unique locations:", uniqueLocations);
 
 
         function generateAppointmentId(length = 20) {
@@ -570,16 +571,15 @@
             </div> *@
 
             <!-- Location Dropdown -->
-            @* <div class="col">
-                <label for="locationInput">Location</label>
+            <div class="col">
                 <select id="locationInput" class="form-control">
                     <option value="">Select Location...</option>
-                    @foreach (var location in ViewBag.Locations)
+                    @foreach (var service in ViewBag.UniqueLocations)
                     {
-                        <option value="@location.id">@location.id</option>
+                        <option value="@service.Modality">@service.Modality</option>
                     }
                 </select>
-            </div> *@
+            </div>
 
             <!-- Service Dropdown -->
             <div class="col">
