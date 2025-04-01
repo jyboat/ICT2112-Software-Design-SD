@@ -54,4 +54,28 @@ public class ConsultationManagement : IConsultReceive
     {
         throw new NotImplementedException();
     }
+
+    // Search filter for the ConsultationController
+    public List<ConsultationSession> applySearchFilter(List<ConsultationSession> sessions, string query)
+    {
+        if (!string.IsNullOrWhiteSpace(query))
+        {
+            return sessions.Where(s =>
+                s.Notes.Contains(query, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
+
+        return sessions;
+    }
+
+    // Pagination for the ConsultationController
+    public List<ConsultationSession> applyPagination(List<ConsultationSession> sessions, int page, int pageSize)
+    {
+        var paginatedList = sessions
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return paginatedList;
+    }
 }
