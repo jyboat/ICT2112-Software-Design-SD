@@ -133,7 +133,23 @@ else
 @section Scripts {
 <script>
 $(document).ready(function () {
-        $('.close, .btn-secondary').click(function () {
+        // Set the minimum value for the serviceDate input to the current date and time
+    function setMinServiceDate() {
+        var now = new Date();
+        // Format date to yyyy-MM-ddThh:mm
+        var year = now.getFullYear();
+        var month = ('0' + (now.getMonth() + 1)).slice(-2);
+        var day = ('0' + now.getDate()).slice(-2);
+        var hours = ('0' + now.getHours()).slice(-2);
+        var minutes = ('0' + now.getMinutes()).slice(-2);
+        var formattedNow = year + '-' + month + '-' + day + 'T' + hours + ':' + minutes;
+        $('#serviceDate').attr('min', formattedNow);
+    }
+
+    // Call the function on page load
+    setMinServiceDate();
+
+    $('.close, .btn-secondary').click(function () {
         $('#appointmentModal').modal('hide');
     });
 
@@ -201,6 +217,16 @@ $(document).ready(function () {
         var doctorId = $('#doctorId').val();
         var service = $('#service').val();
         var status = $('#status').val();
+
+               var service = $('#service').val();
+        var status = $('#status').val();
+
+        // Check if any required fields are empty
+        if (!serviceDate || !location || !serviceOutcomes || !appointmentId || !patientId || !nurseId || !doctorId || !service || !status) {
+            // Display error message if any field is blank
+            alert("Please fill in all the required fields.");
+            return; // Prevent form submission
+        }
 
         // Log the data before making the POST and PUT requests
         console.log("Preparing to send POST and PUT requests...");
