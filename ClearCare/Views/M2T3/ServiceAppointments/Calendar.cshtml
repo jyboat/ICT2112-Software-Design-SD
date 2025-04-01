@@ -129,11 +129,10 @@
             // filter button
             document.getElementById('filterButton').addEventListener('click', function () {
                 event.preventDefault();
-                @* var doctorId = document.getElementById('doctorInput').value.trim();
-                var patientId = document.getElementById('patientInput').value.trim();
+                var doctorId = document.getElementById('doctorInput').value.trim();
+                @* var patientId = document.getElementById('patientInput').value.trim();
                 var nurseId = document.getElementById('nurseInput').value.trim();
                 var location = document.getElementById('locationInput').value.trim(); *@
-                var doctorId = "";
                 var patientId = "";
                 var nurseId = "";
                 var location = document.getElementById('locationInput').value.trim();
@@ -535,16 +534,15 @@
     <form class="mb-4">
         <div class="form-row">
             <!-- Doctor Dropdown -->
-            @* <div class="col">
-                <label for="doctorInput">Doctor</label>
+            <div class="col">
                 <select id="doctorInput" class="form-control">
                     <option value="">Select Doctor...</option>
                     @foreach (var doctor in ViewBag.Doctors)
                     {
-                        <option value="@doctor.id">@doctor.id</option>
+                        <option value="@doctor.UserID">@doctor.UserID</option>
                     }
                 </select>
-            </div> *@
+            </div>
 
             <!-- Patient Dropdown -->
             @* <div class="col">
