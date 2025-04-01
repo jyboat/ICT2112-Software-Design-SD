@@ -27,15 +27,15 @@ public class ConsultationController : Controller
 
         var sessions = await manager.getConsultations();
 
-        var combinedList = manager.applySearchFilter(sessions, search);
-        combinedList = manager.applyPagination(combinedList, page, pageSize);
+        var filteredSessions = manager.applySearchFilter(sessions, search);
+        filteredSessions = manager.applyPagination(filteredSessions, page, pageSize);
 
         // Pass state to ViewBag
         ViewBag.CurrentPage = page;
         ViewBag.PageSize = pageSize;
-        ViewBag.TotalPages = (combinedList.Count + pageSize - 1) / pageSize;
-        ViewBag.TotalItems = combinedList.Count;
+        ViewBag.TotalPages = (filteredSessions.Count + pageSize - 1) / pageSize;
+        ViewBag.TotalItems = filteredSessions.Count;
 
-        return View("~/Views/M3T1/Consultation/List.cshtml", sessions);
+        return View("~/Views/M3T1/Consultation/List.cshtml", filteredSessions);
     }
 }
