@@ -29,7 +29,7 @@
                         var events = data.map(function (availability) {
                             return {
                                 id: availability.id,
-                                title: "Unavailable: " + availability.extendedProps.nurseId,
+                                title: "Available: " + availability.extendedProps.nurseId,
                                 start: availability.start,
                                 extendedProps: {
                                     nurseId: availability.extendedProps.nurseId,
@@ -52,7 +52,7 @@
                     today.setHours(0, 0, 0, 0);
 
                     if (clickedDate < today) {
-                        toastr.error("You cannot edit an unavailability on a past date.", "Error");
+                        toastr.error("You cannot edit an availability on a past date.", "Error");
                         return;
                     }
                     openEditModal(info.event.id, info.event.extendedProps.nurseId, info.event.startStr);
@@ -64,11 +64,11 @@
                     today.setHours(0, 0, 0, 0);
 
                     if (clickedDate < today) {
-                        toastr.error("You cannot create an unavailability on a past date.", "Error");
+                        toastr.error("You cannot create an availability on a past date.", "Error");
                         return;
                     }
 
-                    // Check for existing unavailability on the same date
+                    // Check for existing availability on the same date
                     const events = calendar.getEvents();
                     const existing = events.find(e => {
                         const eventDate = new Date(e.start);
@@ -80,7 +80,7 @@
                     });
 
                     if (existing) {
-                        toastr.error("You cannot add more than 1 unavailability on the same date.", "Error");
+                        toastr.error("You cannot add more than 1 availability on the same date.", "Error");
                         return;
                     }
 
