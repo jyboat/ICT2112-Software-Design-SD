@@ -60,6 +60,7 @@
         const nursesData = @Html.Raw(Json.Serialize(ViewBag.Nurses));
         const serviceTypes = @Html.Raw(Json.Serialize(ViewBag.ServiceNames));
         const DoctorId = @Html.Raw(Json.Serialize(ViewBag.DoctorId));
+        console.log(DoctorId)
 
         function loadCalendar(doctorId, patientId, nurseId, location, service) {
             var queryParams = [];
@@ -172,7 +173,7 @@
                 document.getElementById("editServiceType").value = extendedProps.serviceType;
                 document.getElementById("editLocation").value = extendedProps.location;
                 document.getElementById("editStatus").value = extendedProps.status;
-                document.getElementById("editDoctorId").value = extendedProps.doctorId;
+                document.getElementById("editDoctorId").value = DoctorId;
 
             }, 300);
 
@@ -185,6 +186,7 @@
             document.getElementById("addPatientId").value = "";
             document.getElementById("addNurseId").value = "";
             document.getElementById("addServiceType").value = "";
+            document.getElementById("addDoctorID").value = DoctorId;
             document.getElementById("addDate").readOnly = true;
 
             populateDropdowns();
@@ -227,7 +229,6 @@
             }
 
             let id = document.getElementById("editAppointmentId").value;
-            let doctorId = document.getElementById("editDoctorId").value;
             let nurseId = document.getElementById("editNurseId").value;
             let patientId = document.getElementById("editPatientId").value;
             let selectedDate = document.getElementById("editDate").value;
@@ -246,7 +247,7 @@
                 AppointmentId: id,
                 PatientId: patientId,
                 NurseId: nurseId,
-                DoctorId: doctorId,
+                DoctorId: DoctorId, // use DoctorId from viewbag
                 Service: serviceType,
                 Status: status,
                 DateTime: isoDateTime,
@@ -383,7 +384,6 @@
             let id = generateAppointmentId(20);
             let patientId = document.getElementById("addPatientId").value;
             let nurseId = document.getElementById("addNurseId").value;
-            let doctorId = document.getElementById("addDoctorID").value;
             let serviceType = document.getElementById("addServiceType").value;
             let status = "Scheduled"; // default status
             let selectedDate = document.getElementById("addDate").value;
@@ -405,10 +405,10 @@
             let isoDateTime = `${selectedDate}T${hour.toString().padStart(2, '0')}:00:00.000Z`;
 
             let formData = {
-                AppointmentId: id || "dummy123",
+                AppointmentId: id,
                 PatientId: patientId,
                 NurseId: nurseId,
-                DoctorId: doctorId || "1",
+                DoctorId: DoctorId, // use DoctorId from viewbag
                 Service: serviceType,
                 Status: status,
                 DateTime: isoDateTime,
@@ -577,8 +577,7 @@
                 <div class="modal-body">
                     <form id="editAppointmentForm">
                         <input type="hidden" id="editAppointmentId">
-                        <!-- Hidden Doctor ID -->
-                        <input type="hidden" id="editDoctorId" value="DOC001">
+                        <input id="editDoctorId" class="form-control bg-light" readonly>
 
                         <!-- Patient Selection -->
                         <div class="form-group mb-3">
@@ -687,6 +686,8 @@
                 <div class="modal-body">
                     <form id="addAppointment">
                         <input type="hidden" id="addAppointmentId">
+                        <input id="addDoctorID" class="form-control bg-light" readonly>
+
 
                         <!-- Patient Selection -->
                         <div class="form-group mb-3">
@@ -705,9 +706,6 @@
                             </select>
                             <div class="invalid-feedback">Please select a nurse</div>
                         </div>
-
-                        <!-- Hidden Doctor ID -->
-                        <input type="hidden" id="addDoctorID" value="DOC001">
 
                         <!-- Service Type -->
                         <div class="form-group mb-3">

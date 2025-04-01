@@ -9,6 +9,7 @@ using System.Linq;
 using ClearCare.Interfaces;
 using ClearCare.Control;
 using ClearCare.Models.Interface;
+using Google.Api;
 
 
 // Request Handling
@@ -63,7 +64,7 @@ public class ServiceAppointmentsController : Controller
         ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
         ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
         ViewBag.ServiceNames = await _manualAppointmentScheduler.getServices();
-        ViewBag.DoctorId = "DOC001"; // TODO - hardcoded for now, will retrieve from session later
+        ViewBag.DoctorId = HttpContext.Session.GetString("UserID");
 
         return View("~/Views/M2T3/ServiceAppointments/Calendar.cshtml");
     }
