@@ -4,7 +4,7 @@ namespace ClearCare.Models // Replace "YourNamespace" with your actual project n
 {
     public class ReplyToEnquiryViewModel
     {
-        public Enquiry Enquiry { get; set; }
-        public List<Reply> Replies { get; set; }
+        public Enquiry Enquiry { get; set; } = new Enquiry();
+        public List<Reply> Replies { get; set; } = new List<Reply>();
     }
 }

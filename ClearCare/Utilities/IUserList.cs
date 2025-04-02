@@ -9,8 +9,8 @@ namespace ClearCare
         // A simple user model for both patients and doctors.
         public class UserInfo
         {
-            public string Name { get; set; }
-            public string Uuid { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public string Uuid { get; set; } = string.Empty;
         }
 
         // List of patients

@@ -9,20 +9,20 @@ namespace ClearCare.Models
     public class DrugDosage
     {
         [FirestoreProperty]
-        public string DrugName { get; set; }
+        public string DrugName { get; set; } = string.Empty;
         
         [FirestoreProperty]
-        public string Dosage { get; set; }
+        public string Dosage { get; set; } = string.Empty;
     }
 
     [FirestoreData]
     public class PrescriptionModel
     {
         [FirestoreProperty]
-        public string PatientId { get; set; }
+        public string PatientId { get; set; } = string.Empty;
 
         [FirestoreProperty]
-        public string DoctorId { get; set; }
+        public string DoctorId { get; set; } = string.Empty;
 
         // Replaces the old List<string> DrugList and single DosageInfo
         [FirestoreProperty]

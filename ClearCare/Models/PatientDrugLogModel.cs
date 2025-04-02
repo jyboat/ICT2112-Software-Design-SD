@@ -6,18 +6,18 @@ namespace ClearCare.Models
     public class PatientDrugLogModel
     {
         [FirestoreProperty]
-        public string PatientId { get; set; }
+        public string PatientId { get; set; } = string.Empty;
 
         [FirestoreProperty]
-        public string DrugName { get; set; }
+        public string DrugName { get; set; }= string.Empty;
 
         [FirestoreProperty]
-        public string DrugInformation { get; set; }
+        public string DrugInformation { get; set; } = string.Empty;
 
         [FirestoreProperty]
-        public string SideEffects { get; set; }
+        public string SideEffects { get; set; } = string.Empty;
 
         [FirestoreProperty]
-        public string Status { get; set; }
+        public string Status { get; set; } = string.Empty;
     }
 }

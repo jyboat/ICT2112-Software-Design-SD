@@ -6,15 +6,15 @@ namespace ClearCare.Models
     public class SideEffectModel
     {
         [FirestoreProperty]
-        public string PatientId { get; set; } // Updated to string to match Firebase
+        public string PatientId { get; set; } = string.Empty;
 
         [FirestoreProperty]
-        public string DrugName { get; set; }
+        public string DrugName { get; set; } = string.Empty;
 
         [FirestoreProperty]
-        public string DrugInformation { get; set; }
+        public string DrugInformation { get; set; }= string.Empty;
 
         [FirestoreProperty]
-        public string SideEffects { get; set; }
+        public string SideEffects { get; set; } = string.Empty;
     }
 }
