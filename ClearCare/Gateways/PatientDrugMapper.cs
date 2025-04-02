@@ -14,6 +14,13 @@ namespace ClearCare.Gateways
         private readonly FirestoreDb _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
+        /// <summary>
+        ///   Initializes a new instance of the <see cref="PatientDrugMapper"/>
+        ///   class.
+        /// </summary>
+        /// <param name="httpContextAccessor">
+        ///   The HttpContextAccessor for accessing session data.
+        /// </param>
         public PatientDrugMapper(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
@@ -26,38 +33,56 @@ namespace ClearCare.Gateways
                 });
             }
 
-            _db = FirestoreDb.Create("ict2112"); // Replace with your Firebase project ID
+            _db = FirestoreDb.Create(
+                "ict2112"
+            ); // Replace with your Firebase project ID
         }
 
-       public async Task<List<PatientDrugLogModel>> GetDrugLogAsync()
-{
-    var drugLog = new List<PatientDrugLogModel>();
-    
-    // Safely access Session using null-conditional
-    string patientId = _httpContextAccessor.HttpContext?.Session?.GetString("UserUUID") ?? "";
-
-    try
-    {
-        var collection = _db.Collection("DrugInformation").WhereEqualTo("PatientId", patientId);
-        var snapshot = await collection.GetSnapshotAsync();
-
-        foreach (var document in snapshot.Documents)
+        /// <summary>
+        ///   Retrieves the drug log for the current patient.
+        /// </summary>
+        /// <returns>
+        ///   A list of <see cref="PatientDrugLogModel"/> representing the
+        ///   patient's drug log.
+        /// </returns>
+        public async Task<List<PatientDrugLogModel>> GetDrugLogAsync()
         {
-            if (document.Exists)
+            var drugLog = new List<PatientDrugLogModel>();
+
+            // Safely access Session using null-conditional
+            string patientId =
+                _httpContextAccessor.HttpContext?.Session?.GetString("UserUUID") ?? "";
+
+            try
             {
-                var drugInfo = document.ConvertTo<PatientDrugLogModel>();
-                drugLog.Add(drugInfo);
+                var collection = _db.Collection("DrugInformation")
+                    .WhereEqualTo("PatientId", patientId);
+                var snapshot = await collection.GetSnapshotAsync();
+
+                foreach (var document in snapshot.Documents)
+                {
+                    if (document.Exists)
+                    {
+                        var drugInfo = document.ConvertTo<PatientDrugLogModel>();
+                        drugLog.Add(drugInfo);
+                    }
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error fetching drug log: {e.Message}");
+            }
+
+            return drugLog;
         }
-    }
-    catch (Exception e)
-    {
-        Console.WriteLine($"Error fetching drug log: {e.Message}");
-    }
 
-    return drugLog;
-}
-
+        /// <summary>
+        ///   Retrieves all drug logs from Firestore.
+        /// </summary>
+        /// <returns>
+        ///   A list of <see cref="PatientDrugLogModel"/> representing all drug
+        ///   logs.
+        /// </returns>
         public async Task<List<PatientDrugLogModel>> GetAllDrugLogAsync()
         {
             var drugLog = new List<PatientDrugLogModel>();
@@ -84,6 +109,11 @@ namespace ClearCare.Gateways
             return drugLog;
         }
 
+        /// <summary>
+        ///   Uploads drug information to Firestore.
+        /// </summary>
+        /// <param name="drugInfo">The <see cref="PatientDrugLogModel"/> to
+        ///   upload.</param>
         public async Task UploadDrugInfo(PatientDrugLogModel drugInfo)
         {
             try

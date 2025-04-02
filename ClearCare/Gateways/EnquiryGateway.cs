@@ -9,6 +9,10 @@ namespace ClearCare.Gateways
     {
         private readonly FirestoreDb _db;
 
+        /// <summary>
+        ///   Initializes a new instance of the <see cref="EnquiryGateway"/>
+        ///   class.
+        /// </summary>
         public EnquiryGateway()
         {
             if (FirebaseApp.DefaultInstance == null)
@@ -22,11 +26,21 @@ namespace ClearCare.Gateways
             _db = FirestoreDb.Create("ict2112");
         }
 
+        /// <summary>
+        ///   Saves an enquiry to Firestore.
+        /// </summary>
+        /// <param name="enquiry">The enquiry to save.</param>
         public async Task saveEnquiryAsync(Enquiry enquiry)
         {
             await _db.Collection("Enquiry").AddAsync(enquiry);
         }
 
+        /// <summary>
+        ///   Retrieves all enquiries for a specific user from Firestore.
+        /// </summary>
+        /// <param name="userUuid">The UUID of the user.</param>
+        /// <returns>A list of <see cref="Enquiry"/> for the specified
+        ///   user.</returns>
         public async Task<List<Enquiry>> getEnquiriesForUserAsync(string userUuid)
         {
             Query query = _db.Collection("Enquiry").WhereEqualTo("UserUUID", userUuid);
@@ -44,7 +58,12 @@ namespace ClearCare.Gateways
             return enquiries;
         }
 
-
+        /// <summary>
+        ///   Retrieves all enquiries for a specific doctor from Firestore.
+        /// </summary>
+        /// <param name="userUuid">The UUID of the doctor.</param>
+        /// <returns>A list of <see cref="Enquiry"/> for the specified
+        ///   doctor.</returns>
         public async Task<List<Enquiry>> getEnquiriesForDoctorAsync(string userUuid)
         {
             Query query = _db.Collection("Enquiry").WhereEqualTo("DoctorUUID", userUuid);
@@ -62,6 +81,14 @@ namespace ClearCare.Gateways
             return enquiries;
         }
 
+        /// <summary>
+        ///   Retrieves a specific enquiry from Firestore by its document ID.
+        /// </summary>
+        /// <param name="documentId">The ID of the document in Firestore.</param>
+        /// <returns>
+        ///   The <see cref="Enquiry"/> with the specified ID, or null if not
+        ///   found.
+        /// </returns>
         public async Task<Enquiry?> getEnquiryByIdAsync(string documentId)
         {
             DocumentReference docRef = _db.Collection("Enquiry").Document(documentId);
@@ -79,7 +106,12 @@ namespace ClearCare.Gateways
             return enquiry;
         }
 
-
+        /// <summary>
+        ///   Saves a reply to a specific enquiry in Firestore.
+        /// </summary>
+        /// <param name="enquiryId">The ID of the enquiry to reply to.</param>
+        /// <param name="reply">The <see cref="Reply"/> to save.</param>
+        /// <returns>The ID of the newly created reply document.</returns>
         public async Task<string> saveReplyAsync(string enquiryId, Reply reply)
         {
             reply.CreatedAt = DateTime.UtcNow;
@@ -91,6 +123,12 @@ namespace ClearCare.Gateways
             return docRef.Id;
         }
 
+        /// <summary>
+        ///   Retrieves all replies for a specific enquiry from Firestore.
+        /// </summary>
+        /// <param name="enquiryId">The ID of the enquiry.</param>
+        /// <returns>A list of <see cref="Reply"/> for the specified
+        ///   enquiry.</returns>
         public async Task<List<Reply>> getRepliesForEnquiryAsync(string enquiryId)
         {
             try

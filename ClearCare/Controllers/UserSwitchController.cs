@@ -4,6 +4,17 @@ namespace ClearCare.Controllers
 {
     public class UserSwitcherController : Controller
     {
+        /// <summary>
+        ///   Switches the current user session to the specified user.
+        /// </summary>
+        /// <param name="userIdentifier">
+        ///   The identifier of the user to switch to.
+        /// </param>
+        /// <returns>
+        ///   A redirect to the Home page after setting the user's session
+        ///   data. Returns a BadRequest if the userIdentifier is null or
+        ///   empty.
+        /// </returns>
         [HttpPost]
         public IActionResult SwitchUser(string userIdentifier)
         {
@@ -41,7 +52,5 @@ namespace ClearCare.Controllers
 
             return RedirectToAction("Index", "Home");
         }
-
     }
-
 }

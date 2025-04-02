@@ -1,60 +1,137 @@
-# ICT2112-Software-Design-SD
+# ClearCare Project - README
 
-## ClearCare
+## Overview
 
-ClearCare is a Web application designed to stramline the coordination and scheduling of pre-discharge services for patients.
-The application is divided into 3 modules:
+ClearCare is an ASP.NET Core MVC application designed to manage various aspects of patient care, including enquiries, prescriptions, side effects, and drug interactions. It integrates with Firebase Firestore for data storage and utilizes external APIs for drug interaction and side effect information.
 
-### Module 1 - Account and Data Hub
+## Features
 
-- Handling of accounts, profiles, role-based access
-- Personalized profile page to view and edit information
-- Admins are able to reset passwords, delete accounts, and perform other adminnistrative tasks
-- Handling of patient medical records
-- Filing of erratum upon amendment of records
-- Secure storage and communication of data
+*   **Enquiry Management:**
+    *   Patients can submit enquiries to doctors.
+    *   Doctors can view and respond to patient enquiries.
+    *   Enquiries are stored in Firestore.
+    *   Supports pagination for long lists of replies.
+*   **Prescription Management:**
+    *   Doctors can create and manage prescriptions.
+    *   Prescriptions are stored in Firestore.
+    *   Users (Doctors and Patients) can only view their own Prescriptions
+*   **Side Effect Tracking:**
+    *   Patients can report side effects for medications.
+    *   Side effects are stored in Firestore.
+    *   Provides charting capabilities to visualize side effect data.
+*   **Drug Interaction Checking:**
+    *   Checks for potential drug interactions using an external API.
+    *   Allows uploading new drug interactions.
+*   **Patient Drug Log:**
+    *   Patients and Doctors can add/view to drug log.
+*   **User Authentication and Roles:**
+    *   Supports different user roles (Doctor and Patient).
+    *   Uses session management to maintain user state.
+    *   User switching functionality for demonstration purposes.
 
-### Module 2 - Care Servie Orchestrator
+## Technologies Used
 
-- Assignment of nurses to pre-discharge services
-- Automated reminders and notifications for patients on upcoming service appointments
-- Recording of service history for patients
+*   **ASP.NET Core MVC:**  For building the web application.
+*   **Firebase Firestore:**  For data storage.
+*   **Firebase Admin SDK:**  For interacting with Firestore.
+*   **HttpClient:**  For making HTTP requests to external APIs.
+*   **Observer Pattern:** For decoupling components.
+*   **Prettier:** Used to format the code.
 
-### Module 3 - Med Track and Home Safe
+## Setup Instructions
 
-- Medication counselling through reviewing of drug information
-- Home safety assessments for rehab team to assess risks and recommend modifications
-- Virtual checklist provided for asessment
-- Documentation of discussions and recommendations for the assessment
-- Online zoom integrated consultations
+1.  **Prerequisites:**
+    *   .NET SDK (version 7.0 or later).
+    *   Firebase project with Firestore enabled.
+    *   A service account key file for Firebase.
 
+2.  **Configuration:**
+    *   Clone the repository.
+    *   Add the Firebase service account key file to the project.
+    *   Configure the Firebase project ID in the code.
+        *   Check the \*.cs files where `FirestoreDb.Create("ict2112")` is used, and replace `ict2112` with your Firebase project ID.
+    *   Configure the session.
 
-### Additional Features
-- Feedback system
-- Enquiry system
-- Community hub for patients and caregivers
-- Discharge summary generator
+3.  **Install Dependencies:**
 
-### Project Structure
-```bash
-├───Controllers     # Controllers
-├───Models          # Models
-├───Views           # Views (UI) of the project
-│   └───Shared      # Base layout, partials
-└───wwwroot
-    ├───css         # CSS files
-    ├───js          # JS files
-```
+    ```bash
+    dotnet restore
+    ```
 
-### Project Setup
-**Prerequisites**
-1. Dotnet SDK
+4.  **Build the Project:**
 
-**Steps**
-1. Clone or download the project from GitHub
-2. Run the following:
-```bash
-cd ClearCare    # Change directory to project
-dotnet run      # Run the applciation
-```
-3. View the application on localhost
+    ```bash
+    dotnet build
+    ```
+
+5.  **Run the Project:**
+
+    ```bash
+    dotnet run
+    ```
+
+    The application will be accessible at `http://localhost:5000` (or another port specified in your launch settings).
+
+## Code Structure
+
+The project follows a standard ASP.NET Core MVC structure, with the following key directories:
+
+*   **Controllers:** Contains the controller classes for handling user requests and interactions.
+*   **Models:** Contains the data models representing the application's entities (e.g., `Enquiry`, `PrescriptionModel`, `SideEffectModel`).
+*   **Views:** Contains the Razor views for rendering the user interface.
+*   **Gateways:** Contains classes for interacting with the data store (Firestore).  These act as Mappers.
+*   **Interfaces:** Contains interfaces defining contracts for different services and functionalities.
+*   **Controls:** Contains the business logic and control classes for managing the application's features.
+*   **Observer:** Contains interfaces and implementations related to the observer pattern.
+
+## Key Components
+
+*   **`EnquiryController`:** Handles the submission, retrieval, and management of enquiries.
+*   **`PrescriptionController`:** Handles the creation, retrieval, and display of prescriptions.
+*   **`SideEffectsController`:** Handles the reporting, retrieval, and visualization of side effects.
+*   **`DrugInteractionController`:** Handles the checking and uploading of drug interactions.
+*   **`PatientDrugLogController`:**  Handles the Patient drug log
+*   **`ApplicationController`:**  Acts as main entrypoint of the application.
+*   **`UserSwitcherController`:** Used for easily switching between user accounts for demonstration purposes.
+*   **`HomeController`:**  Handles the default index and error pages.
+
+*   **`EnquiryGateway`:** Interacts with Firestore to store and retrieve enquiry data.
+*   **`PrescriptionMapper`:** Interacts with Firestore to store and retrieve prescription data.
+*   **`SideEffectsMapper`:** Interacts with Firestore to store and retrieve side effect data.
+*   **`PatientDrugMapper`:**  Interacts with Firestore to store and retrieve patient drug log data.
+*   **`DrugLogSideEffectsService`:**  Fetches drug side effects from the external API.
+
+*   **`EnquiryControl`:** Manages the business logic for enquiries.
+*   **`PrescriptionControl`:** Manages the business logic for prescriptions.
+*   **`SideEffectControl`:** Manages the business logic for side effects.
+*   **`DrugInteractionControl`:** Manages the business logic for drug interactions.
+*   **`PatientDrugLogControl`:**  Manages the patient drug log business logic.
+
+## Observer Pattern
+
+The project implements the observer pattern to decouple components and facilitate event-driven behavior. The `IObserver<T>` and `ISubject<T>` interfaces are used to define the observer and subject roles, respectively.  The `EnquiryControl` and `SideEffectControl` make use of the Observer pattern.
+
+## User Switching
+
+The `UserSwitcherController` and `UserSwitcherService` components are provided for demonstration purposes, allowing you to easily switch between different user accounts (Doctor and Patient) without needing full authentication.  **This is purely for demonstration and should not be used in a production environment.**
+
+## External API Integration
+
+The `DrugInteractionControl` and `DrugLogSideEffectsService` components integrate with external APIs to retrieve drug interaction and side effect information.  **Ensure that these APIs are available and properly configured.**
+
+## Areas for Improvement
+
+*   Implement full user authentication and authorization.
+*   Implement proper error handling and logging.
+*   Add unit tests to improve code quality and reliability.
+*   Implement input validation and sanitization to prevent security vulnerabilities.
+*   Securely manage API keys and connection strings.
+*   Improve the user interface and user experience.
+*   Implement robust data validation.
+*   Implement data pagination in all features.
+
+## Notes
+
+*   This project provides a basic framework for managing patient care data.
+*   It can be extended and customized to meet specific requirements.
+*   It is important to address the security considerations and areas for improvement before deploying the application in a production environment.

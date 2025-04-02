@@ -11,6 +11,10 @@ namespace ClearCare.Gateways
     {
         private readonly FirestoreDb _db;
 
+        /// <summary>
+        ///   Initializes a new instance of the <see cref="SideEffectsMapper"/>
+        ///   class.
+        /// </summary>
         public SideEffectsMapper()
         {
             if (FirebaseApp.DefaultInstance == null)
@@ -21,9 +25,18 @@ namespace ClearCare.Gateways
                 });
             }
 
-            _db = FirestoreDb.Create("ict2112"); // Replace with your Firebase project ID
+            _db = FirestoreDb.Create(
+                "ict2112"
+            ); // Replace with your Firebase project ID
         }
 
+        /// <summary>
+        ///   Retrieves all side effects from Firestore.
+        /// </summary>
+        /// <returns>
+        ///   A list of <see cref="SideEffectModel"/> representing all side
+        ///   effects.
+        /// </returns>
         public async Task<List<SideEffectModel>> getAllSideEffectsAsync()
         {
             var sideEffects = new List<SideEffectModel>();
@@ -50,6 +63,11 @@ namespace ClearCare.Gateways
             return sideEffects;
         }
 
+        /// <summary>
+        ///   Adds a new side effect to Firestore.
+        /// </summary>
+        /// <param name="sideEffect">The <see cref="SideEffectModel"/> to
+        ///   add.</param>
         public async Task addSideEffectAsync(SideEffectModel sideEffect)
         {
             try
