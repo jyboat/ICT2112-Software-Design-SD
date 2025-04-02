@@ -65,10 +65,6 @@
                         <a class="nav-link" asp-area="" asp-controller="ViewRecord" asp-action="DisplayViewRecord"><i class="bi bi-file-earmark-medical me-1"></i>Patient Records</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Assessment" asp-action="Privacy"><i
-                                class="bi bi-house-check me-1"></i>Home Assessment</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" asp-controller="NurseAvailability" asp-action="Index">Nurse Availability</a>
                     </li>
                     <li class="nav-item">
@@ -109,6 +105,7 @@
                             <a class="dropdown-item" asp-controller="Profile" asp-action="displayRemoveCaregiver"><i class="bi bi-people-fill me-1"></i>Remove Caregiver</a>
                         }
                         <a class="dropdown-item" asp-controller="NotificationPreference" asp-action="Index"><i class="bi bi-gear me-1"></i>Settings</a>
+                        <a class="dropdown-item text-danger" asp-controller="Login" asp-action="Logout"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
                     </div>
                 </li>
             </ul>

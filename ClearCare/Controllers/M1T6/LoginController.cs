@@ -49,7 +49,7 @@ namespace ClearCare.Controllers
 
                 return RedirectToAction("Index", "Home");
             }
-                
+
             ViewBag.Error = "Invalid login credentials";
             return View("Login");
         }
@@ -213,8 +213,15 @@ namespace ClearCare.Controllers
             return View("NewPassword");
         }
 
+        [HttpGet]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear(); // Clears all session data
+            return View("Login");
+        }
+
         // Handle the new password submission
-       [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> submitNewPassword(string newPassword, string confirmPassword)
         {
             // Server-side validation to ensure passwords match
