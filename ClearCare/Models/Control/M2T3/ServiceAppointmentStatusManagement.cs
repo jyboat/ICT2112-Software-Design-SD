@@ -89,7 +89,7 @@ namespace ClearCare.Models.Control
 
             foreach (var appointment in appointments)
             {
-                if (appointment.CheckAndMarkAsMissed()) 
+                if (CheckAndMarkAsMissed(appointment)) 
                 {
                     Console.WriteLine($"🔍 Appointment ID: {appointment.GetAttribute("AppointmentId")}, Status: {appointment.GetAttribute("Status")}, DateTime: {appointment.GetAttribute("Datetime")}");
 
@@ -110,7 +110,7 @@ namespace ClearCare.Models.Control
         }
 
         private async Task<ServiceAppointment> CheckAndUpdateStatusAsync(ServiceAppointment appointment) {
-            if (appointment.CheckAndMarkAsMissed()) {
+            if (CheckAndMarkAsMissed(appointment)) {
                 bool success = await _iCreateAppointment.UpdateAppointment(appointment);
                 if (!success)
                     {
@@ -136,11 +136,13 @@ namespace ClearCare.Models.Control
 
         private bool CheckAndMarkAsMissed(ServiceAppointment appointment)
         {   
-            Console.WriteLine("Ttest");
          
             if (appointment.GetAttribute("Status") != "Completed" && appointment.GetAppointmentDateTime(appointment) < DateTime.Now && appointment.GetAttribute("Status")  != "Missed")
             {
+                Console.WriteLine("Ttest123");
                 appointment.UpdateStatus("Missed");
+                notify(appointment.GetAttribute("AppointmentId"), "success");
+                
                 return true; 
             }
             return false;
@@ -192,8 +194,6 @@ namespace ClearCare.Models.Control
 
             return patientList;
         }
-
-
 
        
     }

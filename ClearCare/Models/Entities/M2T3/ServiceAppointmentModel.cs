@@ -220,16 +220,16 @@ namespace ClearCare.Models.Entities
             }
         }
 
-        public bool CheckAndMarkAsMissed()
-        {
+        // public bool CheckAndMarkAsMissed()
+        // {
          
-            if (Status != "Completed" && DateTime < DateTime.Now && Status != "Missed")
-            {
-                UpdateStatus("Missed");
-                return true; 
-            }
-            return false;
-        }
+        //     if (Status != "Completed" && DateTime < DateTime.Now && Status != "Missed")
+        //     {
+        //         UpdateStatus("Missed");
+        //         return true; 
+        //     }
+        //     return false;
+        // }
 
     }
 
