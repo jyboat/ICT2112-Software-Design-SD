@@ -9,7 +9,7 @@
     int totalReplies = ViewBag.TotalReplies != null ? (int)ViewBag.TotalReplies : 0;
 
     // Retrieve the current user's UUID from session.
-    string currentUserUUID = Context.Session.GetString("UserUUID") ?? "";
+    string currentUserUUID = Context.Session.GetString("UserID") ?? "";
 }
 
 <h2>Reply to Enquiry</h2>

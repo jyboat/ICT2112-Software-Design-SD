@@ -15,27 +15,27 @@ public class UserSwitcherService
         switch (userIdentifier)
         {
             case "uuid-doctor-john":
-                context.Session.SetString("UserUUID", "uuid-doctor-john");
-                context.Session.SetString("UserName", "Dr. John");
-                context.Session.SetString("UserRole", "Doctor");
+                context.Session.SetString("UserID", "uuid-doctor-john");
+                context.Session.SetString("Name", "Dr. John");
+                context.Session.SetString("Role", "Doctor");
                 break;
                 
             case "uuid-patient-sara":
-                context.Session.SetString("UserUUID", "uuid-patient-sara");
-                context.Session.SetString("UserName", "Sara");
-                context.Session.SetString("UserRole", "Patient");
+                context.Session.SetString("UserID", "uuid-patient-sara");
+                context.Session.SetString("Name", "Sara");
+                context.Session.SetString("Role", "Patient");
                 break;
                 
             case "uuid-patient-john":
-                context.Session.SetString("UserUUID", "uuid-patient-john");
-                context.Session.SetString("UserName", "John");
-                context.Session.SetString("UserRole", "Patient");
+                context.Session.SetString("UserID", "uuid-patient-john");
+                context.Session.SetString("Name", "John");
+                context.Session.SetString("Role", "Patient");
                 break;
                 
             default:
-                context.Session.SetString("UserUUID", "uuid-doctor-john");
-                context.Session.SetString("UserName", "Dr. John");
-                context.Session.SetString("UserRole", "Doctor");
+                context.Session.SetString("UserID", "uuid-doctor-john");
+                context.Session.SetString("Name", "Dr. John");
+                context.Session.SetString("Role", "Doctor");
                 break;
         }
     }
@@ -52,7 +52,7 @@ public class UserSwitcherService
 
     public string GetCurrentUserIdentifier()
     {
-        return _httpContextAccessor.HttpContext.Session.GetString("UserUUID") 
+        return _httpContextAccessor.HttpContext.Session.GetString("UserID") 
                ?? "uuid-doctor-john"; 
     }
 }

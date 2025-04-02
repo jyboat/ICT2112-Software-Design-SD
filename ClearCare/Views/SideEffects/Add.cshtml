@@ -6,10 +6,10 @@
     ViewData["Title"] = "Add Side Effect";
 
     // Retrieve the patient's UUID from session.
-    string userUUID = Context.Session.GetString("UserUUID") ?? "";
+    string userUUID = Context.Session.GetString("UserID") ?? "";
 
     // Retrieve the user's role from session storage.
-    string userRole = Context.Session.GetString("UserRole") ?? "Unknown";
+    string userRole = Context.Session.GetString("Role") ?? "Unknown";
     
     var medications = ViewData["Medications"] as List<DrugDosage>;
 }

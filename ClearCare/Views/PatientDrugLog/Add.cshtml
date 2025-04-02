@@ -4,7 +4,7 @@
 @{
     ViewData["Title"] = "Upload Drug";
     // Retrieve the current user's UUID from session.
-    string userUUID = Context.Session.GetString("UserUUID") ?? "";
+    string userUUID = Context.Session.GetString("UserID") ?? "";
 }
 
 <div class="container py-4">

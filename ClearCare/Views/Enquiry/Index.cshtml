@@ -6,15 +6,17 @@
     ViewData["Title"] = "Enquiry";
     
     // Retrieve user role and UUID from session.
-    string userRole = Context.Session.GetString("UserRole") ?? "Unknown";
-    string userUUID = Context.Session.GetString("UserUUID") ?? "";
+    string userRole = Context.Session.GetString("Role") ?? "Unknown";
+    string userUUID = Context.Session.GetString("UserID") ?? "";
     
     // Example list of doctors; in a real scenario, pass them via model or database.
     var doctorList = new List<SelectListItem>
     {
         new SelectListItem { Text = "Dr. Alice", Value = "uuid-alice" },
         new SelectListItem { Text = "Dr. Bob",   Value = "uuid-bob"   },
-        new SelectListItem { Text = "Dr. Carol", Value = "uuid-carol" }
+        new SelectListItem { Text = "Dr. Carol", Value = "uuid-carol" },
+        new SelectListItem { Text = "Dr. John", Value = "uuid-doctor-john" }
+
     };
 }
 

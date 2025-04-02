@@ -40,8 +40,8 @@ namespace ClearCare.Controllers
         [HttpGet]
         public async Task<IActionResult> index()
         {
-            string userRole = HttpContext.Session.GetString("UserRole") ?? "Unknown";
-            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "Unknown";
+            string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+            string userUUID = HttpContext.Session.GetString("UserID") ?? "Unknown";
 
             var prescriptions = await _prescriptionControl.getAllPrescriptionsAsync(userRole, userUUID);
             return View(prescriptions);

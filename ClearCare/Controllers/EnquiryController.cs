@@ -22,8 +22,8 @@ namespace ClearCare.Controllers
         public IActionResult Index()
         {
             // Retrieve session values.
-            string userRole = HttpContext.Session.GetString("UserRole") ?? "Unknown";
-            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "";
+            string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+            string userUUID = HttpContext.Session.GetString("UserID") ?? "";
             
             // If the user is a Doctor, redirect them to the doctor's list of enquiries.
             if (userRole == "Doctor")
@@ -50,7 +50,7 @@ namespace ClearCare.Controllers
             // If userUUID parameter is empty, get it from session.
             if (string.IsNullOrEmpty(userUUID))
             {
-                userUUID = HttpContext.Session.GetString("UserUUID") ?? "";
+                userUUID = HttpContext.Session.GetString("UserID") ?? "";
             }
             var userEnquiries = await _enquiryControl.fetchEnquiriesByUserAsync(userUUID);
             return View("ListEnquiries", userEnquiries);
@@ -62,7 +62,7 @@ namespace ClearCare.Controllers
         {
             if (string.IsNullOrEmpty(userUUID))
             {
-                userUUID = HttpContext.Session.GetString("UserUUID") ?? "";
+                userUUID = HttpContext.Session.GetString("UserID") ?? "";
             }
             var userEnquiries = await _enquiryControl.fetchEnquiriesByDoctorAsync(userUUID);
             return View("ListEnquiries", userEnquiries);
@@ -72,7 +72,7 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> SubmitEnquiry(Enquiry enquiry, string doctorUUID, string topic)
         {
             // Retrieve the user's UUID from session.
-            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "";
+            string userUUID = HttpContext.Session.GetString("UserID") ?? "";
             
             // Pass both the user UUID and doctor UUID to the control.
             await _enquiryControl.createEnquiryAsync(enquiry, userUUID, doctorUUID, topic);
@@ -98,7 +98,7 @@ namespace ClearCare.Controllers
             try
             {
                 // Retrieve the user's UUID from session.
-                string userUUID = HttpContext.Session.GetString("UserUUID") ?? "";
+                string userUUID = HttpContext.Session.GetString("UserID") ?? "";
                 
                 var reply = new Reply
                 {

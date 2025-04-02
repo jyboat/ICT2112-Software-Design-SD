@@ -6,7 +6,7 @@
     ViewData["Title"] = "Create Prescription";
     
     // Retrieve the current user's UUID from session.
-    string currentUserUUID = Context.Session.GetString("UserUUID") ?? "";
+    string currentUserUUID = Context.Session.GetString("UserID") ?? "";
 
     // Set the DoctorId on the model using the session value.
     Model.DoctorId = currentUserUUID;
@@ -59,11 +59,11 @@
             <div class="medication-row row mb-3 d-flex">
                 <div class="col-md-4">
                     <label class="mb-0">Drug Name:</label>
-                    <input class="form-control w-100" name="Medications[IDX].DrugName" value="" required/>
+                    <input class="form-control w-100" />
                 </div>
                 <div class="col-md-4">
                     <label class="mb-0">Dosage:</label>
-                    <input class="form-control w-100" name="Medications[IDX].Dosage" value="" required/>
+                    <input class="form-control w-100" />
                 </div>
                 <div class="col-md-2 d-flex flex-column justify-content-end">
                     <button class="btn btn-danger" type="button" onclick="removeRow(this)">Remove</button>
@@ -81,15 +81,30 @@
 
 @section Scripts {
     <script>
-        let counter = @Model.Medications.Count;
-        function addMedicationRow() {
-            const template = document.getElementById("medication-template").innerHTML;
-            const newRowHtml = template.replace(/IDX/g, counter);
-            counter++;
-            document.getElementById("medications-container").insertAdjacentHTML('beforeend', newRowHtml);
-        }
-        function removeRow(btn) {
-            btn.closest('.medication-row').remove();
-        }
-    </script>
+    let counter = @Model.Medications.Count;
+    function addMedicationRow() {
+        const container = document.getElementById("medications-container");
+        const templateHtml = document
+            .getElementById("medication-template")
+            .innerHTML;
+
+        // Create a new row from template
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = templateHtml.trim();
+
+        // Find the new inputs
+        const drugNameInput  = tempDiv.querySelector(".template-drugname");
+        const dosageInput    = tempDiv.querySelector(".template-dosage");
+
+        // Assign name attributes & required
+        drugNameInput.setAttribute("name", `Medications[${counter}].DrugName`);
+        drugNameInput.setAttribute("required", true);
+
+        dosageInput.setAttribute("name", `Medications[${counter}].Dosage`);
+        dosageInput.setAttribute("required", true);
+
+        counter++;
+        container.appendChild(tempDiv.firstElementChild);
+    }
+</script>
 }

@@ -5,7 +5,7 @@
 @{
     ViewData["Title"] = "List of Enquiries";
     // Retrieve the user's role from session storage.
-    string userRole = Context.Session.GetString("UserRole") ?? "Unknown";
+    string userRole = Context.Session.GetString("Role") ?? "Unknown";
 }
 
 <div class="container mt-5">

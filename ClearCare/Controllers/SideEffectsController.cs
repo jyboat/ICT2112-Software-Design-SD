@@ -18,8 +18,8 @@ namespace ClearCare.Controllers
         [HttpGet]
         public async Task<IActionResult> add()
         {
-            string userRole = HttpContext.Session.GetString("UserRole") ?? "Unknown";
-            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "Unknown";
+            string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+            string userUUID = HttpContext.Session.GetString("UserID") ?? "Unknown";
 
             if (userRole == "Patient")
             {
@@ -33,8 +33,8 @@ namespace ClearCare.Controllers
         [HttpGet]
         public async Task<IActionResult> index()
         {
-            string userRole = HttpContext.Session.GetString("UserRole") ?? "Unknown";
-            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "Unknown";
+            string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+            string userUUID = HttpContext.Session.GetString("UserID") ?? "Unknown";
 
             var sideEffects = await _sideEffectControl.getSideEffectsAsync(userRole, userUUID);
             
@@ -57,8 +57,8 @@ namespace ClearCare.Controllers
         [HttpGet]
         public async Task<IActionResult> chart()
         {
-            string userRole = HttpContext.Session.GetString("UserRole") ?? "Unknown";
-            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "Unknown";
+            string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+            string userUUID = HttpContext.Session.GetString("UserID") ?? "Unknown";
 
             var sideEffects = await _sideEffectControl.getSideEffectsAsync(userRole, userUUID);
             

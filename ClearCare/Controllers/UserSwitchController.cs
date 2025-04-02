@@ -15,27 +15,27 @@ namespace ClearCare.Controllers
             switch (userIdentifier)
             {
                 case "uuid-doctor-john":
-                    HttpContext.Session.SetString("UserUUID", "uuid-doctor-john");
-                    HttpContext.Session.SetString("UserName", "Dr. John");
-                    HttpContext.Session.SetString("UserRole", "Doctor");
+                    HttpContext.Session.SetString("UserID", "uuid-doctor-john");
+                    HttpContext.Session.SetString("Name", "Dr. John");
+                    HttpContext.Session.SetString("Role", "Doctor");
                     break;
 
                 case "uuid-patient-sara":
-                    HttpContext.Session.SetString("UserUUID", "uuid-patient-sara");
-                    HttpContext.Session.SetString("UserName", "Sara");
-                    HttpContext.Session.SetString("UserRole", "Patient");
+                    HttpContext.Session.SetString("UserID", "uuid-patient-sara");
+                    HttpContext.Session.SetString("Name", "Sara");
+                    HttpContext.Session.SetString("Role", "Patient");
                     break;
 
                 case "uuid-patient-john":
-                    HttpContext.Session.SetString("UserUUID", "uuid-patient-john");
-                    HttpContext.Session.SetString("UserName", "John");
-                    HttpContext.Session.SetString("UserRole", "Patient");
+                    HttpContext.Session.SetString("UserID", "uuid-patient-john");
+                    HttpContext.Session.SetString("Name", "John");
+                    HttpContext.Session.SetString("Role", "Patient");
                     break;
 
                 default:
-                    HttpContext.Session.SetString("UserUUID", "uuid-doctor-john");
-                    HttpContext.Session.SetString("UserName", "Dr. John");
-                    HttpContext.Session.SetString("UserRole", "Doctor");
+                    HttpContext.Session.SetString("UserID", "uuid-doctor-john");
+                    HttpContext.Session.SetString("Name", "Dr. John");
+                    HttpContext.Session.SetString("Role", "Doctor");
                     break;
             }
 
