@@ -42,9 +42,9 @@ public class FeedbackController : Controller
         List<Dictionary<string, object>> feedbackList = new List<Dictionary<string, object>>();
         List<Dictionary<string, object>> responseList = new List<Dictionary<string, object>>();
 
-        ViewBag.UserRole = "Doctor"; // Hardcoded for testing
+        string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
 
-        if (ViewBag.UserRole == "Doctor" || ViewBag.UserRole == "Nurse") {
+        if (userRole == "Doctor" || userRole == "Nurse") {
             
             feedbackList = (await _feedbackManager.viewFeedback())
                 .Select(s => s.getFeedbackDetails())
@@ -54,9 +54,14 @@ public class FeedbackController : Controller
                 .Select(r => r.getResponseDetails())
                 .ToList();
         }
-        else if (ViewBag.UserRole == "Patient" || ViewBag.UserRole == "Caregiver")
+        else if (userRole == "Patient" || userRole == "Caregiver")
         {
-            String patientId = "1"; // Hardcoded for testing
+            string patientId = HttpContext.Session.GetString("UserID") ?? "";
+            if (string.IsNullOrEmpty(patientId))
+            {
+                TempData["ErrorMessage"] = "Please log in to access";
+                return View("~/Views/Home/Index.cshtml");
+            }
 
             feedbackList = (await _feedbackManager.viewFeedbackByUserId(patientId))
                 .Select(s => s.getFeedbackDetails())
@@ -70,6 +75,11 @@ public class FeedbackController : Controller
             {
                 TempData["SuccessMessage"] = "One or more of your feedbacks received a response.";
             }
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Unauthorized access";
+            return View("~/Views/Home/Index.cshtml");
         }
 
         // Combine feedbackList and responseList
@@ -94,13 +104,28 @@ public class FeedbackController : Controller
     [HttpGet]
     public IActionResult displayAddForm()
     {
+        string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+        if (userRole != "Patient")
+        {
+            TempData["ErrorMessage"] = "Unauthorized access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
         return View("~/Views/M3T1/Feedback/Submission.cshtml");
     }
 
     [Route("Submission")]
     [HttpPost]
-    public async Task<IActionResult> PostAddFeedback(string content, int rating)
+    public async Task<IActionResult> postAddFeedback(string content, int rating)
     {
+        string userId = HttpContext.Session.GetString("UserID") ?? "";
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            TempData["ErrorMessage"] = "Please log in to access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
         if (string.IsNullOrEmpty(content) || rating < 1 || rating > 5)
         {
             TempData["ErrorMessage"] = "Please fill in all required fields";
@@ -108,7 +133,7 @@ public class FeedbackController : Controller
 
         string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
         // Process the feedback here
-        string id = await _feedbackManager.submitFeedback(content, rating, "1", currentDate);
+        string id = await _feedbackManager.submitFeedback(content, rating, userId, currentDate);
 
         TempData["SuccessMessage"] = "Feedback added successfully!";
 
@@ -119,6 +144,23 @@ public class FeedbackController : Controller
     [HttpPost]
     public async Task<IActionResult> postRespondFeedback(string feedbackId, string response)
     {
+        string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+
+        if (userRole != "Doctor" || userRole != "Nurse")
+        {
+            TempData["ErrorMessage"] = "Unauthorized access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
+        string userId = HttpContext.Session.GetString("UserID") ?? "";
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            TempData["ErrorMessage"] = "Please log in to access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
+
         if (string.IsNullOrEmpty(response))
         {
             TempData["ErrorMessage"] = "Please fill in all required fields";
@@ -127,7 +169,7 @@ public class FeedbackController : Controller
         string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
 
         // Process the response here
-        string id = await _responseManager.respondToFeedback(feedbackId, response, "1", currentDate);
+        string id = await _responseManager.respondToFeedback(feedbackId, response, userId, currentDate);
 
         TempData["SuccessMessage"] = "Response added successfully!";
 
@@ -138,6 +180,14 @@ public class FeedbackController : Controller
     [HttpPost]
     public async Task<IActionResult> updateResponse(string responseId, string response)
     {
+        string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+
+        if (userRole != "Doctor" || userRole != "Nurse")
+        {
+            TempData["ErrorMessage"] = "Unauthorized access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
         if (string.IsNullOrEmpty(response))
         {
             TempData["ErrorMessage"] = "Please fill in all required fields";
@@ -145,7 +195,7 @@ public class FeedbackController : Controller
 
         string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
         // Process the response here
-        bool success = await _responseManager.updateResponse(responseId, response, "1", currentDate);
+        bool success = await _responseManager.updateResponse(responseId, response, currentDate);
 
         if (!success)
         {
@@ -163,6 +213,14 @@ public class FeedbackController : Controller
     [HttpPost]
     public async Task<IActionResult> deleteResponse(string responseId)
     {
+        string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+
+        if (userRole != "Doctor" || userRole != "Nurse")
+        {
+            TempData["ErrorMessage"] = "Unauthorized access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
         await _responseManager.deleteResponse(responseId);
 
         TempData["SuccessMessage"] = "Response deleted successfully!";

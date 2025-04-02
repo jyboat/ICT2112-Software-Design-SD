@@ -1,5 +1,6 @@
 @{
     ViewData["Title"] = "Add Resource";
+    string userId = Context.Session.GetString("UserID") ?? "";
 }
 
 <div class="container add-resource">
@@ -36,7 +37,7 @@
                         <input type="file" name="videoFile" class="form-control" accept=".mp4,video/mp4*" />
                     </div>
 
-                    <input type="hidden" name="uploadedBy" value="1" /> <!-- Placeholder for user ID -->
+                    <input type="hidden" name="uploadedBy" value="@userId" /> <!-- Placeholder for user ID -->
                 </div>
 
                 <div class="col-lg-3">

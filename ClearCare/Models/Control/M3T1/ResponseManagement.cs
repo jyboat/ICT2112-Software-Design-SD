@@ -86,9 +86,9 @@ namespace ClearCare.Models.Control.M3T1
             return await _gateway.insertResponse(feedbackId, response, userId, dateResponded);
         }
 
-        public async Task<bool> updateResponse(string responseId, string response, string userId, string dateResponded)
+        public async Task<bool> updateResponse(string responseId, string response, string dateResponded)
         {
-            return await _gateway.updateResponse(responseId, response, userId, dateResponded);
+            return await _gateway.updateResponse(responseId, response, dateResponded);
         }
 
         public async Task<List<FeedbackResponse>> viewResponse()

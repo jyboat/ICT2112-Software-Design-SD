@@ -62,9 +62,9 @@ namespace ClearCare.Models.Control.M3T1
             return _gateway.fetchResourceById(id);
         }
 
-        public Task<bool> updateResource(string id, string title, string description, int uploadedBy, byte[] image, string coverImageName, string? url)
+        public Task<bool> updateResource(string id, string title, string description, byte[] image, string coverImageName, string? url)
         {
-            return _gateway.updateResource(id, title, description, uploadedBy, image, coverImageName, url!);
+            return _gateway.updateResource(id, title, description, image, coverImageName, url!);
         }
 
         public Task<bool> deleteResource(string id)

@@ -14,7 +14,6 @@ public class CommunityController : Controller
     private readonly CommunityGroupManagement _communityGroup;
     private readonly CommunityPostManagement _communityPost;
     private readonly CommunityCommentManagement _communityComment;
-    public string userId = "1"; // Hardcoded user id
 
     public CommunityController()
     {
@@ -32,6 +31,13 @@ public class CommunityController : Controller
         var postList = posts
         .Select(s => s.getDetails())
         .ToList();
+
+        string userId = HttpContext.Session.GetString("UserID") ?? "";
+        if (string.IsNullOrEmpty(userId))
+        {
+            TempData["ErrorMessage"] = "Please log in to access";
+            return View("~/Views/Home/Index.cshtml");
+        }
 
         List<CommunityPost> userPosts = await _communityPost.viewUserPosts(userId); // Change to current user id
         var userPostList = userPosts.Select(s => s.getDetails()).ToList();
@@ -78,6 +84,13 @@ public class CommunityController : Controller
         var postList = posts
         .Select(s => s.getDetails())
         .ToList();
+
+        string userId = HttpContext.Session.GetString("UserID") ?? "";
+        if (string.IsNullOrEmpty(userId))
+        {
+            TempData["ErrorMessage"] = "Please log in to access";
+            return View("~/Views/Home/Index.cshtml");
+        }
 
         List<CommunityPost> userPosts = await _communityPost.viewUserGroupPosts(userId, groupId); // Change to current user id
         var userPostList = userPosts.Select(s => s.getDetails()).ToList();
@@ -131,6 +144,12 @@ public class CommunityController : Controller
     [Route("Group/Join")]
     public async Task<IActionResult> addGroupMember(string groupId)
     {
+        string userId = HttpContext.Session.GetString("UserID") ?? "";
+        if (string.IsNullOrEmpty(userId))
+        {
+            TempData["ErrorMessage"] = "Please log in to access";
+            return View("~/Views/Home/Index.cshtml");
+        }
         bool success = await _communityGroup.addMember(groupId, userId);
         if (success)
         {

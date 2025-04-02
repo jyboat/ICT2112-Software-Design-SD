@@ -96,9 +96,9 @@ namespace ClearCare.Models.Control.M3T1
             return patientPrescript;
         }
 
-        public async Task<bool> updateSummary(string id, string details, string instructions, string patientId)
+        public async Task<bool> updateSummary(string id, string details, string instructions)
         {
-            return await _gateway.updateSummary(id, details, instructions, patientId);
+            return await _gateway.updateSummary(id, details, instructions);
         }
 
         public async Task<string> generateSummary(string details, string instructions, string createdAt, string patientId)

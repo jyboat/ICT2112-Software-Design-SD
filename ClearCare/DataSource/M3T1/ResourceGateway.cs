@@ -119,7 +119,7 @@ namespace ClearCare.DataSource.M3T1
             );
         }
 
-        public async Task<bool> updateResource(string id, string title, string description, int uploadedBy, byte[] image, string coverImageName, string url)
+        public async Task<bool> updateResource(string id, string title, string description, byte[] image, string coverImageName, string url)
         {
             DocumentReference docRef = _db.Collection("Resource").Document(id);
 
@@ -127,7 +127,6 @@ namespace ClearCare.DataSource.M3T1
             {
                 { "Title", title },
                 { "Description", description },
-                { "UploadedBy", uploadedBy },
                 { "CoverImage", image },
                 { "CoverImageName", coverImageName },
                 { "Url", url }

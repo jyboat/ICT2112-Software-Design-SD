@@ -23,8 +23,16 @@ public class ResourceController : Controller
 
     [Route("")]
     [HttpGet]
-    public async Task<IActionResult> List()
+    public async Task<IActionResult> list()
     {
+        string userId = HttpContext.Session.GetString("UserID") ?? "";
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            TempData["ErrorMessage"] = "Please log in to access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
         // Fetch resource from db and convert to dictionary
         List<Dictionary<string, object>> resourceList = (await _manager.viewResource())
             .Select(r =>
@@ -48,14 +56,21 @@ public class ResourceController : Controller
 
     [Route("Add")]
     [HttpGet]
-    public IActionResult Add()
+    public IActionResult add()
     {
+        string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+        if (userRole != "Doctor")
+        {
+            TempData["ErrorMessage"] = "Unauthorized access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
         return View("~/Views/M3T1/Resource/Add.cshtml");
     }
 
     [Route("Add")]
     [HttpPost]
-    public async Task<IActionResult> Add(
+    public async Task<IActionResult> add(
     IFormFile coverImage,
     IFormFile? videoFile,
     string title,
@@ -82,7 +97,7 @@ public class ResourceController : Controller
             catch (Exception)
             {
                 TempData["ErrorMessage"] = "Failed to process cover image.";
-                return RedirectToAction("List");
+                return RedirectToAction("list");
             }
         }
 
@@ -97,7 +112,7 @@ public class ResourceController : Controller
         if (fileOrUrl == null)
         {
             TempData["ErrorMessage"] = "Missing input for the selected resource type.";
-            return RedirectToAction("List");
+            return RedirectToAction("list");
         }
 
         try
@@ -120,12 +135,12 @@ public class ResourceController : Controller
             TempData["ErrorMessage"] = "Failed to add resource: " + ex.Message;
         }
 
-        return RedirectToAction("List");
+        return RedirectToAction("list");
     }
 
     [HttpPost]
     [Route("Edit/{resourceId}")]
-    public async Task<IActionResult> Edit(
+    public async Task<IActionResult> edit(
     string resourceId,
     IFormFile? coverImage,
     IFormFile? videoFile,
@@ -152,7 +167,7 @@ public class ResourceController : Controller
             catch (Exception)
             {
                 TempData["ErrorMessage"] = "Failed to process cover image.";
-                return RedirectToAction("Edit", new { resourceId });
+                return RedirectToAction("edit", new { resourceId });
             }
         }
 
@@ -193,7 +208,6 @@ public class ResourceController : Controller
                 resourceId,
                 title,
                 description,
-                uploadedBy: 1, // Replace with actual user ID
                 image: imageFileBytes,
                 coverImageName: imageFileName,
                 url: finalUrl
@@ -204,10 +218,10 @@ public class ResourceController : Controller
         catch (Exception ex)
         {
             TempData["ErrorMessage"] = "Failed to update resource: " + ex.Message;
-            return RedirectToAction("Edit", new { resourceId });
+            return RedirectToAction("edit", new { resourceId });
         }
 
-        return RedirectToAction("List");
+        return RedirectToAction("list");
     }
 
 
@@ -217,12 +231,20 @@ public class ResourceController : Controller
 
     [Route("Edit/{resourceId}")]
     [HttpGet]
-    public async Task<IActionResult> Edit(string resourceId)
+    public async Task<IActionResult> edit(string resourceId)
     {
+        string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+        string userId = HttpContext.Session.GetString("UserID") ?? "";
+        if (userRole != "Doctor")
+        {
+            TempData["ErrorMessage"] = "Unauthorized access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
         if (string.IsNullOrEmpty(resourceId))
         {
             TempData["ErrorMessage"] = "Invalid resource ID.";
-            return RedirectToAction("List");
+            return RedirectToAction("list");
         }
 
         Resource resource = await _manager.getResource(resourceId);
@@ -230,7 +252,13 @@ public class ResourceController : Controller
         if (resource == null)
         {
             TempData["ErrorMessage"] = "Resource not found.";
-            return RedirectToAction("List");
+            return RedirectToAction("list");
+        }
+
+        if (resource.getDetails()["UploadedBy"].ToString() != userId)
+        {
+            TempData["ErrorMessage"] = "Unauthorized access.";
+            return RedirectToAction("list");
         }
 
         return View("~/Views/M3T1/Resource/Edit.cshtml", resource); // Ensure the model is passed
@@ -239,7 +267,7 @@ public class ResourceController : Controller
 
     [Route("Delete/{resourceId}")]
     [HttpPost]
-    public async Task<IActionResult> Delete(string resourceId)
+    public async Task<IActionResult> delete(string resourceId)
     {
         bool success = await _manager.deleteResource(resourceId);
 
@@ -248,7 +276,7 @@ public class ResourceController : Controller
             TempData["ErrorMessage"] = "Failed to delete resource. Please try again.";
         }
 
-        return RedirectToAction("List");
+        return RedirectToAction("list");
     }
 
 }

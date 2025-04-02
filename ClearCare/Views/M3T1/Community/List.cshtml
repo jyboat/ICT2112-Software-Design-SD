@@ -9,7 +9,7 @@
     bool groupView = Model.GroupView;
     var selectedGroup = Model.Group;
     var memberList = Model.GroupMembers;
-    var userId = "1";
+    string userId = Context.Session.GetString("UserID") ?? "";
 }
 
 <section class="container community">

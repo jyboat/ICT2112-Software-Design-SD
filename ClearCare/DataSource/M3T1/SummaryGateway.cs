@@ -45,15 +45,14 @@ namespace ClearCare.DataSource.M3T1
             return docRef.Id;
         }
 
-        public async Task<bool> updateSummary(string id, string details, string instructions, string patientId)
+        public async Task<bool> updateSummary(string id, string details, string instructions)
         {
             DocumentReference docRef = _db.Collection("DischargeSummaries").Document(id);
 
             var updatedData = new Dictionary<string, object>
             {
                 { "Details", details },
-                { "Instructions", instructions },
-                { "PatientId", patientId }
+                { "Instructions", instructions }
             };
 
             // Check if document exists before updating

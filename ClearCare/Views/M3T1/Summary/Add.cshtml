@@ -2,19 +2,17 @@
     ViewData["Title"] = "Add Summary";
 }
 
-<div class="container update-summary">
+<div class="container add-summary">
     <div class="card shadow p-4">
-        <h2 class="text-info mb-3">Adding Summary for {patient name}</h2>
+        <h2 class="text-info mb-3">Adding Summary</h2>
         <form action="/Summary/Add" method="post">
             <div class="table-responsive">
                 <table class="table table-bordered summary-table">
                     <tbody>
                         <tr>
-                            <th>Patient details</th>
+                            <th>Patient ID</th>
                             <td>
-                                <p class="mb-3"><strong>Name:</strong>{name}</p>
-                                <p class="mb-3"><strong>Date of Birth:</strong>{DOB}</p>
-                                <p class="mb-3"><strong>ID:</strong>{ID}</p>
+                                <input class="form-control" type="text" name="patientId" required />
                             </td>
                         </tr>
                         <tr>

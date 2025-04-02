@@ -26,6 +26,15 @@ public class SummaryController : Controller
     [HttpGet]
     public async Task<IActionResult> list()
     {
+        string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+
+        if (userRole != "Doctor")
+        {
+            TempData["ErrorMessage"] = "Unauthorized access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
+
         List<DischargeSummary> summaries = await _manager.getSummaries();
 
         var summaryList = summaries.Select(s => s.GetSummaryDetails()).ToList();  
@@ -37,6 +46,14 @@ public class SummaryController : Controller
     [HttpGet]
     public async Task<IActionResult> viewSummary(string summaryId)
     {
+        string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+
+        if (userRole != "Doctor")
+        {
+            TempData["ErrorMessage"] = "Unauthorized access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
         var summary = await _manager.getSummary(summaryId);
 
         if (summary == null)
@@ -60,14 +77,22 @@ public class SummaryController : Controller
 
     [Route("Add")]
     [HttpGet]
-    public IActionResult viewAdd() { 
+    public IActionResult viewAdd() {
+        string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+
+        if (userRole != "Doctor")
+        {
+            TempData["ErrorMessage"] = "Unauthorized access";
+            return View("~/Views/Home/Index.cshtml");
+        }
         return View("~/Views/M3T1/Summary/Add.cshtml");
     }
 
     [Route("Add")]
     [HttpPost]
-    public async Task<IActionResult> addSummary(string details, string instructions)
+    public async Task<IActionResult> addSummary(string details, string instructions, string patientId)
     {
+
         if (string.IsNullOrEmpty(details) || string.IsNullOrEmpty(instructions))
         {
             TempData["ErrorMessage"] = "Please fill in all required fields";
@@ -76,7 +101,7 @@ public class SummaryController : Controller
 
         string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
         // Process the summary here
-        string id = await _manager.generateSummary(details, instructions, currentDate, "1");
+        string id = await _manager.generateSummary(details, instructions, currentDate, patientId);
 
         TempData["SuccessMessage"] = "Summary added successfully!";
 
@@ -87,6 +112,14 @@ public class SummaryController : Controller
     [HttpGet]
     public async Task<IActionResult> viewEdit(string summaryId)
     {
+        string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+
+        if (userRole != "Doctor")
+        {
+            TempData["ErrorMessage"] = "Unauthorized access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
         var summary = await _manager.getSummary(summaryId);
         if (summary == null)
         {
@@ -104,7 +137,7 @@ public class SummaryController : Controller
             TempData["ErrorMessage"] = "Please fill in all required fields";
         }
 
-        await _manager.updateSummary(summaryId, details, instructions, "1");
+        await _manager.updateSummary(summaryId, details, instructions);
 
         TempData["SuccessMessage"] = "Summary updated successfully!";
 

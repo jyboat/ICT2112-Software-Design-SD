@@ -103,16 +103,15 @@ namespace ClearCare.Models.Control.M3T1
             return Task.CompletedTask;
         }
 
-        public async Task<string> insertAssessment(string imagePath)
+        public async Task<string> insertAssessment(string imagePath, string patientId)
         {
-            string userId = "1";
-            
+           
             return await _gateway.insertAssessment(
                 imagePath: imagePath,
                 riskLevel: "Medium", // Default value
                 recommendation: "No recommendation", // Default value
                 createdAt: DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ssZ"),
-                patientId: userId
+                patientId: patientId
             );
         }
         

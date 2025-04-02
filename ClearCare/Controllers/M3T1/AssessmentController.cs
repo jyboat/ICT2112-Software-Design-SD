@@ -28,6 +28,14 @@ public class AssessmentController : Controller
     [HttpGet]
     public async Task<IActionResult> list()
     {
+        string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+
+        if (userRole != "Doctor")
+        {
+            TempData["ErrorMessage"] = "Unauthorized access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
         try
         {
             List<Assessment> assessments = await _manager.getAssessments();
@@ -47,6 +55,14 @@ public class AssessmentController : Controller
     [HttpGet]
     public async Task<IActionResult> viewAssessment(string assessmentId)
     {
+        string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+
+        if (userRole != "Doctor")
+        {
+            TempData["ErrorMessage"] = "Unauthorized access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
         var assessment = await _manager.getAssessment(assessmentId);
         if (assessment == null)
         {
@@ -59,6 +75,14 @@ public class AssessmentController : Controller
     [HttpGet]
     public IActionResult viewAdd()
     {
+        string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+
+        if (userRole != "Patient")
+        {
+            TempData["ErrorMessage"] = "Unauthorized access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
         return View("~/Views/M3T1/Assessment/Add.cshtml");
     }
 
@@ -90,6 +114,13 @@ public class AssessmentController : Controller
     [HttpPost]
     public async Task<IActionResult> addAssessment(IFormFile file)
     {
+        string patientId = HttpContext.Session.GetString("UserID") ?? "";
+        if (string.IsNullOrEmpty(patientId))
+        {
+            TempData["ErrorMessage"] = "Please log in to access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
         try
         {
             if (file == null)
@@ -124,7 +155,8 @@ public class AssessmentController : Controller
             }
 
             string id = await _manager.insertAssessment(
-                imagePath: $"/{UploadsFolder}/{uniqueFileName}"
+                imagePath: $"/{UploadsFolder}/{uniqueFileName}",
+                patientId: patientId
             );
 
             if (string.IsNullOrEmpty(id))
@@ -147,6 +179,14 @@ public class AssessmentController : Controller
     [HttpGet]
     public async Task<IActionResult> viewEdit(string assessmentId)
     {
+        string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
+
+        if (userRole != "Doctor")
+        {
+            TempData["ErrorMessage"] = "Unauthorized access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
         var assessment = await _manager.getAssessment(assessmentId);
         if (assessment == null)
         {
