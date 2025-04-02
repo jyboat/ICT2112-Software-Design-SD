@@ -1,5 +1,18 @@
 @{
     ViewData["Title"] = "Enquiry Submitted";
+
+    // Create a mapping of doctor UUIDs to their names.
+    var doctorMapping = new Dictionary<string, string>
+    {
+        { "uuid-alice", "Dr. Alice" },
+        { "uuid-bob", "Dr. Bob" },
+        { "uuid-carol", "Dr. Carol" }
+    };
+
+    // Retrieve the doctor UUID passed via ViewData.
+    string doctorUuid = ViewData["DoctorUUID"] as string ?? "";
+    // Look up the doctor's name using the mapping.
+    string doctorName = doctorMapping.ContainsKey(doctorUuid) ? doctorMapping[doctorUuid] : doctorUuid;
 }
 
 <div class="container mt-5">
@@ -10,17 +23,10 @@
         <div class="card-body">
             <p class="lead">Your enquiry has been submitted successfully!</p>
             <div class="mb-3">
-                <strong>Name:</strong> @ViewData["Name"]
-            </div>
-            <div class="mb-3">
-                <strong>Email:</strong> @ViewData["Email"]
-            </div>
-            <div class="mb-3">
-                <strong>Message:</strong> @ViewData["Message"]
+                <strong>Send to Doctor :</strong> @doctorName
             </div>
             <div class="d-flex gap-2">
                 <a href="@Url.Action("Index", "Enquiry")" class="btn btn-primary">Back to Enquiry Form</a>
-                @* <a href="@Url.Action("ListEnquiries", "Enquiry", new { userUuid = "eb8eb0a4-4a33-4bc9-b2f2-3a55154a8899" })" class="btn btn-info">View My Enquiries</a> *@
             </div>
         </div>
     </div>

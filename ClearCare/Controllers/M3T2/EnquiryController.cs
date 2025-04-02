@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using ClearCare.Models;
+using ClearCare.Controls;     // <--- Import the namespace for EnquiryControl
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using ClearCare.Models.Control.M3T2;
@@ -12,7 +14,6 @@ namespace ClearCare.Controllers.M3T2
         private readonly ILogger<EnquiryController> _logger;
         private readonly EnquiryControl _enquiryControl;
 
-        // Inject both logger and EnquiryControl
         public EnquiryController(ILogger<EnquiryController> logger, EnquiryControl enquiryControl)
         {
             _logger = logger;
@@ -22,7 +23,17 @@ namespace ClearCare.Controllers.M3T2
         // Display the Enquiry Form
         public IActionResult Index()
         {
-            // Possibly show an empty form or a list of all enquiries
+            // Retrieve session values.
+            string userRole = HttpContext.Session.GetString("UserRole") ?? "Unknown";
+            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "";
+            
+            // If the user is a Doctor, redirect them to the doctor's list of enquiries.
+            if (userRole == "Doctor")
+            {
+                return RedirectToAction("ListEnquiriesByDoctor", new { userUUID = userUUID });
+            }
+            
+            // Otherwise, render the Enquiry form for patients (or others).
             return View("~/Views/M3T2/Enquiry/Index.cshtml");
         }
 
@@ -30,75 +41,82 @@ namespace ClearCare.Controllers.M3T2
         [HttpGet]
         public IActionResult ListEnquiries()
         {
-            // The controller calls the control to fetch data
-            var enquiries = _enquiryControl.FetchAllEnquiries();
-            return View(enquiries);
+            var enquiries = _enquiryControl.fetchAllEnquiries();
+            return View("~/Views/M3T2/Enquiry/ListEnquiries.cshtml", enquiries);
         }
 
         // List all enquiries for a particular user (via Firestore)
         [HttpGet]
         public async Task<IActionResult> ListEnquiriesByUser(string userUUID)
         {
-            var userEnquiries = await _enquiryControl.FetchEnquiriesByUserAsync(userUUID);
+            // If userUUID parameter is empty, get it from session.
+            if (string.IsNullOrEmpty(userUUID))
+            {
+                userUUID = HttpContext.Session.GetString("UserUUID") ?? "";
+            }
+            var userEnquiries = await _enquiryControl.fetchEnquiriesByUserAsync(userUUID);
             return View("~/Views/M3T2/Enquiry/ListEnquiries.cshtml", userEnquiries);
         }
 
-        // Submit an enquiry (POST)
-        [HttpPost]
-        public async Task<IActionResult> SubmitEnquiry(Enquiry enquiry)
+        // List all enquiries for a particular doctor (via Firestore)
+        [HttpGet]
+        public async Task<IActionResult> ListEnquiriesByDoctor(string userUUID)
         {
-            // Let the control handle the logic
-            await _enquiryControl.CreateEnquiryAsync(enquiry);
+            if (string.IsNullOrEmpty(userUUID))
+            {
+                userUUID = HttpContext.Session.GetString("UserUUID") ?? "";
+            }
+            var userEnquiries = await _enquiryControl.fetchEnquiriesByDoctorAsync(userUUID);
+            return View("~/Views/M3T2/Enquiry/ListEnquiries.cshtml", userEnquiries);
+        }
 
-            // Pass data to the View using ViewData (or a strongly-typed model)
+        [HttpPost]
+        public async Task<IActionResult> SubmitEnquiry(Enquiry enquiry, string doctorUUID, string topic)
+        {
+            // Retrieve the user's UUID from session.
+            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "";
+            
+            // Pass both the user UUID and doctor UUID to the control.
+            await _enquiryControl.createEnquiryAsync(enquiry, userUUID, doctorUUID, topic);
+
             ViewData["Name"] = enquiry.Name;
-            ViewData["Email"] = enquiry.Email;
             ViewData["Message"] = enquiry.Message;
+            ViewData["UserUUID"] = userUUID;
+            ViewData["DoctorUUID"] = doctorUUID;
 
             return View("~/Views/M3T2/Enquiry/EnquiryResult.cshtml"); // e.g., a "Thank you" page
         }
 
         [HttpPost]
         public async Task<IActionResult> SendReply(
-    string enquiryId,
-    string recipientName,
-    string recipientEmail,
-    string originalMessage,
-    string userUUID,
-    string subject,
-    string message)
+            string enquiryId,
+            string senderName,         
+            string recipientName,
+            string recipientEmail,
+            string originalMessage,
+            string subject,
+            string message)
         {
             try
             {
-                // 1. Build the Reply object
+                // Retrieve the user's UUID from session.
+                string userUUID = HttpContext.Session.GetString("UserUUID") ?? "";
+                
                 var reply = new Reply
                 {
                     EnquiryId = enquiryId,
                     Subject = subject,
                     Message = message,
+                    SenderName = senderName, 
                     RecipientName = recipientName,
                     RecipientEmail = recipientEmail,
                     OriginalMessage = originalMessage,
                     UserUUID = userUUID
-                    // CreatedAt can be set here or in the Gateway (e.g., SaveReplyAsync)
                 };
 
-                // 2. Save the reply (through your Control or Gateway)
-                await _enquiryControl.SaveReplyAsync(enquiryId, reply);
+                await _enquiryControl.saveReplyAsync(enquiryId, reply);
 
-                // 3. Fetch the updated Enquiry and Replies
-                var updatedEnquiry = await _enquiryControl.FetchEnquiryByFirestoreIdAsync(enquiryId);
-                var updatedReplies = await _enquiryControl.FetchRepliesForEnquiryAsync(enquiryId);
-
-                // 4. Create a new ViewModel with updated data
-                var viewModel = new ReplyToEnquiryDTO
-                {
-                    Enquiry = updatedEnquiry,
-                    Replies = updatedReplies
-                };
-
-                // 5. Return the same "Reply" view with the updated data
-                return View("~/Views/M3T2/Enquiry/Reply.cshtml", viewModel);
+                return RedirectToAction("reply", new { id = enquiryId, pageNumber = 1 });
             }
             catch (Exception ex)
             {
@@ -110,30 +128,45 @@ namespace ClearCare.Controllers.M3T2
             }
         }
 
-
-
-        // EnquiryController.cs
         [HttpGet]
-        public async Task<IActionResult> Reply(string id)
+        public async Task<IActionResult> Reply(string id, int pageNumber = 1)
         {
             try
             {
-                var enquiry = await _enquiryControl.FetchEnquiryByFirestoreIdAsync(id);
+                var enquiry = await _enquiryControl.fetchEnquiryByFirestoreIdAsync(id);
                 if (enquiry == null)
                 {
                     return NotFound($"Enquiry with ID {id} not found.");
                 }
 
-                // Use EnquiryControl for replies too
-                var replies = await _enquiryControl.FetchRepliesForEnquiryAsync(id);
+                // Fetch all replies
+                var replies = await _enquiryControl.fetchRepliesForEnquiryAsync(id);
+
+                // Define page size (how many replies to show per page)
+                const int pageSize = 10;
+                var totalReplies = replies.Count;
+
+                // Calculate how many to skip, then take up to 'pageSize'
+                var skip = (pageNumber - 1) * pageSize;
+                var pagedReplies = replies
+                    .OrderByDescending(r => r.CreatedAt)
+                    .Skip(skip)
+                    .Take(pageSize)
+                    .ToList();
 
                 var viewModel = new ReplyToEnquiryDTO
                 {
                     Enquiry = enquiry,
-                    Replies = replies
+                    Replies = pagedReplies
                 };
 
-                return View(viewModel);
+                // Pass pagination info to the view
+                ViewBag.CurrentPage = pageNumber;
+                ViewBag.PageSize = pageSize;
+                ViewBag.TotalReplies = totalReplies;
+                ViewBag.TotalPages = (int)Math.Ceiling((double)totalReplies / pageSize);
+
+                return View("~/Views/M3T2/Enquiry/Reply.cshtml", viewModel);
             }
             catch (Exception ex)
             {
@@ -144,7 +177,5 @@ namespace ClearCare.Controllers.M3T2
                 });
             }
         }
-
-
     }
 }

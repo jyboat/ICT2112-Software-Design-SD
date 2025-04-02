@@ -15,7 +15,7 @@ namespace ClearCare.DataSource.M3T2
             _db = FirebaseService.Initialize();
         }
 
-        public async Task<List<SideEffectModel>> GetAllSideEffectsAsync()
+        public async Task<List<SideEffectModel>> getAllSideEffectsAsync()
         {
             var sideEffects = new List<SideEffectModel>();
 
@@ -41,7 +41,7 @@ namespace ClearCare.DataSource.M3T2
             return sideEffects;
         }
 
-        public async Task AddSideEffectAsync(SideEffectModel sideEffect)
+        public async Task addSideEffectAsync(SideEffectModel sideEffect)
         {
             try
             {

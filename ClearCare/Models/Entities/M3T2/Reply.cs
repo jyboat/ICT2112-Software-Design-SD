@@ -32,5 +32,9 @@ namespace ClearCare.Models.Entities.M3T2
 
         [FirestoreProperty]
         public DateTime CreatedAt { get; set; }
+
+         // New property for sender's name
+        [FirestoreProperty]
+        public string SenderName { get; set; }
     }
 }

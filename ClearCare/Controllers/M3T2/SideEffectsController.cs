@@ -13,32 +13,63 @@ namespace ClearCare.Controllers.M3T2
         {
             _sideEffectControl = sideEffectControl;
         }
+
         // GET: Render the form for adding a new side effect
         [HttpGet]
-        public IActionResult Add()
+        public async Task<IActionResult> add()
         {
+            string userRole = HttpContext.Session.GetString("UserRole") ?? "Unknown";
+            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "Unknown";
+
+            if (userRole == "Patient")
+            {
+                var medications = await _sideEffectControl.getPatientMedications(userRole, userUUID);
+                ViewData["Medications"] = medications;
+            }
+
             return View("~/Views/M3T2/SideEffects/Add.cshtml");
         }
 
-
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> index()
         {
-            var sideEffects = await _sideEffectControl.GetSideEffectsAsync();
+            string userRole = HttpContext.Session.GetString("UserRole") ?? "Unknown";
+            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "Unknown";
+
+            var sideEffects = await _sideEffectControl.getSideEffectsAsync(userRole, userUUID);
+            
             return View("~/Views/M3T2/SideEffects/Index.cshtml", sideEffects);
         }
 
         // Handle the form submission
         [HttpPost]
-        public async Task<IActionResult> Add(SideEffectModel sideEffect)
+        public async Task<IActionResult> add(SideEffectModel sideEffect)
         {
             if (ModelState.IsValid)
             {
-                await _sideEffectControl.AddSideEffectAsync(sideEffect);
-                return RedirectToAction("Index");
+                await _sideEffectControl.addSideEffectAsync(sideEffect);
+                return RedirectToAction("index");
             }
 
-            return View(sideEffect);
+            return View("~/Views/M3T2/SideEffects/Add.cshtml", sideEffect);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> chart()
+        {
+            string userRole = HttpContext.Session.GetString("UserRole") ?? "Unknown";
+            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "Unknown";
+
+            var sideEffects = await _sideEffectControl.getSideEffectsAsync(userRole, userUUID);
+            
+            // Group by DrugName (example)
+            var drugGroups = sideEffects
+                .GroupBy(se => se.DrugName)
+                .Select(g => new { DrugName = g.Key, Count = g.Count() })
+                .ToList();
+
+            ViewBag.ChartData = drugGroups;
+            return View("~/Views/M3T2/SideEffects/Chart.cshtml", sideEffects);
+        }
     }
 }

@@ -7,7 +7,7 @@ namespace ClearCare.Controllers
         /// <summary>
         /// Main entry point of the application.
         /// </summary>
-        public IActionResult Index()
+        public IActionResult index()
         {
             // Typically returns a "home" or "landing" page
             return View();
@@ -16,17 +16,41 @@ namespace ClearCare.Controllers
         /// <summary>
         /// A simple action to redirect users to the Enquiry page.
         /// </summary>
-        public IActionResult GoToEnquiry()
+        public IActionResult goToEnquiry()
         {
-            // Redirects to the EnquiryController's Index action
-            return RedirectToAction("Index", "Enquiry");
+            // Redirects to the EnquiryController's index action
+            return RedirectToAction("index", "Enquiry");
+        }
+
+        public IActionResult goToSideEffects()
+        {
+            // Redirects to the SideEffectsController's index action
+            return RedirectToAction("index", "SideEffects");
         }
 
 
-          public IActionResult GoToSideEffects()
+        public IActionResult goToPrescription()
         {
-            // Redirects to the EnquiryController's Index action
-            return RedirectToAction("Index", "SideEffects");
+            // Redirects to the SideEffectsController's index action
+            return RedirectToAction("index", "Prescription");
+        }
+
+        public IActionResult goToDrugLog()
+        {
+            // Redirects to the PatientDrugLogController's index action
+            return RedirectToAction("index", "PatientDrugLog");
+        }
+
+        public IActionResult goToDoctorDrugLog()
+        {
+            // Redirects to the PatientDrugLogController's index action
+            return RedirectToAction("DoctorIndex", "PatientDrugLog");
+        }
+
+        public IActionResult goToDrugInteraction()
+        {
+            // Redirects to the PatientDrugLogController's index action
+            return RedirectToAction("index", "DrugInteraction");
         }
     }
 }

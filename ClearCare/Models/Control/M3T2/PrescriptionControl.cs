@@ -6,65 +6,67 @@ using ClearCare.Models.Entities.M3T2;
 
 namespace ClearCare.Models.Control.M3T2
 {
-    // Mark as Singleton to match your UML
+    // Marked as Singleton to match your UML
     public class PrescriptionControl : IFetchPrescriptions
     {
-        // single instance (per UML's "singleton" mention)
-        private static PrescriptionControl _instance;
-
-        // the mapper to talk to Firestore
+        // Mapper to talk to Firestore
         private readonly PrescriptionMapper _mapper;
 
-        // This must be public for DI to call it
+        // Public constructor for DI
         public PrescriptionControl(PrescriptionMapper mapper)
         {
             _mapper = mapper;
         }
 
-
-
-        // The interface method to fetch all prescriptions
-        public async Task<List<PrescriptionModel>> FetchPrescriptions()
+        // Interface method to fetch all prescriptions
+        public async Task<List<PrescriptionModel>> fetchPrescriptions()
         {
-            return await _mapper.GetAllPrescriptionsAsync();
+            return await _mapper.getAllPrescriptionsAsync();
         }
 
-        // If you want to match your diagram exactly, you can add:
-        public async Task CreatePrescription(string medicationPlan)
+        // Match UML method for saving a medication plan
+        public async Task createPrescription(string medicationPlan)
         {
-            // you might parse the plan & store it, or call the mapper
-            await _mapper.SavePrescriptionsAsync(medicationPlan);
+            await _mapper.savePrescriptionsAsync(medicationPlan);
         }
 
-        public string CheckDrugInteractions(string drugName)
+        public string checkDrugInteractions(string drugName)
         {
-            // put real logic here
             return $"No known interactions for {drugName}.";
         }
 
-        public async Task SharePrescription(string email)
+        public async Task sharePrescription(string email)
         {
-            // e.g., share logic or store in a 'SharedPrescriptions' collection
+            // placeholder for sharing logic
         }
 
-        public async Task FetchPrescriptions(string userId)
+        public async Task fetchPrescriptions(string userId)
         {
-            // fetch only shared or user-specific prescriptions, if needed
-            await _mapper.FetchSharedPrescriptionsAsync(userId);
+            await _mapper.fetchSharedPrescriptionsAsync(userId);
         }
 
-        public async Task<List<PrescriptionModel>> GetAllPrescriptionsAsync()
+        public async Task<List<PrescriptionModel>> getAllPrescriptionsAsync(string userRole, string userUUID)
         {
-            return await _mapper.GetAllPrescriptionsAsync();
+            var allPrescription = await _mapper.getAllPrescriptionsAsync();
+
+            if (userRole == "Patient")
+            {
+                return allPrescription.Where(se => se.PatientId == userUUID).ToList();
+            }
+            else if (userRole == "Doctor")
+            {
+                return allPrescription.Where(se => se.DoctorId == userUUID).ToList();
+            }
+            
+            return allPrescription;
+
+            // return await _mapper.getAllPrescriptionsAsync();
         }
 
-        public async Task AddPrescriptionAsync(PrescriptionModel model)
+        public async Task addPrescriptionAsync(PrescriptionModel model)
         {
-            // For example, fix any DateTime issues or run validations:
             model.DateIssued = DateTime.SpecifyKind(model.DateIssued, DateTimeKind.Utc);
-
-            // Then delegate to the mapper:
-            await _mapper.AddPrescriptionAsync(model);
+            await _mapper.addPrescriptionAsync(model);
         }
     }
 }

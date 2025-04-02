@@ -2,8 +2,31 @@ namespace ClearCare
 {
     public static class HardcodedUUIDs
     {
-        // public const string UserUUID = "eb8eb0a4-4a33-4bc9-b2f2-3a55154a8899";
-        public const string UserUUID = "06c2fb70-1822-423e-a328-9840a21a4ac0";
+        // Doctore Exmaple
+        // public const string UserUUID = "uuid-doctor-1"; 
+        // public const string UserRole = "Doctor";
 
+        // // Paitent Exmaple
+        // public const string UserUUID = "uuid-patient-bob";
+        // public const string UserRole = "Doctor";
+
+        // // Used for Prescription Page Drop Done
+        // public class PatientInfo
+        // {
+        //     public string Name { get; set; }
+        //     public string Uuid { get; set; }
+        // }
+
+        // // Hardcode a list of patients you can reference
+        // public static List<PatientInfo> Patients = new List<PatientInfo>
+        // {
+        //     new PatientInfo { Name = "John Doe",    Uuid = "uuid-patient-john" },
+        //     new PatientInfo { Name = "Jane Smith",  Uuid = "uuid-patient-jane" },
+        //     new PatientInfo { Name = "Bob Johnson", Uuid = "uuid-patient-bob" },
+        //     new PatientInfo { Name = "Alice", Uuid = "uuid-alice" }
+
+        //     // Add as many as you want
+        // };
+        
     }
 }

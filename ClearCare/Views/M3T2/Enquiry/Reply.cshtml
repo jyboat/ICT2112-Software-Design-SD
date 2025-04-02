@@ -1,7 +1,15 @@
 @model ClearCare.Models.DTO.M3T2.ReplyToEnquiryDTO
+@using ClearCare
+@using Microsoft.AspNetCore.Http
 
 @{
     ViewData["Title"] = "Reply to Enquiry";
+    int currentPage = ViewBag.CurrentPage != null ? (int)ViewBag.CurrentPage : 1;
+    int totalPages = ViewBag.TotalPages != null ? (int)ViewBag.TotalPages : 1;
+    int totalReplies = ViewBag.TotalReplies != null ? (int)ViewBag.TotalReplies : 0;
+
+    // Retrieve the current user's UUID from session.
+    string currentUserUUID = Context.Session.GetString("UserUUID") ?? "";
 }
 
 <h2>Reply to Enquiry</h2>
@@ -14,14 +22,8 @@
             </div>
             <div class="card-body">
                 <dl class="row">
-                    <dt class="col-sm-4">Document ID:</dt>
-                    <dd class="col-sm-8">@Model.Enquiry.FirestoreId</dd>
-                    
                     <dt class="col-sm-4">Name:</dt>
                     <dd class="col-sm-8">@Model.Enquiry.Name</dd>
-                    
-                    <dt class="col-sm-4">Email:</dt>
-                    <dd class="col-sm-8">@Model.Enquiry.Email</dd>
                     
                     <dt class="col-sm-4">Message:</dt>
                     <dd class="col-sm-8">@Model.Enquiry.Message</dd>
@@ -37,16 +39,13 @@
             </div>
             <div class="card-body">
                 <form asp-action="SendReply" method="post">
+                    <!-- Retrieve sender's UUID from session instead of hardcoded value -->
+                    <input type="hidden" name="senderName" value="@currentUserUUID" />
                     <input type="hidden" name="enquiryId" value="@Model.Enquiry.FirestoreId" />
                     <input type="hidden" name="recipientName" value="@Model.Enquiry.Name" />
-                    <input type="hidden" name="recipientEmail" value="@Model.Enquiry.Email" />
                     <input type="hidden" name="originalMessage" value="@Model.Enquiry.Message" />
-                    <input type="hidden" name="userUUID" value="@Model.Enquiry.UserUUID" />
-                    
-                    <div class="form-group">
-                        <label for="replySubject">Subject</label>
-                        <input type="text" class="form-control" id="replySubject" name="subject" required>
-                    </div>
+                    <!-- Optionally, if you want to pass the current user's UUID in this field -->
+                    <input type="hidden" name="userUUID" value="@currentUserUUID" />
                     
                     <div class="form-group">
                         <label for="replyMessage">Reply Message</label>
@@ -75,16 +74,41 @@
         </div>
         <div class="card-body">
             <ul class="list-group">
-                @foreach (var reply in Model.Replies)
-                {
-                    <li class="list-group-item">
-                        <strong>Subject:</strong> @reply.Subject <br />
-                        <strong>Message:</strong> @reply.Message <br />
-                        <small class="text-muted">Sent on: @reply.CreatedAt.ToLocalTime()</small>
-                    </li>
-                }
+               @foreach (var reply in Model.Replies)
+               {
+                   <li class="list-group-item">
+                       <strong>From:</strong> @reply.SenderName <br />
+                       <strong>Message:</strong> @reply.Message <br />
+                       <small class="text-muted">
+                           Sent on: @reply.CreatedAt.ToLocalTime()
+                       </small>
+                   </li>
+               }
             </ul>
         </div>
+    </div>
+
+    <!-- Pagination controls -->
+    <div class="mt-3">
+        <span>
+            Page @currentPage of @totalPages 
+            (Total replies: @totalReplies)
+        </span>
+        <br />
+
+        @* Display "Previous" button only if we're not on the first page *@
+        @if (currentPage > 1)
+        {
+            <a href="@Url.Action("reply", "Enquiry", new { id = Model.Enquiry.FirestoreId, pageNumber = currentPage - 1 })"
+               class="btn btn-primary">Previous</a>
+        }
+
+        @* Display "Next" button only if we're not on the last page *@
+        @if (currentPage < totalPages)
+        {
+            <a href="@Url.Action("reply", "Enquiry", new { id = Model.Enquiry.FirestoreId, pageNumber = currentPage + 1 })"
+               class="btn btn-primary">Next</a>
+        }
     </div>
 }
 else

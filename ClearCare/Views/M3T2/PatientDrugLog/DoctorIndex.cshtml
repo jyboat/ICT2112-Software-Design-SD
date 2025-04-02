@@ -1,0 +1,45 @@
+@model List<ClearCare.Models.DTO.M3T2.PatientDrugLogDTO>
+@{
+    ViewData["Title"] = "Patients Submitted Drug Log";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">@ViewData["Title"]</h2>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Patient ID</th>
+                    <th>Drug Name</th>
+                    <th>Drug Information</th>
+                    <th>Side Effects</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var drugInfo in Model)
+                {
+                    <tr>
+                        <td>@drugInfo.PatientId</td>
+                        <td>@drugInfo.DrugName</td>
+                        <td>@drugInfo.DrugInformation</td>
+                        <td>@drugInfo.SideEffects</td>
+                        <td>@drugInfo.Status</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            No drugs have been uploaded.
+        </div>
+    }
+</div>

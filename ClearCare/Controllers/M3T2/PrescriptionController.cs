@@ -16,29 +16,34 @@ namespace ClearCare.Controllers.M3T2
 
         // GET: /Prescription/Create
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult create()
         {
-            // Render a form for creating a Prescription
-            return View("~/Views/M3T2/Prescription/Create.cshtml");
+            // You can initialize the model with one empty medication row if you want:
+            var model = new PrescriptionModel();
+            model.Medications.Add(new DrugDosage()); 
+            return View("~/Views/M3T2/Prescription/Create.cshtml", model);
         }
 
         // POST: /Prescription/Create
         [HttpPost]
-        public async Task<IActionResult> Create(PrescriptionModel model)
+        public async Task<IActionResult> create(PrescriptionModel model)
         {
             if (ModelState.IsValid)
             {
-                await _prescriptionControl.AddPrescriptionAsync(model);
-                return RedirectToAction("Index");
+                await _prescriptionControl.addPrescriptionAsync(model);
+                return RedirectToAction("index");
             }
-            return View(model);
+            return View("~/Views/M3T2/Prescription/Create.cshtml", model);
         }
 
         // GET: /Prescription
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> index()
         {
-            var prescriptions = await _prescriptionControl.GetAllPrescriptionsAsync();
+            string userRole = HttpContext.Session.GetString("UserRole") ?? "Unknown";
+            string userUUID = HttpContext.Session.GetString("UserUUID") ?? "Unknown";
+
+            var prescriptions = await _prescriptionControl.getAllPrescriptionsAsync(userRole, userUUID);
             return View("~/Views/M3T2/Prescription/Index.cshtml", prescriptions);
         }
     }

@@ -84,7 +84,7 @@ namespace ClearCare.Models.Control.M3T1
 
         public async Task<PrescriptionModel?> getPrescription(string patientId)
         {
-            List<PrescriptionModel> prescriptions = await _fetchPrescriptions.FetchPrescriptions();
+            List<PrescriptionModel> prescriptions = await _fetchPrescriptions.fetchPrescriptions();
             PrescriptionModel patientPrescript = null;
             foreach (var prescription in prescriptions)
             {

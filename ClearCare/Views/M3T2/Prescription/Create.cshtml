@@ -1,44 +1,95 @@
 @model ClearCare.Models.Entities.M3T2.PrescriptionModel
+@using ClearCare
+@using Microsoft.AspNetCore.Http
+
 @{
     ViewData["Title"] = "Create Prescription";
+    
+    // Retrieve the current user's UUID from session.
+    string currentUserUUID = Context.Session.GetString("UserUUID") ?? "";
+
+    // Set the DoctorId on the model using the session value.
+    Model.DoctorId = currentUserUUID;
+
+    // Retrieve the patient list from IUserList instead of HardcodedUUIDs.
+    var patientList = IUserList.Patients;
 }
 
-<h1>Create a New Prescription</h1>
+<h2>Create Prescription</h2>
 
-<form asp-controller="Prescription" asp-action="Create" method="post">
-    <div class="form-group">
-        <label asp-for="PatientId"></label>
-        <input asp-for="PatientId" class="form-control" />
-        <span asp-validation-for="PatientId" class="text-danger"></span>
+<form asp-action="Create" method="post">
+    <div>
+        <label>Patient:</label>
+        <select asp-for="PatientId" class="form-control">
+            @foreach (var patient in patientList)
+            {
+                <option value="@patient.Uuid">@patient.Name</option>
+            }
+        </select>
     </div>
 
-    <div class="form-group">
-        <label asp-for="DoctorId"></label>
-        <input asp-for="DoctorId" class="form-control" />
-        <span asp-validation-for="DoctorId" class="text-danger"></span>
+    <div class="container py-2">
+        <!-- Hidden field for DoctorId is now populated from session -->
+        <input type="hidden" asp-for="DoctorId" value="@currentUserUUID" />
+    </div>
+    
+    <div>
+        <h4>Medications</h4>
+        <div id="medications-container">
+            @for (int i = 0; i < Model.Medications.Count; i++)
+            {
+
+                <div class="medication-row row mb-3 d-flex">
+                    <div class="col-md-4">
+                        <label class="mb-0">Drug Name:</label>
+                        <input class="form-control w-100" name="Medications[@i].DrugName" value="" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="mb-0">Dosage:</label>
+                        <input class="form-control w-100" name="Medications[@i].Dosage" value="" />
+                    </div>
+                    <div class="col-md-2 d-flex flex-column justify-content-end">
+                        <button class="btn btn-danger" type="button" onclick="removeRow(this)">Remove</button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div id="medication-template" style="display:none;">
+            <div class="medication-row row mb-3 d-flex">
+                <div class="col-md-4">
+                    <label class="mb-0">Drug Name:</label>
+                    <input class="form-control w-100" name="Medications[IDX].DrugName" value="" />
+                </div>
+                <div class="col-md-4">
+                    <label class="mb-0">Dosage:</label>
+                    <input class="form-control w-100" name="Medications[IDX].Dosage" value="" />
+                </div>
+                <div class="col-md-2 d-flex flex-column justify-content-end">
+                    <button class="btn btn-danger" type="button" onclick="removeRow(this)">Remove</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <div class="form-group">
-        <label asp-for="DrugList"></label>
-        <!-- 
-            If DrugList is a List<string>, you might accept a comma-separated string 
-            and split it in your controller. Or handle it however suits your design.
-        -->
-        <textarea asp-for="DrugList" class="form-control"></textarea>
-        <span asp-validation-for="DrugList" class="text-danger"></span>
-    </div>
+    <br>
 
-    <div class="form-group">
-        <label asp-for="DateIssued"></label>
-        <input asp-for="DateIssued" type="date" class="form-control" />
-        <span asp-validation-for="DateIssued" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="DosageInfo"></label>
-        <textarea asp-for="DosageInfo" class="form-control"></textarea>
-        <span asp-validation-for="DosageInfo" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-success">Submit</button>
+    <button class="btn btn-primary" type="button" onclick="addMedicationRow()">Add Drug</button>
+    <button class="btn btn-success" type="submit">Save</button>
 </form>
+
+@section Scripts {
+    <script>
+        let counter = @Model.Medications.Count;
+        function addMedicationRow() {
+            const template = document.getElementById("medication-template").innerHTML;
+            const newRowHtml = template.replace(/IDX/g, counter);
+            counter++;
+            document.getElementById("medications-container").insertAdjacentHTML('beforeend', newRowHtml);
+        }
+        function removeRow(btn) {
+            btn.closest('.medication-row').remove();
+        }
+    </script>
+}

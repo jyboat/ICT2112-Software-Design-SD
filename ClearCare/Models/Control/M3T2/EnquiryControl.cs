@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using ClearCare.Observer;  // For ISubject<T>, IObserver<T>
+using ClearCare.Observer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,16 +9,12 @@ using ClearCare.Models.Entities.M3T2;
 
 namespace ClearCare.Models.Control.M3T2
 {
-    // Make sure you have ISubject<Enquiry> and IObserver<Enquiry> defined in your ClearCare.Observer namespace
     public class EnquiryControl : ISubject<Enquiry>
     {
         private readonly ILogger<EnquiryControl> _logger;
         private readonly EnquiryGateway _enquiryGateway;
 
-        // Optional in-memory list of enquiries
         public static List<Enquiry> Enquiries { get; set; } = new List<Enquiry>();
-
-        // List of observers interested in Enquiry events
         private readonly List<Observer.IObserver<Enquiry>> _observers = new();
 
         public EnquiryControl(ILogger<EnquiryControl> logger, EnquiryGateway enquiryGateway)
@@ -46,8 +42,10 @@ namespace ClearCare.Models.Control.M3T2
             }
         }
 
-        // Notify all observers that an Enquiry was created
-        private void NotifyCreated(Enquiry enquiry)
+        //=============================================================
+        // Private Notification Methods
+        //=============================================================
+        private void notifyCreated(Enquiry enquiry)
         {
             foreach (var obs in _observers)
             {
@@ -55,8 +53,7 @@ namespace ClearCare.Models.Control.M3T2
             }
         }
 
-        // (Optional) If you add Update or Delete methods later, call these:
-        private void NotifyUpdated(Enquiry enquiry)
+        private void notifyUpdated(Enquiry enquiry)
         {
             foreach (var obs in _observers)
             {
@@ -64,7 +61,7 @@ namespace ClearCare.Models.Control.M3T2
             }
         }
 
-        private void NotifyDeleted(string enquiryId)
+        private void notifyDeleted(string enquiryId)
         {
             foreach (var obs in _observers)
             {
@@ -73,72 +70,62 @@ namespace ClearCare.Models.Control.M3T2
         }
 
         //=============================================================
-        // Existing Methods
+        // Business Logic Methods
         //=============================================================
-
-        /// <summary>
-        /// Create a new Enquiry (store in memory or Firestore).
-        /// </summary>
-        public async Task CreateEnquiryAsync(Enquiry enquiry)
+        public async Task createEnquiryAsync(
+            Enquiry enquiry,
+            string userUUID,
+            string doctorUUID,
+            string topic // <-- Accept Topic as a parameter
+        )
         {
-            _logger.LogInformation($"Creating enquiry from {enquiry.Name} with email {enquiry.Email}.");
+            _logger.LogInformation($"Creating enquiry from {enquiry.Name} for user {userUUID}, doctor {doctorUUID}, topic: {topic}.");
 
+            // Assign the UUIDs and Topic on the Enquiry object.
+            enquiry.UserUUID = userUUID;
+            enquiry.DoctorUUID = doctorUUID;
+            enquiry.Topic = topic;
 
-            // // this is where we would assigne the doctor id tot he enquiry 
-            // // + "this is random generate"
-            // enquiry.Id = Guid.NewGuid().ToString() ;
-
-            // Add to local list
+            // Optionally store in your in-memory list (if you're using it).
             Enquiries.Add(enquiry);
 
-            // Also persist to Firestore (if using Firestore)
-            await _enquiryGateway.SaveEnquiryAsync(enquiry);
+            // Persist to Firestore via the gateway.
+            await _enquiryGateway.saveEnquiryAsync(enquiry);
 
-            // Notify all observers that a new Enquiry was created
-            NotifyCreated(enquiry);
+            // Notify observers of the new Enquiry.
+            notifyCreated(enquiry);
         }
 
-        /// <summary>
-        /// Save a Reply to the given Enquiry in Firestore.
-        /// </summary>
-        public async Task SaveReplyAsync(string enquiryId, Reply reply)
+        public async Task saveReplyAsync(string enquiryId, Reply reply)
         {
-            await _enquiryGateway.SaveReplyAsync(enquiryId, reply);
+            await _enquiryGateway.saveReplyAsync(enquiryId, reply);
         }
 
-        /// <summary>
-        /// Fetch Replies for a specific Enquiry from Firestore.
-        /// </summary>
-        public async Task<List<Reply>> FetchRepliesForEnquiryAsync(string enquiryId)
+        public async Task<List<Reply>> fetchRepliesForEnquiryAsync(string enquiryId)
         {
-            return await _enquiryGateway.GetRepliesForEnquiryAsync(enquiryId);
+            return await _enquiryGateway.getRepliesForEnquiryAsync(enquiryId);
         }
 
-        /// <summary>
-        /// Return all enquiries (in-memory list).
-        /// </summary>
-        public List<Enquiry> FetchAllEnquiries()
+        public List<Enquiry> fetchAllEnquiries()
         {
             return Enquiries;
         }
 
-        /// <summary>
-        /// Fetch all Enquiries for a specific user from Firestore.
-        /// </summary>
-        public async Task<List<Enquiry>> FetchEnquiriesByUserAsync(string userUUID)
+        public async Task<List<Enquiry>> fetchEnquiriesByUserAsync(string userUUID)
         {
-            var userEnquiries = await _enquiryGateway.GetEnquiriesForUserAsync(userUUID);
-            return userEnquiries;
+            return await _enquiryGateway.getEnquiriesForUserAsync(userUUID);
         }
 
-        /// <summary>
-        /// Fetch a single Enquiry by its Firestore ID.
-        /// </summary>
-        public async Task<Enquiry> FetchEnquiryByFirestoreIdAsync(string firestoreId)
+        public async Task<List<Enquiry>> fetchEnquiriesByDoctorAsync(string userUUID)
         {
-            return await _enquiryGateway.GetEnquiryByIdAsync(firestoreId);
+            return await _enquiryGateway.getEnquiriesForDoctorAsync(userUUID);
         }
 
-        // Future: Add Update or Delete methods, then call NotifyUpdated/NotifyDeleted.
+        public async Task<Enquiry> fetchEnquiryByFirestoreIdAsync(string firestoreId)
+        {
+            return await _enquiryGateway.getEnquiryByIdAsync(firestoreId);
+        }
+
+        // Future: Add update/delete methods using notifyUpdated/notifyDeleted
     }
 }

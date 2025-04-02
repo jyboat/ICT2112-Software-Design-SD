@@ -6,6 +6,6 @@ namespace ClearCare.Models.Interfaces.M3T2
 {
     public interface IFetchPrescriptions
     {
-        Task<List<PrescriptionModel>> FetchPrescriptions();
+        Task<List<PrescriptionModel>> fetchPrescriptions();
     }
 }

@@ -2,20 +2,40 @@
 
 @{
     ViewData["Title"] = "Side Effects";
+    
+    // Retrieve the user's role from session storage.
+    string userRole = Context.Session.GetString("UserRole") ?? "Unknown";
 }
 
 <div class="container py-4">
+
     <h1 class="mb-4">Side Effects</h1>
 
     <!-- Always show the Add Side Effect button -->
-    <a asp-action="Add" class="btn btn-primary mb-3">Add Side Effect</a>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <a asp-action="Add" class="btn btn-primary">Add Side Effect</a>
+            <a asp-action="Chart" class="btn btn-success">Side Effect Analytics</a>
+        </div>
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search...">
+                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
     @if (Model != null && Model.Any())
     {
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="sideEffectsTable">
             <thead class="table-light">
                 <tr>
-                    <th>Patient ID</th>
+                    @if (userRole == "Doctor")
+                    {
+                        <th>Patient Name</th>
+                    }
                     <th>Drug Name</th>
                     <th>Drug Information</th>
                     <th>Side Effects</th>
@@ -25,7 +45,10 @@
                 @foreach (var sideEffect in Model)
                 {
                     <tr>
+                    @if (userRole == "Doctor")
+                    {
                         <td>@sideEffect.PatientId</td>
+                    }
                         <td>@sideEffect.DrugName</td>
                         <td>@sideEffect.DrugInformation</td>
                         <td>@sideEffect.SideEffects</td>
@@ -41,3 +64,9 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        initializeTableSearch('searchInput', 'searchButton', 'sideEffectsTable');
+    </script>
+}

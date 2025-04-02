@@ -1,26 +1,27 @@
 using ClearCare.Observer;   // <--- Add this
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using ClearCare.DataSource.M3T2;
 using ClearCare.Models.Entities.M3T2;
+using ClearCare.Models.Interfaces.M3T2;
 
 namespace ClearCare.Models.Control.M3T2
 {
-    // Implement ISubject<SideEffectModel>
+    // Implements ISubject<SideEffectModel>
     public class SideEffectControl : ISubject<SideEffectModel>
     {
         private readonly SideEffectsMapper _sideEffectsMapper;
+    private readonly IFetchPrescriptions _prescriptionFetcher;
 
         // A list to keep all observers
         private readonly List<Observer.IObserver<SideEffectModel>> _observers = new();
 
-        public SideEffectControl(SideEffectsMapper sideEffectsMapper)
+        public SideEffectControl(SideEffectsMapper sideEffectsMapper,IFetchPrescriptions prescriptionFetcher)
         {
             _sideEffectsMapper = sideEffectsMapper;
+            _prescriptionFetcher = prescriptionFetcher;
         }
 
         //=============================
-        // ISubject<SideEffectModel>
+        // ISubject<SideEffectModel> Implementation
         //=============================
         public void Attach(Observer.IObserver<SideEffectModel> observer)
         {
@@ -34,8 +35,10 @@ namespace ClearCare.Models.Control.M3T2
                 _observers.Remove(observer);
         }
 
-        // A private helper to notify all observers a side effect was created
-        private void NotifyCreated(SideEffectModel sideEffect)
+        //=============================
+        // Private Notification Helper
+        //=============================
+        private void notifyCreated(SideEffectModel sideEffect)
         {
             foreach (var obs in _observers)
             {
@@ -44,20 +47,44 @@ namespace ClearCare.Models.Control.M3T2
         }
 
         //=============================
-        // Existing Methods
+        // Public Methods
         //=============================
-        public async Task<List<SideEffectModel>> GetSideEffectsAsync()
+        public async Task<List<SideEffectModel>> getSideEffectsAsync(string userRole, string userUUID)
         {
-            return await _sideEffectsMapper.GetAllSideEffectsAsync();
+            var allSideEffects = await _sideEffectsMapper.getAllSideEffectsAsync();
+
+            if (userRole == "Patient")
+            {
+                return allSideEffects.Where(se => se.PatientId == userUUID).ToList();
+            }
+            
+            return allSideEffects;
         }
 
-        public async Task AddSideEffectAsync(SideEffectModel sideEffect)
+        public async Task addSideEffectAsync(SideEffectModel sideEffect)
         {
-            // 1. Persist to Firestore
-            await _sideEffectsMapper.AddSideEffectAsync(sideEffect);
+            await _sideEffectsMapper.addSideEffectAsync(sideEffect);
+            notifyCreated(sideEffect);
+        }
 
-            // 2. Notify all observers that a new side effect was created
-            NotifyCreated(sideEffect);
+        public async Task<List<DrugDosage>> getPatientMedications(string userRole, string userUUID)
+        {
+            if (userRole != "Patient")
+                return new List<DrugDosage>();
+
+            // Get all prescriptions and filter client-side
+            var allPrescriptions = await _prescriptionFetcher.fetchPrescriptions();
+
+            return allPrescriptions
+                .Where(p => p.PatientId == userUUID)
+                .SelectMany(p => p.Medications)
+                .GroupBy(m => m.DrugName) 
+                .Select(g => new DrugDosage
+                {
+                    DrugName = g.Key,
+                    Dosage = ""
+                })
+                .ToList();
         }
     }
 }
