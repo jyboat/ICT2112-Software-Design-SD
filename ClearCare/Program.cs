@@ -47,6 +47,14 @@ builder.Services.AddSingleton<DrugLogSideEffectsService>();
 // Remove duplicate registration of PatientDrugLogControl if any.
 builder.Services.AddScoped<DrugInteractionControl>();
 
+builder.Services.AddScoped<UserSwitcherService>();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

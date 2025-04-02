@@ -6,11 +6,20 @@
 }
 
 <div class="container mt-5">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h2 class="mb-0">@ViewData["Title"]</h2>
+
+    <h1 class="mb-4">Patients Submitted Drug Log</h1>
+
+    <div class="row mb-3 justify-content-end">
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search...">
+                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
         </div>
     </div>
+
 
     @if (Model != null && Model.Any())
     {
@@ -45,3 +54,9 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        initializeTableSearch('searchInput', 'searchButton', 'druglogTable');
+    </script>
+}

@@ -12,15 +12,16 @@ public class SessionInitializerMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        // Clear any existing session keys if needed.
-        context.Session.Clear();
-
-        // Set the session keys with your desired values.
-        context.Session.SetString("UserUUID", "uuid-1234");
-        context.Session.SetString("UserName", "Alice");
-        // context.Session.SetString("UserRole", "Patient");
-        context.Session.SetString("UserRole", "Doctor");
+        // Only clear session if it is new or needs reset
+        if (context.Session.GetString("UserUUID") == null)
+        {
+            // Session not initialized, set default values
+            context.Session.SetString("UserUUID", "uuid-doctor-john");
+            context.Session.SetString("UserName", "Dr. John");
+            context.Session.SetString("UserRole", "Doctor");
+        }
 
         await _next(context);
     }
 }
+
