@@ -116,5 +116,33 @@ namespace ClearCare.Gateways
 
             return prescriptions;
         }
+
+        // New or updated method to fetch by userId:
+        public async Task<List<PrescriptionModel>> fetchPrescriptionsPatientId(string userId)
+        {
+            var prescriptions = new List<PrescriptionModel>();
+            try
+            {
+                var query = _db.Collection("Prescriptions")
+                               .WhereEqualTo("PatientId", userId);
+                var snapshot = await query.GetSnapshotAsync();
+
+                foreach (var doc in snapshot.Documents)
+                {
+                    if (doc.Exists)
+                    {
+                        var item = doc.ConvertTo<PrescriptionModel>();
+                        prescriptions.Add(item);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching shared prescriptions: {ex.Message}");
+            }
+
+            return prescriptions;
+        }
+
     }
 }

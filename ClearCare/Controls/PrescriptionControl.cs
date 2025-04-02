@@ -68,5 +68,11 @@ namespace ClearCare.Controls
             model.DateIssued = DateTime.SpecifyKind(model.DateIssued, DateTimeKind.Utc);
             await _mapper.addPrescriptionAsync(model);
         }
+
+        Task<List<PrescriptionModel>> IFetchPrescriptions.fetchPrescriptionsPatientId(string userId)
+        {
+            return (Task<List<PrescriptionModel>>)_mapper.fetchSharedPrescriptionsAsync(userId);
+        }
+
     }
 }
