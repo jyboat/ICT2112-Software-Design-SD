@@ -5,6 +5,17 @@
 @{
     ViewData["Title"] = "List of Enquiries";
     // Retrieve the user's role from session storage.
+    
+    // Create a mapping of doctor UUIDs to their names.
+    var doctorMapping = new Dictionary<string, string>
+    {
+        { "uuid-alice", "Dr. Alice" },
+        { "uuid-bob", "Dr. Bob" },
+        { "uuid-carol", "Dr. Carol" },
+        { "uuid-doctor-john", "Dr. John" }
+
+    };
+
     string userRole = Context.Session.GetString("Role") ?? "Unknown";
 }
 
@@ -49,7 +60,11 @@
                                 }
                                 else if (userRole == "Patient")
                                 {
-                                    <td>@e.DoctorUUID</td>
+<td>
+    @(doctorMapping.TryGetValue(e.DoctorUUID, out var doctorName)
+        ? doctorName
+        : e.DoctorUUID)
+</td>
                                     <td>@e.Topic</td>
                                 }
                                 <td>

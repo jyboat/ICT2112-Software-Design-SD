@@ -10,6 +10,8 @@
 
     // Retrieve the current user's UUID from session.
     string currentUserUUID = Context.Session.GetString("UserID") ?? "";
+    string userName = Context.Session.GetString("Name") ?? "";
+
 }
 
 <h2>Reply to Enquiry</h2>
@@ -24,7 +26,8 @@
                 <dl class="row">
                     <dt class="col-sm-4">Name:</dt>
                     <dd class="col-sm-8">@Model.Enquiry.Name</dd>
-                    
+                     <dt class="col-sm-4">Topic:</dt>
+                    <dd class="col-sm-8">@Model.Enquiry.Topic</dd>
                     <dt class="col-sm-4">Message:</dt>
                     <dd class="col-sm-8">@Model.Enquiry.Message</dd>
                 </dl>
@@ -40,7 +43,7 @@
             <div class="card-body">
                 <form asp-action="SendReply" method="post">
                     <!-- Retrieve sender's UUID from session instead of hardcoded value -->
-                    <input type="hidden" name="senderName" value="@currentUserUUID" />
+                    <input type="hidden" name="senderName" value="@userName" />
                     <input type="hidden" name="enquiryId" value="@Model.Enquiry.FirestoreId" />
                     <input type="hidden" name="recipientName" value="@Model.Enquiry.Name" />
                     <input type="hidden" name="originalMessage" value="@Model.Enquiry.Message" />
@@ -70,20 +73,21 @@
 {
     <div class="card">
         <div class="card-header">
-            <h4>Replies</h4>
+            <h4>Thread</h4>
         </div>
         <div class="card-body">
             <ul class="list-group">
-               @foreach (var reply in Model.Replies)
-               {
-                   <li class="list-group-item">
-                       <strong>From:</strong> @reply.SenderName <br />
-                       <strong>Message:</strong> @reply.Message <br />
-                       <small class="text-muted">
-                           Sent on: @reply.CreatedAt.ToLocalTime()
-                       </small>
-                   </li>
-               }
+                <!-- Only show the actual replies -->
+                @foreach (var reply in Model.Replies)
+                {
+                    <li class="list-group-item">
+                        <strong>User:</strong> @reply.SenderName <br />
+                        <strong>Message:</strong> @reply.Message <br />
+                        <small class="text-muted">
+                            Sent on: @reply.CreatedAt.ToLocalTime()
+                        </small>
+                    </li>
+                }
             </ul>
         </div>
     </div>
@@ -96,14 +100,12 @@
         </span>
         <br />
 
-        @* Display "Previous" button only if we're not on the first page *@
         @if (currentPage > 1)
         {
             <a href="@Url.Action("reply", "Enquiry", new { id = Model.Enquiry.FirestoreId, pageNumber = currentPage - 1 })"
                class="btn btn-primary">Previous</a>
         }
 
-        @* Display "Next" button only if we're not on the last page *@
         @if (currentPage < totalPages)
         {
             <a href="@Url.Action("reply", "Enquiry", new { id = Model.Enquiry.FirestoreId, pageNumber = currentPage + 1 })"
