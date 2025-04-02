@@ -7,13 +7,13 @@ namespace ClearCare.Models.Interfaces.M3T1
     public interface IAssessmentSend
     {
         Task<List<Assessment>> fetchAssessments();
-
         Task<Assessment> fetchAssessmentById(string id);
-
-        Task<string> insertAssessment(string riskLevel, string recommendation, string createdAt, string patientId, string doctorId, List<string> imagePath);
-
-        Task<bool> updateAssessment(string id, string riskLevel, string recommendation, string createdAt, List<string> imagePath);
+        Task<Assessment> fetchAssessmentByPatientId(string patientId);
         
+        Task<string> insertAssessment(string imagePath, string riskLevel, string recommendation, string createdAt, string patientId);
+        
+        Task<bool> updateAssessment(string id, string riskLevel, string recommendation, string hazardType, Dictionary<string, bool> checklist = null);
+            
         Task<bool> deleteAssessment(string id);
     }
 }

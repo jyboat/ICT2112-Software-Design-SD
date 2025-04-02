@@ -22,59 +22,82 @@ namespace ClearCare.Models.Entities.M3T1
         private DateTime CreatedAt { get; set; }
 
         [FirestoreProperty]
-        private string DoctorID { get; set; }
+        private string PatientId { get; set; }
 
         [FirestoreProperty]
-        private string PatientID { get; set; }
+        private string ImagePath { get; set; }
+
+        // NEW: Home Assessment Checklist property
+        [FirestoreProperty]
+        private Dictionary<string, bool> HomeAssessmentChecklist { get; set; } = new Dictionary<string, bool>();
 
         [FirestoreProperty]
-        private List<string> ImagePath { get; set; } = new List<string>();
+        private string HazardType { get; set; }
 
-        // Constructor
-        public Assessment() { }
 
-        public Assessment(string id, string riskLevel, string recommendation, DateTime createdAt, string doctorId, string patientId, List<string> imagePath)
+
+        public Assessment(
+            string id, 
+            string hazardType,  // Add this parameter
+            string riskLevel, 
+            string recommendation, 
+            DateTime createdAt, 
+            string patientId, 
+            string imagePath, 
+            Dictionary<string, bool> homeAssessmentChecklist = null)
         {
             Id = id;
+            HazardType = hazardType;  // Add this assignment
             RiskLevel = riskLevel;
             Recommendation = recommendation;
             CreatedAt = createdAt;
-            DoctorID = doctorId;
-            PatientID = patientId;
-            ImagePath = imagePath ?? new List<string>();
+            PatientId = patientId;
+            ImagePath = imagePath ?? "";
+            HomeAssessmentChecklist = homeAssessmentChecklist ?? new Dictionary<string, bool>();
         }
 
         // Public getter methods
-        public string GetId() => Id;
-        public string GetRiskLevel() => RiskLevel;
-        public string GetRecommendation() => Recommendation;
-        public DateTime GetCreatedAt() => CreatedAt;
-        public string GetDoctorId() => DoctorID;
-        public string GetPatientId() => PatientID;
-        public List<string> GetImagePath() => ImagePath;
+        private string getId() => Id;
+        private string getRiskLevel() => RiskLevel;
+        private string getRecommendation() => Recommendation;
+        private DateTime getCreatedAt() => CreatedAt;
+        private string getPatientId() => PatientId;
+        private string getImagePath() => ImagePath;
+        private Dictionary<string, bool> getHomeAssessmentChecklist() => HomeAssessmentChecklist;
+        
+        public string getHazardType() => HazardType;
 
         // Public setter methods
-        public void SetId(string id) => Id = id;
-        public void SetRiskLevel(string riskLevel) => RiskLevel = riskLevel;
-        public void SetRecommendation(string recommendation) => Recommendation = recommendation;
-        public void SetCreatedAt(DateTime createdAt) => CreatedAt = createdAt;
-        public void SetDoctorId(string doctorId) => DoctorID = doctorId;
-        public void SetPatientId(string patientId) => PatientID = patientId;
-        public void SetImagePath(List<string> imagePath) => ImagePath = imagePath ?? new List<string>();
+        private void setId(string id) => Id = id;
+        private void setRiskLevel(string riskLevel) => RiskLevel = riskLevel;
+        private void setRecommendation(string recommendation) => Recommendation = recommendation;
+        private void setCreatedAt(DateTime createdAt) => CreatedAt = createdAt;
+        private void setPatientId(string patientId) => PatientId = patientId;
+        private void setImagePath(string imagePath) => ImagePath = imagePath ?? "";
+        private void setHomeAssessmentChecklist(Dictionary<string, bool> checklist) => HomeAssessmentChecklist = checklist ?? new Dictionary<string, bool>();
+        private void setHazardType(string hazardType) => HazardType = hazardType;
 
         // Retrieve assessment details as a dictionary
-        public Dictionary<string, object> GetAssessmentDetails()
+        public Dictionary<string, object> getAssessmentDetails()
         {
-            return new Dictionary<string, object>
+            var details = new Dictionary<string, object>
             {
-                { "Id", GetId() },
-                { "RiskLevel", GetRiskLevel() },
-                { "Recommendation", GetRecommendation() },
-                { "CreatedAt", GetCreatedAt() },
-                { "DoctorID", GetDoctorId() },
-                { "PatientID", GetPatientId() },
-                { "ImagePath", GetImagePath() }
+                { "Id", getId() },
+                { "RiskLevel", getRiskLevel() },
+                { "Recommendation", getRecommendation() },
+                { "CreatedAt", getCreatedAt() },
+                { "PatientId", getPatientId() },
+                { "ImagePath", getImagePath() },
+                { "HazardType", getHazardType() }
             };
+            
+            // Add checklist if it has items
+            if (getHomeAssessmentChecklist().Count > 0)
+            {
+                details.Add("HomeAssessmentChecklist", getHomeAssessmentChecklist());
+            }
+            
+            return details;
         }
 
         // Update assessment details from a dictionary
@@ -85,36 +108,18 @@ namespace ClearCare.Models.Entities.M3T1
                 throw new ArgumentNullException(nameof(assessmentDetails));
             }
 
-            if (assessmentDetails.ContainsKey("Id")) SetId(assessmentDetails["Id"]?.ToString() ?? string.Empty);
-            if (assessmentDetails.ContainsKey("RiskLevel")) SetRiskLevel(assessmentDetails["RiskLevel"]?.ToString() ?? string.Empty);
-            if (assessmentDetails.ContainsKey("Recommendation")) SetRecommendation(assessmentDetails["Recommendation"]?.ToString() ?? string.Empty);
-            if (assessmentDetails.ContainsKey("CreatedAt")) SetCreatedAt(Convert.ToDateTime(assessmentDetails["CreatedAt"] ?? DateTime.Now));
-            if (assessmentDetails.ContainsKey("DoctorID")) SetDoctorId(assessmentDetails["DoctorID"]?.ToString() ?? string.Empty);
-            if (assessmentDetails.ContainsKey("PatientID")) SetPatientId(assessmentDetails["PatientID"]?.ToString() ?? string.Empty);
-            if (assessmentDetails.ContainsKey("ImagePath")) SetImagePath(assessmentDetails["ImagePath"] as List<string> ?? new List<string>());
-        }
-
-        // Allow doctors to update their reviews only
-        public void SetDoctorReview(Dictionary<string, object> reviewDetails)
-        {
-            if (reviewDetails == null)
+            if (assessmentDetails.ContainsKey("Id")) setId(assessmentDetails["Id"]?.ToString() ?? string.Empty);
+            if (assessmentDetails.ContainsKey("RiskLevel")) setRiskLevel(assessmentDetails["RiskLevel"]?.ToString() ?? string.Empty);
+            if (assessmentDetails.ContainsKey("Recommendation")) setRecommendation(assessmentDetails["Recommendation"]?.ToString() ?? string.Empty);
+            if (assessmentDetails.ContainsKey("CreatedAt")) setCreatedAt(Convert.ToDateTime(assessmentDetails["CreatedAt"] ?? DateTime.Now));
+            if (assessmentDetails.ContainsKey("PatientId")) setPatientId(assessmentDetails["PatientId"]?.ToString() ?? string.Empty);
+            if (assessmentDetails.ContainsKey("ImagePath")) setImagePath(assessmentDetails["ImagePath"]?.ToString() ?? string.Empty);
+            
+            // Add checklist setting
+            if (assessmentDetails.ContainsKey("HomeAssessmentChecklist"))
             {
-                throw new ArgumentNullException(nameof(reviewDetails));
+                setHomeAssessmentChecklist(assessmentDetails["HomeAssessmentChecklist"] as Dictionary<string, bool> ?? new Dictionary<string, bool>());
             }
-
-            if (reviewDetails.ContainsKey("Recommendation")) SetRecommendation(reviewDetails["Recommendation"]?.ToString() ?? string.Empty);
-        }
-
-        // Allow patients to update their assessment details
-        public void SetPatientAssessment(Dictionary<string, object> patientDetails)
-        {
-            if (patientDetails == null)
-            {
-                throw new ArgumentNullException(nameof(patientDetails));
-            }
-
-            if (patientDetails.ContainsKey("RiskLevel")) SetRiskLevel(patientDetails["RiskLevel"]?.ToString() ?? string.Empty);
-            if (patientDetails.ContainsKey("ImagePath")) SetImagePath(patientDetails["ImagePath"] as List<string> ?? new List<string>());
         }
     }
 }

@@ -105,6 +105,12 @@ namespace ClearCare.DataSource.M3T1
         {
             try
             {
+                // Add group creator to the memberIds list if it's not already there
+                if (!memberIds.Contains(userId))
+                {
+                    memberIds.Add(userId);
+                }
+
                 var docRef = _db.Collection("CommunityGroups").Document();
 
                 var group = new Dictionary<string, object>

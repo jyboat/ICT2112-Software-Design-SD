@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models;
-using ClearCare.Models.ViewModels.M3T1;
+using ClearCare.Models.DTO.M3T1;
 using ClearCare.Models.Entities.M3T1;
 using ClearCare.Models.Control.M3T1;
 using ClearCare.DataSource.M3T1;
@@ -14,6 +14,7 @@ public class CommunityController : Controller
     private readonly CommunityGroupManagement _communityGroup;
     private readonly CommunityPostManagement _communityPost;
     private readonly CommunityCommentManagement _communityComment;
+    public string userId = "1"; // Hardcoded user id
 
     public CommunityController()
     {
@@ -27,8 +28,6 @@ public class CommunityController : Controller
     [Route("")]
     public async Task<IActionResult> list()
     {
-        string userId = "1"; // Hardcoded user id
-
         List<CommunityPost> posts = await _communityPost.viewPosts();
         var postList = posts
         .Select(s => s.getDetails())
@@ -40,7 +39,7 @@ public class CommunityController : Controller
         var userGroups = (await _communityGroup.getUserGroups(userId)).Select(s => s.getDetails()).ToList();
         var allGroups = (await _communityGroup.getNonUserGroups(userId)).Select(s => s.getDetails()).ToList();
 
-        var viewModel = new CommunityViewModel
+        var viewModel = new CommunityDTO
         {
             Posts = postList,
             UserPosts = userPostList,
@@ -75,8 +74,6 @@ public class CommunityController : Controller
     [Route("Group/{groupId}")]
     public async Task<IActionResult> displayGroup(string groupId)
     {
-        string userId = "1"; // Hardcoded user id
-
         List<CommunityPost> posts = await _communityPost.viewGroupPosts(groupId);
         var postList = posts
         .Select(s => s.getDetails())
@@ -91,7 +88,7 @@ public class CommunityController : Controller
         var group = (await _communityGroup.viewGroupById(groupId)).getDetails();
         var members = group["MemberIds"] as List<string>;
 
-        var viewModel = new CommunityViewModel
+        var viewModel = new CommunityDTO
         {
             Posts = postList,
             UserPosts = userPostList,
@@ -134,7 +131,6 @@ public class CommunityController : Controller
     [Route("Group/Join")]
     public async Task<IActionResult> addGroupMember(string groupId)
     {
-        string userId = "1";
         bool success = await _communityGroup.addMember(groupId, userId);
         if (success)
         {
@@ -170,9 +166,9 @@ public class CommunityController : Controller
 
     [HttpPost]
     [Route("Post/Create")]
-    public async Task<IActionResult> submitPost(string title, string content, string? groupId)
+    public async Task<IActionResult> submitPost(string userId, string title, string content, string? groupId)
     {
-        string id = await _communityPost.createPost(title, content, "1", groupId); // Change to current user id
+        string id = await _communityPost.createPost(title, content, userId, groupId); 
         if (!string.IsNullOrEmpty(id))
         {
             TempData["SuccessMessage"] = "Post created successfully!";
@@ -246,10 +242,9 @@ public class CommunityController : Controller
 
     [HttpPost]
     [Route("Comment/Create")]
-    public async Task<IActionResult> submitComment(string content, string createdBy, string postId)
+    public async Task<IActionResult> submitComment(string content, string userId, string postId)
     {
-        createdBy = "1"; // Hardcoded user id
-        string id = await _communityComment.createComment(content, createdBy, postId);
+        string id = await _communityComment.createComment(content, userId, postId);
 
         if (!string.IsNullOrEmpty(id))
         {

@@ -2,9 +2,10 @@ using ClearCare.DataSource.M3T1;
 using Microsoft.AspNetCore.Mvc;
 using ClearCare.Models.Control.M3T1;
 using ClearCare.Models.Entities.M3T1;
+using ClearCare.Models.Interfaces.M3T1;
+using ClearCare.Models.DTO.M3T1;
 using ClearCare.Models.Interfaces.M3T2;
-using ClearCare.Gateways;
-using ClearCare.Models.ViewModels;
+using ClearCare.DataSource.M3T2;
 
 // Request Handling
 [Route("Summary")]
@@ -15,14 +16,15 @@ public class SummaryController : Controller
     public SummaryController()
     {
         var gateway = new SummaryGateway();
-        IFetchPrescriptions fetcher = new PrescriptionMapper();
-        _manager = new DischargeSummaryManager(gateway, fetcher);
+        IAssessment assessmentFetcher = new AssessmentGateway();
+        IFetchPrescriptions prescriptionFetcher = new PrescriptionMapper();
+        _manager = new DischargeSummaryManager(gateway, assessmentFetcher, prescriptionFetcher);
         gateway.receiver = _manager;
     }
 
     [Route("")]
     [HttpGet]
-    public async Task<IActionResult> List()
+    public async Task<IActionResult> list()
     {
         List<DischargeSummary> summaries = await _manager.getSummaries();
 
@@ -33,35 +35,38 @@ public class SummaryController : Controller
 
     [Route("View/{summaryId}")]
     [HttpGet]
-    public async Task<IActionResult> ViewSummary(string summaryId)
+    public async Task<IActionResult> viewSummary(string summaryId)
     {
         var summary = await _manager.getSummary(summaryId);
-        string patientId = (string)summary.GetSummaryDetails()["PatientId"];
-
-        var prescription = await _manager.getPrescription(patientId);
 
         if (summary == null)
         {
-            return View("List");
+            return View("list");
         }
-        var viewModel = new SummaryViewModel
+        string patientId = (string)summary.GetSummaryDetails()["PatientId"];
+
+        var prescription = await _manager.getPrescription(patientId);
+        var assessment = await _manager.getAssessment(patientId);
+
+        var dto = new SummaryDTO
         {
             Summary = summary,
+            Assessment = assessment,
             Prescription = prescription
         };
 
-        return View("~/Views/M3T1/Summary/Index.cshtml", viewModel);
+        return View("~/Views/M3T1/Summary/Index.cshtml", dto);
     }
 
     [Route("Add")]
     [HttpGet]
-    public IActionResult ViewAdd() { 
+    public IActionResult viewAdd() { 
         return View("~/Views/M3T1/Summary/Add.cshtml");
     }
 
     [Route("Add")]
     [HttpPost]
-    public async Task<IActionResult> AddSummary(string details, string instructions)
+    public async Task<IActionResult> addSummary(string details, string instructions)
     {
         if (string.IsNullOrEmpty(details) || string.IsNullOrEmpty(instructions))
         {
@@ -75,24 +80,24 @@ public class SummaryController : Controller
 
         TempData["SuccessMessage"] = "Summary added successfully!";
 
-        return RedirectToAction("List");
+        return RedirectToAction("list");
     }
 
     [Route("Edit/{summaryId}")]
     [HttpGet]
-    public async Task<IActionResult> ViewEdit(string summaryId)
+    public async Task<IActionResult> viewEdit(string summaryId)
     {
         var summary = await _manager.getSummary(summaryId);
         if (summary == null)
         {
-            return RedirectToAction("List");
+            return RedirectToAction("list");
         }
         return View("~/Views/M3T1/Summary/Edit.cshtml", summary);
     }
 
     [Route("Edit/{summaryId}")]
     [HttpPost]
-    public async Task<IActionResult> UpdateSummary(string summaryId, string details, string instructions)
+    public async Task<IActionResult> updateSummary(string summaryId, string details, string instructions)
     {
         if (string.IsNullOrEmpty(details) || string.IsNullOrEmpty(instructions))
         {
@@ -103,7 +108,7 @@ public class SummaryController : Controller
 
         TempData["SuccessMessage"] = "Summary updated successfully!";
 
-        return RedirectToAction("List");
+        return RedirectToAction("list");
     }
 
     [Route("Delete/{summaryId}")]
@@ -114,6 +119,6 @@ public class SummaryController : Controller
 
         TempData["SuccessMessage"] = "Summary deleted successfully!";
 
-        return RedirectToAction("List");
+        return RedirectToAction("list");
     }
 }

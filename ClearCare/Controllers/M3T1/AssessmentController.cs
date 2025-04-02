@@ -4,135 +4,243 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using ClearCare.Models.Control.M3T1;
 using ClearCare.Models.Entities.M3T1;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
-    [Route("Assessment")]
-    public class AssessmentController : Controller
+[Route("Assessment")]
+public class AssessmentController : Controller
+{
+    private readonly AssessmentManager _manager;
+    private readonly IWebHostEnvironment _environment;
+    private const string UploadsFolder = "Uploads";
+
+    public AssessmentController(IWebHostEnvironment environment)
     {
-        private readonly AssessmentManager _manager;
-
-        public AssessmentController()
+        var mapper = new AssessmentGateway();
+        _manager = new AssessmentManager(mapper);
+        _environment = environment;
+            
+    }
+    
+    
+    [Route("")]
+    [HttpGet]
+    public async Task<IActionResult> list()
+    {
+        try
         {
-            var mapper = new AssessmentMapper();
-            _manager = new AssessmentManager(mapper);
-        }
+            List<Assessment> assessments = await _manager.getAssessments();
 
-        [Route("")]
-        [HttpGet]
-        public async Task<IActionResult> List()
-    {
-        List<Assessment> assessments = await _manager.getAssessments();
-        return View("~/Views/M3T1/Assessment/List.cshtml", assessments); // Pass List<Assessment> directly
+            var assessmentList = assessments.Select(s => s.getAssessmentDetails()).ToList();
+
+            return View("~/Views/M3T1/Assessment/List.cshtml", assessmentList);
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = $"Error loading assessments: {ex.Message}";
+            return View("~/Views/M3T1/Assessment/List.cshtml", new List<Assessment>());
+        }
     }
 
-        [Route("View/{assessmentId}")]
-        [HttpGet]
-        public async Task<IActionResult> ViewAssessment(string assessmentId)
+    [Route("View/{assessmentId}")]
+    [HttpGet]
+    public async Task<IActionResult> viewAssessment(string assessmentId)
+    {
+        var assessment = await _manager.getAssessment(assessmentId);
+        if (assessment == null)
         {
-            var assessment = await _manager.getAssessment(assessmentId);
-            if (assessment == null)
-            {
-                return RedirectToAction("List");
-            }
-            return View("~/Views/M3T1/Assessment/Index.cshtml", assessment);
+            return RedirectToAction("list");
         }
+        return View("~/Views/M3T1/Assessment/Index.cshtml", assessment);
+    }
 
-        [Route("Add")]
-        [HttpGet]
-        public IActionResult ViewAdd()
+    [Route("Add")]
+    [HttpGet]
+    public IActionResult viewAdd()
+    {
+        return View("~/Views/M3T1/Assessment/Add.cshtml");
+    }
+
+    //[Route("Delete/{assessmentId}")]
+    //[HttpPost]
+    //public async Task<IActionResult> deleteAssessment(string assessmentId)
+    //{
+    //    // First get the assessment to delete associated files
+    //    var assessment = await _manager.getAssessment(assessmentId);
+    //    if (assessment != null)
+    //    {
+    //        // Delete files from local storage
+    //        foreach (var imagePath in assessment.getImagePath())
+    //        {
+    //            var physicalPath = Path.Combine(_environment.WebRootPath, imagePath.TrimStart('/'));
+    //            if (System.IO.File.Exists(physicalPath))
+    //            {
+    //                System.IO.File.Delete(physicalPath);
+    //            }
+    //        }
+    //    }
+
+    //    await _manager.deleteAssessment(assessmentId);
+    //    TempData["SuccessMessage"] = "Assessment deleted successfully!";
+    //    return RedirectToAction("List");
+    //}
+
+    [Route("Add")]
+    [HttpPost]
+    public async Task<IActionResult> addAssessment(IFormFile file)
+    {
+        try
         {
+            if (file == null)
+            {
+                TempData["ErrorMessage"] = "Please upload a file.";
+                return View("~/Views/M3T1/Assessment/Add.cshtml");
+            }
+
+            var uploadsPath = Path.Combine(_environment.WebRootPath, UploadsFolder);
+            
+            if (!Directory.Exists(uploadsPath))
+            {
+                Directory.CreateDirectory(uploadsPath);
+            }
+
+            // Process file
+            var fileExtension = Path.GetExtension(file.FileName).ToLower();
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".mp4", ".webm", ".ogg", ".mov" };
+
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                TempData["ErrorMessage"] = "Only image and video files are allowed.";
+                return View("~/Views/M3T1/Assessment/Add.cshtml");
+            }
+
+            var uniqueFileName = Guid.NewGuid().ToString() + fileExtension;
+            var filePath = Path.Combine(uploadsPath, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+
+            string id = await _manager.insertAssessment(
+                imagePath: $"/{UploadsFolder}/{uniqueFileName}"
+            );
+
+            if (string.IsNullOrEmpty(id))
+            {
+                TempData["ErrorMessage"] = "Error inserting new assessment";
+                return View("~/Views/M3T1/Assessment/Add.cshtml");
+            }
+
+            TempData["SuccessMessage"] = "Living conditions uploaded successfully!";
+            return RedirectToAction("list");
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = $"Error: {ex.Message}";
             return View("~/Views/M3T1/Assessment/Add.cshtml");
         }
-
-       [Route("Add")]
-[HttpPost]
-public async Task<IActionResult> AddAssessment(string severity, string notes, string dateCreated, string patientId, string doctorId, string imageUrls)
-{
-    if (string.IsNullOrEmpty(severity) || string.IsNullOrEmpty(notes) || string.IsNullOrEmpty(dateCreated) || string.IsNullOrEmpty(patientId) || string.IsNullOrEmpty(doctorId))
-    {
-        TempData["ErrorMessage"] = "Please fill in all required fields.";
-        return View("~/Views/M3T1/Assessment/Add.cshtml");
     }
 
-    // Validate date format (ISO 8601 recommended)
-    if (!DateTime.TryParse(dateCreated, out DateTime parsedDate))
+    [Route("Edit/{assessmentId}")]
+    [HttpGet]
+    public async Task<IActionResult> viewEdit(string assessmentId)
     {
-        TempData["ErrorMessage"] = "Invalid date format.";
-        return View("~/Views/M3T1/Assessment/Add.cshtml");
+        var assessment = await _manager.getAssessment(assessmentId);
+        if (assessment == null)
+        {
+            return RedirectToAction("list");
+        }
+
+        ViewBag.HazardTypes = new List<string>
+        {
+            "Fire Safety",
+            "Fall Risk",
+            "Wet Condition"
+        };
+
+        var assessmentDetails = assessment.getAssessmentDetails();
+
+        Dictionary<string, bool> defaultChecklist = new Dictionary<string, bool>();
+
+        if (assessmentDetails.ContainsKey("HazardType") && !string.IsNullOrEmpty(assessmentDetails["HazardType"]?.ToString())){
+            _manager.setHazardType(assessmentDetails["HazardType"].ToString());
+            defaultChecklist = _manager.getDefaultChecklist();
+        }
+
+        if (assessmentDetails.ContainsKey("HomeAssessmentChecklist") && assessmentDetails["HomeAssessmentChecklist"] is Dictionary<string, bool> rawChecklist)
+        {
+            foreach (var key in rawChecklist.Keys)
+            {
+                if (defaultChecklist.ContainsKey(key))
+                {
+                    defaultChecklist[key] = rawChecklist[key];
+                }
+            }
+        }
+        
+        ViewBag.ChecklistItems = defaultChecklist;
+
+        return View("~/Views/M3T1/Assessment/Edit.cshtml", assessment);
     }
 
-    // Convert DateTime to an ISO 8601 string (e.g., "2025-03-17T14:30:00Z")
-    string formattedDate = parsedDate.ToString("yyyy-MM-ddTHH:mm:ssZ");
-
-    // Split the imageUrls string into a list (if provided)
-    List<string> imageUrlList = string.IsNullOrEmpty(imageUrls)
-        ? new List<string>()
-        : imageUrls.Split(',').Select(url => url.Trim()).ToList();
-
-    // Insert the assessment into Firestore
-    string id = await _manager.insertAssessment(severity, notes, formattedDate, patientId, doctorId, imageUrlList);
-
-    TempData["SuccessMessage"] = "Assessment added successfully!";
-    return RedirectToAction("List");
-}
-
-
-        [Route("Edit/{assessmentId}")]
-        [HttpGet]
-        public async Task<IActionResult> ViewEdit(string assessmentId)
+    [Route("Edit/{assessmentId}")]
+    [HttpPost]
+    public async Task<IActionResult> updateAssessment(
+        string assessmentId,
+        string riskLevel,
+        string recommendation,
+        string hazardType,
+        Dictionary<string, bool> checklist)
+    {
+        try
         {
             var assessment = await _manager.getAssessment(assessmentId);
             if (assessment == null)
             {
-                return RedirectToAction("List");
-            }
-            return View("~/Views/M3T1/Assessment/Edit.cshtml", assessment);
-        }
-
-            [Route("Edit/{assessmentId}")]
-        [HttpPost]
-        public async Task<IActionResult> UpdateAssessment(string id, string riskLevel, string recommendation, string dateCreated, string imageUrls)
-        {
-            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(riskLevel) || string.IsNullOrEmpty(recommendation) || string.IsNullOrEmpty(dateCreated))
-            {
-                TempData["ErrorMessage"] = "Please fill in all required fields.";
-                return RedirectToAction("Edit", new { id = id });
+                return RedirectToAction("list");
             }
 
-            // Validate the date format
-            if (!DateTime.TryParse(dateCreated, out DateTime parsedDate))
-            {
-                TempData["ErrorMessage"] = "Invalid date format.";
-                return RedirectToAction("Edit", new { id = id });
-            }
-
-            string formattedDate = parsedDate.ToString("yyyy-MM-dd");
-
-            // Convert comma-separated string to list
-            List<string> imageUrlList = string.IsNullOrEmpty(imageUrls)
-                ? new List<string>()
-                : imageUrls.Split(',').Select(url => url.Trim()).ToList();
-
-            // Call the Firestore update function
-            bool success = await _manager.updateAssessment(id, riskLevel, recommendation, formattedDate, imageUrlList);
+            bool success = await _manager.updateAssessment(
+                id: assessmentId,
+                riskLevel: riskLevel,
+                recommendation: recommendation,
+                hazardType: hazardType,
+                checklist: checklist
+            );
 
             if (!success)
             {
                 TempData["ErrorMessage"] = "Failed to update assessment.";
-                return RedirectToAction("Edit", new { id = id });
+                return RedirectToAction("Edit", new { assessmentId });
             }
 
             TempData["SuccessMessage"] = "Assessment updated successfully!";
-            return RedirectToAction("List"); // Redirect to the List view
+            return RedirectToAction("list");
         }
-
-
-        [Route("Delete/{assessmentId}")]
-        [HttpPost]
-        public async Task<IActionResult> DeleteAssessment(string assessmentId)
+        catch (Exception ex)
         {
-            await _manager.deleteAssessment(assessmentId);
-            TempData["SuccessMessage"] = "Assessment deleted successfully!";
-            return RedirectToAction("List");
+            TempData["ErrorMessage"] = $"Error: {ex.Message}";
+            return RedirectToAction("Edit", new { assessmentId });
         }
     }
 
+    [Route("GetChecklist")]
+    [HttpGet]
+    public IActionResult GetChecklist([FromQuery] string hazardType)
+    {
+        try
+        {
+            _manager.setHazardType(hazardType);
+            var checklist = _manager.getDefaultChecklist();
+            return Json(checklist);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Error: {ex.Message}");
+        }
+    }
+
+
+}

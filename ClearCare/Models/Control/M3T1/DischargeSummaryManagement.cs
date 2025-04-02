@@ -13,12 +13,14 @@ namespace ClearCare.Models.Control.M3T1
     public class DischargeSummaryManager : ISummaryReceive
     {
         private readonly ISummarySend _gateway;
+        private readonly IAssessment _fetchAssessment;
         private readonly IFetchPrescriptions _fetchPrescriptions;
 
-        public DischargeSummaryManager(ISummarySend gateway, IFetchPrescriptions fetcher)
+        public DischargeSummaryManager(ISummarySend gateway, IAssessment assessmentFetcher, IFetchPrescriptions prescriptFetcher)
         {
             _gateway = gateway;
-            _fetchPrescriptions = fetcher;
+            _fetchPrescriptions = prescriptFetcher;
+            _fetchAssessment = assessmentFetcher;
         }
 
         public Task receiveSummaries(List<DischargeSummary> summaries)
@@ -72,6 +74,13 @@ namespace ClearCare.Models.Control.M3T1
             }
             return Task.CompletedTask;
         }
+
+        public async Task<Assessment> getAssessment(string patientId)
+        {
+            Assessment assessment = await _fetchAssessment.fetchAssessmentByPatientId(patientId);
+            return assessment;
+        }
+
 
         public async Task<PrescriptionModel?> getPrescription(string patientId)
         {

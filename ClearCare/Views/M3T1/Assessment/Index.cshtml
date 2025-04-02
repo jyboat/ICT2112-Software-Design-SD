@@ -1,33 +1,64 @@
 @model ClearCare.Models.Entities.M3T1.Assessment
 
-<h2>Assessment Details</h2>
-
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
+@{
+    ViewData["Title"] = "Analyze risks";
+    var assessment = Model.getAssessmentDetails();
+    var filePath = assessment["ImagePath"].ToString();
 }
 
-<div>
-    <p><strong>ID:</strong> @Model.GetId()</p>
-    <p><strong>Risk Level:</strong> @Model.GetRiskLevel()</p>
-    <p><strong>Recommendation:</strong> @Model.GetRecommendation()</p>
-    <p><strong>Created At:</strong> @Model.GetCreatedAt().ToString("yyyy-MM-dd HH:mm:ss")</p>
-    <p><strong>Patient ID:</strong> @Model.GetPatientId()</p>
+<h2 class="mb-2">Assessment details</h2>
 
-    <h3>Images</h3>
-    @if (Model.GetImagePath() != null && Model.GetImagePath().Any())
-    {
-        foreach (var imagePath in Model.GetImagePath())
+<div class="container">
+    <a asp-action="List" class="btn btn-outline-secondary btn-sm mb-3">
+        <i class="bi bi-arrow-left"></i>Back
+    </a>
+
+    <div class="card w-100">
+        @if (filePath.EndsWith(".mp4") || filePath.EndsWith(".webm") || filePath.EndsWith(".ogg") || filePath.EndsWith(".mov"))
         {
-            <img src="@imagePath" alt="Assessment Image" width="200" />
+            <video class="card-img-top video-thumbnail" controls>
+                    <source src="@filePath" type="video/@filePath.Split('.').Last()">
+                Your browser does not support the video tag.
+            </video>
+            <div class="mt-2 text-center">
+                <a href="@filePath" download class="btn btn-sm btn-primary">
+                    <i class="fas fa-download"></i> Download Video
+                </a>
+            </div>
         }
-    }
-    else
-    {
-        <p>No images available.</p>
-    }
-</div>
+        else{
+            <img loading="lazy" class="card-img-top img-thumbnail" src="@filePath"
+                 onerror="this.src='@Url.Content("~/img/default.jpg")'" alt="Assessment image" />
+        }
 
-<a asp-action="List" class="btn btn-secondary">Back to List</a>
+        <div class="card-body">
+            <h4 class="card-title mt-2">For patient: @assessment["PatientId"]</h4>
+            <span class="text-muted small">
+                <i class="bi bi-clock me-1"></i>@assessment["CreatedAt"].ToString()
+            </span>
+
+            <hr class="w-100" />
+
+            <div class="card-text">
+                <p><strong>Risk Level: </strong>@assessment["RiskLevel"]</p>
+                <p><strong>Recommendations: </strong>@assessment["Recommendation"]</p>
+                @if (assessment.ContainsKey("HomeAssessmentChecklist") && assessment["HomeAssessmentChecklist"] is Dictionary<string, bool> checklist)
+                {
+                    <p class="mt-2"><strong>Home Assessment Checklist:</strong></p>
+                    <ul>
+                        @foreach (var item in checklist)
+                        {
+                            <li>
+                                @item.Key: <strong>@(item.Value ? "Yes" : "No")</strong>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted">No checklist available.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

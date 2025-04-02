@@ -78,13 +78,14 @@ public class FeedbackController : Controller
         combinedList = _feedbackManager.applySearchFilter(combinedList, search);
         combinedList = _feedbackManager.applyResponseFilter(combinedList, responseFilter);
         combinedList = _feedbackManager.applyRatingFilter(combinedList, ratingFilter);
-        combinedList = _feedbackManager.applyPagination(combinedList, page, pageSize);
 
         // Pass state to ViewBag
         ViewBag.CurrentPage = page;
         ViewBag.PageSize = pageSize;
         ViewBag.TotalPages = (combinedList.Count + pageSize - 1)/pageSize;
         ViewBag.TotalItems = combinedList.Count;
+
+        combinedList = _feedbackManager.applyPagination(combinedList, page, pageSize);
 
         return View("~/Views/M3T1/Feedback/List.cshtml", combinedList);
     }

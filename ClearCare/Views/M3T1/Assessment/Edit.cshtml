@@ -1,41 +1,118 @@
 @model ClearCare.Models.Entities.M3T1.Assessment
 
-<h2>Edit Assessment</h2>
-
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
+@{
+    ViewData["Title"] = "Analyze risks";
+    var assessment = Model.getAssessmentDetails();
+    var filePath = assessment["ImagePath"].ToString();
 }
 
-<form method="post" asp-action="">
-    <!-- Hidden field to pass the ID -->
-    <input type="hidden" name="id" value="@Model.GetId()" />
+<section class="container">
+    <h2 class="mb-2">Assessing Risk</h2>
 
-    <div class="form-group">
-        <label for="riskLevel">Risk Level</label>
-        <input type="text" class="form-control" id="riskLevel" name="riskLevel" value="@Model.GetRiskLevel()" required />
-    </div>
+    @if (filePath.EndsWith(".mp4") || filePath.EndsWith(".webm") || filePath.EndsWith(".ogg") || filePath.EndsWith(".mov"))
+    {
+        <video class="video-thumbnail" controls>
+            <source src="@filePath" type="video/@filePath.Split('.').Last()">
+            Your browser does not support the video tag.
+        </video>
+    }
+    else
+    {
+        <img loading="lazy" class="img-thumbnail" src="@filePath"
+             onerror="this.src='@Url.Content("~/img/default.jpg")'" alt="Assessment image" />
+    }
+    <form asp-controller="Assessment" asp-action="updateAssessment" asp-route-assessmentId="@assessment["Id"]" method="post">
 
-    <div class="form-group">
-        <label for="recommendation">Recommendation</label>
-        <textarea class="form-control" id="recommendation" name="recommendation" rows="4" required>@Model.GetRecommendation()</textarea>
-    </div>
+        <!-- Hazard Type Selection -->
+        <div class="form-group">
+            <label for="hazardType">Hazard Type</label>
+            <select class="form-control" id="hazardType" name="hazardType" required>
+                <option value="">-- Select Hazard Type --</option>
+                @foreach (string hazard in (List<string>)ViewBag.HazardTypes)
+                {
+                    <option value="@hazard" selected="@(assessment["HazardType"]?.ToString() == hazard ? "selected" : null)">
+                        @hazard
+                    </option>
+                }
+            </select>
+        </div>
 
-    <div class="form-group">
-        <label for="dateCreated">Date Created</label>
-        <input type="date" class="form-control" id="dateCreated" name="dateCreated" value="@Model.GetCreatedAt().ToString("yyyy-MM-dd")" required />
-    </div>
+        <!-- Risk Level -->
+        <div class="form-group">
+            <label for="riskLevel">Risk Level (1-5):</label>
+            <select class="form-control" id="riskLevel" name="riskLevel" required>
+                <option value="">Select Risk Level</option>
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <option value="@i" selected="@(assessment["RiskLevel"].ToString() == i.ToString())">
+                        @i - @(i == 1 ? "Minimal Risk" :
+                       i == 2 ? "Low Risk" :
+                       i == 3 ? "Moderate Risk" :
+                       i == 4 ? "High Risk" :
+                       "Severe Risk")
+                    </option>
+                }
+            </select>
+        </div>
 
-    <div class="form-group">
-        <label for="imageUrls">Image URLs (optional)</label>
-        <input type="text" class="form-control" id="imageUrls" name="imageUrls" 
-               value="@string.Join(",", Model.GetImagePath() ?? new List<string>())" 
-               placeholder="Separate with commas" />
-    </div>
+        <!-- Recommendation -->
+        <div class="form-group">
+            <label for="recommendation">Recommendation:</label>
+            <textarea class="form-control" id="recommendation" name="recommendation" rows="3" required>@assessment["Recommendation"]</textarea>
+        </div>
 
-    <button type="submit" class="btn btn-success">Save Changes</button>
-</form>
+        <!-- Checklist -->
+        <div id="checklistSection" style="display: @(string.IsNullOrEmpty(assessment["HazardType"]?.ToString()) ? "none" : "block")">
+            <h4>Checklist</h4>
+            <div id="checklistContainer">
+                @if (ViewBag.ChecklistItems != null)
+                {
+                    foreach (var item in ViewBag.ChecklistItems as Dictionary<string, bool>)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   id="checklist_@item.Key" name="checklist[@item.Key]"
+                                   value="true" @(item.Value ? "checked" : "")>
+                            <label class="form-check-label" for="checklist_@item.Key">
+                                @item.Key
+                            </label>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
 
-<a asp-action="List" class="btn btn-secondary">Back to List</a>
+        <button type="submit" class="btn btn-success mt-3">Submit analysis</button>
+        <a asp-action="List" class="btn btn-danger mt-3">Cancel</a>
+    </form>
+</section>
+
+<script>
+    document.getElementById("hazardType").addEventListener("change", function () {
+        let selectedHazard = this.value;
+        const checklistSection = document.getElementById("checklistSection");
+
+        if (selectedHazard) {
+            fetch(`/Assessment/GetChecklist?hazardType=${encodeURIComponent(selectedHazard)}`)
+                .then(response => response.json())
+                .then(data => {
+                    const checklistContainer = document.getElementById("checklistContainer");
+                    checklistContainer.innerHTML = "";
+
+                    Object.keys(data).forEach(key => {
+                        const checked = data[key] ? "checked" : "";
+                        checklistContainer.innerHTML += `
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="checklist_${key}" name="checklist[${key}]" value="true" ${checked}>
+                                <label class="form-check-label" for="checklist_${key}">${key}</label>
+                            </div>
+                        `;
+                    });
+
+                    checklistSection.style.display = "block";
+                });
+        } else {
+            checklistSection.style.display = "none";
+        }
+    });
+</script>

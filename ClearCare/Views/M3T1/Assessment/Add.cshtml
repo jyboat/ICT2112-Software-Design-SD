@@ -1,41 +1,21 @@
 @model ClearCare.Models.Entities.M3T1.Assessment
 
-<h2>Add New Assessment</h2>
+<h2 class="mb-2">Submit living condition for assessment</h2>
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["ErrorMessage"]
-    </div>
-}
+<section class="container">
+    <form method="post" asp-action="Add" enctype="multipart/form-data">
 
-<form method="post" asp-action="AddAssessment">
-    <div class="form-group">
-        <label for="severity">Severity</label>
-        <input type="text" class="form-control" id="severity" name="severity" required />
-    </div>
-    <div class="form-group">
-        <label for="notes">Notes</label>
-        <textarea class="form-control" id="notes" name="notes" rows="4" required></textarea>
-    </div>
-    <div class="form-group">
-        <label for="dateCreated">Date Created</label>
-        <input type="date" class="form-control" id="dateCreated" name="dateCreated" required />
-    </div>
-    <div class="form-group">
-        <label for="patientId">Patient ID</label>
-        <input type="text" class="form-control" id="patientId" name="patientId" required />
-    </div>
-    <div class="form-group">
-        <label for="doctorId">Doctor ID</label>
-        <input type="text" class="form-control" id="doctorId" name="doctorId" required />
-    </div>
-    <div class="form-group">
-        <label for="imageUrls">Image URLs (optional)</label>
-        <input type="text" class="form-control" id="imageUrls" name="imageUrls" placeholder="Separate with commas" />
-    </div>
-    
-    <button type="submit" class="btn btn-success">Submit</button>
-</form>
+        <!-- File Upload -->
+        <div class="form-group mt-2">
+            <label for="file">Upload File (Image or Video)</label>
+            <input type="file" class="form-control" id="file" name="file"
+                   accept="image/*,video/*" required />
+            <small class="form-text text-muted text-danger">Only one file allowed.</small>
+        </div>
 
-<a asp-action="List" class="btn btn-secondary">Back to List</a>
+        <div class="form-group mt-2 text-right">
+            <button type="submit" class="btn btn-success">Submit image for Assessment</button>
+            <a asp-action="List" class="btn btn-danger">Cancel</a>
+        </div>
+    </form>
+</section>

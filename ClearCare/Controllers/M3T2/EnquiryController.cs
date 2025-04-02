@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using ClearCare.Models.ViewModels;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using ClearCare.Models.Control.M3T2;
 using ClearCare.Models.Entities.M3T2;
+using ClearCare.Models.DTO.M3T2;
 
 namespace ClearCare.Controllers.M3T2
 {
@@ -91,7 +91,7 @@ namespace ClearCare.Controllers.M3T2
                 var updatedReplies = await _enquiryControl.FetchRepliesForEnquiryAsync(enquiryId);
 
                 // 4. Create a new ViewModel with updated data
-                var viewModel = new ReplyToEnquiryViewModel
+                var viewModel = new ReplyToEnquiryDTO
                 {
                     Enquiry = updatedEnquiry,
                     Replies = updatedReplies
@@ -103,7 +103,7 @@ namespace ClearCare.Controllers.M3T2
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error sending reply");
-                return View("Error", new ErrorViewModel
+                return View("Error", new ErrorDTO
                 {
                     RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
                 });
@@ -127,7 +127,7 @@ namespace ClearCare.Controllers.M3T2
                 // Use EnquiryControl for replies too
                 var replies = await _enquiryControl.FetchRepliesForEnquiryAsync(id);
 
-                var viewModel = new ReplyToEnquiryViewModel
+                var viewModel = new ReplyToEnquiryDTO
                 {
                     Enquiry = enquiry,
                     Replies = replies
@@ -138,7 +138,7 @@ namespace ClearCare.Controllers.M3T2
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error retrieving enquiry with ID {id}");
-                return View("Error", new ErrorViewModel
+                return View("Error", new ErrorDTO
                 {
                     RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
                 });

@@ -10,7 +10,7 @@ public class PatientNotificationObserver : IFeedbackObserver
 {
     // Static dict to keep track of feedback responses per patient (UserId, List of FeedbackIds)
     // Used for temp notif storage until patient visits feedback page
-    public static Dictionary<string, List<string>> NotificationMap = new Dictionary<string, List<string>>();
+    private static Dictionary<string, List<string>> NotificationMap = new Dictionary<string, List<string>>();
 
     public void update(string feedbackId)
     {
@@ -27,6 +27,17 @@ public class PatientNotificationObserver : IFeedbackObserver
         // Add feedbackId to notif list
         // Indicates that feedback has been responded to and patient should be notified
         NotificationMap[userId].Add(feedbackId);
+    }
+
+    // Checks if user has any pending feedback response notifications, and clears it if true.
+    public static bool checkAndClearNotification(string userId)
+    {
+        if (NotificationMap.ContainsKey(userId))
+        {
+            NotificationMap.Remove(userId);
+            return true;
+        }
+        return false;
     }
 }
 

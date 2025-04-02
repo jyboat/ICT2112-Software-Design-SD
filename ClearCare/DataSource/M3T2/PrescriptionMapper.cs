@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ClearCare.Gateways
+namespace ClearCare.DataSource.M3T2
 {
     public class PrescriptionMapper : IFetchPrescriptions
     {

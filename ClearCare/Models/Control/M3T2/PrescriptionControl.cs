@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using ClearCare.DataSource.M3T2;
 using ClearCare.Models.Interfaces.M3T2;
 using ClearCare.Models.Entities.M3T2;
-using ClearCare.Gateways;
 
 namespace ClearCare.Models.Control.M3T2
 {
