@@ -53,7 +53,7 @@ namespace ClearCare.Models.Control
             _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; 
         }
 
-        public async Task<List<ServiceAppointment>> AutomaticallyScheduleAppointment(List<ServiceAppointment> unscheduledAppointment)
+        public async Task<List<ServiceAppointment>> AutomaticallyScheduleAppointment(List<ServiceAppointment> unscheduledAppointment, string doctorId)
         {
             var userList = await _iUserList.retrieveAllUsers();
             var timeslot = new Dictionary<int, DateTime>
@@ -245,7 +245,7 @@ namespace ClearCare.Models.Control
                     await _iCreateAppointment.CreateAppointment(
                         serviceAppt.GetAttribute("PatientId"),
                         serviceAppt.GetAttribute("NurseId"),
-                        "Hardcode Doctor",
+                        doctorId,
                         serviceAppt.GetAttribute("Service"),
                         "Scheduled",
                         timeslot[serviceAppt.GetIntAttribute("Slot")],
@@ -269,7 +269,7 @@ namespace ClearCare.Models.Control
                     var appointmentId = await _iCreateAppointment.CreateAppointment(
                         serviceAppt.GetAttribute("PatientId"),
                         serviceAppt.GetAttribute("NurseId"),
-                        "Hardcode Doctor",
+                        doctorId,
                         serviceAppt.GetAttribute("Service"),
                         "Scheduled",
                         timeslot[serviceAppt.GetIntAttribute("Slot")],

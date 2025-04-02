@@ -292,8 +292,10 @@ public class ServiceAppointmentsController : Controller
             AutomaticAppointmentScheduler.SetAlgorithm(new EarliestsPossibleTimeSlotStrategy());
         }
 
+        var doctorId = HttpContext.Session.GetString("UserID");
+
         // Pass this full appointment list to your scheduler
-        var assignedAppointments = await AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(appointments);
+        var assignedAppointments = await AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(appointments, doctorId);
 
         return Ok(new
         {
