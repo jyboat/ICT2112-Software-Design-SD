@@ -160,5 +160,4 @@ See the [API Documentation](#external-api-drug-interaction-and-side-effect-servi
 
 *   This project provides a basic framework for managing patient care data.
 *   It can be extended and customized to meet specific requirements.
-*   It is important to address the security considerations and areas for improvement before deploying the application in a production environment.
 *   **The `portfolio-website-lyart-five-75.vercel.app` API, where the project pings to get setup, is a self-made API specifically for this project's purpose.  Ensure it is running and configured correctly for the Drug Interaction and Side Effect features to work.**
