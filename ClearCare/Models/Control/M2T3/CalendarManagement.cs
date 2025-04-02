@@ -145,8 +145,11 @@ namespace ClearCare.Models.Control
 
                 foreach (var service in services)
                 {
+                    // var status = service?.GetType().GetProperty("Status")?.GetValue(service)?.ToString();
+                    // if (!string.IsNullOrEmpty(status) && status != "Completed" && status != "Scheduled")
+                    //     return true;
                     var status = service?.GetType().GetProperty("Status")?.GetValue(service)?.ToString();
-                    if (!string.IsNullOrEmpty(status) && status != "Completed" && status != "Scheduled")
+                    if (string.IsNullOrEmpty(status) || status == "Missed" || status == "Backlog")
                         return true;
                 }
 
@@ -154,12 +157,12 @@ namespace ClearCare.Models.Control
             })
             .ToList();     
 
-            // Optional: raw JSON
+            // // Optional: raw JSON
             // string rawJson = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
             // Console.WriteLine($"Raw suggestPatients() result:\n{rawJson}");
 
-             string filteredJson = JsonSerializer.Serialize(filtered, new JsonSerializerOptions { WriteIndented = true });
-                Console.WriteLine($"✅ Filtered Patients:\n{filteredJson}");
+            // string filteredJson = JsonSerializer.Serialize(filtered, new JsonSerializerOptions { WriteIndented = true });
+            // Console.WriteLine($"✅ Filtered Patients:\n{filteredJson}");
 
 
             return filtered;

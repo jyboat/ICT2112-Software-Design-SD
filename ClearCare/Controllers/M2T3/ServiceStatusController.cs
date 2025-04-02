@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using ClearCare.Interfaces;
 using System.Text.Json;
+using ClearCare.Interfaces;
+using ClearCare.Models.Interface;
 
 namespace ClearCare.Controllers
 {
@@ -13,10 +15,12 @@ namespace ClearCare.Controllers
     public class ServiceStatusController : Controller
     {
         private readonly ServiceAppointmentStatusManagement _manager;
+        private readonly IUserList _userList;
 
         public ServiceStatusController()
         {
             _manager = new ServiceAppointmentStatusManagement();
+            _userList = new AdminManagement(new UserGateway());
         }
 
         [HttpGet]
@@ -29,6 +33,35 @@ namespace ClearCare.Controllers
             }
             //  await to wait for task complete or data to retrieve before executing
             var appointment =  await _manager.getAppointmentDetails();
+
+            var users = await _userList.retrieveAllUsers();
+            var usersFiltered = users
+            .Select(p => new
+            {
+                UserID = p.getProfileData()["UserID"].ToString(),
+                Name = p.getProfileData()["Name"].ToString(),
+                Role = p.getProfileData()["Role"].ToString()
+            })
+            .ToList();
+
+            // Filter for Doctors
+            ViewBag.Doctors = usersFiltered
+                .Where(u => u.Role == "Doctor")
+                .ToList();
+
+            // Filter for Patients
+            ViewBag.Patients = usersFiltered
+                .Where(u => u.Role == "Patient")
+                .ToList();
+
+            // Filter for Nurses
+            ViewBag.Nurses = usersFiltered
+                .Where(u => u.Role == "Nurse")
+                .ToList();
+
+
+            var services = await _manager.getServices();
+            ViewBag.Services = services;
             
             
             // No record exists

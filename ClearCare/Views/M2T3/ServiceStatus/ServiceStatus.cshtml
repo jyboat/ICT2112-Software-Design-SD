@@ -11,13 +11,35 @@
     <!-- 🔹 Bootstrap Filters: Search Bars + Dropdowns -->
     <div class="row g-2 mb-3">
         <div class="col-md-3">
-            <input type="text" id="searchPatient" class="form-control" onkeyup="filterTable()" placeholder="Search by Patient ID">
+            <select id="searchPatient" class="form-select" onchange="filterTable()">
+                    <option value="">Select Patient...</option>
+                    @foreach (var patient in ViewBag.Patients)
+                    {
+                        <option value="@patient.UserID">@patient.UserID</option>
+                    }
+            </select>
+            <!-- <input type="text" id="searchPatient" class="form-control" onkeyup="filterTable()" placeholder="Search by Patient ID"> -->
         </div>
         <div class="col-md-3">
-            <input type="text" id="searchNurse" class="form-control" onkeyup="filterTable()" placeholder="Search by Nurse ID">
+                <select id="searchNurse" class="form-select" onchange="filterTable()">
+                    <option value="">Select Nurse...</option>
+                    @foreach (var nurse in ViewBag.Nurses)
+                    {
+                        <option value="@nurse.UserID">@nurse.UserID</option>
+                    }
+                </select>
+            <!-- <input type="text" id="searchNurse" class="form-control" onkeyup="filterTable()" placeholder="Search by Nurse ID"> -->
         </div>
+        
         <div class="col-md-3">
-            <input type="text" id="searchDoctor" class="form-control" onkeyup="filterTable()" placeholder="Search by Doctor ID">
+            <select id="searchDoctor" class="form-select" onchange="filterTable()">
+                    <option value="">Select Doctor...</option>
+                    @foreach (var doctor in ViewBag.Doctors)
+                    {
+                        <option value="@doctor.UserID">@doctor.UserID</option>
+                    }
+                </select>
+            <!-- <input type="text" id="searchDoctor" class="form-control" onkeyup="filterTable()" placeholder="Search by Doctor ID"> -->
         </div>
         <div class="col-md-3">
             <select id="filterStatus" class="form-select" onchange="filterTable()">
@@ -28,11 +50,12 @@
             </select>
         </div>
         <div class="col-md-3">
-            <select id="filterServiceType" class="form-select" onchange="filterTable()">
-                <option value="">Filter by Service Type</option>
-                <option value="service1">Service 1</option>
-                <option value="service2">Service 2</option>
-                <option value="service3">Service 3</option>
+            <select id="filterServiceType" class="form-select"  onchange="filterTable()">
+                    <option value="">Select Service...</option>
+                    @foreach (var service in ViewBag.Services)
+                    {
+                        <option value="@service.Name">@service.Name</option>
+                    }
             </select>
         </div>
         <div class="text-end mb-1">

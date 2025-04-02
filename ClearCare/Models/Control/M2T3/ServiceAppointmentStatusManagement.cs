@@ -17,6 +17,7 @@ namespace ClearCare.Models.Control
         private readonly IServiceStatus _iServiceStatus;
         private readonly ICreateAppointment _iCreateAppointment;
         private readonly IServiceType _iServiceType;
+        
         public ServiceAppointmentStatusManagement() {
             
             _iServiceStatus = (IServiceStatus) new ServiceAppointmentManagement();
@@ -189,10 +190,16 @@ namespace ClearCare.Models.Control
                 .ToList();
 
             // Optional logging
+            // Console.WriteLine("Hello");
             // string jsonOutput = JsonSerializer.Serialize(patientList, new JsonSerializerOptions { WriteIndented = true });
             // Console.WriteLine($"Formatted Patient List:\n{jsonOutput}");
 
             return patientList;
+        }
+
+        public async Task<List<ServiceType_SDM>> getServices () {
+            List<ServiceType_SDM> services = await _iServiceType.GetServiceTypes();
+            return services; 
         }
 
        
