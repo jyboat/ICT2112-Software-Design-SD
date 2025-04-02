@@ -123,8 +123,17 @@ namespace ClearCare.Controls
 
         public async Task<Enquiry> fetchEnquiryByFirestoreIdAsync(string firestoreId)
         {
-            return await _enquiryGateway.getEnquiryByIdAsync(firestoreId);
+            var result = await _enquiryGateway.getEnquiryByIdAsync(firestoreId);
+
+            if (result is null)
+            {
+                // For example, throw if not found:
+                throw new KeyNotFoundException($"No enquiry found for Firestore ID {firestoreId}.");
+            }
+
+            return result;
         }
+
 
         // Future: Add update/delete methods using notifyUpdated/notifyDeleted
     }

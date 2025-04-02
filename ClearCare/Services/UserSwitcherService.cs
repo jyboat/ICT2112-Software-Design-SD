@@ -10,6 +10,19 @@ public class UserSwitcherService
     public void SwitchUser(string userIdentifier)
     {
         var context = _httpContextAccessor.HttpContext;
+       // If there's no HttpContext, we can't proceed with session usage
+        if (context == null)
+        {
+            throw new InvalidOperationException("No HttpContext is available to switch users.");
+        }
+
+        // Similarly, the session may be null if there's no session middleware or it's not yet started
+        if (context.Session == null)
+        {
+            throw new InvalidOperationException("Session is not available or not configured.");
+        }
+
+        // Clear existing session data
         context.Session.Clear();
 
         switch (userIdentifier)
@@ -50,9 +63,11 @@ public class UserSwitcherService
         };
     }
 
-    public string GetCurrentUserIdentifier()
-    {
-        return _httpContextAccessor.HttpContext.Session.GetString("UserID") 
-               ?? "uuid-doctor-john"; 
-    }
+   public string GetCurrentUserIdentifier()
+{
+    // Safely navigate to the session, then get the string. If anything is null or the key is absent, return the default.
+    return _httpContextAccessor.HttpContext?.Session?.GetString("UserID") 
+        ?? "uuid-doctor-john";
+}
+
 }

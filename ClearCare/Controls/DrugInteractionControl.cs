@@ -28,7 +28,24 @@ namespace ClearCare.Controls
             try
             {
                 var resp = await _httpClient.GetStringAsync(ddinterApi);
-                return JsonSerializer.Deserialize<DrugInteractionResponse>(resp);
+                var result = JsonSerializer.Deserialize<DrugInteractionResponse>(resp);
+
+                
+                if (result is null)
+                {
+                    // Fallback if deserialization returned null
+                    return new DrugInteractionResponse
+                    {
+                        Results = new List<DrugInteraction>
+                {
+                    new DrugInteraction { Drug1Name = "Error", Drug2Name = "Error", Interaction = "No known interaction" }
+                }
+                    };
+                }
+
+                return result;
+
+                
             }
             catch (HttpRequestException)
             {

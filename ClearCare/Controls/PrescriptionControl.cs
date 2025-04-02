@@ -35,10 +35,6 @@ namespace ClearCare.Controls
             return $"No known interactions for {drugName}.";
         }
 
-        public async Task sharePrescription(string email)
-        {
-            // placeholder for sharing logic
-        }
 
         public async Task fetchPrescriptions(string userId)
         {

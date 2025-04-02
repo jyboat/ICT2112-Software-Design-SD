@@ -43,9 +43,9 @@ namespace ClearCare.Gateways
             }
             return enquiries;
         }
-        
 
-            public async Task<List<Enquiry>> getEnquiriesForDoctorAsync(string userUuid)
+
+        public async Task<List<Enquiry>> getEnquiriesForDoctorAsync(string userUuid)
         {
             Query query = _db.Collection("Enquiry").WhereEqualTo("DoctorUUID", userUuid);
             QuerySnapshot snapshot = await query.GetSnapshotAsync();
@@ -62,13 +62,14 @@ namespace ClearCare.Gateways
             return enquiries;
         }
 
-        public async Task<Enquiry> getEnquiryByIdAsync(string documentId)
+        public async Task<Enquiry?> getEnquiryByIdAsync(string documentId)
         {
             DocumentReference docRef = _db.Collection("Enquiry").Document(documentId);
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
 
             if (!snapshot.Exists)
             {
+                // null return is allowed because of 'Enquiry?' return type
                 return null;
             }
 
@@ -77,6 +78,7 @@ namespace ClearCare.Gateways
 
             return enquiry;
         }
+
 
         public async Task<string> saveReplyAsync(string enquiryId, Reply reply)
         {
