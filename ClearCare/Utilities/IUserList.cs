@@ -19,7 +19,9 @@ namespace ClearCare
             new UserInfo { Name = "John Doe",    Uuid = "uuid-patient-john" },
             new UserInfo { Name = "Jane Smith",  Uuid = "uuid-patient-jane" },
             new UserInfo { Name = "Bob Johnson", Uuid = "uuid-patient-bob" },
-            new UserInfo { Name = "Alice",       Uuid = "uuid-alice" }
+            new UserInfo { Name = "Alice",       Uuid = "uuid-alice" },
+            new UserInfo { Name = "Sara",       Uuid = "uuid-patient-sara" }
+
         };
 
         // List of doctors
