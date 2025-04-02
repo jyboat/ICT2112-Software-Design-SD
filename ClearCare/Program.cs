@@ -1,9 +1,6 @@
 using ClearCare.Controls;
 using ClearCare.Gateways;
-using ClearCare.Observers;
 using ClearCare.Interfaces;
-using Microsoft.AspNetCore.Http;
-using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,7 +29,6 @@ builder.Services.AddHttpContextAccessor();
 // instead of Singleton if needed. For now, we'll keep it as Singleton after adding IHttpContextAccessor.
 builder.Services.AddSingleton<EnquiryGateway>();
 builder.Services.AddSingleton<EnquiryControl>();
-builder.Services.AddSingleton<EnquiryLoggingObserver>(); // hypothetical observer
 
 builder.Services.AddSingleton<SideEffectsMapper>();
 builder.Services.AddScoped<SideEffectControl>();
@@ -53,14 +49,9 @@ builder.Services.AddScoped<DrugInteractionControl>();
 
 var app = builder.Build();
 
-// Create a scope to resolve services and attach observers.
 using (var scope = app.Services.CreateScope())
 {
     var enquiryControl = scope.ServiceProvider.GetRequiredService<EnquiryControl>();
-    var loggingObserver = scope.ServiceProvider.GetRequiredService<EnquiryLoggingObserver>();
-
-    // Attach the observer.
-    enquiryControl.Attach(loggingObserver);
 }
 
 // Configure the HTTP request pipeline.
