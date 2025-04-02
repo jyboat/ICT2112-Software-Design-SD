@@ -14,8 +14,11 @@
     <!-- Always show the Add Side Effect button -->
     <div class="row mb-3">
         <div class="col-md-6">
-            <a asp-action="Add" class="btn btn-primary">Add Side Effect</a>
-            @if (isDoctor)
+            @if (userRole == "Patient")
+            {
+                <a asp-action="Add" class="btn btn-primary">Add Side Effect</a>
+            }
+            @if (userRole == "Doctor")
             {
                 <a asp-action="Chart" class="btn btn-success">Side Effect Analytics</a>
             }
