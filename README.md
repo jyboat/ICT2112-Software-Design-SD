@@ -1,9 +1,6 @@
 # ClearCare Project - README
 
 ## Table of Contents
-
-## Table of Contents
-
 1.  [Overview](#overview)
 2.  [Features](#features)
 3.  [Technologies Used](#technologies-used)
