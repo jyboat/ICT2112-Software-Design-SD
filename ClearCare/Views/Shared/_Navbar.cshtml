@@ -36,8 +36,14 @@
                         <a class="nav-link" asp-area="" asp-controller="ViewRecord" asp-action="DisplayViewRecord"><i class="bi bi-file-earmark-medical me-1"></i>Patient Records</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Assessment" asp-action="Privacy"><i
-                                class="bi bi-house-check me-1"></i>Home Assessment</a>
+                        <a class="nav-link" asp-controller="Analytics" asp-action="AppointmentsAnalytics">
+                            <i class="bi bi-bar-chart me-1"></i> Appointments Analytics
+                        </a>
+                    </li>
+                }
+                @if (userRole == "Doctor"){
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="ServiceTypePage" asp-action="Index">Service Type</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/api/ServiceAppointments/Index">
@@ -48,17 +54,6 @@
                         <a class="nav-link" asp-area="" asp-controller="ServiceHistory" asp-action="Index">Service History</a>
                     </li>
 
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Analytics" asp-action="AppointmentsAnalytics">
-                            <i class="bi bi-bar-chart me-1"></i> Appointments Analytics
-                        </a>
-                    </li>
-                }
-                @if (userRole == "Doctor"){
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="ServiceTypePage" asp-action="Index">Service Type</a>
-                    </li>
                 }
                 @if (userRole == "Nurse"){
                     <li class="nav-item">
