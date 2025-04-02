@@ -2,6 +2,8 @@
 
 ## Table of Contents
 
+## Table of Contents
+
 1.  [Overview](#overview)
 2.  [Features](#features)
 3.  [Technologies Used](#technologies-used)
@@ -19,8 +21,9 @@
 7.  [Observer Pattern](#observer-pattern)
 8.  [User Switching](#user-switching)
 9.  [External API Integration](#external-api-integration)
-10. [Areas for Improvement](#areas-for-improvement)
+10. [API Documentation](#api-documentation-external-api-drug-interaction-and-side-effect-service-portfolio-website-lyart-five-75vercelapp)
 11. [Notes](#notes)
+
 
 ## Overview
 
@@ -137,20 +140,24 @@ The project implements the observer pattern to decouple components and facilitat
 
 The `UserSwitcherController` and `UserSwitcherService` components are provided for demonstration purposes, allowing you to easily switch between different user accounts (Doctor and Patient) without needing full authentication.  **This is purely for demonstration and should not be used in a production environment.**
 
+
 ## External API Integration
 
-The `DrugInteractionControl` and `DrugLogSideEffectsService` components integrate with external APIs to retrieve drug interaction and side effect information.  **Ensure that these APIs are available and properly configured.**
+The `DrugInteractionControl` and `DrugLogSideEffectsService` components rely on an external, self-made API (hosted at `portfolio-website-lyart-five-75.vercel.app`) to retrieve drug interaction and side effect data. This API was built specifically for this project's needs.
 
-## Areas for Improvement
+**It is crucial that this API is running, accessible, and correctly configured for the Drug Interaction and Side Effect features to function properly.**
 
-*   Implement full user authentication and authorization.
-*   Implement proper error handling and logging.
-*   Add unit tests to improve code quality and reliability.
-*   Implement input validation and sanitization to prevent security vulnerabilities.
-*   Securely manage API keys and connection strings.
-*   Improve the user interface and user experience.
-*   Implement robust data validation.
-*   Implement data pagination in all features.
+See the [API Documentation](#external-api-drug-interaction-and-side-effect-service-portfolio-website-lyart-five-75vercelapp) section below for detailed information on the available endpoints, request parameters, and response formats.
+
+### API Documentation: Drug Interaction and Side Effect Service (`portfolio-website-lyart-five-75.vercel.app`)
+
+*   **`/api/receive?drug1={drugName1}&drug2={drugName2}`:**  Retrieves drug interaction information.
+    *   `drug1`:  Name of the first drug (string, required).
+    *   `drug2`:  Name of the second drug (string, required).
+    *   Response: JSON object with `results` array (see `DrugInteractionResponse` model).
+*   **`/api/side-effects?drugName={drugName}`:**  Retrieves side effects for a drug.
+    *   `drugName`:  Name of the drug (string, required).
+    *   Response:  String containing side effect information.
 
 ## Notes
 
