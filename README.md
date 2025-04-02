@@ -1,5 +1,27 @@
 # ClearCare Project - README
 
+## Table of Contents
+
+1.  [Overview](#overview)
+2.  [Features](#features)
+3.  [Technologies Used](#technologies-used)
+4.  [Setup Instructions](#setup-instructions)
+    *   [Prerequisites](#prerequisites)
+    *   [Configuration](#configuration)
+    *   [Install Dependencies](#install-dependencies)
+    *   [Build the Project](#build-the-project)
+    *   [Run the Project](#run-the-project)
+5.  [Code Structure](#code-structure)
+6.  [Key Components](#key-components)
+    *   [Controllers](#controllers)
+    *   [Gateways (Mappers)](#gateways-mappers)
+    *   [Controls](#controls)
+7.  [Observer Pattern](#observer-pattern)
+8.  [User Switching](#user-switching)
+9.  [External API Integration](#external-api-integration)
+10. [Areas for Improvement](#areas-for-improvement)
+11. [Notes](#notes)
+
 ## Overview
 
 ClearCare is an ASP.NET Core MVC application designed to manage various aspects of patient care, including enquiries, prescriptions, side effects, and drug interactions. It integrates with Firebase Firestore for data storage and utilizes external APIs for drug interaction and side effect information.
@@ -70,7 +92,7 @@ ClearCare is an ASP.NET Core MVC application designed to manage various aspects 
     dotnet run
     ```
 
-    The application will be accessible at `http://localhost:5000` (or another port specified in your launch settings).
+    The application will be accessible at `http://localhost:5007` (or another port specified in your launch settings).
 
 ## Code Structure
 
@@ -135,3 +157,4 @@ The `DrugInteractionControl` and `DrugLogSideEffectsService` components integrat
 *   This project provides a basic framework for managing patient care data.
 *   It can be extended and customized to meet specific requirements.
 *   It is important to address the security considerations and areas for improvement before deploying the application in a production environment.
+*   **The `portfolio-website-lyart-five-75.vercel.app` API, where the project pings to get setup, is a self-made API specifically for this project's purpose.  Ensure it is running and configured correctly for the Drug Interaction and Side Effect features to work.**
