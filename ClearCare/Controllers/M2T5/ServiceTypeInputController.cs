@@ -46,7 +46,9 @@ namespace ClearCare.Controllers
                 {
                     id = s.ServiceTypeId,
                     name = s.Name,
-                    modality = s.Modality
+                    modality = s.Modality,
+                    requirements = s.Requirements,
+                    status = s.Status
                 })
                 .ToList();
 
