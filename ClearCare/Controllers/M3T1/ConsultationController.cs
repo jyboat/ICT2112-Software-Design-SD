@@ -39,11 +39,35 @@ public class ConsultationController : Controller
         return View("~/Views/M3T1/Consultation/List.cshtml", filteredSessions);
     }
 
+    [Route("Delete/{consultationId}")]
+    [HttpGet]
+    public async Task<IActionResult> deleteConsultation(
+        string consultationId
+    )
+    {
+        if (string.IsNullOrWhiteSpace(consultationId))
+        {
+            return RedirectToAction("listConsultations");
+        }
+
+        try
+        {
+            await manager.deleteConsultationById(consultationId);
+            return RedirectToAction("listConsultations");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Could not delete consultation: {e}");
+            TempData["FlashMsg"] = "Could not delete consultation";
+            return RedirectToAction("listConsultations");
+        }
+    }
+
     [Route("View/{consultationId}")]
     [HttpGet]
     public async Task<IActionResult> viewConsultation(
         string consultationId
-        )
+    )
     {
         ViewBag.UserRole = "Doctor"; // Hardcoded for testing
 

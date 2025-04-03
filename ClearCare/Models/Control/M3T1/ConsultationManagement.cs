@@ -46,6 +46,11 @@ public class ConsultationManagement : IConsultReceive
         return Task.FromResult(appointments);
     }
 
+    public Task deleteConsultationById(string consultationId)
+    {
+        return _gateway.deleteConsultationById(consultationId);
+    }
+
     public Task receiveConsultations(List<ConsultationSession> sessions)
     {
         throw new NotImplementedException();
