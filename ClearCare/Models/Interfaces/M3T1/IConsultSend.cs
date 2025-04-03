@@ -9,6 +9,8 @@ public interface IConsultSend
 
     public Task<bool> updateConsultationById(string id, DateTime time, string notes, string zoomLink, string appointmentId);
 
+    public Task deleteConsultationById(string id);
+
     public Task<ConsultationSession?> fetchConsultationById(string id);
 
     public Task<List<ConsultationSession>> fetchConsultations();
