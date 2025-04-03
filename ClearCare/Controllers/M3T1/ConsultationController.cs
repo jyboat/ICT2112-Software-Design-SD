@@ -14,6 +14,7 @@ public class ConsultationController : Controller
 
     private const string ZOOM_ACCESS_TOKEN_KEY = "cc-zoomAccessToken";
     private const string ZOOM_REFRESH_TOKEN_KEY = "cc-zoomRefreshToken";
+    private const string ZOOM_ACCESS_TOKEN_SERVER_KEY = "cc-zoomAccessToken-Server";
 
     public ConsultationController()
     {
@@ -80,12 +81,34 @@ public class ConsultationController : Controller
         var appointments = await manager.getAppointments();
         ZoomApi.MeetingResponse? response = null;
 
-        if (Request.Cookies.ContainsKey(ZOOM_ACCESS_TOKEN_KEY))
+        string? token = Request.Cookies[ZOOM_ACCESS_TOKEN_SERVER_KEY];
+
+        if (token == null)
         {
-            Console.WriteLine($"Access token: {Request.Cookies[ZOOM_ACCESS_TOKEN_KEY]}");
-            response = await manager.generateZoomLink(Request.Cookies[ZOOM_ACCESS_TOKEN_KEY]);
-            Console.WriteLine($"Response: {response.JoinUrl}");
+            // Generate a new server-to-server token
+            var newToken = await manager.generateAccessToken("", "");
+
+            if (newToken != null)
+            {
+                Response.Cookies.Append(ZOOM_ACCESS_TOKEN_SERVER_KEY, newToken.AccessToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    // SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddHours(1)
+                });
+                token = newToken.AccessToken;
+            }
         }
+
+        response = await manager.generateZoomLink(token);
+        Console.WriteLine($"Response: {response.JoinUrl}");
+
+        // if (Request.Cookies.ContainsKey(ZOOM_ACCESS_TOKEN_KEY))
+        // {
+        //     Console.WriteLine($"Access token: {Request.Cookies[ZOOM_ACCESS_TOKEN_KEY]}");
+        //     response = await manager.generateZoomLink(Request.Cookies[ZOOM_ACCESS_TOKEN_KEY]);
+        //     Console.WriteLine($"Response: {response.JoinUrl}");
+        // }
 
         return View("~/Views/M3T1/Consultation/Add.cshtml", new AddConsultationViewModel(
             appointments, response

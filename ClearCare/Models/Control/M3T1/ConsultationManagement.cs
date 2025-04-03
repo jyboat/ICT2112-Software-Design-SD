@@ -58,7 +58,9 @@ public class ConsultationManagement : IConsultReceive
         string redirectUri
         )
     {
-        return _zoomApi.generateAccessToken(authCode, redirectUri);
+        // return _zoomApi.generateAccessToken(authCode, redirectUri);
+        // TODO: REMOVE ACCOUNT ID!!!!
+        return _zoomApi.generateServerAccessToken("OXUEiX4PQqWwK-YTuAGKNA");
     }
 
     public Task<List<ConsultationSession>> getConsultations()

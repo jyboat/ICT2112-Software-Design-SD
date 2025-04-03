@@ -100,6 +100,34 @@ public class ZoomApi
         return await response.Content.ReadFromJsonAsync<TokenResponse>();
     }
 
+    public async Task<TokenResponse?> generateServerAccessToken(
+        string accountId
+            )
+    {
+        // Console.WriteLine($"Auth code: {authorizationCode}, auth token: {getAuthToken()}");
+        var request = new HttpRequestMessage
+        {
+            Method = HttpMethod.Post,
+            RequestUri =
+                new Uri("https://zoom.us/oauth/token"),
+            Headers =
+            {
+                {
+                    "Authorization", $"Basic {getAuthToken()}"
+                }
+            },
+            Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                { "grant_type", "account_credentials" },
+                { "account_id", accountId /* DO NOT USE IN PROD */ }
+            })
+        };
+
+        using var response = await _httpClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<TokenResponse>();
+    }
+
     public async Task<TokenResponse?> refreshAccessToken(
         string refreshToken
     )
