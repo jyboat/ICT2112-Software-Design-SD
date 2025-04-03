@@ -29,7 +29,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <h4 class="card-title mb-0">@resource["Title"]</h4>
 
-                            @if (userId == resource["UploadedBy"]) // If user is doctor
+                            @if (userId == resource["UploadedBy"].ToString()) 
                                
                         {
                         <div class="d-flex gap-2">

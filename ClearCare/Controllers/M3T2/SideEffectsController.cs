@@ -81,6 +81,7 @@ namespace ClearCare.Controllers.M3T2
             if (ModelState.IsValid)
             {
                 await _sideEffectControl.addSideEffectAsync(sideEffect);
+                TempData["SuccessMessage"] = "Side effect added successfully!";
                 return RedirectToAction("index");
             }
 

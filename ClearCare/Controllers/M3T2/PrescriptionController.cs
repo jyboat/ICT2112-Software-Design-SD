@@ -54,6 +54,7 @@ namespace ClearCare.Controllers.M3T2
             if (ModelState.IsValid)
             {
                 await _prescriptionControl.addPrescriptionAsync(model);
+                TempData["SuccessMessage"] = "Prescription created successfully!";
                 return RedirectToAction("index");
             }
             return View("~/Views/M3T2/Prescription/Create.cshtml", model);

@@ -63,6 +63,7 @@ namespace ClearCare.Controllers.M3T2
         public async Task<IActionResult> Add(string drugName1, string drugName2)
         {
             var result = await _drugInteractionControl.GetDrugInteractionAsync(drugName1, drugName2);
+            TempData["SuccessMessage"] = "Drug interaction added successfully!";
             return View("~/Views/M3T2/DrugInteraction/Add.cshtml", result);
         }
 
@@ -88,9 +89,16 @@ namespace ClearCare.Controllers.M3T2
                 drugName2,
                 interaction
             );
-            TempData["Message"] = success
-                ? "Interaction successfully uploaded!"
-                : "Error uploading interaction.";
+
+            if (success)
+            {
+                TempData["SuccessMessage"] = "Interaction successfully uploaded!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Error uploading interaction.";
+            }
+
             return RedirectToAction("Index");
         }
     }

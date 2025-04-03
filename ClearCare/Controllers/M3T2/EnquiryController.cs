@@ -139,6 +139,7 @@ namespace ClearCare.Controllers.M3T2
             ViewData["Message"] = enquiry.Message;
             ViewData["UserUUID"] = userUUID;
             ViewData["DoctorUUID"] = doctorUUID;
+            TempData["SuccessMessage"] = "Enquiry added successfully!";
 
             return View("~/Views/M3T2/Enquiry/EnquiryResult.cshtml"); // e.g., a "Thank you" page
         }
@@ -190,6 +191,7 @@ namespace ClearCare.Controllers.M3T2
                 };
 
                 await _enquiryControl.saveReplyAsync(enquiryId, reply);
+                TempData["SuccessMessage"] = "Replied to enquiry successfully!";
 
                 return RedirectToAction("reply", new { id = enquiryId, pageNumber = 1 });
             }

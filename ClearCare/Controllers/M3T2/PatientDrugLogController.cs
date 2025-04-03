@@ -78,6 +78,7 @@ namespace ClearCare.Controllers.M3T2
             if (ModelState.IsValid)
             {
                 await _patientDrugLogControl.uploadDrugInfo(drugInfo);
+                TempData["SuccessMessage"] = "Drug log added successfully!";
                 return RedirectToAction("index");
             }
 
