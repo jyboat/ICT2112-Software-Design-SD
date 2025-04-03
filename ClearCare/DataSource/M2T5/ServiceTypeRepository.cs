@@ -32,8 +32,10 @@ namespace ClearCare.DataSource
                         Name = data["name"].ToString(),
                         Duration = Convert.ToInt32(data["duration"]),
                         Requirements = data["requirements"].ToString(),
-                        Modality = data.ContainsKey("modality") ? data["modality"].ToString() : "Virtual" // fallback
+                        Modality = data["modality"]?.ToString(), // if you added modality
+                        Status = data.ContainsKey("status") ? data["status"].ToString() : "active"
                     };
+
 
                     serviceTypes.Add(serviceType);
                 }

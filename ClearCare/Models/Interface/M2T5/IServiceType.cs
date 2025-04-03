@@ -4,11 +4,12 @@ using ClearCare.Models.Entities;
 
 namespace ClearCare.Models.Interface
 {
-    public interface IServiceType
-    {
-        Task<List<ServiceType_SDM>> GetServiceTypes();
-        Task CreateServiceType(string name, int duration, string requirements, string modality);
-        Task UpdateServiceType(int id, string name, int duration, string requirements, string modality);
-        Task DiscontinueServiceType(int id);
-    }
+public interface IServiceType
+{
+    Task<List<ServiceType_SDM>> GetServiceTypes();
+    Task CreateServiceType(string name, int duration, string requirements, string modality);
+    Task UpdateServiceType(int id, string name, int duration, string requirements, string modality);
+    Task DiscontinueServiceType(int id);
+}
+
 }

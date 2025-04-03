@@ -94,6 +94,7 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> DiscontinueConfirmed(int id)
         {
             await serviceManager.DiscontinueServiceType(id);
+            TempData["SuccessMessage"] = "Service discontinued.";
             return RedirectToAction("Index");
         }
 

@@ -50,13 +50,20 @@
                     <td>@service.Modality</td>
                     <td>@service.Requirements</td>
                     <td>
-                        <button class="btn btn-warning" data-bs-toggle="modal"
-                            data-bs-target="#editServiceModal-@service.ServiceTypeId">
-                            Edit
-                        </button>
-                        <button class="btn btn-danger" onclick="loadDiscontinueModal(@service.ServiceTypeId)">
-                            Discontinue
-                        </button>
+                        @if (service.Status == "discontinued")
+                        {
+                            <span class="badge bg-secondary">Discontinued</span>
+                        }
+                        else
+                        {
+                            <button class="btn btn-warning" data-bs-toggle="modal"
+                                data-bs-target="#editServiceModal-@service.ServiceTypeId">
+                                Edit
+                            </button>
+                            <button class="btn btn-danger" onclick="loadDiscontinueModal(@service.ServiceTypeId)">
+                                Discontinue
+                            </button>
+                        }
                     </td>
                 </tr>
             }
@@ -108,7 +115,7 @@
                     <div class="mb-3">
                         <label for="modality" class="form-label">Modality</label>
                         <select class="form-control" id="modality" name="modality" required>
-                            <option disabled selected value="">-- Select Modality --</option>
+                            <option value="">-- Select Modality --</option>
                             <option value="Virtual">Virtual</option>
                             <option value="Physical (Level 1 Room A)">Physical (Level 1 Room A)</option>
                             <option value="Physical (Level 2 Room B)">Physical (Level 2 Room B)</option>
