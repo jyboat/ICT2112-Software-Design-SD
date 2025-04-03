@@ -18,19 +18,76 @@ namespace ClearCare.Models.Control
             _appointmentStatusManager = appointmentStatusManager;
         }
 
-        public async Task<Dictionary<string, object>> GetAppointmentAnalytics()
+        public async Task<List<Dictionary<string, object>>> FetchFilteredAppointments(string status, string doctor, string type)
         {
-            // return await _gateway.GetAppointmentAnalytics();
+            var appointments = await _appointmentStatusManager.getAllServiceAppointments();
+            var filtered = appointments;
 
-            // Retrieve appointments as ServiceAppointment objects via IAppointmentStatus
+            // Apply filtering
+            if (!string.IsNullOrEmpty(status))
+            {
+                filtered = filtered
+                    .Where(a => a.GetAttribute("Status").Equals(status, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            if (!string.IsNullOrEmpty(doctor))
+            {
+                filtered = filtered
+                    .Where(a => a.GetAttribute("DoctorId") == doctor)
+                    .ToList();
+            }
+
+            if (!string.IsNullOrEmpty(type))
+            {
+                filtered = filtered
+                    .Where(a => a.GetAttribute("Service") == type || a.GetAttribute("ServiceTypeId") == type)
+                    .ToList();
+            }
+
+            return filtered.Select(a =>
+            {
+                var dict = a.ToFirestoreDictionary();
+                dict["AppointmentId"] = a.GetAttribute("AppointmentId");
+                return dict;
+            }).ToList();
+        }
+
+
+        public async Task<Dictionary<string, object>> GenerateFilteredAppointmentAnalytics(string status, string doctor, string type)
+        {
+            // Retrieve all appointments using the appointment status manager.
             List<ServiceAppointment> appointments = await _appointmentStatusManager.getAllServiceAppointments();
-            
+
             if (appointments == null || appointments.Count == 0)
             {
                 Console.WriteLine("No appointment records found.");
                 return new Dictionary<string, object>();
             }
 
+            // Apply filtering based on provided parameters.
+            if (!string.IsNullOrEmpty(status))
+            {
+                appointments = appointments
+                    .Where(a => a.GetAttribute("Status").Equals(status, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            if (!string.IsNullOrEmpty(doctor))
+            {
+                appointments = appointments
+                    .Where(a => a.GetAttribute("DoctorId") == doctor)
+                    .ToList();
+            }
+
+            if (!string.IsNullOrEmpty(type))
+            {
+                appointments = appointments
+                    .Where(a => a.GetAttribute("Service") == type || a.GetAttribute("ServiceTypeId") == type)
+                    .ToList();
+            }
+
+            // Generate analytics based on the filtered list.
             int totalAppointments = appointments.Count;
             var appointmentsPerType = new Dictionary<string, int>();
             var appointmentsPerDoctor = new Dictionary<string, int>();
@@ -44,7 +101,7 @@ namespace ClearCare.Models.Control
                 // Retrieve attributes from the ServiceAppointment
                 string serviceType = appointment.GetAttribute("Service") ?? "Unknown";
                 string doctorId = appointment.GetAttribute("DoctorId") ?? "Unknown";
-                string status = appointment.GetAttribute("Status") ?? "Unknown";
+                string appointmentStatus = appointment.GetAttribute("Status") ?? "Unknown";
                 DateTime appointmentDateTime = appointment.GetAppointmentDateTime(appointment);
 
                 // Count by service type
@@ -67,22 +124,21 @@ namespace ClearCare.Models.Control
                     appointmentsPerMonth[monthYearKey] = 1;
 
                 // Count status types
-                if (status.Equals("Completed", StringComparison.OrdinalIgnoreCase))
+                if (appointmentStatus.Equals("Completed", StringComparison.OrdinalIgnoreCase))
                 {
                     completedAppointments++;
                 }
-                else if (status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase))
+                else if (appointmentStatus.Equals("Cancelled", StringComparison.OrdinalIgnoreCase))
                 {
                     cancelledAppointments++;
                 }
                 else
                 {
-                    // For any other status (e.g., "Missed", "Pending", etc.)
                     pendingAppointments++;
                 }
             }
 
-            // Build and return the analytics dictionary
+            // Build and return the analytics dictionary.
             return new Dictionary<string, object>
             {
                 { "TotalAppointments", totalAppointments },
@@ -93,48 +149,6 @@ namespace ClearCare.Models.Control
                 { "PendingAppointments", pendingAppointments },
                 { "CancelledAppointments", cancelledAppointments }
             };
-
-        }
-
-public async Task<List<Dictionary<string, object>>> FetchFilteredAppointments(string status, string doctor, string type)
-{
-    var appointments = await _appointmentStatusManager.getAllServiceAppointments();
-    var filtered = appointments;
-
-    // Apply filtering
-    if (!string.IsNullOrEmpty(status))
-    {
-        filtered = filtered
-            .Where(a => a.GetAttribute("Status").Equals(status, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-    }
-
-    if (!string.IsNullOrEmpty(doctor))
-    {
-        filtered = filtered
-            .Where(a => a.GetAttribute("DoctorId") == doctor)
-            .ToList();
-    }
-
-    if (!string.IsNullOrEmpty(type))
-    {
-        filtered = filtered
-            .Where(a => a.GetAttribute("Service") == type || a.GetAttribute("ServiceTypeId") == type)
-            .ToList();
-    }
-
-return filtered.Select(a =>
-{
-    var dict = a.ToFirestoreDictionary();
-    dict["AppointmentId"] = a.GetAttribute("AppointmentId");
-    return dict;
-}).ToList();
-}
-
-
-        public async Task<Dictionary<string, object>> GenerateFilteredAppointmentAnalytics(string status, string doctor, string type)
-        {
-            return await _gateway.FetchAppointmentsByFilter(status, doctor, type); // Return analytics object
         }
     }
 }
