@@ -8,7 +8,7 @@ using ClearCare.Models;
 
 namespace ClearCare.Controllers
 {
-    public class ServiceTypePageController : Controller
+    public class ServiceTypeInputController : Controller
     {
         private ServiceTypeManager serviceManager = new ServiceTypeManager();
 
@@ -94,6 +94,7 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> DiscontinueConfirmed(int id)
         {
             await serviceManager.DiscontinueServiceType(id);
+            TempData["SuccessMessage"] = "Service discontinued.";
             return RedirectToAction("Index");
         }
 

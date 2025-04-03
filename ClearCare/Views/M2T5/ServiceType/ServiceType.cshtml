@@ -50,13 +50,20 @@
                     <td>@service.Modality</td>
                     <td>@service.Requirements</td>
                     <td>
-                        <button class="btn btn-warning" data-bs-toggle="modal"
-                            data-bs-target="#editServiceModal-@service.ServiceTypeId">
-                            Edit
-                        </button>
-                        <button class="btn btn-danger" onclick="loadDiscontinueModal(@service.ServiceTypeId)">
-                            Discontinue
-                        </button>
+                        @if (service.Status == "discontinued")
+                        {
+                            <span class="badge bg-secondary">Discontinued</span>
+                        }
+                        else
+                        {
+                            <button class="btn btn-warning" data-bs-toggle="modal"
+                                data-bs-target="#editServiceModal-@service.ServiceTypeId">
+                                Edit
+                            </button>
+                            <button class="btn btn-danger" onclick="loadDiscontinueModal(@service.ServiceTypeId)">
+                                Discontinue
+                            </button>
+                        }
                     </td>
                 </tr>
             }
@@ -75,7 +82,7 @@
 
 <script>
     function loadDiscontinueModal(serviceId) {
-        fetch(`/ServiceTypePage/ConfirmDiscontinue/${serviceId}`)
+        fetch(`/ServiceTypeInput/ConfirmDiscontinue/${serviceId}`)
             .then(response => response.text())
             .then(html => {
                 document.getElementById("discontinueModalContent").innerHTML = html;
@@ -94,7 +101,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form asp-action="Create" asp-controller="ServiceTypePage" method="post">
+                <form asp-action="Create" asp-controller="ServiceTypeInput" method="post">
                     <div class="mb-3">
                         <label for="serviceName" class="form-label">Service Name</label>
                         <input type="text" class="form-control" id="serviceName" name="name" required>
@@ -102,8 +109,17 @@
                     </div>
                     <div class="mb-3">
                         <label for="serviceDuration" class="form-label">Duration (minutes)</label>
-                        <input type="number" class="form-control" id="serviceDuration" name="duration" min="1" required>
-                        <div class="invalid-feedback">Service duration must be at least 1 minute.</div>
+                        <input type="number" class="form-control" id="serviceDuration" name="duration" min="60" required>
+                        <div class="invalid-feedback">Service duration must be at least 60 minute.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modality" class="form-label">Modality</label>
+                        <select class="form-control" id="modality" name="modality" required>
+                            <option value="">-- Select Modality --</option>
+                            <option value="Virtual">Virtual</option>
+                            <option value="Physical (Level 1 Room A)">Physical (Level 1 Room A)</option>
+                            <option value="Physical (Level 2 Room B)">Physical (Level 2 Room B)</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="serviceRequirements" class="form-label">Requirements</label>
@@ -129,7 +145,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form asp-action="Edit" asp-controller="ServiceTypePage" method="post">
+                    <form asp-action="Edit" asp-controller="ServiceTypeInput" method="post">
                         <input type="hidden" name="id" value="@service.ServiceTypeId" />
                         <div class="mb-3">
                             <label for="editServiceName-@service.ServiceTypeId" class="form-label">Service Name</label>
@@ -189,7 +205,7 @@
 <script>
     function confirmDelete(serviceId, serviceName) {
         if (confirm("Are you sure you want to delete " + serviceName + "?")) {
-            window.location.href = "/ServiceTypePage/Delete/" + serviceId;
+            window.location.href = "/ServiceTypeInput/Delete/" + serviceId;
         }
     }
 </script>
@@ -205,7 +221,7 @@
 
             if (term.length < 2) return;
 
-            const response = await fetch(`/ServiceTypePage/SearchServices?term=${encodeURIComponent(term)}`);
+            const response = await fetch(`/ServiceTypeInput/SearchServices?term=${encodeURIComponent(term)}`);
             const data = await response.json();
 
             if (data.length === 0) {

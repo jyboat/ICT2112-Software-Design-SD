@@ -40,7 +40,7 @@ namespace ClearCare.DataSource
 
             foreach (var doc in appointments)
             {
-                string serviceType = doc.ContainsKey("ServiceTypeId") ? doc["ServiceTypeId"]?.ToString() ?? "Unknown" : "Unknown";
+                string serviceType = doc.ContainsKey("Service") ? doc["Service"]?.ToString() ?? "Unknown" : "Unknown";
                 string doctorId = doc.ContainsKey("DoctorId") ? doc["DoctorId"]?.ToString() ?? "Unknown" : "Unknown";
                 string status = doc.ContainsKey("Status") ? doc["Status"]?.ToString() ?? "Unknown" : "Unknown";
                 DateTime dateTime = doc.ContainsKey("DateTime") && doc["DateTime"] is Timestamp ts

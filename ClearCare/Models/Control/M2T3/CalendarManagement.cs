@@ -7,12 +7,6 @@ using System.Threading.Tasks;
 using ClearCare.Models.Entities;
 using System.Text.Json;
 
-// TODO: 
-// +getAppointmentsByPatient(patientId: Int): <List> ServiceAppointment
-// +getAppointmentsByNurse(nurseId: Int): <List> ServiceAppointment
-// +getAppointmentsByType(serviceType: String): <List> ServiceAppointment
-// +getAppointmentsByDateRange(startDate: DateTime, endDate: DateTime): <List> ServiceAppointment
-
 namespace ClearCare.Models.Control
 {
     public class CalendarManagement
@@ -167,11 +161,5 @@ namespace ClearCare.Models.Control
 
             return filtered;
         }
-
-
-
-
-
-
     }
 }
