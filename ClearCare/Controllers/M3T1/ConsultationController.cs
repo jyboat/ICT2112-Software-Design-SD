@@ -1,5 +1,7 @@
 using ClearCare.DataSource.M3T1;
 using ClearCare.Models.Control.M3T1;
+using ClearCare.Models.Entities;
+using ClearCare.Models.Entities.M3T1;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClearCare.Controllers.M3T1;
