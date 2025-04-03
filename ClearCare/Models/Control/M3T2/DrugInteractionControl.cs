@@ -8,6 +8,7 @@ using System.Text;
 using System.Net.Http;
 using ClearCare.DataSource.M3T2;
 using ClearCare.Models.DTO.M3T2;
+using ClearCare.Controllers.M3T2;
 
 namespace ClearCare.Controls
 {
@@ -54,9 +55,9 @@ namespace ClearCare.Controls
                     // Fallback if deserialization returned null
                     return new DrugInteractionResponse
                     {
-                        Results = new List<DrugInteractionDTO>
+                        Results = new List<DrugInteraction>
                         {
-                            new DrugInteractionDTO
+                            new DrugInteraction
                             {
                                 Drug1Name = "Error",
                                 Drug2Name = "Error",
@@ -72,9 +73,9 @@ namespace ClearCare.Controls
             {
                 return new DrugInteractionResponse
                 {
-                    Results = new List<DrugInteractionDTO>
+                    Results = new List<DrugInteraction>
                     {
-                        new DrugInteractionDTO { Drug1Name = "Error", Drug2Name = "Error", Interaction = "No known interaction" }
+                        new DrugInteraction { Drug1Name = "Error", Drug2Name = "Error", Interaction = "No known interaction" }
                     }
                 };
             }

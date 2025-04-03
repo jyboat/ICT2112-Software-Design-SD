@@ -1,7 +1,11 @@
 using ClearCare.Controls;
-using ClearCare.Models;
+// using ClearCare.Models.DTO.M3T2;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.Web;
+using System.Text.Json.Serialization;
+using System.Text;
 
 
 namespace ClearCare.Controllers.M3T2
@@ -9,6 +13,7 @@ namespace ClearCare.Controllers.M3T2
     public class DrugInteractionController : Controller
     {
         private readonly DrugInteractionControl _drugInteractionControl;
+        private readonly HttpClient _httpClient;
 
         /// <summary>
         ///   Initializes a new instance of the
@@ -28,6 +33,7 @@ namespace ClearCare.Controllers.M3T2
         )
         {
             _drugInteractionControl = DrugControl;
+            _httpClient = httpClient;
         }
 
         /// <summary>
@@ -62,9 +68,23 @@ namespace ClearCare.Controllers.M3T2
         [HttpPost]
         public async Task<IActionResult> Add(string drugName1, string drugName2)
         {
-            var result = await _drugInteractionControl.GetDrugInteractionAsync(drugName1, drugName2);
-            TempData["SuccessMessage"] = "Drug interaction added successfully!";
-            return View("~/Views/M3T2/DrugInteraction/Add.cshtml", result);
+            string ddinterApi = $"https://portfolio-website-lyart-five-75.vercel.app/api/receive?drug1={drugName1}&drug2={drugName2}";
+            try
+            {
+                var resp = await _httpClient.GetStringAsync(ddinterApi);
+                var result = JsonSerializer.Deserialize<DrugInteractionResponse>(resp);
+                return View("~/Views/M3T2/DrugInteraction/Index.cshtml", result);
+            }
+            catch (HttpRequestException e)
+            {
+                return View("~/Views/M3T2/DrugInteraction/Index.cshtml", new DrugInteractionResponse
+                {
+                    Results = new List<DrugInteraction>
+                    {
+                        new DrugInteraction { Drug1Name = "Error", Drug2Name = "Error", Interaction = $"No known interaction" }
+                    }
+                });
+            }        
         }
 
         /// <summary>
@@ -102,4 +122,20 @@ namespace ClearCare.Controllers.M3T2
             return RedirectToAction("Index");
         }
     }
+
+    public class DrugInteractionResponse
+    {
+        [JsonPropertyName("results")]
+        public List<DrugInteraction> Results { get; set; }
+    }
+
+    public class DrugInteraction
+    {
+        public string Drug1Name { get; set; }
+        public string Drug2Name { get; set; }
+        public string Interaction { get; set; }
+    }
 }
+
+
+
