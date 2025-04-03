@@ -43,8 +43,16 @@
 
                             <div class="col-12">
                                 <div class="form-floating mb-3">
-                                    <input type="text" name="name" class="form-control shadow-sm" value="@profileData["Name"]" required />
-                                    <label class="bi bi-person me-1"> Name</label>
+                                    <input type="text" 
+                                        name="name" 
+                                        id="name"
+                                        class="form-control shadow-sm" 
+                                        value="@profileData["Name"]" 
+                                        pattern="^[A-Za-z\s]+$" 
+                                        title="Please enter only letters and spaces" 
+                                        oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')"
+                                        required />
+                                    <label for="name" class="bi bi-person me-1"> Name</label>
                                 </div>
                             </div>
 
