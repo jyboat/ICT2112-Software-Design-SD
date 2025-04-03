@@ -77,7 +77,7 @@ namespace ClearCare.DataSource
             string emailAddress = snapshot.GetValue<string>("Email");
             string password = snapshot.GetValue<string>("Password");
             string name = snapshot.GetValue<string>("Name");
-            int mobileNumber = (int)snapshot.GetValue<long>("MobileNumber");
+            long mobileNumber = (long)snapshot.GetValue<long>("MobileNumber");
             string address = snapshot.GetValue<string>("Address");
 
             // Determine which object to return based on Role
@@ -166,6 +166,7 @@ namespace ClearCare.DataSource
                     // Default if field doesn't exist
                     dateOfBirth = Timestamp.FromDateTime(DateTime.UtcNow);
                 }
+                Console.WriteLine($"USerGateway Phone: {mobileNumber}");
                 
                 return new Patient(userID, emailAddress, password, name, mobileNumber, address, role, assignedCaregiverName, assignedCaregiverID, dateOfBirth);
             }

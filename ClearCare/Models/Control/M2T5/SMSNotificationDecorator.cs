@@ -8,7 +8,7 @@ using ClearCare.Interfaces;
 
 public class SMSNotificationDecorator : NotificationDecorator
 {
-    private readonly string _apiKey = "example"; // Replace with your SMS.to API key
+    private readonly string _apiKey = "test"; // Replace with your SMS.to API key
     private readonly string _endpoint = "https://api.sms.to/sms/send";
 
     public SMSNotificationDecorator(INotificationSender notificationSender)
