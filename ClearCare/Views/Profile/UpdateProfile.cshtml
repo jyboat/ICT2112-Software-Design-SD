@@ -124,17 +124,17 @@
                                 </div>
                             </div>
                             
-                            @if (profileData["DateOfBirth"] is Google.Cloud.Firestore.Timestamp ts)
+                             @if (profileData.ContainsKey("DateOfBirth"))
                             {
-                                var dobUtc = ts.ToDateTime();
-                                var dobLocal = dobUtc.AddHours(8).ToString("yyyy-MM-dd");
-
-                                <div class="form-floating mb-3">
-                                    <input type="date" name="dateOfBirth" id="dateOfBirth" class="form-control shadow-sm" value="@dobLocal" placeholder="Date of Birth" required />
-                                    <label for="dateOfBirth" class="bi bi-calendar me-1"> Date of Birth</label>
+                                    DateTime dobDateTime = DateTime.Parse(profileData["DateOfBirth"].ToString());
+                                    string dobDate = dobDateTime.ToString("yyyy-MM-dd"); // Convert to HTML5 date format
+                                    <div class="col-12">
+                                    <div class="form-floating mb-3">
+                                        <input type="date" name="dateOfBirth" id="dateOfBirth" class="form-control shadow-sm" value="@dobDate" placeholder="Date of Birth" required />
+                                        <label for="dateOfBirth" class="bi bi-calendar me-1"> Date of Birth</label>
+                                    </div>
                                 </div>
                             }
-
                         </div>
                         <div class="text-center mt-4">
                             <button type="submit" class="btn btn-primary w-100 py-2 shadow">
