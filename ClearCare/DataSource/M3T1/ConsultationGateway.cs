@@ -23,7 +23,7 @@ public class ConsultationGateway : IConsultSend
 
         var consultation = new Dictionary<string, object>
         {
-            { "Timing", timing },
+            { "Timing", Timestamp.FromDateTime(timing.ToUniversalTime()) },
             { "Notes", notes },
             { "ZoomLink", zoomLink },
             { "AppointmentId", appointmentId }
