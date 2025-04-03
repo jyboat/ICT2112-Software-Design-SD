@@ -8,7 +8,7 @@ using ClearCare.Models;
 
 namespace ClearCare.Controllers
 {
-    public class ServiceTypePageController : Controller
+    public class ServiceTypeInputController : Controller
     {
         private ServiceTypeManager serviceManager = new ServiceTypeManager();
 
