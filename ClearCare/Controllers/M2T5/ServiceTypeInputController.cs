@@ -58,17 +58,39 @@ namespace ClearCare.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(string name, int duration, string requirements, string modality)
         {
+            var allServices = await serviceManager.GetServiceTypes();
+            bool nameExists = allServices.Any(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+            if (nameExists)
+            {
+                TempData["ErrorMessage"] = "A service with the same name already exists.";
+                return RedirectToAction("Index");
+            }
+
             await serviceManager.CreateServiceType(name, duration, requirements, modality);
+            TempData["SuccessMessage"] = "Service added successfully.";
             return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, string name, int duration, string requirements, string modality)
-        {
-            await serviceManager.UpdateServiceType(id, name, duration, requirements, modality);
-            TempData["SuccessMessage"] = "Service updated successfully.";
-            return RedirectToAction("Index");
-        }
+            public async Task<IActionResult> Edit(int id, string name, int duration, string requirements, string modality)
+            {
+                var allServices = await serviceManager.GetServiceTypes();
+                bool nameExists = allServices.Any(s =>
+                    s.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+                    s.ServiceTypeId != id);
+
+                if (nameExists)
+                {
+                    TempData["ErrorMessage"] = "Another service with the same name already exists.";
+                    return RedirectToAction("Index");
+                }
+
+                await serviceManager.UpdateServiceType(id, name, duration, requirements, modality);
+                TempData["SuccessMessage"] = "Service updated successfully.";
+                return RedirectToAction("Index");
+            }
+
 
 
         [HttpGet]
