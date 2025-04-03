@@ -245,7 +245,7 @@ namespace ClearCare.Models.Control
                     await _iCreateAppointment.CreateAppointment(
                         serviceAppt.GetAttribute("PatientId"),
                         serviceAppt.GetAttribute("NurseId"),
-                        doctorId,
+                        "USR001",
                         serviceAppt.GetAttribute("Service"),
                         "Scheduled",
                         timeslot[serviceAppt.GetIntAttribute("Slot")],
@@ -269,7 +269,7 @@ namespace ClearCare.Models.Control
                     var appointmentId = await _iCreateAppointment.CreateAppointment(
                         serviceAppt.GetAttribute("PatientId"),
                         serviceAppt.GetAttribute("NurseId"),
-                        doctorId,
+                        "USR001",
                         serviceAppt.GetAttribute("Service"),
                         "Scheduled",
                         timeslot[serviceAppt.GetIntAttribute("Slot")],
