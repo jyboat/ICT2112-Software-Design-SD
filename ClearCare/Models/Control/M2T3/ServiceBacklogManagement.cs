@@ -21,6 +21,14 @@ namespace ClearCare.Models.Control
             _controller = controller;
         }
 
+        public async Task<ServiceBacklog> getBacklog(string backlogId)
+        {
+            Dictionary<string, string> backlogDTO = await _dbGateway.fetchServiceBacklogById(backlogId);
+            ServiceBacklog serviceBacklog = new ServiceBacklog();
+            serviceBacklog.setBacklogInformation(backlogDTO["backlogId"], backlogDTO["appointmentId"]);
+            return serviceBacklog;
+        }
+
         private async Task<List<ServiceBacklog>> getAllBacklogs()
         {
             List<Dictionary<string, string>> backlogsDTO = await _dbGateway.fetchServiceBacklogs();
@@ -44,13 +52,13 @@ namespace ClearCare.Models.Control
             List<ServiceBacklog> serviceBacklogs = await getAllBacklogs();
 
             var ServiceBacklogDTOs = new List<ServiceBacklogDTO>();
-            var serviceAppointmentManagement = new ServiceAppointmentManagement();
+            IRetrieveAllAppointments serviceStatusMgmt = new ServiceAppointmentStatusManagement();
 
             // Get details for each service backlog
             foreach (var serviceBacklog in serviceBacklogs)
             {
                 var appointmentId = serviceBacklog.getBacklogInformation()["appointmentId"];
-                var appointment = await serviceAppointmentManagement.getAppointmentByID(appointmentId);
+                var appointment = await serviceStatusMgmt.getServiceAppointmentById(appointmentId);
                 if (appointment != null)
                 {
                     var viewModel = await createDTO(serviceBacklog, appointment);
@@ -69,7 +77,8 @@ namespace ClearCare.Models.Control
             ServiceBacklog serviceBacklog = new ServiceBacklog();
             serviceBacklog.setBacklogInformation(backlogDTO["backlogId"], backlogDTO["appointmentId"]);
 
-            var appointment = await  new ServiceAppointmentManagement().getAppointmentByID(serviceBacklog.getBacklogInformation()["appointmentId"]);
+            IRetrieveAllAppointments serviceStatusMgmt = new ServiceAppointmentStatusManagement();
+            var appointment = await  serviceStatusMgmt.getServiceAppointmentById(serviceBacklog.getBacklogInformation()["appointmentId"]);
 
             var ServiceBacklogDTO = await createDTO(serviceBacklog, appointment);
 

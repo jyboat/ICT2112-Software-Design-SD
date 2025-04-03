@@ -12,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        #editDoctorDisplay, #editPatientDisplay {
+        #editDoctorDisplay, #editPatientDisplay,#modalDoctorDisplay, #modalPatientDisplay {
             background-color: #e9ecef;
             border-radius: 4px;
             min-height: 38px
@@ -36,7 +36,7 @@
                     <tr>
                         @* <th>Backlog ID</th>
                         <th>Appointment ID</th> *@
-                        <th>DateTime</th>
+                        @* <th>DateTime</th> *@
                         <th>Patient</th>
                         @* <th>Nurse</th> *@
                         <th>Doctor</th>
@@ -50,7 +50,7 @@
                         <tr>
                             @* <td>@backlog.BacklogId</td>
                             <td>@backlog.AppointmentId</td> *@
-                            <td>@backlog.DateTime.ToString("yyyy-MM-dd HH:mm")</td>
+                            @* <td>@backlog.DateTime.ToString("yyyy-MM-dd HH:mm")</td> *@
                             <td>@backlog.PatientId</td>
                             @* <td>@backlog.NurseId</td> *@
                             <td>@backlog.DoctorId</td>
@@ -177,12 +177,14 @@
                         <p>Are you sure you want to delete the backlog with the following details?</p>
                         <div class="form-group">
                             <label for="modalPatientId">Patient ID</label>
-                            <input type="text" class="form-control" id="modalPatientId" readonly>
+                            <input type="hidden" class="form-control" id="modalPatientId" readonly>
+                            <p class="form-control-plaintext border px-2" id="modalPatientDisplay"></p> <!-- Mimic readonly input -->
                         </div>
 
                         <div class="form-group">
                             <label for="modalDoctorId">Doctor ID</label>
-                            <input type="text" class="form-control" id="modalDoctorId" readonly>
+                            <input type="hidden" class="form-control" id="modalDoctorId" readonly>
+                            <p class="form-control-plaintext border px-2" id="modalDoctorDisplay"></p> <!-- Mimic readonly input -->
                         </div>
 
                         <div class="form-group">
@@ -205,6 +207,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             fetch('/ServiceBacklog/GetReassignDetails')
             .then(response => {
+                console.log(response);
                 if (!response.ok) {
                 throw new Error('Failed to fetch nurse details.');
                 }
@@ -224,8 +227,8 @@
 
                 // Update the table with names
                 document.querySelectorAll("tbody tr").forEach(row => {
-                    const patientIdCell = row.children[1]; // Assuming Patient ID is the second <td>
-                    const doctorIdCell = row.children[3]; // Assuming Doctor ID is the fourth <td>
+                    const patientIdCell = row.children[0]; // Assuming Patient ID is the first <td>
+                    const doctorIdCell = row.children[1]; // Assuming Doctor ID is the second <td>
 
                     const patientId = patientIdCell.textContent.trim();
                     const doctorId = doctorIdCell.textContent.trim();
@@ -246,11 +249,10 @@
                 return;
                 }
                 nurses.forEach(nurse => {
-                console.log(nurse);
-                const option = document.createElement('option');
-                option.value = nurse.userID;
-                option.textContent = `${nurse.userID}: ${nurse.name}`;
-                nurseDropdown.appendChild(option);
+                    const option = document.createElement('option');
+                    option.value = nurse.userID;
+                    option.textContent = `${nurse.userID}: ${nurse.name}`;
+                    nurseDropdown.appendChild(option);
                 });
             })
             .catch(error => {
@@ -262,6 +264,9 @@
         function openDeletePopup(patientId, doctorId, serviceType) {
             document.getElementById('modalPatientId').value = patientId;
             document.getElementById('modalDoctorId').value = doctorId;
+            document.getElementById("modalDoctorDisplay").textContent = `${doctorId}: ${window.doctorMap[doctorId]}`;
+            document.getElementById("modalPatientDisplay").textContent = `${patientId}: ${window.patientMap[patientId]}`;
+
             document.getElementById('modalServiceType').value = serviceType;
 
             $('#deleteModal').modal('show');
@@ -269,7 +274,7 @@
 
         function closeDeleteModal() {
             $('#deleteModal').modal('hide');
-        }
+        }   
 
         document.getElementById('confirmDelete').onclick = function () {
             document.getElementById('deleteForm').submit();
