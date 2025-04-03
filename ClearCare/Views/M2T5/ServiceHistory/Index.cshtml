@@ -128,9 +128,10 @@
 
                 // Check if month is a single digit, and if so, add a leading zero
                 let month = dateParts[1].padStart(2, '0'); // Adds '0' if the month is a single digit
+                let date = dateParts[0].padStart(2, '0'); // Adds '0' if the month is a single digit
 
                 // Reformat the date to a Date object
-                let formattedDate = `${dateParts[2]}-${month}-${dateParts[0]}`;
+                let formattedDate = `${dateParts[2]}-${month}-${date}`;
                 return formattedDate; // Return in YYYY-MM-DD format
             }
 
