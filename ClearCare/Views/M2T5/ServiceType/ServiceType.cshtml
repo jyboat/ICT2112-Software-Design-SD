@@ -261,18 +261,27 @@
                 const row = document.createElement("tr");
                 row.id = `service-${service.id}`;
 
+                const actions = service.status === "discontinued"
+                    ? `<span class="badge bg-secondary">Discontinued</span>`
+                    : `
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editServiceModal-${service.id}">Edit</button>
+                            <button class="btn btn-danger" onclick="loadDiscontinueModal(${service.id})">Discontinue</button>
+                        </div>
+                    `;
+
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${service.name}</td>
                     <td>60</td>
                     <td>${service.modality}</td>
-                    <td>...</td>
-                    <td>
-                        <span class="badge bg-secondary">Discontinued</span>
-                    </td>
+                    <td>${service.requirements || '...'}</td>
+                    <td>${actions}</td>
                 `;
+
                 table.appendChild(row);
             });
+
         });
 
         document.addEventListener("click", (e) => {
