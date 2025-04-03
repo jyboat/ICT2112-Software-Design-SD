@@ -143,8 +143,6 @@ namespace ClearCare.Models.Control
 
                          Your temporary password is: {newPassword}
 
-                         For security reasons, you will be required to change this password when you next log in.
-
                          If you did not request this change, please contact Clear Care Customer Service immediately.
 
                          Best regards,
@@ -159,11 +157,25 @@ namespace ClearCare.Models.Control
                          return "Password reset successful but failed to send email notification.";
                     }
 
-                    Console.WriteLine("Password reset successful. User will be required to change password on next login.");
-                    return "Password reset successful. User will be required to change password on next login.";
+                    Console.WriteLine("Password reset successful. User password will be sent to the user via Email.");
+                    return "Password reset successful. User password will be sent to the user via Email.";
                }
 
                return "Failed to reset password.";
+          }
+
+          // Method to delete account
+          public async Task<string> deleteAccount(string uid)
+          {
+               var user = await _userGateway.findUserByID(uid);
+               if (user == null)
+               {
+                    return "Account does not exist.";
+               }
+
+               var result = await _userGateway.deleteUser(uid);
+
+               return result ? "Account deleted successfully." : "Failed to delete account.";
           }
      }
 }

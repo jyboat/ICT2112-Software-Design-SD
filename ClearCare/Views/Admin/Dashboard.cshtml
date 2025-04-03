@@ -122,6 +122,13 @@
                                         <button data-bs-toggle="modal" data-bs-target="#resetPassword_@user?.getProfileData()["UserID"]" class="btn btn-warning btn-md me-2" title="View Details">
                                             <i class="bi bi-arrow-repeat"></i><span class="d-none d-md-inline"> Reset Password</span>
                                         </button>
+
+                                        @if (user?.getProfileData()["Role"]?.ToString() == "Doctor" || user?.getProfileData()["Role"]?.ToString() == "Nurse")
+                                        {
+                                            <button data-bs-toggle="modal" data-bs-target="#deleteAccount_@user?.getProfileData()["UserID"]" class="btn btn-warning btn-md me-2" title="View Details">
+                                                <i class="bi bi-trash-fill"></i><span class="d-none d-md-inline"> Delete Account</span>
+                                            </button>
+                                        }
                                     }
                                     else
                                     {
@@ -152,6 +159,30 @@
     {
         @foreach (var user in userList)
         {
+            // Delete Password Modal
+            <div class="modal fade" id="deleteAccount_@user?.getProfileData()["UserID"]" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Delete Account for @user?.getProfileData()["Name"]</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete account for @user?.getProfileData()["Name"] ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <form action="/Admin/deleteAccount" method="post" style="display:inline;">
+                        <input type="hidden" name="uid" value="@(user?.getProfileData()["UserID"])" />
+                        <button type="submit" class="btn btn-sm btn-danger px-3 py-1" title="Delete Account">
+                            <i class="fa-solid fa-trash"></i><span class="d-none d-md-inline"> Delete Account</span>
+                        </button>
+                    </form>
+                </div>
+                </div>
+            </div>
+            </div>
+
             // View User Profile Modal
             <div class="modal fade" id="viewUserModal_@user?.getProfileData()["UserID"]" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">

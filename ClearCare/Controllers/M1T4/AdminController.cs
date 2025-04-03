@@ -310,5 +310,29 @@ namespace ClearCare.Controllers
                return RedirectToAction("Dashboard");
           }
 
+          // POST: /Admin/DeleteAccount
+          [HttpPost]
+          public async Task<IActionResult> deleteAccount(string uid)
+          {
+               if (string.IsNullOrEmpty(uid))
+               {
+                    TempData["ErrorMessage"] = "User ID is required.";
+                    return RedirectToAction("Dashboard");
+               }
+
+               string result = await _adminManagement.deleteAccount(uid);
+
+               if (result == "Account deleted successfully.")
+               {
+                    TempData["SuccessMessage"] = $"Successfully deleted user with ID: {uid}";
+               }
+               else
+               {
+                    TempData["ErrorMessage"] = $"Failed to delete user with ID: {uid}";
+               }
+
+               return RedirectToAction("Dashboard");
+          }
+
      }
 }
