@@ -150,7 +150,14 @@ namespace ClearCare.Controllers
                     // Accept date format from input type="date"
                     if (DateTime.TryParseExact(dateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDob))
                     {
-                        DateTime dobUtc = parsedDob; // no time zone adjustment needed if you only care about date
+                        // Check if the parsed date is in the future
+                        if (parsedDob > DateTime.UtcNow.Date) // Use .Date to ignore the time part
+                        {
+                            TempData["ErrorMessage"] = "Date of birth cannot be in the future.";
+                            return RedirectToAction("displayProfile");
+                        }
+
+                        DateTime dobUtc = parsedDob; // no time zone adjustment needed if you only care about the date
                         updatedFields["DateOfBirth"] = Timestamp.FromDateTime(DateTime.SpecifyKind(dobUtc, DateTimeKind.Utc));
                     }
                     else
