@@ -56,7 +56,7 @@ namespace ClearCare.Models.Control
           public async Task<User> retrieveUserByID(string uid) => await _userGateway.findUserByID(uid);
 
           // Method to create a new account
-          public async Task<string> createAccount(User newUser, string password, IAuditSubject auditLog)
+          public async Task<string> createAccount(User newUser, string password, string adminUserID, IAuditSubject auditLog)
           {
                var email = newUser.getProfileData()["Email"]?.ToString();
                if (string.IsNullOrEmpty(email))
@@ -86,14 +86,14 @@ namespace ClearCare.Models.Control
                string newUserId = await _userGateway.InsertUser(newUser, password);
 
                // Insert audit log after account creation
-               string auditResult = await auditLog.InsertAuditLog("Created new account", newUserId);
+               string auditResult = await auditLog.InsertAuditLog("Created new account", adminUserID);
 
                return newUserId != null ? "Account created successfully." : "Failed to create account.";
           }
 
 
           // Method to update user account
-          public async Task<string> updateUserAccount(string uid, Dictionary<string, object> profileData, IAuditSubject auditLog)
+          public async Task<string> updateUserAccount(string uid, Dictionary<string, object> profileData, string adminUserID, IAuditSubject auditLog)
           {
                if (string.IsNullOrEmpty(uid))
                {
@@ -109,13 +109,13 @@ namespace ClearCare.Models.Control
                var result = await _userGateway.updateUser(uid, profileData);
 
                // Insert audit log after successful account update
-               string auditResult = await auditLog.InsertAuditLog("Updated staff account", uid);
+               string auditResult = await auditLog.InsertAuditLog("Updated staff account", adminUserID);
 
                return result ? "Account updated successfully." : "Failed to update account.";
           }
 
           // Method to reset password
-          public async Task<string> resetStaffPassword(string uid, IAuditSubject auditLog)
+          public async Task<string> resetStaffPassword(string uid, string adminUserID, IAuditSubject auditLog)
           {
                var user = await _userGateway.findUserByID(uid);
                if (user == null)
@@ -130,7 +130,7 @@ namespace ClearCare.Models.Control
                if (result)
                {
                     // Insert audit log after successful password reset
-                    string auditResult = await auditLog.InsertAuditLog("Reset staff password", uid);
+                    string auditResult = await auditLog.InsertAuditLog("Reset staff password", adminUserID);
 
                     // Update user profile to require password change
                     var profileData = user.getProfileData();

@@ -21,7 +21,7 @@ namespace ClearCare.DataSource
         public async Task<List<AuditLog>> RetrieveAllAuditLogs()
         {
             List<AuditLog> auditLogs = new List<AuditLog>();
-            QuerySnapshot snapshot = await db.Collection("AuditLogs").GetSnapshotAsync();
+            QuerySnapshot snapshot = await db.Collection("AuditLogs").OrderByDescending("EntryDate").GetSnapshotAsync();
 
             if (snapshot.Documents.Count == 0)
             {

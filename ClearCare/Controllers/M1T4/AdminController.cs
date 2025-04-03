@@ -144,6 +144,7 @@ namespace ClearCare.Controllers
           {
                // Check for userRole
                var userRole = HttpContext.Session.GetString("Role");
+               var adminID = HttpContext.Session.GetString("UserID");
 
                // Restrict access to only Admin
                if (userRole != "Admin")
@@ -171,7 +172,7 @@ namespace ClearCare.Controllers
 
                User newUser = UserFactory.createUser("", email, password, name, (int)mobileNumber, address, role, infoDictionary);
 
-               string result = await _adminManagement.createAccount(newUser!, password, _auditManagement);
+               string result = await _adminManagement.createAccount(newUser!, password, adminID, _auditManagement);
 
                if (result == "Account created successfully.")
                {
@@ -235,6 +236,8 @@ namespace ClearCare.Controllers
           [HttpPost]
           public async Task<IActionResult> updateAccount(string uid, string email, string name, string role, string address, long? mobileNumber, string? department, string? specialization, string? dateOfBirth)
           {
+               var adminID = HttpContext.Session.GetString("UserID");
+
                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(name) || string.IsNullOrEmpty(address) || mobileNumber == null)
                {
                     ViewBag.ErrorMessage = "Please fill in all required fields.";
@@ -273,7 +276,7 @@ namespace ClearCare.Controllers
                     updatedUserData.Add("Specialization", specialization);
                }
 
-               string result = await _adminManagement.updateUserAccount(uid, updatedUserData, _auditManagement);
+               string result = await _adminManagement.updateUserAccount(uid, updatedUserData, adminID, _auditManagement);
 
                if (result == "Account updated successfully.")
                {
@@ -290,13 +293,15 @@ namespace ClearCare.Controllers
           [HttpPost]
           public async Task<IActionResult> resetPassword(string uid)
           {
+               var adminID = HttpContext.Session.GetString("UserID");
+
                if (string.IsNullOrEmpty(uid))
                {
                     TempData["ErrorMessage"] = "User ID is required.";
                     return RedirectToAction("Dashboard");
                }
 
-               string result = await _adminManagement.resetStaffPassword(uid, _auditManagement);
+               string result = await _adminManagement.resetStaffPassword(uid, adminID, _auditManagement);
 
                if (result == "Failed to reset password.")
                {
