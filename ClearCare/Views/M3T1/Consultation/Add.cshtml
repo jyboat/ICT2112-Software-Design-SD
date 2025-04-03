@@ -1,0 +1,40 @@
+@model IEnumerable<ClearCare.Models.Entities.Appointment>
+
+@{
+    ViewData["Title"] = "Add Session";
+}
+
+
+<section class="container">
+    <form method="post" asp-controller="Consultation" asp-action="postConsultation" class="d-flex flex-column gap-3">
+        <h2>Submit Consultation Session</h2>
+
+        <!-- Notes field -->
+        <div class="form-group">
+            <label for="notes" class="form-label">Notes</label>
+            <textarea class="form-control" id="notes" name="notes"></textarea>
+        </div>
+
+        <!-- Appointment field -->
+        <div class="form-group">
+            <label for="appointmentId" class="form-label">Appointment</label>
+            <select class="form-select" id="appointmentId" name="appointmentId" required>
+                @foreach (var appt in Model)
+                {
+                    <option value="@appt.Id">@appt.Title @@ @appt.Timing</option>
+                }
+            </select>
+        </div>
+        
+        <!-- Meeting field -->
+        <div class="form-group">
+            <label for="meetingLink" class="form-label">Meeting Link</label>
+            <input class="form-control" id="meetingLink" name="zoomLink" type="url" required />
+        </div>
+
+        <div class="form-group text-right">
+            <button type="submit" class="btn btn-success">Submit Session</button>
+            <a asp-controller="Consultation" asp-action="listConsultations" class="btn btn-danger">Cancel</a>
+        </div>
+    </form>
+</section>

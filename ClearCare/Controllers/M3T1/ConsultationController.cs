@@ -39,6 +39,52 @@ public class ConsultationController : Controller
         return View("~/Views/M3T1/Consultation/List.cshtml", filteredSessions);
     }
 
+    [Route("Add")]
+    [HttpGet]
+    public async Task<IActionResult> addConsultation()
+    {
+        ViewBag.UserRole = "Doctor"; // Hardcoded for testing
+
+        var appointments = await manager.getAppointments();
+
+        return View("~/Views/M3T1/Consultation/Add.cshtml", appointments);
+    }
+
+    [Route("Add")]
+    [HttpPost]
+    public async Task<IActionResult> postConsultation(
+        string notes,
+        string appointmentId,
+        bool isCompleted,
+        string zoomLink
+    )
+    {
+        // Get the selected appointment
+        var appointment = await manager.getAppointmentById(appointmentId);
+
+        if (appointment == null)
+        {
+            TempData["FlashMsg"] = "Appointment does not exist";
+            return RedirectToAction("listConsultations");
+        }
+
+        try
+        {
+            await manager.insertConsultation(appointment, notes, zoomLink, isCompleted);
+            await manager.receiveAddStatus(true);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Could not add consultation: {e}");
+            await manager.receiveAddStatus(false);
+
+            TempData["FlashMsg"] = "Could not add consultation";
+            return RedirectToAction("listConsultations");
+        }
+
+        return RedirectToAction("listConsultations");
+    }
+
     [Route("Delete/{consultationId}")]
     [HttpGet]
     public async Task<IActionResult> deleteConsultation(
