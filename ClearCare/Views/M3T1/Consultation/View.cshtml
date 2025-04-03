@@ -3,15 +3,21 @@
 
 <section class="container consultations d-flex flex-column gap-3">
     <header class="d-flex justify-content-between align-items-center">
-        <h2>@Model.Timing.ToDateTime()</h2>
+        <h2 class="me-auto">@Model.Timing.ToDateTime()</h2>
         @if (ViewBag.UserRole == "Caregiver" || ViewBag.UserRole == "Doctor")
         {
-            <a role="button" asp-controller="Consultation" asp-action="deleteConsultation"
-               asp-route-consultationId="@Model.Id"
-               class="btn btn-md btn-danger">Delete
-                Session
-                <i
-                    class="bi bi-trash ms-1"></i></a>
+            <div>
+                <a role="button" asp-controller="Consultation" asp-action="editConsultation"
+                   asp-route-consultationId="@Model.Id"
+                   class="btn btn-md btn-info">Edit
+                    <i
+                        class="bi bi-pencil ms-1" aria-hidden="true"></i></a>
+                <a role="button" asp-controller="Consultation" asp-action="deleteConsultation"
+                   asp-route-consultationId="@Model.Id"
+                   class="btn btn-md btn-danger">Delete
+                    <i
+                        class="bi bi-trash ms-1" aria-hidden="true"></i></a>
+            </div>
         }
     </header>
 
