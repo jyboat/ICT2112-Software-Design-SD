@@ -155,6 +155,8 @@ namespace ClearCare.DataSource
                 DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();
                 if (!snapshot.Exists)
                 {
+                    Console.WriteLine("Snapshot doesn't exist. APPTGATEWAY ID:");
+                    Console.WriteLine(appointmentId);
                     await _receiver.receiveDeletedServiceAppointmentStatus(false);
                     return false;
                 }

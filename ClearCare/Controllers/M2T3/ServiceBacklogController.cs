@@ -16,12 +16,14 @@ namespace ClearCare.Controllers
     {
         private readonly ServiceBacklogManagement _manager;
         private readonly IUserList _userList;
+        private readonly IDeleteAppointment _appointmentManager;
 
         public ServiceBacklogController()
         {
             _manager = new ServiceBacklogManagement();
             _manager.setController(this);
             _userList = (IUserList) new AdminManagement(new UserGateway());
+            _appointmentManager = (IDeleteAppointment) new ServiceAppointmentManagement();
         }
 
         // Displays All Backlogs
@@ -37,8 +39,16 @@ namespace ClearCare.Controllers
         [Route("Delete/{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            await _manager.deleteBacklog(id);
-            return await Index();
+            var backlog = await _manager.getBacklog(id);
+            if (backlog == null)
+            {
+                return NotFound(new { message = "Backlog not found." });
+            }
+            else {
+                await _manager.deleteBacklog(id);
+                await _appointmentManager.DeleteAppointment(backlog.getBacklogInformation()["appointmentId"]);
+                return await Index();
+            }
         }
         
         [HttpPost]
