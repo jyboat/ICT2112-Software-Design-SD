@@ -132,10 +132,23 @@
                                 </div>
                             </div>
                             
-                             @if (profileData.ContainsKey("DateOfBirth"))
+                            @if (profileData.ContainsKey("DateOfBirth"))
                             {
-                                    DateTime dobDateTime = DateTime.Parse(profileData["DateOfBirth"].ToString());
-                                    string dobDate = dobDateTime.ToString("yyyy-MM-dd"); // Convert to HTML5 date format
+                                    string dobDate = "";
+                                    if (profileData["DateOfBirth"] is Google.Cloud.Firestore.Timestamp timestamp)
+                                    {
+                                        // Directly use the Timestamp's ToDateTime method
+                                        dobDate = timestamp.ToDateTime().ToString("yyyy-MM-dd");
+                                    }
+                                    else {
+                                        try
+                                        {
+                                            dobDate = Convert.ToDateTime(profileData["DateOfBirth"]).ToString("yyyy-MM-dd");
+                                        }
+                                        catch {
+
+                                        }
+                                    }
                                     <div class="col-12">
                                     <div class="form-floating mb-3">
                                         <input type="date" name="dateOfBirth" id="dateOfBirth" class="form-control shadow-sm" value="@dobDate" placeholder="Date of Birth" required />
