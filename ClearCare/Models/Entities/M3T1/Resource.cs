@@ -12,7 +12,7 @@ namespace ClearCare.Models.Entities.M3T1
         [FirestoreProperty]
         private string Description { get; set; }
         [FirestoreProperty]
-        private int UploadedBy { get; set; }
+        private string UploadedBy { get; set; }
         [FirestoreProperty]
         private string DateCreated { get; set; }
         [FirestoreProperty]
@@ -25,7 +25,7 @@ namespace ClearCare.Models.Entities.M3T1
         private string getId() => Id;
         private string getTitle() => Title;
         private string getDescription() => Description;
-        private int getUploadedBy() => UploadedBy;
+        private string getUploadedBy() => UploadedBy;
         private string getDateCreated() => DateCreated;
         private byte[] getCoverImage() => CoverImage;
         private string getCoverImageName() => CoverImageName;
@@ -34,7 +34,7 @@ namespace ClearCare.Models.Entities.M3T1
         private void setId(string id) => Id = id;
         private void setTitle(string title) => Title = title;
         private void setDescription(string description) => Description = description;
-        private void setUploadedBy(int uploadedBy) => UploadedBy = uploadedBy;
+        private void setUploadedBy(string uploadedBy) => UploadedBy = uploadedBy;
         private void setDateCreated(string dateCreated) => DateCreated = dateCreated;
         private void setCoverImage(byte[] image) => CoverImage = image;
         private void setCoverImageName(string coverImageName) => CoverImageName = coverImageName;
@@ -42,7 +42,7 @@ namespace ClearCare.Models.Entities.M3T1
 
         public Resource() { }
 
-        public Resource(string id, string title, string description, int uploadedBy, string dateCreated, byte[] image, string coverImageName, string url)
+        public Resource(string id, string title, string description, string uploadedBy, string dateCreated, byte[] image, string coverImageName, string url)
         {
             Id = id;
             Title = title;
