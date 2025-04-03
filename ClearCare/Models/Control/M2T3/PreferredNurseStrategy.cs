@@ -7,7 +7,7 @@ namespace ClearCare.Control
 {
     public class PreferredNurseStrategy : IAutomaticScheduleStrategy
     {
-        public List<ServiceAppointment> AutomaticallySchedule(
+        public List<ServiceAppointment> automaticallySchedule(
             List<ServiceAppointment> unscheduledAppointment,
             List<string> nurses, 
             List<string> services,
@@ -28,7 +28,7 @@ namespace ClearCare.Control
             var combinedAppointments = backlogEntries.Concat(unscheduledAppointment).ToList();
 
             // Group and sort backlog will be scheduled first if any
-            var combinedGroups = GetCombinedAppointmentGroups(unscheduledAppointment, backlogEntries);
+            var combinedGroups = getCombinedAppointmentGroups(unscheduledAppointment, backlogEntries);
 
             foreach (var patientAppointments in combinedGroups)
             {
@@ -37,7 +37,7 @@ namespace ClearCare.Control
 
                 foreach (var appointment in patientAppointments)
                 {
-                    int assignedSlot = GetFirstAvailableSlot(
+                    int assignedSlot = getFirstAvailableSlot(
                         appointment, nurse, patientSlotTracker, serviceSlotTracker, nurseSlotTracker,
                         totalSlots, maxPatientsPerSlot, combinedAppointments);
 
@@ -46,11 +46,11 @@ namespace ClearCare.Control
                         // Print all appointments for debugging purposes
                         foreach (var appt in combinedAppointments)
                         {
-                            Console.WriteLine($"Appointment ID: {appt.GetAttribute("AppointmentId")}, " +
-                                            $"Patient: {appt.GetAttribute("PatientId")}, " +
-                                            $"Nurse: {appt.GetAttribute("NurseId")}, " +
-                                            $"Service: {appt.GetAttribute("Service")}, " +
-                                            $"Slot: {appt.GetIntAttribute("Slot")}");
+                            Console.WriteLine($"Appointment ID: {appt.getAttribute("AppointmentId")}, " +
+                                            $"Patient: {appt.getAttribute("PatientId")}, " +
+                                            $"Nurse: {appt.getAttribute("NurseId")}, " +
+                                            $"Service: {appt.getAttribute("Service")}, " +
+                                            $"Slot: {appt.getIntAttribute("Slot")}");
                         }
                         Console.WriteLine("Error: No available slots for patient left");
 
@@ -62,8 +62,8 @@ namespace ClearCare.Control
                     // Assign nurse and slot
                     appointment.appointNurseToPatient(nurse, assignedSlot);
 
-                    string patientId = appointment.GetAttribute("PatientId");
-                    string Service = appointment.GetAttribute("Service");
+                    string patientId = appointment.getAttribute("PatientId");
+                    string Service = appointment.getAttribute("Service");
                     string nurseId = nurse;
 
                     // Update patient slot tracker
@@ -91,11 +91,11 @@ namespace ClearCare.Control
             // Print all appointments
             foreach (var appt in combinedAppointments)
             {
-                Console.WriteLine($"Appointment ID: {appt.GetAttribute("AppointmentId")}, " +
-                                $"Patient: {appt.GetAttribute("PatientId")}, " +
-                                $"Nurse: {appt.GetAttribute("NurseId")}, " +
-                                $"Service: {appt.GetAttribute("Service")}, " +
-                                $"Slot: {appt.GetIntAttribute("Slot")}");
+                Console.WriteLine($"Appointment ID: {appt.getAttribute("AppointmentId")}, " +
+                                $"Patient: {appt.getAttribute("PatientId")}, " +
+                                $"Nurse: {appt.getAttribute("NurseId")}, " +
+                                $"Service: {appt.getAttribute("Service")}, " +
+                                $"Slot: {appt.getIntAttribute("Slot")}");
             }
 
             // Print tracking dictionaries
@@ -105,22 +105,22 @@ namespace ClearCare.Control
         }
 
         // Groups new appointments and backlog appointments, placing backlog infront prioritizing them
-        private IEnumerable<IGrouping<string, ServiceAppointment>> GetCombinedAppointmentGroups(
+        private IEnumerable<IGrouping<string, ServiceAppointment>> getCombinedAppointmentGroups(
             List<ServiceAppointment> appointments, List<ServiceAppointment> backlogEntries)
         {
             var groupedAppointments = appointments
-                .GroupBy(a => a.GetAttribute("PatientId"))
+                .GroupBy(a => a.getAttribute("PatientId"))
                 .OrderBy(g => g.Count());
 
             var groupedBacklog = backlogEntries
-                .GroupBy(a => a.GetAttribute("PatientId"))
+                .GroupBy(a => a.getAttribute("PatientId"))
                 .OrderBy(g => g.Count());
 
             return groupedBacklog.Concat(groupedAppointments);
         }
 
         // Finds the first available slot for the given appointment based on current trackers.
-        private int GetFirstAvailableSlot(
+        private int getFirstAvailableSlot(
             ServiceAppointment appointment,
             string nurse,
             Dictionary<string, List<int>> patientSlotTracker,
@@ -131,8 +131,8 @@ namespace ClearCare.Control
             List<ServiceAppointment> combinedAppointments)
         {
             int assignedSlot = 1;
-            string patientId = appointment.GetAttribute("PatientId");
-            string Service = appointment.GetAttribute("Service");
+            string patientId = appointment.getAttribute("PatientId");
+            string Service = appointment.getAttribute("Service");
             string nurseId = nurse;
 
             // Ensure tracking dictionaries are initialized

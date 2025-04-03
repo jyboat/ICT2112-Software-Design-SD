@@ -14,9 +14,9 @@ namespace ClearCare.Interfaces
     // fetch all service appointments from db, implemented by gateway
     Task<List<ServiceAppointment>> fetchAllServiceAppointments();
     Task<ServiceAppointment> fetchServiceAppointmentByID(string appointmentId); 
-    Task<string> CreateAppointment(ServiceAppointment appointment);
-    Task<bool> UpdateAppointment(ServiceAppointment appointment);
-    Task<bool> DeleteAppointment (string appointmentId);
+    Task<string> createAppointment(ServiceAppointment appointment);
+    Task<bool> updateAppointment(ServiceAppointment appointment);
+    Task<bool> deleteAppointment (string appointmentId);
     Task<DateTime?> fetchAppointmentTime(string appointmentId);
     
     Task<(List<Dictionary<string, object>> appointments, Dictionary<string, string> patientNames)> fetchAllUnscheduledPatients();

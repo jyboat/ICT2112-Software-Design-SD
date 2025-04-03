@@ -14,7 +14,7 @@ namespace ClearCare.Controllers
 
         public async Task<IActionResult> Index(string searchTerm)
         {
-            var serviceTypes = await serviceManager.GetServiceTypes();
+            var serviceTypes = await serviceManager.getServiceTypes();
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
@@ -34,7 +34,7 @@ namespace ClearCare.Controllers
         [HttpGet]
         public async Task<JsonResult> SearchServices(string term)
         {
-            var all = await serviceManager.GetServiceTypes();
+            var all = await serviceManager.getServiceTypes();
 
             var results = all
                 .Where(s =>
@@ -58,7 +58,7 @@ namespace ClearCare.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(string name, int duration, string requirements, string modality)
         {
-            var allServices = await serviceManager.GetServiceTypes();
+            var allServices = await serviceManager.getServiceTypes();
             bool nameExists = allServices.Any(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
             if (nameExists)
@@ -75,7 +75,7 @@ namespace ClearCare.Controllers
         [HttpPost]
             public async Task<IActionResult> Edit(int id, string name, int duration, string requirements, string modality)
             {
-                var allServices = await serviceManager.GetServiceTypes();
+                var allServices = await serviceManager.getServiceTypes();
                 bool nameExists = allServices.Any(s =>
                     s.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
                     s.ServiceTypeId != id);
@@ -96,15 +96,15 @@ namespace ClearCare.Controllers
         [HttpGet]
         public async Task<IActionResult> ConfirmDiscontinue(int id)
         {
-            var serviceTypes = await serviceManager.GetServiceTypes();
+            var serviceTypes = await serviceManager.getServiceTypes();
             var service = serviceTypes.Find(s => s.ServiceTypeId == id);
 
             var appointmentChecker = new ServiceAppointmentStatusManagement();
             var allAppointments = await appointmentChecker.getAppointmentDetails();
 
             var upcomingApptIds = allAppointments
-                .Where(appt => appt.GetAttribute("Service") == service.Name)
-                .Select(appt => appt.GetAttribute("AppointmentId"))
+                .Where(appt => appt.getAttribute("Service") == service.Name)
+                .Select(appt => appt.getAttribute("AppointmentId"))
                 .ToList();
 
             ViewBag.UpcomingAppointmentIds = upcomingApptIds;

@@ -46,7 +46,7 @@ namespace ClearCare.Controllers
             }
             else {
                 await _manager.deleteBacklog(id);
-                await _appointmentManager.DeleteAppointment(backlog.getBacklogInformation()["appointmentId"]);
+                await _appointmentManager.deleteAppointment(backlog.getBacklogInformation()["appointmentId"]);
                 return await Index();
             }
         }
@@ -115,10 +115,10 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> GenerateDummyBacklogs()
         {
             ServiceAppointmentManagement svcMgr = new ServiceAppointmentManagement();
-            var allAppointments = (await svcMgr.RetrieveAllAppointments()).Take(5);
+            var allAppointments = (await svcMgr.retrieveAllAppointments()).Take(5);
             foreach (var appointment in allAppointments)
             {
-                await _manager.addBacklog(appointment.GetAttribute("AppointmentId"));
+                await _manager.addBacklog(appointment.getAttribute("AppointmentId"));
             }
 
             return Ok(new { message = "dummy dummy done!" });

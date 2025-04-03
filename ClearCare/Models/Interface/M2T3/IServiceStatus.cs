@@ -6,7 +6,7 @@ namespace ClearCare.Interfaces
 {
     public interface IServiceStatus 
     {
-        Task<List<ServiceAppointment>> RetrieveAllAppointments();
+        Task<List<ServiceAppointment>> retrieveAllAppointments();
         Task<ServiceAppointment> getAppointmentByID(string appointmentId);
     }
 }

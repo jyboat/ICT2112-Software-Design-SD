@@ -14,24 +14,19 @@ namespace ClearCare.Models.Control
 {
     public class ServiceAppointmentStatusManagement: AbstractSchedulingNotifier, IAppointmentStatus, IRetrieveAllAppointments
     {
-        private readonly IServiceStatus _iServiceStatus;
-        private readonly ICreateAppointment _iCreateAppointment;
-        private readonly IServiceType _iServiceType;
+        private readonly IServiceStatus IStatus;
+        private readonly ICreateAppointment ICreate;
+        private readonly IServiceType IType;
         
         public ServiceAppointmentStatusManagement() {
             
-            _iServiceStatus = (IServiceStatus) new ServiceAppointmentManagement();
-            _iCreateAppointment = (ICreateAppointment) new ServiceAppointmentManagement();
-            _iServiceType = (IServiceType) new ServiceTypeManager();
+            IStatus = (IServiceStatus) new ServiceAppointmentManagement();
+            ICreate = (ICreateAppointment) new ServiceAppointmentManagement();
+            IType = (IServiceType) new ServiceTypeManager();
             // attach backlog upon creation of service.
             attach(new ServiceBacklogManagement());
         }
 
-        // public async Task<List<ServiceAppointment>> getAllAppointmentDetails() {
-        // // Fetch all appointments - no need to convert
-        // List<ServiceAppointment> appointments = await _iServiceStatus.RetrieveAllAppointments();
-        // return appointments;
-        // }
 
         public async Task<List<ServiceAppointment>> getAppointmentDetails() {
             // Fetch all appointments - no need to convert
@@ -39,7 +34,7 @@ namespace ClearCare.Models.Control
 
             // Filter out completed appointments
             List<ServiceAppointment> filteredAppointments = appointments
-                .Where(appt => appt != null && appt.GetAttribute("Status") != "Completed")
+                .Where(appt => appt != null && appt.getAttribute("Status") != "Completed")
                 .ToList();
 
             return filteredAppointments;
@@ -47,7 +42,7 @@ namespace ClearCare.Models.Control
 
 
         public async Task updateAppointmentStatus(string appointmentId) {
-            ServiceAppointment appointment = await _iServiceStatus.getAppointmentByID(appointmentId);
+            ServiceAppointment appointment = await IStatus.getAppointmentByID(appointmentId);
             if (appointment == null) {
                 Console.WriteLine("Failed to get appointment");
                 return;
@@ -57,50 +52,49 @@ namespace ClearCare.Models.Control
 
             ServiceAppointment appt = appointment.updateServiceAppointementById(
                 appointment,
-                appointment.GetAttribute("PatientId"), 
-                appointment.GetAttribute("NurseId"), 
-                appointment.GetAttribute("DoctorId"), 
-                appointment.GetAttribute("Service"), 
+                appointment.getAttribute("PatientId"), 
+                appointment.getAttribute("NurseId"), 
+                appointment.getAttribute("DoctorId"), 
+                appointment.getAttribute("Service"), 
                 "Completed", 
-                appointment.GetAppointmentDateTime(appointment), 
-                Convert.ToInt32(appointment.GetAttribute("Slot")), 
-                appointment.GetAttribute("Location")
+                appointment.getAppointmentDateTime(appointment), 
+                Convert.ToInt32(appointment.getAttribute("Slot")), 
+                appointment.getAttribute("Location")
             );
-            Console.WriteLine($"SVCApptStatusManagement: {appt.GetAppointmentDateTime(appt)}");
+            Console.WriteLine($"SVCApptStatusManagement: {appt.getAppointmentDateTime(appt)}");
             
-            await _iCreateAppointment.UpdateAppointment(appt);
+            await ICreate.updateAppointment(appt);
 
         }
 
         public async Task<List<ServiceAppointment>> getAllServiceAppointments() {
-            List<ServiceAppointment> appointments = await _iServiceStatus.RetrieveAllAppointments();
-            appointments = await CheckAndUpdateStatusAsync(appointments);
+            List<ServiceAppointment> appointments = await IStatus.retrieveAllAppointments();
+            appointments = await checkAndUpdateStatusAsync(appointments);
             return appointments;
         }
 
         public async Task<ServiceAppointment> getServiceAppointmentById(string apptId) {
-            ServiceAppointment appointment = await _iServiceStatus.getAppointmentByID(apptId);
-            appointment = await CheckAndUpdateStatusAsync(appointment);
+            ServiceAppointment appointment = await IStatus.getAppointmentByID(apptId);
+            appointment = await checkAndUpdateStatusAsync(appointment);
             return appointment;
         }
 
-        private async Task<List<ServiceAppointment>> CheckAndUpdateStatusAsync(List<ServiceAppointment> appointments)
+        private async Task<List<ServiceAppointment>> checkAndUpdateStatusAsync(List<ServiceAppointment> appointments)
         {
             if (appointments == null || appointments.Count == 0) return new List<ServiceAppointment>();
 
             foreach (var appointment in appointments)
             {
-                if (CheckAndMarkAsMissed(appointment)) 
+                if (checkAndMarkAsMissed(appointment)) 
                 {
-                    Console.WriteLine($"🔍 Appointment ID: {appointment.GetAttribute("AppointmentId")}, Status: {appointment.GetAttribute("Status")}, DateTime: {appointment.GetAttribute("Datetime")}");
-
-                    bool success = await _iCreateAppointment.UpdateAppointment(appointment); 
+                    
+                    bool success = await ICreate.updateAppointment(appointment); 
                     if (!success)
                     {
-                        Console.WriteLine($"Failed to update appointment status to missed: {appointment.GetAttribute("AppointmentId")}");
+                        Console.WriteLine($"Failed to update appointment status to missed: {appointment.getAttribute("AppointmentId")}");
                     }
                     else {
-                        Console.WriteLine($"updated {appointment.GetAttribute("AppointmentId")} to {appointment.GetAttribute("Status")}");
+                        Console.WriteLine($"updated {appointment.getAttribute("AppointmentId")} to {appointment.getAttribute("Status")}");
                     }
                 
                 }
@@ -110,39 +104,38 @@ namespace ClearCare.Models.Control
             return appointments;
         }
 
-        private async Task<ServiceAppointment> CheckAndUpdateStatusAsync(ServiceAppointment appointment) {
-            if (CheckAndMarkAsMissed(appointment)) {
-                bool success = await _iCreateAppointment.UpdateAppointment(appointment);
+        private async Task<ServiceAppointment> checkAndUpdateStatusAsync(ServiceAppointment appointment) {
+            if (checkAndMarkAsMissed(appointment)) {
+                bool success = await ICreate.updateAppointment(appointment);
                 if (!success)
                     {
-                        Console.WriteLine($"Failed to update appointment status to missed: {appointment.GetAttribute("AppointmentId")}");
+                        Console.WriteLine($"Failed to update appointment status to missed: {appointment.getAttribute("AppointmentId")}");
                     }
                     else {
-                        Console.WriteLine($"updated {appointment.GetAttribute("AppointmentId")} to {appointment.GetAttribute("Status")}");
+                        Console.WriteLine($"updated {appointment.getAttribute("AppointmentId")} to {appointment.getAttribute("Status")}");
                     }
             }
             return appointment;
         }
 
 
-        public async Task<List<ServiceAppointment>> RetrieveAllAppointmentsByNurse(string nurseId)
+        public async Task<List<ServiceAppointment>> retrieveAllAppointmentsByNurse(string nurseId)
         {
             List<ServiceAppointment> allAppointments = await this.getAllServiceAppointments();
             List<ServiceAppointment> nurseAppointments = allAppointments
-                .Where(a => a.GetAttribute("NurseId") == nurseId)
+                .Where(a => a.getAttribute("NurseId") == nurseId)
                 .ToList();
 
             return nurseAppointments;
         }
 
-        private bool CheckAndMarkAsMissed(ServiceAppointment appointment)
+        private bool checkAndMarkAsMissed(ServiceAppointment appointment)
         {   
          
-            if (appointment.GetAttribute("Status") != "Completed" && appointment.GetAppointmentDateTime(appointment) < DateTime.Now && appointment.GetAttribute("Status")  != "Missed")
+            if (appointment.getAttribute("Status") != "Completed" && appointment.getAppointmentDateTime(appointment) < DateTime.Now && appointment.getAttribute("Status")  != "Missed")
             {
-                Console.WriteLine("Ttest123");
-                appointment.UpdateStatus("Missed");
-                notify(appointment.GetAttribute("AppointmentId"), "success");
+                appointment.updateStatus("Missed");
+                notify(appointment.getAttribute("AppointmentId"), "success");
                 
                 return true; 
             }
@@ -151,11 +144,11 @@ namespace ClearCare.Models.Control
 
         public async Task<object> suggestPatients()
         {
-            var services = await _iServiceType.GetServiceTypes(); // all available services
+            var services = await IType.getServiceTypes(); // all available services
             var allAppointments = await this.getAllServiceAppointments();
 
             var patientList = allAppointments
-                .GroupBy(appt => appt.GetAttribute("PatientId"))
+                .GroupBy(appt => appt.getAttribute("PatientId"))
                 .Select(patientGroup =>
                 {
                     string patientId = patientGroup.Key;
@@ -164,20 +157,20 @@ namespace ClearCare.Models.Control
                     var patientServices = services.Select(service =>
                     {
                         var latestAppt = patientAppointments
-                            .Where(appt => appt.GetAttribute("Service") == service.Name)
-                            .OrderByDescending(appt => appt.GetAppointmentDateTime(appt))
+                            .Where(appt => appt.getAttribute("Service") == service.Name)
+                            .OrderByDescending(appt => appt.getAppointmentDateTime(appt))
                             .FirstOrDefault();
 
                         return new
                         {
                             Service = service.Name,
-                            AppointmentId = latestAppt?.GetAttribute("AppointmentId"),
-                            NurseId = latestAppt?.GetAttribute("NurseId"),
-                            DoctorId = latestAppt?.GetAttribute("DoctorId"),
-                            Status = latestAppt?.GetAttribute("Status"),
-                            DateTime = latestAppt?.GetAttribute("Datetime"),
-                            Slot = latestAppt?.GetAttribute("Slot"),
-                            Location = latestAppt?.GetAttribute("Location")
+                            AppointmentId = latestAppt?.getAttribute("AppointmentId"),
+                            NurseId = latestAppt?.getAttribute("NurseId"),
+                            DoctorId = latestAppt?.getAttribute("DoctorId"),
+                            Status = latestAppt?.getAttribute("Status"),
+                            DateTime = latestAppt?.getAttribute("Datetime"),
+                            Slot = latestAppt?.getAttribute("Slot"),
+                            Location = latestAppt?.getAttribute("Location")
                         };
                     }).ToList();
 
@@ -189,16 +182,11 @@ namespace ClearCare.Models.Control
                 })
                 .ToList();
 
-            // Optional logging
-            // Console.WriteLine("Hello");
-            // string jsonOutput = JsonSerializer.Serialize(patientList, new JsonSerializerOptions { WriteIndented = true });
-            // Console.WriteLine($"Formatted Patient List:\n{jsonOutput}");
-
             return patientList;
         }
 
         public async Task<List<ServiceType_SDM>> getServices () {
-            List<ServiceType_SDM> services = await _iServiceType.GetServiceTypes();
+            List<ServiceType_SDM> services = await IType.getServiceTypes();
             return services; 
         }
 

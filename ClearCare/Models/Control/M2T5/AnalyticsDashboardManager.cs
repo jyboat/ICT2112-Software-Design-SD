@@ -25,28 +25,28 @@ namespace ClearCare.Models.Control
             if (!string.IsNullOrEmpty(status))
             {
                 filtered = filtered
-                    .Where(a => a.GetAttribute("Status").Equals(status, StringComparison.OrdinalIgnoreCase))
+                    .Where(a => a.getAttribute("Status").Equals(status, StringComparison.OrdinalIgnoreCase))
                     .ToList();
             }
 
             if (!string.IsNullOrEmpty(doctor))
             {
                 filtered = filtered
-                    .Where(a => a.GetAttribute("DoctorId") == doctor)
+                    .Where(a => a.getAttribute("DoctorId") == doctor)
                     .ToList();
             }
 
             if (!string.IsNullOrEmpty(type))
             {
                 filtered = filtered
-                    .Where(a => a.GetAttribute("Service") == type)
+                    .Where(a => a.getAttribute("Service") == type)
                     .ToList();
             }
 
             return filtered.Select(a =>
             {
-                var dict = a.ToFirestoreDictionary();
-                dict["AppointmentId"] = a.GetAttribute("AppointmentId");
+                var dict = a.toFirestoreDictionary();
+                dict["AppointmentId"] = a.getAttribute("AppointmentId");
                 return dict;
             }).ToList();
         }
@@ -67,21 +67,21 @@ namespace ClearCare.Models.Control
             if (!string.IsNullOrEmpty(status))
             {
                 appointments = appointments
-                    .Where(a => a.GetAttribute("Status").Equals(status, StringComparison.OrdinalIgnoreCase))
+                    .Where(a => a.getAttribute("Status").Equals(status, StringComparison.OrdinalIgnoreCase))
                     .ToList();
             }
 
             if (!string.IsNullOrEmpty(doctor))
             {
                 appointments = appointments
-                    .Where(a => a.GetAttribute("DoctorId") == doctor)
+                    .Where(a => a.getAttribute("DoctorId") == doctor)
                     .ToList();
             }
 
             if (!string.IsNullOrEmpty(type))
             {
                 appointments = appointments
-                    .Where(a => a.GetAttribute("Service") == type)
+                    .Where(a => a.getAttribute("Service") == type)
                     .ToList();
             }
 
@@ -97,10 +97,10 @@ namespace ClearCare.Models.Control
             foreach (ServiceAppointment appointment in appointments)
             {
                 // Retrieve attributes from the ServiceAppointment
-                string serviceType = appointment.GetAttribute("Service") ?? "Unknown";
-                string doctorId = appointment.GetAttribute("DoctorId") ?? "Unknown";
-                string appointmentStatus = appointment.GetAttribute("Status") ?? "Unknown";
-                DateTime appointmentDateTime = appointment.GetAppointmentDateTime(appointment);
+                string serviceType = appointment.getAttribute("Service") ?? "Unknown";
+                string doctorId = appointment.getAttribute("DoctorId") ?? "Unknown";
+                string appointmentStatus = appointment.getAttribute("Status") ?? "Unknown";
+                DateTime appointmentDateTime = appointment.getAppointmentDateTime(appointment);
 
                 // Count by service type
                 if (appointmentsPerType.ContainsKey(serviceType))

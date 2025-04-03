@@ -48,12 +48,12 @@ namespace ClearCare.Models.Control
             // attach(_serviceBacklogManagement);
         }
 
-        public void SetAlgorithm(IAutomaticScheduleStrategy IAutomaticScheduleStrategy)
+        public void setAlgorithm(IAutomaticScheduleStrategy IAutomaticScheduleStrategy)
         {
             _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; 
         }
 
-        public async Task<List<ServiceAppointment>> AutomaticallyScheduleAppointment(List<ServiceAppointment> unscheduledAppointment, string doctorId)
+        public async Task<List<ServiceAppointment>> automaticallyScheduleAppointment(List<ServiceAppointment> unscheduledAppointment, string doctorId)
         {
             var userList = await _iUserList.retrieveAllUsers();
             var timeslot = new Dictionary<int, DateTime>
@@ -78,7 +78,7 @@ namespace ClearCare.Models.Control
                 throw new InvalidOperationException("Scheduling strategy has not been set. Use SetAlgorithm() first.");
             }
 
-            var serviceNames = await _iServiceType.GetServiceTypes();
+            var serviceNames = await _iServiceType.getServiceTypes();
             var servicesModality = serviceNames.ToDictionary(service => service.Name, service => service.Modality);
             var services = serviceNames.Select(service => service.Name).ToList();
 
@@ -210,21 +210,21 @@ namespace ClearCare.Models.Control
                 ServiceAppointment appointment = await _iRetrieveAppointment.getServiceAppointmentById(appointmentId);
                 appointment.updateServiceAppointementById(
                     appointment, 
-                    appointment.GetAttribute("PatientId"), 
-                    appointment.GetAttribute("NurseId"), 
-                    appointment.GetAttribute("DoctorId"), 
-                    appointment.GetAttribute("Service"), 
-                    appointment.GetAttribute("Status"), 
+                    appointment.getAttribute("PatientId"), 
+                    appointment.getAttribute("NurseId"), 
+                    appointment.getAttribute("DoctorId"), 
+                    appointment.getAttribute("Service"), 
+                    appointment.getAttribute("Status"), 
                     DateTime.Now, 
-                    Convert.ToInt32(appointment.GetAttribute("Slot")), 
-                    appointment.GetAttribute("Location")
+                    Convert.ToInt32(appointment.getAttribute("Slot")), 
+                    appointment.getAttribute("Location")
                 );
 
                 backlogEntries.Add(appointment);
             }
 
             // Call the auto-assignment function
-            var serviceAppointment = _iAutomaticScheduleStrategy.AutomaticallySchedule(
+            var serviceAppointment = _iAutomaticScheduleStrategy.automaticallySchedule(
                 unscheduledAppointment,
                 nurses, 
                 services, 
@@ -235,58 +235,58 @@ namespace ClearCare.Models.Control
 
             foreach (var serviceAppt in serviceAppointment)
             {
-                if (serviceAppt.GetAttribute("AppointmentId") != "")
+                if (serviceAppt.getAttribute("AppointmentId") != "")
                 {
                     // For when backlog is successfully rescheduled
-                    await _iCreateAppointment.DeleteAppointment(
-                        serviceAppt.GetAttribute("AppointmentId")
+                    await _iCreateAppointment.deleteAppointment(
+                        serviceAppt.getAttribute("AppointmentId")
                     );
 
-                    await _iCreateAppointment.CreateAppointment(
-                        serviceAppt.GetAttribute("PatientId"),
-                        serviceAppt.GetAttribute("NurseId"),
+                    await _iCreateAppointment.createAppointment(
+                        serviceAppt.getAttribute("PatientId"),
+                        serviceAppt.getAttribute("NurseId"),
                         "USR005",
-                        serviceAppt.GetAttribute("Service"),
+                        serviceAppt.getAttribute("Service"),
                         "Scheduled",
-                        timeslot[serviceAppt.GetIntAttribute("Slot")],
-                        serviceAppt.GetIntAttribute("Slot"),
-                        servicesModality[serviceAppt.GetAttribute("Service")]
+                        timeslot[serviceAppt.getIntAttribute("Slot")],
+                        serviceAppt.getIntAttribute("Slot"),
+                        servicesModality[serviceAppt.getAttribute("Service")]
                     );
 
                     var message = "Your Appointment for " +
-                                serviceAppt.GetAttribute("Service") +
+                                serviceAppt.getAttribute("Service") +
                                 "has been scheduled at " +
-                                timeslot[serviceAppt.GetIntAttribute("Slot")].ToString() +
-                                "Location: "+ servicesModality[serviceAppt.GetAttribute("Service")].ToString();
+                                timeslot[serviceAppt.getIntAttribute("Slot")].ToString() +
+                                "Location: "+ servicesModality[serviceAppt.getAttribute("Service")].ToString();
 
-                    await _iNotification.createNotification(serviceAppt.GetAttribute("PatientId"), message);
+                    await _iNotification.createNotification(serviceAppt.getAttribute("PatientId"), message);
 
                     // Console.WriteLine($"Successfully rescheduled Appointment: {serviceAppt.GetAttribute("AppointmentId")}");
-                    notify(serviceAppt.GetAttribute("AppointmentId"), "success");
+                    notify(serviceAppt.getAttribute("AppointmentId"), "success");
                 }
                 else{
                     // For new appointments
-                    var appointmentId = await _iCreateAppointment.CreateAppointment(
-                        serviceAppt.GetAttribute("PatientId"),
-                        serviceAppt.GetAttribute("NurseId"),
+                    var appointmentId = await _iCreateAppointment.createAppointment(
+                        serviceAppt.getAttribute("PatientId"),
+                        serviceAppt.getAttribute("NurseId"),
                         "USR005",
-                        serviceAppt.GetAttribute("Service"),
+                        serviceAppt.getAttribute("Service"),
                         "Scheduled",
-                        timeslot[serviceAppt.GetIntAttribute("Slot")],
-                        serviceAppt.GetIntAttribute("Slot"),
-                        servicesModality[serviceAppt.GetAttribute("Service")]
+                        timeslot[serviceAppt.getIntAttribute("Slot")],
+                        serviceAppt.getIntAttribute("Slot"),
+                        servicesModality[serviceAppt.getAttribute("Service")]
                     );
 
                     var message = "Your Appointment for " +
-                                serviceAppt.GetAttribute("Service") +
+                                serviceAppt.getAttribute("Service") +
                                 "has been scheduled at " +
-                                timeslot[serviceAppt.GetIntAttribute("Slot")].ToString() +
-                                "Location: "+ servicesModality[serviceAppt.GetAttribute("Service")].ToString();
+                                timeslot[serviceAppt.getIntAttribute("Slot")].ToString() +
+                                "Location: "+ servicesModality[serviceAppt.getAttribute("Service")].ToString();
 
-                    await _iNotification.createNotification(serviceAppt.GetAttribute("PatientId"), message);
+                    await _iNotification.createNotification(serviceAppt.getAttribute("PatientId"), message);
 
                     // When appointment isn't scheduled
-                    if (string.IsNullOrEmpty(serviceAppt.GetAttribute("NurseId")))
+                    if (string.IsNullOrEmpty(serviceAppt.getAttribute("NurseId")))
                     {
                         Console.WriteLine($"Failed to schedule Appointment: {appointmentId}");
                         notify(appointmentId, "fail");

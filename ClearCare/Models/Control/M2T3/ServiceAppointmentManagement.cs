@@ -24,7 +24,7 @@ namespace ClearCare.Models.Control
 
 
         // Get All Service Appointment
-        public async Task<List<ServiceAppointment>> RetrieveAllAppointments()
+        public async Task<List<ServiceAppointment>> retrieveAllAppointments()
         {
             List<ServiceAppointment> appointments = await _dbGateway.fetchAllServiceAppointments();
             return appointments;
@@ -58,7 +58,7 @@ namespace ClearCare.Models.Control
         }
 
         // Create Service Appointment
-        public async Task<string> CreateAppointment(string patientId, string nurseId,
+        public async Task<string> createAppointment(string patientId, string nurseId,
                 string doctorId, string Service, string status, DateTime dateTime, int slot, string location)
         {
             // Map JSON data to model
@@ -66,7 +66,7 @@ namespace ClearCare.Models.Control
                 patientId, nurseId, doctorId, Service, status, dateTime, slot, location
             );
 
-            string appointmentID = await _dbGateway.CreateAppointment(appointment);
+            string appointmentID = await _dbGateway.createAppointment(appointment);
             return appointmentID;
         }
 
@@ -84,7 +84,7 @@ namespace ClearCare.Models.Control
         }
 
         // Update Service Appointment
-        public async Task<bool> UpdateAppointment(ServiceAppointment appointment)
+        public async Task<bool> updateAppointment(ServiceAppointment appointment)
         {
             try
             {
@@ -92,7 +92,7 @@ namespace ClearCare.Models.Control
                 Console.WriteLine($"attempting to update appointment with data: {JsonSerializer.Serialize(appointment)}");
 
                 // call gateway to update
-                return await _dbGateway.UpdateAppointment(appointment);
+                return await _dbGateway.updateAppointment(appointment);
             }
             catch (Exception e)
             {
@@ -115,11 +115,11 @@ namespace ClearCare.Models.Control
         }
 
         // Delete Service Appointment
-        public async Task<bool> DeleteAppointment(string appointmentId)
+        public async Task<bool> deleteAppointment(string appointmentId)
         {
             try
             {
-                return await _dbGateway.DeleteAppointment(appointmentId);
+                return await _dbGateway.deleteAppointment(appointmentId);
 
             }
             catch (Exception e)
@@ -179,7 +179,7 @@ namespace ClearCare.Models.Control
         }
 
         // i hardcode the "retrieval" of services, nurse and patients first, later once get from mod 1, will update
-        public List<Dictionary<string, string>> GetAllDoctors()
+        public List<Dictionary<string, string>> getAllDoctors()
         {
             return new List<Dictionary<string, string>>
                 {
@@ -187,7 +187,7 @@ namespace ClearCare.Models.Control
                     new Dictionary<string, string> {{"id", "2"}, {"name", "Jane Doe"}},
                 };
         }
-        public List<Dictionary<string, string>> GetAllPatients()
+        public List<Dictionary<string, string>> getAllPatients()
         {
             return new List<Dictionary<string, string>>
                 {
@@ -196,7 +196,7 @@ namespace ClearCare.Models.Control
                 };
         }
 
-        public List<Dictionary<string, string>> GetAllNurses()
+        public List<Dictionary<string, string>> getAllNurses()
         {
             return new List<Dictionary<string, string>>
                 {
@@ -206,9 +206,9 @@ namespace ClearCare.Models.Control
                 };
         }
 
-        public async Task<List<string>> GetServiceTypeNames()
+        public async Task<List<string>> getServiceTypeNames()
         {
-            var services = await _iServiceType.GetServiceTypes();
+            var services = await _iServiceType.getServiceTypes();
             var servicesList = services.Select(service => service.Name).ToList();
 
             foreach (var name in servicesList)
@@ -218,22 +218,6 @@ namespace ClearCare.Models.Control
 
             return servicesList;
         }
-
-
-        // backwards compatibility
-        // public List<Dictionary<string, string>> GetAllServiceTypes()
-        // {
-        //     // convert your simple strings to the format expected by the caller
-        //     var serviceTypes = GetServiceTypeNames();
-        //     var result = new List<Dictionary<string, string>>();
-
-        //     foreach (var type in serviceTypes)
-        //     {
-        //         result.Add(new Dictionary<string, string> { { "id", type }, { "name", type } });
-        //     }
-
-        //     return result;
-        // }
 
         public Task getUnscheduledPatients(List<ServiceAppointment> allServiceAppointments)
         {
@@ -267,13 +251,6 @@ namespace ClearCare.Models.Control
             List<string> services = await _dbGateway.getAllServices();
             return services;
         }
-
-
-
-        // public Task CreateAppointment() {
-        //     Console.WriteLine("Hello Create Appointment Interface");
-        //     return Task.CompletedTask;
-        // }
     }
 
 }

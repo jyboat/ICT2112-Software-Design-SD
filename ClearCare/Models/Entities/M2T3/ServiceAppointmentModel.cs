@@ -39,83 +39,73 @@ namespace ClearCare.Models.Entities
         private string Location { get; set; } = string.Empty;
 
         // Getter and Setter
-        private string GetAppointmentID() => AppointmentId;
-        private string GetPatientID() => PatientId;
-        private string GetNurseID() => NurseId;
-        private string GetDoctorID() => DoctorId;
-        private string GetServiceType() => Service;
-        private string GetStatus() => Status;
-        private DateTime GetDateTime() => DateTime; 
-        private int GetSlot() => Slot;
-        private string GetLocation() => Location;
+        private string getAppointmentID() => AppointmentId;
+        private string getPatientID() => PatientId;
+        private string getNurseID() => NurseId;
+        private string getDoctorID() => DoctorId;
+        private string getServiceType() => Service;
+        private string getStatus() => Status;
+        private DateTime getDateTime() => DateTime; 
+        private int getSlot() => Slot;
+        private string getLocation() => Location;
 
         // private void SetAppointmentID(string appointmentId) => AppointmentId = appointmentId;
-        private void SetPatientID(string patientId) => PatientId = patientId;
-        private void SetNurseID(string nurseId) => NurseId = nurseId;
-        private void SetDoctorID(string doctorId) => DoctorId = doctorId;
-        private void SetServiceId(string Service) => Service = Service;
-        private void SetStatus(string status) => Status = status;
-        public void SetDateTime(DateTime dateTime) => DateTime = dateTime;
-        private void SetSlot(int slot) => Slot = slot;
-        private void SetLocation(string location) => Location = location;
+        private void setPatientID(string patientId) => PatientId = patientId;
+        private void setNurseID(string nurseId) => NurseId = nurseId;
+        private void setDoctorID(string doctorId) => DoctorId = doctorId;
+        private void setServiceId(string Service) => Service = Service;
+        private void setStatus(string status) => Status = status;
+        public void setDateTime(DateTime dateTime) => DateTime = dateTime;
+        private void setSlot(int slot) => Slot = slot;
+        private void setLocation(string location) => Location = location;
 
         public void appointNurseToPatient(string nurseId, int slot){
-            SetNurseID(nurseId);
-            SetSlot(slot);
+            setNurseID(nurseId);
+            setSlot(slot);
         }
 
-        public string GetAttribute(string attributeName)
+        public string getAttribute(string attributeName)
         {
             return attributeName switch
             {
-                "AppointmentId" => GetAppointmentID(),
-                "PatientId" => GetPatientID(),
-                "NurseId" => GetNurseID(),
-                "DoctorId" => GetDoctorID(),
-                "Service" => GetServiceType(),
-                "Status" => GetStatus(),
-                "Datetime" => GetDateTime().ToString(),
-                "Slot" => GetSlot().ToString(),
-                "Location" => GetLocation(),
+                "AppointmentId" => getAppointmentID(),
+                "PatientId" => getPatientID(),
+                "NurseId" => getNurseID(),
+                "DoctorId" => getDoctorID(),
+                "Service" => getServiceType(),
+                "Status" => getStatus(),
+                "Datetime" => getDateTime().ToString(),
+                "Slot" => getSlot().ToString(),
+                "Location" => getLocation(),
                 _ => throw new ArgumentException("Invalid attribute name")
             };
         }
 
-        public int GetIntAttribute(string attributeName)
+        public int getIntAttribute(string attributeName)
         {
             return attributeName switch
             {
-                "Slot" => GetSlot(),
+                "Slot" => getSlot(),
                 _ => throw new ArgumentException("Invalid integer attribute name")
             };
         }
 
-        public DateTime GetAppointmentDateTime (ServiceAppointment appointment) {
-            // Ensure DateTime is properly converted
-            // const string DateTimeFormat = "d/M/yyyy h:mm:ss tt";
-
-            // DateTime localTime = DateTime.ParseExact(
-            //     appointment.GetAttribute("Datetime"),  // Ensure correct key
-            //     DateTimeFormat,
-            //     System.Globalization.CultureInfo.InvariantCulture,
-            //     System.Globalization.DateTimeStyles.AdjustToUniversal // Ensures UTC conversion
-            // );
-
-            // return localTime;
-            return GetDateTime();
+        public DateTime getAppointmentDateTime (ServiceAppointment appointment) {
+           
+            return getDateTime();
 
         }
 
         public ServiceAppointment updateServiceAppointementById (ServiceAppointment appointment, string patientId, string nurseId,
             string doctorId, string Service, string status, DateTime dateTime, int slot, string location) {
-                appointment.SetPatientID(patientId);
-                appointment.SetNurseID(nurseId);
-                appointment.SetDoctorID(doctorId);
-                appointment.SetServiceId(Service);
-                appointment.SetStatus(status);
-                appointment.SetDateTime(dateTime);
-                appointment.SetSlot(slot);
-                appointment.SetLocation(location);
+                appointment.setPatientID(patientId);
+                appointment.setNurseID(nurseId);
+                appointment.setDoctorID(doctorId);
+                appointment.setServiceId(Service);
+                appointment.setStatus(status);
+                appointment.setDateTime(dateTime);
+                appointment.setSlot(slot);
+                appointment.setLocation(location);
             return appointment;
         }
         
@@ -136,19 +126,19 @@ namespace ClearCare.Models.Entities
             };
         }
 
-        public Dictionary<string, object> GetApptDetails()
+        public Dictionary<string, object> getApptDetails()
         {
             return new Dictionary<string, object>
             {
-                { "PatientID", GetPatientID() },
+                { "PatientID", getPatientID() },
                 // { "AppointmentID", GetAppointmentID() },
-                { "NurseID", GetNurseID() },
-                { "DoctorID", GetDoctorID() },
-                { "ServiceType", GetServiceType() },
-                { "Status", GetStatus() },
-                { "DateTime", GetDateTime() },
-                { "Slot", GetSlot() },
-                { "Location", GetLocation() }
+                { "NurseID", getNurseID() },
+                { "DoctorID", getDoctorID() },
+                { "ServiceType", getServiceType() },
+                { "Status", getStatus() },
+                { "DateTime", getDateTime() },
+                { "Slot", getSlot() },
+                { "Location", getLocation() }
             };
         }
 
@@ -159,7 +149,7 @@ namespace ClearCare.Models.Entities
         // and maps them into the ServiceAppointment model
         // ServiceAppointment { PatientId = "USR010", NurseId = "USR001", ... }
         // Simple Domain Model Mapping
-        public static ServiceAppointment FromFirestoreData(string appointmentId, Dictionary<string, object> data)
+        public static ServiceAppointment fromFirestoreData(string appointmentId, Dictionary<string, object> data)
         {
             // Check if the DateTime field is already a DateTime or a Firestore Timestamp
             object dateTimeValue = data["DateTime"];
@@ -197,7 +187,7 @@ namespace ClearCare.Models.Entities
 
         // Convert to Firestore Dictionary format for insertion
         // Acts as a getter for all attributes 
-        public Dictionary<string, object> ToFirestoreDictionary()
+        public Dictionary<string, object> toFirestoreDictionary()
         {
             return new Dictionary<string, object>
             {
@@ -212,24 +202,13 @@ namespace ClearCare.Models.Entities
                 { "Location", Location }
             };
         }
-        public void UpdateStatus(string newStatus)
+        public void updateStatus(string newStatus)
         {
             if (!string.IsNullOrWhiteSpace(newStatus))
             {
                 Status = newStatus;
             }
         }
-
-        // public bool CheckAndMarkAsMissed()
-        // {
-         
-        //     if (Status != "Completed" && DateTime < DateTime.Now && Status != "Missed")
-        //     {
-        //         UpdateStatus("Missed");
-        //         return true; 
-        //     }
-        //     return false;
-        // }
 
     }
 

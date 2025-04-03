@@ -81,7 +81,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var group in Model.GroupBy(a => a.GetAttribute("PatientId")))
+                @foreach (var group in Model.GroupBy(a => a.getAttribute("PatientId")))
                 {
                     <tr class="table-primary">
                         <td colspan="8"><strong>Patient ID: @group.Key</strong></td>
@@ -90,14 +90,14 @@
                     foreach (var appointment in group)
                     {
                         <tr>
-                            <td>@appointment.GetAttribute("PatientId")</td>
-                            <td>@appointment.GetAttribute("NurseId")</td>
-                            <td>@appointment.GetAttribute("DoctorId")</td>
-                            <td>@appointment.GetAttribute("Service")</td>
-                            <td>@appointment.GetAttribute("Status")</td>
-                            <td>@Convert.ToDateTime(appointment.GetAttribute("Datetime")).ToString("yyyy-MM-dd HH:mm")</td>
-                            <td>@appointment.GetAttribute("Slot")</td>
-                            <td>@appointment.GetAttribute("Location")</td>
+                            <td>@appointment.getAttribute("PatientId")</td>
+                            <td>@appointment.getAttribute("NurseId")</td>
+                            <td>@appointment.getAttribute("DoctorId")</td>
+                            <td>@appointment.getAttribute("Service")</td>
+                            <td>@appointment.getAttribute("Status")</td>
+                            <td>@Convert.ToDateTime(appointment.getAttribute("Datetime")).ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@appointment.getAttribute("Slot")</td>
+                            <td>@appointment.getAttribute("Location")</td>
                         </tr>
                     }
                 }
@@ -107,14 +107,14 @@
                 @foreach (var appointment in Model)
                 {
                     <tr>
-                        <td>@appointment.GetAttribute("PatientId")</td>
-                        <td>@appointment.GetAttribute("NurseId")</td>
-                        <td>@appointment.GetAttribute("DoctorId")</td>
-                        <td>@appointment.GetAttribute("Service")</td>
-                        <td>@appointment.GetAttribute("Status")</td>
-                        <td>@Convert.ToDateTime(appointment.GetAttribute("Datetime")).ToString("yyyy-MM-dd HH:mm")</td>
-                        <td>@appointment.GetAttribute("Slot")</td>
-                        <td>@appointment.GetAttribute("Location")</td>
+                        <td>@appointment.getAttribute("PatientId")</td>
+                        <td>@appointment.getAttribute("NurseId")</td>
+                        <td>@appointment.getAttribute("DoctorId")</td>
+                        <td>@appointment.getAttribute("Service")</td>
+                        <td>@appointment.getAttribute("Status")</td>
+                        <td>@Convert.ToDateTime(appointment.getAttribute("Datetime")).ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@appointment.getAttribute("Slot")</td>
+                        <td>@appointment.getAttribute("Location")</td>
                     </tr>
                 }
             </tbody> -->

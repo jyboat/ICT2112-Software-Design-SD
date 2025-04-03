@@ -31,15 +31,15 @@ namespace ClearCare.Models.DTO
         // Constructor that maps data from ServiceAppointment entity
         public ServiceAppointmentDTO(ServiceAppointment appointment)
         {
-            _appointmentId = appointment.GetAttribute("AppointmentId");
-            _patientId = appointment.GetAttribute("PatientId");
-            _nurseId = appointment.GetAttribute("NurseId");
-            _doctorId = appointment.GetAttribute("DoctorId");
-            _service = appointment.GetAttribute("Service");
-            _status = appointment.GetAttribute("Status");
+            _appointmentId = appointment.getAttribute("AppointmentId");
+            _patientId = appointment.getAttribute("PatientId");
+            _nurseId = appointment.getAttribute("NurseId");
+            _doctorId = appointment.getAttribute("DoctorId");
+            _service = appointment.getAttribute("Service");
+            _status = appointment.getAttribute("Status");
 
             // Ensure proper parsing of DateTime
-            if (DateTime.TryParse(appointment.GetAttribute("Datetime"), out DateTime parsedDateTime))
+            if (DateTime.TryParse(appointment.getAttribute("Datetime"), out DateTime parsedDateTime))
             {
                 _dateTime = parsedDateTime;
             }
@@ -49,7 +49,7 @@ namespace ClearCare.Models.DTO
             }
 
             // Ensure proper parsing of Slot
-            if (int.TryParse(appointment.GetAttribute("Slot"), out int parsedSlot))
+            if (int.TryParse(appointment.getAttribute("Slot"), out int parsedSlot))
             {
                 _slot = parsedSlot;
             }
@@ -58,7 +58,7 @@ namespace ClearCare.Models.DTO
                 _slot = 0; // Default value if parsing fails
             }
 
-            _location = appointment.GetAttribute("Location");
+            _location = appointment.getAttribute("Location");
         }
 
         // Public getter methods to access the private fields

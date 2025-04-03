@@ -10,7 +10,7 @@ namespace ClearCare.Models.Control
     {
         private ServiceTypeRepository _serviceTypeRepository = new ServiceTypeRepository();
 
-        public async Task<List<ServiceType_SDM>> GetServiceTypes()
+        public async Task<List<ServiceType_SDM>> getServiceTypes()
         {
             return await _serviceTypeRepository.GetServiceTypes();
         }

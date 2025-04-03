@@ -4,6 +4,6 @@ namespace ClearCare.Models.Control
 {
     public interface IDeleteAppointment
     {
-        public Task<bool> DeleteAppointment(string appointmentId);
+        public Task<bool> deleteAppointment(string appointmentId);
     }
 }

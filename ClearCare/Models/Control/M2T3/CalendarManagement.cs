@@ -39,45 +39,45 @@ namespace ClearCare.Models.Control
             // Apply filtering within CalendarManagement
             if (!string.IsNullOrEmpty(doctorId))
             {
-                appointments = appointments.Where(a => a.GetAttribute("DoctorId") == doctorId).ToList();
+                appointments = appointments.Where(a => a.getAttribute("DoctorId") == doctorId).ToList();
             }
             if (!string.IsNullOrEmpty(patientId))
             {
-                appointments = appointments.Where(a => a.GetAttribute("PatientId") == patientId).ToList();
+                appointments = appointments.Where(a => a.getAttribute("PatientId") == patientId).ToList();
             }
             if (!string.IsNullOrEmpty(nurseId))
             {
-                appointments = appointments.Where(a => a.GetAttribute("NurseId") == nurseId).ToList();
+                appointments = appointments.Where(a => a.getAttribute("NurseId") == nurseId).ToList();
             }
             if (!string.IsNullOrEmpty(location))
             {
-                appointments = appointments.Where(a => a.GetAttribute("Location") == location).ToList();
+                appointments = appointments.Where(a => a.getAttribute("Location") == location).ToList();
             }
             if (!string.IsNullOrEmpty(service))
             {
-                appointments = appointments.Where(a => a.GetAttribute("Service") == service).ToList();
+                appointments = appointments.Where(a => a.getAttribute("Service") == service).ToList();
             }
             if (!string.IsNullOrEmpty(timeSlot))
             {
-                appointments = appointments.Where(a => a.GetAttribute("Slot") == timeSlot).ToList();
+                appointments = appointments.Where(a => a.getAttribute("Slot") == timeSlot).ToList();
             }
 
             // Convert filtered data to JSON format required by FullCalendar
             var eventList = appointments.Select(a => new
             {
-                id = a.GetAttribute("AppointmentId"),
-                title = a.GetAttribute("Service") + " for " + a.GetAttribute("PatientId"),
-                start = DateTime.Parse(a.GetAttribute("Datetime")).ToString("yyyy-MM-ddTHH:mm:ss"),
+                id = a.getAttribute("AppointmentId"),
+                title = a.getAttribute("Service") + " for " + a.getAttribute("PatientId"),
+                start = DateTime.Parse(a.getAttribute("Datetime")).ToString("yyyy-MM-ddTHH:mm:ss"),
                 extendedProps = new
                 {
-                    patientId = a.GetAttribute("PatientId"),
-                    nurseId = a.GetAttribute("NurseId"),
-                    doctorId = a.GetAttribute("DoctorId"),
-                    status = a.GetAttribute("Status"),
-                    serviceType = a.GetAttribute("Service"),
-                    slot = a.GetAttribute("Slot"),
-                    location = a.GetAttribute("Location"),
-                    dateTime = DateTime.Parse(a.GetAttribute("Datetime")).ToString("yyyy-MM-ddTHH:mm:ss"),
+                    patientId = a.getAttribute("PatientId"),
+                    nurseId = a.getAttribute("NurseId"),
+                    doctorId = a.getAttribute("DoctorId"),
+                    status = a.getAttribute("Status"),
+                    serviceType = a.getAttribute("Service"),
+                    slot = a.getAttribute("Slot"),
+                    location = a.getAttribute("Location"),
+                    dateTime = DateTime.Parse(a.getAttribute("Datetime")).ToString("yyyy-MM-ddTHH:mm:ss"),
                 }
             }).ToList();
 

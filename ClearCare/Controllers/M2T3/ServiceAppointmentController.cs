@@ -110,8 +110,8 @@ public class ServiceAppointmentsController : Controller
     public async Task<IActionResult> Create()
     {
 
-        ViewBag.Patients = ServiceAppointmentManagement.GetAllPatients();
-        ViewBag.Nurses = ServiceAppointmentManagement.GetAllNurses();
+        ViewBag.Patients = ServiceAppointmentManagement.getAllPatients();
+        ViewBag.Nurses = ServiceAppointmentManagement.getAllNurses();
         ViewBag.Service = await _manualAppointmentScheduler.getServices();
 
         return View("~/Views/M2T3/ServiceAppointments/CreateServiceAppt.cshtml");
@@ -134,7 +134,7 @@ public class ServiceAppointmentsController : Controller
     [Route("Create")]
     public async Task<IActionResult> CreateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
     {
-        var appointment = await _manualAppointmentScheduler.ScheduleAppointment(
+        var appointment = await _manualAppointmentScheduler.scheduleAppointment(
             requestData["PatientId"].GetString() ?? "",
             requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
             requestData["DoctorId"].GetString() ?? "",
@@ -193,7 +193,7 @@ public class ServiceAppointmentsController : Controller
             string location = requestData["Location"].GetString() ?? "";
 
             // Use the ManualAppointmentScheduler to handle validation and updating
-            bool result = await _manualAppointmentScheduler.RescheduleAppointment(
+            bool result = await _manualAppointmentScheduler.rescheduleAppointment(
                 appointmentId, patientId, nurseId, doctorId, Service, status, dateTime, slot, location
             );
 
@@ -225,7 +225,7 @@ public class ServiceAppointmentsController : Controller
     {
         try
         {
-            var result = await ServiceAppointmentManagement.DeleteAppointment(appointmentId);
+            var result = await ServiceAppointmentManagement.deleteAppointment(appointmentId);
             // TODO - Should we strictly return a view or can we return a JSON response? - dinie
             if (result)
             {
@@ -280,34 +280,34 @@ public class ServiceAppointmentsController : Controller
         Console.WriteLine("Selected Algorithm: " + algorithm);
         foreach (var appt in appointments)
         {
-            Console.WriteLine($"Patient ID: {appt.GetAttribute("PatientId")}, Service: {appt.GetAttribute("Service")}, DateTime: {appt.GetAttribute("Datetime")}");
+            Console.WriteLine($"Patient ID: {appt.getAttribute("PatientId")}, Service: {appt.getAttribute("Service")}, DateTime: {appt.getAttribute("Datetime")}");
         }
 
         if (algorithm == "Preferred")
         {
-            AutomaticAppointmentScheduler.SetAlgorithm(new PreferredNurseStrategy());
+            AutomaticAppointmentScheduler.setAlgorithm(new PreferredNurseStrategy());
         }
         else if (algorithm == "Earliest")
         {
-            AutomaticAppointmentScheduler.SetAlgorithm(new EarliestsPossibleTimeSlotStrategy());
+            AutomaticAppointmentScheduler.setAlgorithm(new EarliestsPossibleTimeSlotStrategy());
         }
 
         var doctorId = HttpContext.Session.GetString("UserID");
 
         // Pass this full appointment list to your scheduler
-        var assignedAppointments = await AutomaticAppointmentScheduler.AutomaticallyScheduleAppointment(appointments, doctorId);
+        var assignedAppointments = await AutomaticAppointmentScheduler.automaticallyScheduleAppointment(appointments, doctorId);
 
         return Ok(new
         {
             Message = "Auto appointment scheduling complete.",
             Assigned = assignedAppointments.Select(a => new
             {
-                AppointmentId = a.GetAttribute("AppointmentId"),
-                PatientId = a.GetAttribute("PatientId"),
-                NurseId = a.GetAttribute("NurseId"),
-                Service = a.GetAttribute("Service"),
-                Slot = a.GetAttribute("Slot"),
-                Datetime = a.GetAttribute("Datetime")
+                AppointmentId = a.getAttribute("AppointmentId"),
+                PatientId = a.getAttribute("PatientId"),
+                NurseId = a.getAttribute("NurseId"),
+                Service = a.getAttribute("Service"),
+                Slot = a.getAttribute("Slot"),
+                Datetime = a.getAttribute("Datetime")
             })
         });
     }
@@ -332,7 +332,7 @@ public class ServiceAppointmentsController : Controller
 
         try
         {
-            string createdAppointmentId = await _manualAppointmentScheduler.ScheduleAppointment(
+            string createdAppointmentId = await _manualAppointmentScheduler.scheduleAppointment(
                 patientId, nurseId, doctorId, Service, status, dateTime, slot, location
             );
 

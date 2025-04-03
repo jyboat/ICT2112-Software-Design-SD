@@ -28,8 +28,7 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> display(String? patientId)
         {
             if (patientId != null) {
-                Console.WriteLine($"PATIENTID: {patientId}");
-                 ViewBag.PatientIdFilter = patientId;
+                ViewBag.PatientIdFilter = patientId;
             }
             //  await to wait for task complete or data to retrieve before executing
             var appointment =  await _manager.getAppointmentDetails();

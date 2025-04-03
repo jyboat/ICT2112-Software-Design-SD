@@ -23,11 +23,11 @@ namespace ClearCare.Models.Control
         }
 
         public async Task<List<ServiceType_SDM>> getServices () {
-            List<ServiceType_SDM> services = await _iServiceType.GetServiceTypes();
+            List<ServiceType_SDM> services = await _iServiceType.getServiceTypes();
             return services; 
         }
 
-        public async Task<bool> ValidateAppointmentSlot(string patientId, string nurseId,
+        public async Task<bool> validateAppointmentSlot(string patientId, string nurseId,
             string doctorId, DateTime dateTime, int slot, string currentAppointmentId = null)
         {
             bool isValid = true;
@@ -75,11 +75,11 @@ namespace ClearCare.Models.Control
 
             // 2nd check: is the same nurse already booked for another appointment at this time?
             
-            var nurseAppointments = await _iRetrieveAppointment.RetrieveAllAppointmentsByNurse(nurseId);
+            var nurseAppointments = await _iRetrieveAppointment.retrieveAllAppointmentsByNurse(nurseId);
 
             foreach (var appointment in nurseAppointments)
             {
-                string apptId = appointment.GetAttribute("AppointmentId");
+                string apptId = appointment.getAttribute("AppointmentId");
 
                 // Skip current appointment if we are doing rescheduling
                 if (currentAppointmentId != null && apptId == currentAppointmentId)
@@ -87,8 +87,8 @@ namespace ClearCare.Models.Control
                     continue;
                 }
 
-                var apptDateTime = DateTime.Parse(appointment.GetAttribute("Datetime"));
-                var apptSlot = appointment.GetIntAttribute("Slot");
+                var apptDateTime = DateTime.Parse(appointment.getAttribute("Datetime"));
+                var apptSlot = appointment.getIntAttribute("Slot");
 
                 // check if same date and slot
                 if (apptDateTime.Date == requestedDate && apptSlot == slot)
@@ -100,10 +100,10 @@ namespace ClearCare.Models.Control
             return isValid;
         }
 
-        public async Task<string> ScheduleAppointment(string patientId, string nurseId,
+        public async Task<string> scheduleAppointment(string patientId, string nurseId,
             string doctorId, string Service, string status, DateTime dateTime, int slot, string location)
         {
-            bool isSlotValid = await ValidateAppointmentSlot(patientId, nurseId, doctorId, dateTime, slot);
+            bool isSlotValid = await validateAppointmentSlot(patientId, nurseId, doctorId, dateTime, slot);
 
             if (!isSlotValid)
             {
@@ -113,7 +113,7 @@ namespace ClearCare.Models.Control
             DateTime dbDateTime = dateTime;  // Make a copy to track any conversions
 
             // calling the CreateAppointment method from the ICreateAppointment interface
-            string createdAppointmentId = await _iCreateAppointment.CreateAppointment(
+            string createdAppointmentId = await _iCreateAppointment.createAppointment(
                 patientId, nurseId, doctorId, Service, status, dbDateTime, slot, location);
 
             if (!string.IsNullOrEmpty(createdAppointmentId))
@@ -132,7 +132,7 @@ namespace ClearCare.Models.Control
             return createdAppointmentId;
         }
 
-        public async Task<bool> RescheduleAppointment(string appointmentId, string patientId, string nurseId,
+        public async Task<bool> rescheduleAppointment(string appointmentId, string patientId, string nurseId,
             string doctorId, string Service, string status, DateTime dateTime, int slot, string location)
         {
             // retrieve the current appointment to compare changes
@@ -142,13 +142,13 @@ namespace ClearCare.Models.Control
                 return false;
             }
 
-            string currentDateTimeStr = currentAppointment.GetAttribute("Datetime");
+            string currentDateTimeStr = currentAppointment.getAttribute("Datetime");
             DateTime currentDateTime = DateTime.Parse(currentDateTimeStr);
 
-            int currentSlot = currentAppointment.GetIntAttribute("Slot");
+            int currentSlot = currentAppointment.getIntAttribute("Slot");
 
             // check if the nurse or timeslot is changing
-            bool nurseChanged = nurseId != currentAppointment.GetAttribute("NurseId");
+            bool nurseChanged = nurseId != currentAppointment.getAttribute("NurseId");
             bool dateChanged = dateTime.Date != currentDateTime.Date;
             bool slotChanged = slot != currentSlot;
 
@@ -157,7 +157,7 @@ namespace ClearCare.Models.Control
             // only validate if we're changing time or nurse
             if (needsValidation)
             {
-                bool isSlotValid = await ValidateAppointmentSlot(patientId, nurseId, doctorId, dateTime, slot, appointmentId);
+                bool isSlotValid = await validateAppointmentSlot(patientId, nurseId, doctorId, dateTime, slot, appointmentId);
 
                 if (!isSlotValid)
                 {
@@ -177,7 +177,7 @@ namespace ClearCare.Models.Control
                 .GetProperty("AppointmentId", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                 ?.SetValue(updatedAppointment, appointmentId);
 
-            bool updated = await _iCreateAppointment.UpdateAppointment(updatedAppointment);
+            bool updated = await _iCreateAppointment.updateAppointment(updatedAppointment);
 
             if (!updated)
             {

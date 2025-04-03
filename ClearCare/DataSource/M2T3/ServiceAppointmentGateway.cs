@@ -37,7 +37,7 @@ namespace ClearCare.DataSource
                 if (document.Exists)
                 {
                     var data = document.ToDictionary();
-                    ServiceAppointment appointment = ServiceAppointment.FromFirestoreData(document.Id, data);
+                    ServiceAppointment appointment = ServiceAppointment.fromFirestoreData(document.Id, data);
                     appointmentList.Add(appointment);
                 }
             }
@@ -61,7 +61,7 @@ namespace ClearCare.DataSource
             var data = snapshot.ToDictionary();
 
             // Convert Firestore document to a ServiceAppointment object
-            ServiceAppointment appointment = ServiceAppointment.FromFirestoreData(documentId, data);
+            ServiceAppointment appointment = ServiceAppointment.fromFirestoreData(documentId, data);
 
             
             // appointment = await CheckAndUpdateStatusAsync(appointment);
@@ -70,13 +70,13 @@ namespace ClearCare.DataSource
             return appointment;
         }
 
-        public async Task<string> CreateAppointment(ServiceAppointment appointment)
+        public async Task<string> createAppointment(ServiceAppointment appointment)
         {
             // Get Collection in Firebase
             DocumentReference docRef = _db.Collection("ServiceAppointments").Document();
 
             // Convert input data to firestore data format for insert
-            Dictionary<string, object> appointmentData = appointment.ToFirestoreDictionary();
+            Dictionary<string, object> appointmentData = appointment.toFirestoreDictionary();
 
             // Overwrite field if exist, create new if doesn't
             await docRef.SetAsync(appointmentData);
@@ -86,14 +86,14 @@ namespace ClearCare.DataSource
             return docRef.Id;
         }
 
-        public async Task<bool> UpdateAppointment(ServiceAppointment appointment)
+        public async Task<bool> updateAppointment(ServiceAppointment appointment)
         {
             // debug the incoming data
             string appointmentJson = JsonConvert.SerializeObject(appointment);
             Console.WriteLine($"attempting to update appointment with data: {appointmentJson}");
 
             // safely get the appointment id and validate it
-            string appointmentId = appointment?.GetAttribute("AppointmentId");
+            string appointmentId = appointment?.getAttribute("AppointmentId");
             Console.WriteLine($"extracted appointmentId: '{appointmentId}'");
 
             if (string.IsNullOrEmpty(appointmentId))
@@ -119,7 +119,7 @@ namespace ClearCare.DataSource
                 }
 
                 // update with the new data
-                Dictionary<string, object> appointmentData = appointment.ToFirestoreDictionary();
+                Dictionary<string, object> appointmentData = appointment.toFirestoreDictionary();
                 Console.WriteLine($"converted data for firestore: {JsonConvert.SerializeObject(appointmentData)}");
                 await docRef.SetAsync(appointmentData);
                 _receiver.receiveUpdatedServiceAppointmentStatus(true);
@@ -145,7 +145,7 @@ namespace ClearCare.DataSource
             }
         }
 
-        public async Task<bool> DeleteAppointment(string appointmentId)
+        public async Task<bool> deleteAppointment(string appointmentId)
         {
             try
             {
@@ -327,7 +327,7 @@ namespace ClearCare.DataSource
 
             // Convert the appointments to Firestore dictionaries
             List<Dictionary<string, object>> result = unscheduledPatients
-                .Select(appointment => appointment.ToFirestoreDictionary())
+                .Select(appointment => appointment.toFirestoreDictionary())
                 .ToList();
 
             return (result, patientNameMap);

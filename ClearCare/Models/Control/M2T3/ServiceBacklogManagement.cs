@@ -100,7 +100,7 @@ namespace ClearCare.Models.Control
             try
             {
                 var scheduler = new ManualAppointmentScheduler();
-                bool updateSuccess = await scheduler.RescheduleAppointment(
+                bool updateSuccess = await scheduler.rescheduleAppointment(
                     appointmentId: AppointmentId,
                     patientId: PatientId,
                     nurseId: NurseId,
@@ -143,6 +143,7 @@ namespace ClearCare.Models.Control
         {
             await _dbGateway.deleteServiceBacklog(backlogId);
             return true;
+
         }
 
         public Task receiveBacklogList(List<Dictionary<string, string>> backlogList)
@@ -224,13 +225,12 @@ namespace ClearCare.Models.Control
             return Task.FromResult(new ServiceBacklogDTO {
                 BacklogId = serviceBacklog.getBacklogInformation()["backlogId"],
                 AppointmentId = serviceBacklog.getBacklogInformation()["appointmentId"],
-                DateTime = (DateTime)appointment.GetAppointmentDateTime(appointment),
-                // DateTimeFormatted = ((DateTime)appointment["DateTime"]).ToString("yyyy-MM-dd HH:mm:ss"),
-                PatientId = (string)appointment.GetAttribute("PatientId"),
-                DoctorId = (string)appointment.GetAttribute("DoctorId"),
-                NurseId = (string)appointment.GetAttribute("NurseId"),
-                ServiceType = (string)appointment.GetAttribute("Service"),
-                Location = (string)appointment.GetAttribute("Location")
+                DateTime = (DateTime)appointment.getAppointmentDateTime(appointment),
+                PatientId = (string)appointment.getAttribute("PatientId"),
+                DoctorId = (string)appointment.getAttribute("DoctorId"),
+                NurseId = (string)appointment.getAttribute("NurseId"),
+                ServiceType = (string)appointment.getAttribute("Service"),
+                Location = (string)appointment.getAttribute("Location")
             });
         }
 
