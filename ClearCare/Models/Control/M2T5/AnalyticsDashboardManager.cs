@@ -96,10 +96,41 @@ namespace ClearCare.Models.Control
 
         }
 
-        public async Task<List<Dictionary<string, object>>> FetchFilteredAppointments(string status, string doctor, string type)
-        {
-            return await _gateway.FetchAppointmentsRaw(status, doctor, type); // Return raw list for filtering display
-        }
+public async Task<List<Dictionary<string, object>>> FetchFilteredAppointments(string status, string doctor, string type)
+{
+    var appointments = await _appointmentStatusManager.getAllServiceAppointments();
+    var filtered = appointments;
+
+    // Apply filtering
+    if (!string.IsNullOrEmpty(status))
+    {
+        filtered = filtered
+            .Where(a => a.GetAttribute("Status").Equals(status, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    if (!string.IsNullOrEmpty(doctor))
+    {
+        filtered = filtered
+            .Where(a => a.GetAttribute("DoctorId") == doctor)
+            .ToList();
+    }
+
+    if (!string.IsNullOrEmpty(type))
+    {
+        filtered = filtered
+            .Where(a => a.GetAttribute("Service") == type || a.GetAttribute("ServiceTypeId") == type)
+            .ToList();
+    }
+
+return filtered.Select(a =>
+{
+    var dict = a.ToFirestoreDictionary();
+    dict["AppointmentId"] = a.GetAttribute("AppointmentId");
+    return dict;
+}).ToList();
+}
+
 
         public async Task<Dictionary<string, object>> GenerateFilteredAppointmentAnalytics(string status, string doctor, string type)
         {
