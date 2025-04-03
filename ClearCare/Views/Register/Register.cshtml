@@ -32,36 +32,36 @@
             const password = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirmPassword").value;
             const mobileNumber = document.getElementById("mobileNumber").value;
-            const dob = document.getElementById("dateOfBirth").value;
+            const dateOfBirth = document.getElementById("dateOfBirth").value;
 
+
+            // Password validation
             if (password !== confirmPassword) {
                 alert("Passwords do not match. Please try again.");
                 return false;
             }
 
-            if (mobileNumber.length < 7){
-                alert("Mobile number must be at least 7 digits.")
+            // Mobile number length validation
+            if (mobileNumber.length < 7) {
+                alert("Mobile number must be at least 7 digits.");
                 return false;
             }
+
+            // Date of birth validation: check if the selected date is in the future
+            const today = new Date();
+            const dob = new Date(dateOfBirth);
+
+            // Remove time portion for both today and dob comparison
+            today.setHours(0, 0, 0, 0);  // Set today's date to midnight to exclude the time component
+            dob.setHours(0, 0, 0, 0);    // Set DOB to midnight as well to avoid time discrepancies
+
+            if (dob > today) {
+                alert("Date of birth cannot be in the future. Please select a valid date.");
+                return false;
+            }
+
             return true;
         }
-
-            // Check if DOB is in the future
-            const selectedDate = new Date(dob);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // remove time portion
-
-
-            document.addEventListener("DOMContentLoaded", function () {
-            const nameInput = document.getElementById("name");
-            const mobileInput = document.getElementById("mobileNumber");
-
-            if (selectedDate > today) {
-                alert("Date of Birth cannot be in the future.");
-                return false;
-            }    
-            });
-        });
     </script>
 </head>
 <body class="bg-light">
