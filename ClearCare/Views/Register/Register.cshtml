@@ -39,11 +39,18 @@
             return true;
         }
 
-        document.addEventListener("DOMContentLoaded", function () {
-        const nameInput = document.getElementById("name");
+            document.addEventListener("DOMContentLoaded", function () {
+            const nameInput = document.getElementById("name");
+            const mobileInput = document.getElementById("mobileNumber");
 
+            // Allow only letters and spaces for name
             nameInput.addEventListener("input", function () {
                 this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+            });
+
+            // Allow only digits for mobile number
+            mobileInput.addEventListener("input", function () {
+                this.value = this.value.replace(/\D/g, '');
             });
         });
     </script>
