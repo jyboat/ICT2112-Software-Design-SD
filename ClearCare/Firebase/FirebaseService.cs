@@ -13,7 +13,7 @@ public class FirebaseService
             string path = @"Firebase\firebase-adminsdk.json"; 
             Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", path);
 
-            _firestoreDb = FirestoreDb.Create("test-605d8");
+            _firestoreDb = FirestoreDb.Create("ict2112");
             Console.WriteLine("Connected to Firestore!");
         }
 
