@@ -48,27 +48,29 @@ namespace ClearCare.Models.Control
 
             // Use SGT datetime instead of UTC datetime
             var requestedDate = sgtDateTime.Date;
-            var requestedTime = sgtDateTime.TimeOfDay;
 
             // if any availability records show that the nurse is unavailable for that day, return false
+            // New logic: return false if there's NO availability record for the nurse on the requested day
+            bool hasValidAvailability = false;
+
             foreach (var availability in nurseAvailability)
             {
                 var availabilityDetails = availability.getAvailabilityDetails();
 
-                // extract the date, start time, and end time from the availability
                 DateTime availabilityDate = DateTime.Parse(availabilityDetails["date"].ToString());
-                TimeSpan startTime = TimeSpan.Parse(availabilityDetails["startTime"].ToString());
-                TimeSpan endTime = TimeSpan.Parse(availabilityDetails["endTime"].ToString());
 
-                // check if the requested date matches the availability date
+                // Check if the requested date matches the availability date
                 if (requestedDate == availabilityDate.Date)
                 {
-                    // check if the requested time is within the unavailability window
-                    if (requestedTime >= startTime && requestedTime <= endTime)
-                    {
-                        return false; // The nurse is unavailable - immediately return false
-                    }
+                    hasValidAvailability = true;
+                    break;
                 }
+            }
+
+            // If no valid availability was found, return false
+            if (!hasValidAvailability)
+            {
+                return false;
             }
 
             // 2nd check: is the same nurse already booked for another appointment at this time?
