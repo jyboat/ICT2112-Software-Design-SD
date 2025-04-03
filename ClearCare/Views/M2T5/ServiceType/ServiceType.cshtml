@@ -102,8 +102,17 @@
                     </div>
                     <div class="mb-3">
                         <label for="serviceDuration" class="form-label">Duration (minutes)</label>
-                        <input type="number" class="form-control" id="serviceDuration" name="duration" min="1" required>
-                        <div class="invalid-feedback">Service duration must be at least 1 minute.</div>
+                        <input type="number" class="form-control" id="serviceDuration" name="duration" min="60" required>
+                        <div class="invalid-feedback">Service duration must be at least 60 minute.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modality" class="form-label">Modality</label>
+                        <select class="form-control" id="modality" name="modality" required>
+                            <option disabled selected value="">-- Select Modality --</option>
+                            <option value="Virtual">Virtual</option>
+                            <option value="Physical (Level 1 Room A)">Physical (Level 1 Room A)</option>
+                            <option value="Physical (Level 2 Room B)">Physical (Level 2 Room B)</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="serviceRequirements" class="form-label">Requirements</label>

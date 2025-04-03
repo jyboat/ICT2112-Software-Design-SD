@@ -30,7 +30,9 @@ else
             @foreach (var appointment in appointments)
             {
                 var appointmentId = appointment["AppointmentId"]?.ToString();
-                var dateTime = ((Google.Cloud.Firestore.Timestamp)appointment["DateTime"]).ToDateTime().ToString("yyyy-MM-dd HH:mm");
+var dateTime = appointment["DateTime"] is Google.Cloud.Firestore.Timestamp ts
+    ? ts.ToDateTime().ToString("yyyy-MM-dd HH:mm")
+    : ((DateTime)appointment["DateTime"]).ToString("yyyy-MM-dd HH:mm");
 
                 <tr>
                     <td>@appointmentId</td>
