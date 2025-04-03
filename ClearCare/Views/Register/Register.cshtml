@@ -77,24 +77,18 @@
                             <input type="number" id="countryCode" name="countryCode" class="form-control" required>
                         </div>
                     </div> *@
-                    <div class="col-md-4"> 
-                        <div class="form-floating mb-3">
-                            <select name="countryCode" class="form-select shadow-sm" required>
-                                @foreach (var code in countryCodes)
-                                {
-                                    <option value="@code">@code</option>
-                                }
-                            </select>
-                            <label for="countryCode" class="form-label">Country Code:</label>
-                        </div>
+                <div class="mb-3">
+                    <label class="form-label">Phone Number:</label>
+                    <div class="input-group">
+                        <select name="countryCode" class="form-select" style="max-width: 100px;" required>
+                            @foreach (var code in countryCodes)
+                            {
+                                <option value="@code">+@code</option>
+                            }
+                        </select>
+                        <input type="tel" id="mobileNumber" name="mobileNumber" class="form-control" placeholder="e.g. 91234567" required>
                     </div>
-
-                    <div class="col-md-8">
-                        <div class="form-floating mb-3">
-                            <label for="mobileNumber" class="form-label">Mobile Number:</label>
-                            <input type="number" id="mobileNumber" name="mobileNumber" class="form-control" required>
-                        </div>
-                    </div>
+                </div>
                 </div>
                 <!-- new edited -->
                 @* <div class="mb-3">

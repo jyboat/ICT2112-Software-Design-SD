@@ -328,17 +328,32 @@ namespace ClearCare.DataSource
             userData.Remove("UserID");
             userData.Add("Password", encryptionManagement.hashPassword(password));
 
-            if ((String)userData["Role"] == "Patient")
+            if ((string)userData["Role"] == "Patient" && userData.ContainsKey("DateOfBirth"))
             {
-                DateTime dobDateTime = DateTime.ParseExact((string)userData["DateOfBirth"], "dd MMMM yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+                var rawDob = userData["DateOfBirth"];
 
-                // Step 2: Convert to UTC (assuming the input string is in UTC+8)
-                DateTime dobUtc = dobDateTime.AddHours(-8); // Subtract 8 hours to convert UTC+8 to UTC
-
-                // Step 3: Create a Firestore Timestamp
-                Timestamp dobTimestamp = Timestamp.FromDateTime(DateTime.SpecifyKind(dobUtc, DateTimeKind.Utc));
-                userData["DateOfBirth"] = dobTimestamp;
+                if (rawDob is Timestamp) 
+                {
+                    // Already correct format, do nothing
+                }
+                else if (rawDob is string dobStr)
+                {
+                    if (DateTime.TryParse(dobStr, out DateTime parsedDob))
+                    {
+                        DateTime dobUtc = parsedDob.AddHours(-8);
+                        userData["DateOfBirth"] = Timestamp.FromDateTime(DateTime.SpecifyKind(dobUtc, DateTimeKind.Utc));
+                    }
+                    else
+                    {
+                        userData["DateOfBirth"] = Timestamp.FromDateTime(DateTime.UtcNow); // Fallback
+                    }
+                }
+                else
+                {
+                    userData["DateOfBirth"] = Timestamp.FromDateTime(DateTime.UtcNow); // Fallback
+                }
             }
+
 
             // Explicitly use the new User ID as the document ID
             DocumentReference newUserRef = usersRef.Document(nextUserID);
