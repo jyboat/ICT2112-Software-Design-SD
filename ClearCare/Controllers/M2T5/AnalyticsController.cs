@@ -31,21 +31,51 @@ namespace ClearCare.Controllers
         }
 
         [HttpGet("ListAppointments")]
-        public async Task<IActionResult> ListAppointments(string serviceType = "", string doctorId = "", string status = "")
+        public async Task<IActionResult> ListAppointments(string filter = "", string value = "", string serviceType = "", string doctorId = "", string status = "")
         {
-            // Pass the filtering criteria to the manager
-            var appointments = await _manager.FetchFilteredAppointments(status, doctorId, serviceType);
-
-            // Set a title based on the provided filters (you can customize this as needed)
-            if (!string.IsNullOrEmpty(serviceType) || !string.IsNullOrEmpty(doctorId) || !string.IsNullOrEmpty(status))
+            // If a filter parameter is provided, override the other parameters accordingly.
+            if (!string.IsNullOrEmpty(filter))
             {
-                ViewData["Title"] = "Filtered Appointments";
+                switch (filter.ToLower())
+                {
+                    case "servicetype":
+                        serviceType = value;
+                        ViewData["Title"] = $"🏥 Appointments for Service Type: {value}";
+                        break;
+                    case "doctor":
+                        doctorId = value;
+                        ViewData["Title"] = $"👨‍⚕️ Appointments for Doctor: {value}";
+                        break;
+                    case "completed":
+                    case "cancelled":
+                    case "missed":
+                        status = filter;
+                        ViewData["Title"] = $"📋 {char.ToUpper(filter[0]) + filter[1..]} Appointments";
+                        break;
+                    case "pending":
+                        status = filter;
+                        ViewData["Title"] = $"📋 Pending Appointments";
+                        break;
+                    default:
+                        ViewData["Title"] = "📅 All Appointments";
+                        break;
+                }
             }
             else
             {
-                ViewData["Title"] = "All Appointments";
+                // If no filter is provided, use the query parameters to set the title.
+                if (!string.IsNullOrEmpty(serviceType) || !string.IsNullOrEmpty(doctorId) || !string.IsNullOrEmpty(status))
+                {
+                    ViewData["Title"] = "Filtered Appointments";
+                }
+                else
+                {
+                    ViewData["Title"] = "All Appointments";
+                }
             }
 
+            // Retrieve the filtered appointments using your existing code.
+            var appointments = await _manager.FetchFilteredAppointments(status, doctorId, serviceType);
             ViewData["Appointments"] = appointments;
             return View("~/Views/M2T5/Analytics/FilteredAppointmentsList.cshtml");
         }

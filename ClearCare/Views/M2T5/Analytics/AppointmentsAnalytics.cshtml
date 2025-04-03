@@ -86,9 +86,9 @@
         <h5 class="text-muted">March 2025</h5>
     </div>
 
-    <!-- Summary Metrics -->
+   <!-- Summary Metrics -->
 <div class="row text-center mt-4 g-3">
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-4">
         <a href="/Analytics/ListAppointments?filter=all" style="text-decoration: none;">
             <div class="card bg-primary text-white shadow-lg p-3">
                 <h6>📊 Total Appointments</h6>
@@ -96,7 +96,7 @@
             </div>
         </a>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-4">
         <a href="/Analytics/ListAppointments?filter=completed" style="text-decoration: none;">
             <div class="card bg-success text-white shadow-lg p-3">
                 <h6>✅ Completed Appointments</h6>
@@ -104,24 +104,16 @@
             </div>
         </a>
     </div>
-    <div class="col-6 col-md-3">
-<a href="/Analytics/ListAppointments?filter=missed" style="text-decoration: none;">
-<div class="card bg-warning text-dark shadow-lg p-3">
-    <h6>❗ Missed Appointments</h6>
-    <h3 class="fw-bold">@analytics?["PendingAppointments"]</h3> 
-</div>
-
-        </a>
-    </div>
-    <div class="col-6 col-md-3">
-        <a href="/Analytics/ListAppointments?filter=cancelled" style="text-decoration: none;">
-            <div class="card bg-danger text-white shadow-lg p-3">
-                <h6>❌ Cancelled Appointments</h6>
-                <h3 class="fw-bold">@analytics?["CancelledAppointments"]</h3>
+    <div class="col-6 col-md-4">
+        <a href="/Analytics/ListAppointments?filter=missed" style="text-decoration: none;">
+            <div class="card bg-warning text-dark shadow-lg p-3">
+                <h6>❗ Missed Appointments</h6>
+                <h3 class="fw-bold">@analytics?["PendingAppointments"]</h3> 
             </div>
         </a>
     </div>
 </div>
+
 
 
     <!-- Charts Section -->
