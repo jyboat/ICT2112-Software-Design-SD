@@ -53,27 +53,32 @@ public class ConsultationManagement : IConsultReceive
 
     public Task receiveConsultations(List<ConsultationSession> sessions)
     {
-        throw new NotImplementedException();
+        Console.WriteLine($"Consultation list received: {sessions}");
+        return Task.CompletedTask;
     }
 
     public Task receiveConsultation(ConsultationSession session)
     {
-        throw new NotImplementedException();
+        Console.WriteLine($"Consultation received: {session}");
+        return Task.CompletedTask;
     }
 
     public Task receiveAddStatus(bool success)
     {
-        throw new NotImplementedException();
+        Console.WriteLine($"Add status: {success}");
+        return Task.CompletedTask;
     }
 
     public Task receiveUpdateStatus(bool success)
     {
-        throw new NotImplementedException();
+        Console.WriteLine($"Update status: {success}");
+        return Task.CompletedTask;
     }
 
     public Task receiveDeleteStatus(bool success)
     {
-        throw new NotImplementedException();
+        Console.WriteLine($"Delete status: {success}");
+        return Task.CompletedTask;
     }
 
     // Search filter for the ConsultationController
