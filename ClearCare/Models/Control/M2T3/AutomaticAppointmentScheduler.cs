@@ -58,15 +58,15 @@ namespace ClearCare.Models.Control
             var userList = await _iUserList.retrieveAllUsers();
             var timeslot = new Dictionary<int, DateTime>
             {
-                { 0, DateTime.Parse("8:00 AM").ToUniversalTime()  },
-                { 1, DateTime.Parse("4:00 PM").ToUniversalTime()  },
-                { 2, DateTime.Parse("5:00 PM").ToUniversalTime()  },
-                { 3, DateTime.Parse("6:00 PM").ToUniversalTime()  },
-                { 4, DateTime.Parse("7:00 PM").ToUniversalTime()  },
-                { 5, DateTime.Parse("9:00 PM").ToUniversalTime()  },
-                { 6, DateTime.Parse("10:00 PM").ToUniversalTime()  },
-                { 7, DateTime.Parse("11:00 PM").ToUniversalTime()  },
-                { 8, DateTime.Parse("12:00 PM").ToUniversalTime()  }
+                { 0, DateTime.Parse("8:00 AM").ToUniversalTime().AddDays(1) },
+                { 1, DateTime.Parse("4:00 PM").ToUniversalTime().AddDays(1) },
+                { 2, DateTime.Parse("5:00 PM").ToUniversalTime().AddDays(1) },
+                { 3, DateTime.Parse("6:00 PM").ToUniversalTime().AddDays(1) },
+                { 4, DateTime.Parse("7:00 PM").ToUniversalTime().AddDays(1) },
+                { 5, DateTime.Parse("9:00 PM").ToUniversalTime().AddDays(1) },
+                { 6, DateTime.Parse("10:00 PM").ToUniversalTime().AddDays(1) },
+                { 7, DateTime.Parse("11:00 PM").ToUniversalTime().AddDays(1) },
+                { 8, DateTime.Parse("12:00 PM").ToUniversalTime().AddDays(1) }
             };
 
             // Attach listener only when scheduling is called
@@ -127,7 +127,7 @@ namespace ClearCare.Models.Control
 
             foreach (var nurse in AvailableNurse)
             {
-                string today = DateTime.Today.ToString("yyyy-MM-dd");
+                string today = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
                 var availabilityDetails = nurse.getAvailabilityDetails();
                 if (availabilityDetails.ContainsKey("nurseID") && availabilityDetails.ContainsKey("date"))
                 {
