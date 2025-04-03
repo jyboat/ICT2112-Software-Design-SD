@@ -38,6 +38,14 @@
             }
             return true;
         }
+
+        document.addEventListener("DOMContentLoaded", function () {
+        const nameInput = document.getElementById("name");
+
+            nameInput.addEventListener("input", function () {
+                this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+            });
+        });
     </script>
 </head>
 <body class="bg-light">
