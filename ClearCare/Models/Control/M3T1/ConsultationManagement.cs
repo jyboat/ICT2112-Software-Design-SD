@@ -1,3 +1,4 @@
+using ClearCare.Models.Entities;
 using ClearCare.Models.Entities.M3T1;
 using ClearCare.Models.Interfaces.M3T1;
 
@@ -12,12 +13,18 @@ public class ConsultationManagement : IConsultReceive
         _gateway = gateway;
     }
 
-    public void uploadRecording(string filePath)
+    public Task uploadRecording(string filePath)
     {
+        // TODO
+        return Task.CompletedTask;
     }
 
-    public void completeSession(string notes, bool completed)
+    public Task<string> insertConsultation(
+        Appointment appointment,
+        string notes, string zoomLink, bool completed
+    )
     {
+        return _gateway.insertConsultation(appointment.Timing, notes, zoomLink, appointment.Id);
     }
 
     public Task<List<ConsultationSession>> getConsultations()
@@ -98,6 +105,7 @@ public class ConsultationManagement : IConsultReceive
     // Search filter for the ConsultationController
     public List<ConsultationSession> applySearchFilter(List<ConsultationSession> sessions, string query)
     {
+        Console.WriteLine($"Received query {query}");
         if (!string.IsNullOrWhiteSpace(query))
         {
             return sessions.Where(s =>
