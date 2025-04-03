@@ -86,6 +86,13 @@ public class ConsultationGateway : IConsultSend
         return sessions;
     }
 
+    public Task deleteConsultationById(string id)
+    {
+        DocumentReference docRef = _collectionRef.Document(id);
+
+        return docRef.DeleteAsync();
+    }
+
     public async Task<ConsultationSession?> fetchConsultationById(string id)
     {
         DocumentReference docRef = _collectionRef.Document(id);
