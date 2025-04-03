@@ -1,4 +1,4 @@
-using ClearCare.Models.DTO.M3T2;
+using ClearCare.Models.Entities.M3T2;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Http;
@@ -13,6 +13,13 @@ namespace ClearCare.DataSource.M3T2
         private readonly FirestoreDb _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
+        /// <summary>
+        ///   Initializes a new instance of the <see cref="PatientDrugMapper"/>
+        ///   class.
+        /// </summary>
+        /// <param name="httpContextAccessor">
+        ///   The HttpContextAccessor for accessing session data.
+        /// </param>
         public PatientDrugMapper(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
@@ -20,22 +27,33 @@ namespace ClearCare.DataSource.M3T2
             _db = FirebaseService.Initialize();
         }
 
-        public async Task<List<PatientDrugLogDTO>> GetDrugLogAsync()
-        {
-            var drugLog = new List<PatientDrugLogDTO>();
 
-            // Retrieve the patient ID from session.
-            string patientId = _httpContextAccessor.HttpContext.Session.GetString("UserUUID") ?? "";
+        public async Task<List<PatientDrugLog>> GetDrugLogAsync()
+        {
+            /// <summary>
+            ///   Retrieves the drug log for the current patient.
+            /// </summary>
+            /// <returns>
+            ///   A list of <see cref="PatientDrugLogModel"/> representing the
+            ///   patient's drug log.
+            /// </returns>
+            var drugLog = new List<PatientDrugLog>();
+
+            // Safely access Session using null-conditional
+            string patientId =
+                _httpContextAccessor.HttpContext?.Session?.GetString("UserUUID") ?? "";
+
             try
             {
-                var collection = _db.Collection("DrugInformation").WhereEqualTo("PatientId", patientId);
+                var collection = _db.Collection("DrugInformation")
+                    .WhereEqualTo("PatientId", patientId);
                 var snapshot = await collection.GetSnapshotAsync();
 
                 foreach (var document in snapshot.Documents)
                 {
                     if (document.Exists)
                     {
-                        var drugInfo = document.ConvertTo<PatientDrugLogDTO>();
+                        var drugInfo = document.ConvertTo<PatientDrugLog>();
                         drugLog.Add(drugInfo);
                     }
                 }
@@ -48,9 +66,16 @@ namespace ClearCare.DataSource.M3T2
             return drugLog;
         }
 
-        public async Task<List<PatientDrugLogDTO>> GetAllDrugLogAsync()
+        public async Task<List<PatientDrugLog>> GetAllDrugLogAsync()
+        /// <summary>
+        ///   Retrieves all drug logs from Firestore.
+        /// </summary>
+        /// <returns>
+        ///   A list of <see cref="PatientDrugLogModel"/> representing all drug
+        ///   logs.
+        /// </returns>
         {
-            var drugLog = new List<PatientDrugLogDTO>();
+            var drugLog = new List<PatientDrugLog>();
 
             try
             {
@@ -61,7 +86,7 @@ namespace ClearCare.DataSource.M3T2
                 {
                     if (document.Exists)
                     {
-                        var drugInfo = document.ConvertTo<PatientDrugLogDTO>();
+                        var drugInfo = document.ConvertTo<PatientDrugLog>();
                         drugLog.Add(drugInfo);
                     }
                 }
@@ -74,7 +99,12 @@ namespace ClearCare.DataSource.M3T2
             return drugLog;
         }
 
-        public async Task UploadDrugInfo(PatientDrugLogDTO drugInfo)
+        public async Task UploadDrugInfo(PatientDrugLog drugInfo)
+        /// <summary>
+        ///   Uploads drug information to Firestore.
+        /// </summary>
+        /// <param name="drugInfo">The <see cref="PatientDrugLogModel"/> to
+        ///   upload.</param>
         {
             try
             {

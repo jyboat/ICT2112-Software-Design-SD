@@ -10,11 +10,22 @@ namespace ClearCare.DataSource.M3T2
     {
         private readonly FirestoreDb _db;
 
+        /// <summary>
+        ///   Initializes a new instance of the <see cref="SideEffectsMapper"/>
+        ///   class.
+        /// </summary>
         public SideEffectsMapper()
         {
             _db = FirebaseService.Initialize();
         }
 
+        /// <summary>
+        ///   Retrieves all side effects from Firestore.
+        /// </summary>
+        /// <returns>
+        ///   A list of <see cref="SideEffectModel"/> representing all side
+        ///   effects.
+        /// </returns>
         public async Task<List<SideEffectModel>> getAllSideEffectsAsync()
         {
             var sideEffects = new List<SideEffectModel>();
@@ -41,6 +52,11 @@ namespace ClearCare.DataSource.M3T2
             return sideEffects;
         }
 
+        /// <summary>
+        ///   Adds a new side effect to Firestore.
+        /// </summary>
+        /// <param name="sideEffect">The <see cref="SideEffectModel"/> to
+        ///   add.</param>
         public async Task addSideEffectAsync(SideEffectModel sideEffect)
         {
             try

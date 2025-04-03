@@ -5,23 +5,16 @@
 @{
     ViewData["Title"] = "Add Side Effect";
 
-    // Retrieve the patient's UUID from session.
-    string userUUID = Context.Session.GetString("UserUUID") ?? "";
-
-    // Retrieve the user's role from session storage.
-    string userRole = Context.Session.GetString("UserRole") ?? "Unknown";
-    
-    var medications = ViewData["Medications"] as List<DrugDosage>;
+    // Retrieve the patient's UUID from session (if needed).
+    string userUUID = Context.Session.GetString("UserID") ?? "";
 }
 
 <div class="container py-4">
     <h1 class="mb-4">Add Side Effect</h1>
 
     <form asp-action="Add" method="post">
-
         <div class="mb-3" style="display:none">
             <label for="PatientId" class="form-label">Patient ID</label>
-            <!-- Use the patient ID from session -->
             <input type="text"
                    class="form-control"
                    id="PatientId"
@@ -32,21 +25,7 @@
         
         <div class="form-group mb-3">
             <label class="form-label">Drug Name</label>
-            
-            @if (userRole == "Patient" && medications != null)
-            {
-                <select name="DrugName" class="form-control" required>
-                    <option value="">-- Select Medication --</option>
-                    @foreach (var med in medications)
-                    {
-                        <option value="@med.DrugName">@med.DrugName</option>
-                    }
-                </select>
-            }
-            else
-            {
-                <input type="text" name="DrugName" class="form-control" required />
-            }
+            <input type="text" name="DrugName" class="form-control" required />
             <span class="text-danger" data-valmsg-for="DrugName"></span>
         </div>
 

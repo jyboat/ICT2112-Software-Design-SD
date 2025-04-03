@@ -2,33 +2,47 @@ namespace ClearCare
 {
     public static class IUserList
     {
-        // Example of current user details for testing purposes
+        /// <summary>
+        ///   Example of the current user's UUID for testing purposes.
+        /// </summary>
         public const string CurrentUserUUID = "uuid-alice";
+
+        /// <summary>
+        ///   Example of the current user's role for testing purposes.
+        /// </summary>
         public const string CurrentUserRole = "Patient";
-        
-        // A simple user model for both patients and doctors.
+
+        /// <summary>
+        ///   A simple user model for both patients and doctors.
+        /// </summary>
         public class UserInfo
         {
-            public string Name { get; set; }
-            public string Uuid { get; set; }
+            /// <summary>
+            ///   Gets or sets the name of the user.
+            /// </summary>
+            public string Name { get; set; } = string.Empty;
+
+            /// <summary>
+            ///   Gets or sets the UUID of the user.
+            /// </summary>
+            public string Uuid { get; set; } = string.Empty;
         }
 
-        // List of patients
+        /// <summary>
+        ///   Gets the list of patients.
+        /// </summary>
         public static List<UserInfo> Patients { get; } = new List<UserInfo>
         {
-            new UserInfo { Name = "John Doe",    Uuid = "uuid-patient-john" },
-            new UserInfo { Name = "Jane Smith",  Uuid = "uuid-patient-jane" },
-            new UserInfo { Name = "Bob Johnson", Uuid = "uuid-patient-bob" },
-            new UserInfo { Name = "Alice",       Uuid = "uuid-alice" }
+            new UserInfo { Name = "John Doe", Uuid = "uuid-patient-john" },
+            new UserInfo { Name = "Sara", Uuid = "uuid-patient-sara" }
         };
 
-        // List of doctors
+        /// <summary>
+        ///   Gets the list of doctors.
+        /// </summary>
         public static List<UserInfo> Doctors { get; } = new List<UserInfo>
         {
-            new UserInfo { Name = "Dr. John Doe",  Uuid = "uuid-doctor-john" },
-            new UserInfo { Name = "Dr. Jane Smith", Uuid = "uuid-doctor-jane" }
+            new UserInfo { Name = "Dr. John", Uuid = "uuid-doctor-john" }
         };
-
-        
     }
 }

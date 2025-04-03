@@ -4,7 +4,7 @@
     ViewData["Title"] = "Side Effects";
     
     // Retrieve the user's role from session storage.
-    string userRole = Context.Session.GetString("UserRole") ?? "Unknown";
+    string userRole = Context.Session.GetString("Role") ?? "Unknown";
 }
 
 <div class="container py-4">
@@ -14,8 +14,14 @@
     <!-- Always show the Add Side Effect button -->
     <div class="row mb-3">
         <div class="col-md-6">
-            <a asp-action="Add" class="btn btn-primary">Add Side Effect</a>
-            <a asp-action="Chart" class="btn btn-success">Side Effect Analytics</a>
+            @if (userRole == "Patient")
+            {
+                <a asp-action="Add" class="btn btn-primary">Add Side Effect</a>
+            }
+            @if (userRole == "Doctor")
+            {
+                <a asp-action="Chart" class="btn btn-success">Side Effect Analytics</a>
+            }
         </div>
         <div class="col-md-6">
             <div class="input-group">

@@ -1,10 +1,11 @@
 @using ClearCare  
 @using Microsoft.AspNetCore.Http
+@inject UserSwitcherService UserSwitcher
 
 @{
     ViewData["Title"] = "ClearCare";
     // Retrieve the user's role from session.
-    string userRole = Context.Session.GetString("UserRole");
+    string? userRole = Context.Session.GetString("Role");
 }
 
 <nav class="navbar navbar-expand-lg navbar-toggleable-sm navbar-dark bg-primary border-bottom box-shadow mb-3">
@@ -47,6 +48,18 @@
                             <i class="bi bi-chat-dots me-1"></i> Drug Interaction
                         </a>
                     </li>
+                    
+                   // to switch between patient & doctor (to remove bfr submission)
+                    <form id="userSwitchForm" asp-controller="UserSwitcher" asp-action="SwitchUser" method="post">
+                        <select name="userIdentifier" onchange="this.form.submit()" class="form-select">
+                            @foreach (var user in UserSwitcher.GetAvailableUsers())
+                            {
+                                <option value="@user.Key" selected="@(UserSwitcher.GetCurrentUserIdentifier() == user.Key)">
+                                    @user.Value
+                                </option>
+                            }
+                        </select>
+                    </form>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Summary" asp-action="Index">
                             <i class="bi bi-file-earmark-medical me-1"></i>Patient Discharge Summaries</a>
@@ -74,6 +87,18 @@
                             <i class="bi bi-chat-dots me-1"></i> DrugLog
                         </a>
                     </li>
+
+                     // to switch between patient & doctor (to remove bfr submission)
+                    <form id="userSwitchForm" asp-controller="UserSwitcher" asp-action="SwitchUser" method="post">
+                        <select name="userIdentifier" onchange="this.form.submit()" class="form-select">
+                            @foreach (var user in UserSwitcher.GetAvailableUsers())
+                            {
+                                <option value="@user.Key" selected="@(UserSwitcher.GetCurrentUserIdentifier() == user.Key)">
+                                    @user.Value
+                                </option>
+                            }
+                        </select>
+                    </form>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Community" asp-action="Index"><i class="bi bi-person-heart me-1"></i>Community</a>
                     </li>
@@ -115,3 +140,4 @@
         </div>
     </div>
 </nav>
+

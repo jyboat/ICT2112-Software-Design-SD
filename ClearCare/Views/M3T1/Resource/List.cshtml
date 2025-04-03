@@ -1,7 +1,7 @@
 @{
     ViewData["Title"] = "Resource List";
     string userId = Context.Session.GetString("UserID") ?? "";
-
+    string userRole = Context.Session.GetString("Role") ?? "";
 }
 
 @if (ViewBag.ErrorMessage != null)
@@ -11,7 +11,7 @@
 
 <section class="container resources">
     <h2>Resources</h2>
-    @if (userId == "Doctor")
+    @if (userRole == "Doctor")
     { // If user is doctor
       <div class="text-center">
           <a href="@Url.Action("Add", "Resource")" class="btn btn-success btn-md"><i class="bi bi-plus ms-1"></i>Add New
@@ -29,7 +29,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <h4 class="card-title mb-0">@resource["Title"]</h4>
 
-                            @if (userId == "Doctor") // If user is doctor
+                            @if (userId == resource["UploadedBy"]) // If user is doctor
                                
                         {
                         <div class="d-flex gap-2">

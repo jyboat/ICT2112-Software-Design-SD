@@ -180,6 +180,14 @@ public class FeedbackController : Controller
     [HttpPost]
     public async Task<IActionResult> updateResponse(string responseId, string response)
     {
+        string userId = HttpContext.Session.GetString("UserID") ?? "";
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            TempData["ErrorMessage"] = "Please log in to access";
+            return View("~/Views/Home/Index.cshtml");
+        }
+
         string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
 
         if (userRole != "Doctor" || userRole != "Nurse")
@@ -195,7 +203,7 @@ public class FeedbackController : Controller
 
         string currentDate = DateTime.Now.ToString("yyyy-MM-dd");
         // Process the response here
-        bool success = await _responseManager.updateResponse(responseId, response, currentDate);
+        bool success = await _responseManager.updateResponse(responseId, response, currentDate, userId);
 
         if (!success)
         {

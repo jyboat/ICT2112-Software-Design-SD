@@ -15,19 +15,58 @@ namespace ClearCare.Controls
     {
         private readonly HttpClient _httpClient;
 
-        //Mapper
+        /// <summary>
+        ///   Initializes a new instance of the
+        ///   <see cref="DrugInteractionControl"/> class.
+        /// </summary>
+        /// <param name="mapper">The PatientDrugMapper instance.</param>
+        /// <param name="httpClient">The HttpClient instance for making API
+        ///   requests.</param>
         public DrugInteractionControl(PatientDrugMapper mapper, HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
-        public async Task<DrugInteractionResponse> GetDrugInteractionAsync(string drugName1, string drugName2)
+        /// <summary>
+        ///   Retrieves drug interaction information from an external API.
+        /// </summary>
+        /// <param name="drugName1">The name of the first drug.</param>
+        /// <param name="drugName2">The name of the second drug.</param>
+        /// <returns>
+        ///   A DrugInteractionResponse containing the interaction
+        ///   information. Returns a default "No known interaction" message if
+        ///   the API request fails or returns null.
+        /// </returns>
+        public async Task<DrugInteractionResponse> GetDrugInteractionAsync(
+            string drugName1,
+            string drugName2
+        )
         {
-            string ddinterApi = $"https://portfolio-website-lyart-five-75.vercel.app/api/receive?drug1={drugName1}&drug2={drugName2}";
+            string ddinterApi =
+                $"https://portfolio-website-lyart-five-75.vercel.app/api/receive?drug1={drugName1}&drug2={drugName2}";
             try
             {
                 var resp = await _httpClient.GetStringAsync(ddinterApi);
-                return JsonSerializer.Deserialize<DrugInteractionResponse>(resp);
+                var result = JsonSerializer.Deserialize<DrugInteractionResponse>(resp);
+
+                if (result is null)
+                {
+                    // Fallback if deserialization returned null
+                    return new DrugInteractionResponse
+                    {
+                        Results = new List<DrugInteractionDTO>
+                        {
+                            new DrugInteractionDTO
+                            {
+                                Drug1Name = "Error",
+                                Drug2Name = "Error",
+                                Interaction = "No known interaction"
+                            }
+                        }
+                    };
+                }
+
+                return result;
             }
             catch (HttpRequestException)
             {
@@ -41,7 +80,21 @@ namespace ClearCare.Controls
             }
         }
 
-        public async Task<bool> UploadInteractionAsync(string drugName1, string drugName2, string interaction)
+        /// <summary>
+        ///   Uploads a new drug interaction to an external API.
+        /// </summary>
+        /// <param name="drugName1">The name of the first drug.</param>
+        /// <param name="drugName2">The name of the second drug.</param>
+        /// <param name="interaction">The interaction description.</param>
+        /// <returns>
+        ///   True if the upload was successful; otherwise, false if the API
+        ///   request fails.
+        /// </returns>
+        public async Task<bool> UploadInteractionAsync(
+            string drugName1,
+            string drugName2,
+            string interaction
+        )
         {
             var newInteraction = new
             {
@@ -51,12 +104,20 @@ namespace ClearCare.Controls
             };
 
             string json = JsonSerializer.Serialize(newInteraction);
-            HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
-            string ddinterApi = "https://portfolio-website-lyart-five-75.vercel.app/api/receive";
-            
+            HttpContent content = new StringContent(
+                json,
+                Encoding.UTF8,
+                "application/json"
+            );
+            string ddinterApi =
+                "https://portfolio-website-lyart-five-75.vercel.app/api/receive";
+
             try
             {
-                HttpResponseMessage response = await _httpClient.PostAsync(ddinterApi, content);
+                HttpResponseMessage response = await _httpClient.PostAsync(
+                    ddinterApi,
+                    content
+                );
                 response.EnsureSuccessStatusCode();
                 return true;
             }

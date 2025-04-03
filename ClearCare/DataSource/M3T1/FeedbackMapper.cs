@@ -147,14 +147,15 @@ namespace ClearCare.DataSource.M3T1
         }
 
         // Update Response
-        public async Task<bool> updateResponse(string id, string response, string dateResponded)
+        public async Task<bool> updateResponse(string id, string response, string dateResponded, string userId)
         {
             DocumentReference docRef = _db.Collection("FeedbackResponse").Document(id);
 
             var updatedData = new Dictionary<string, object>
             {
                 { "Response", response },
-                { "DateResponded", dateResponded }
+                { "DateResponded", dateResponded },
+                { "UserId", userId }
             };
 
             DocumentSnapshot snapshot = await docRef.GetSnapshotAsync();

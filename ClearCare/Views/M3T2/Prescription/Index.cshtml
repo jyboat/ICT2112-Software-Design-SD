@@ -4,7 +4,7 @@
 @{
     ViewData["Title"] = "Prescriptions";
     // Retrieve the user's role from session.
-    string userRole = Context.Session.GetString("UserRole") ?? "Unknown";
+    string userRole = Context.Session.GetString("Role") ?? "Unknown";
     bool isDoctor = (userRole == "Doctor");
 }
 

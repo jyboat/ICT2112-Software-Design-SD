@@ -3,8 +3,7 @@
 
 @{
     ViewData["Title"] = "Upload Drug";
-    // Retrieve the current user's UUID from session.
-    string userUUID = Context.Session.GetString("UserUUID") ?? "";
+    string userUUID = Context.Session.GetString("UserID") ?? "";
 }
 
 <div class="container py-4">
@@ -12,7 +11,6 @@
 
     <form asp-action="add" method="post">
         <div class="mb-3">
-            <!-- Hidden PatientId field now uses the session value -->
             <input type="hidden"
                    class="form-control"
                    id="PatientId"
@@ -29,6 +27,10 @@
         <div class="mb-3">
             <label for="ReportedSideEffects" class="form-label">Reported Side Effects</label>
             <textarea class="form-control" id="ReportedSideEffects" name="ReportedSideEffects" rows="6" disabled></textarea>
+        </div>
+
+        <div class="mb-3 text-end">
+            <button type="button" class="btn btn-success" id="fetchSideEffectsBtn">Show Side Effects</button>
         </div>
 
         <div class="mb-3">
@@ -55,11 +57,11 @@
 </div>
 
 <script>
-document.getElementById("DrugName").addEventListener("input", async function() {
+document.getElementById("fetchSideEffectsBtn").addEventListener("click", async function() {
     const drugName = document.getElementById("DrugName").value.trim();
 
     if (!drugName) {
-        document.getElementById("ReportedSideEffects").value = ""; // Clear side effects if input is empty
+        alert("Please enter a drug name first.");
         return;
     }
 
@@ -70,12 +72,10 @@ document.getElementById("DrugName").addEventListener("input", async function() {
             throw new Error("Failed to fetch side effects.");
         }
 
-        const data = await response.json(); // Parse JSON response
+        const data = await response.json(); 
         
         if (data.results && data.results.length > 0) {
-            const sideEffects = data.results[0].sideEffects.split(',')
-                                  .map(effect => `• ${effect.trim()}`)
-                                  .join('\n');
+            const sideEffects = data.results[0].sideEffects.split(',').map(effect => `• ${effect.trim()}`).join('\n');
             document.getElementById("ReportedSideEffects").value = sideEffects;
         } else {
             document.getElementById("ReportedSideEffects").value = "No side effects found.";
