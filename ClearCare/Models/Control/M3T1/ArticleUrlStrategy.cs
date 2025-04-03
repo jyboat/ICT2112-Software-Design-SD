@@ -9,7 +9,7 @@ public class ArticleUrlStrategy : IResourceStrategy
     public async Task<string> uploadAsync(
         string title,
         string description,
-        int uploadedBy,
+        string uploadedBy,
         string dateCreated,
         byte[] image,
         string coverImageName,
