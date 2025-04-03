@@ -14,7 +14,9 @@
       "launchBrowser": true,
       "applicationUrl": "http://localhost:5007",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ZOOM_CLIENT_ID": "9xCSm0xcSyWttNx7MGn9WA",
+        "ZOOM_CLIENT_SECRET": "bbhVnkdkgYYWTKE5IX5pWcsm4DVBdiRu"
       }
     },
     "https": {
@@ -23,7 +25,9 @@
       "launchBrowser": true,
       "applicationUrl": "https://localhost:7148;http://localhost:5007",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ZOOM_CLIENT_ID": "9xCSm0xcSyWttNx7MGn9WA",
+        "ZOOM_CLIENT_SECRET": "bbhVnkdkgYYWTKE5IX5pWcsm4DVBdiRu"
       }
     },
     "IIS Express": {

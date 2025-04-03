@@ -1,3 +1,4 @@
+using ClearCare.API;
 using ClearCare.Models.Entities;
 using ClearCare.Models.Entities.M3T1;
 using ClearCare.Models.Interfaces.M3T1;
@@ -8,9 +9,12 @@ public class ConsultationManagement : IConsultReceive
 {
     private readonly IConsultSend _gateway;
 
-    public ConsultationManagement(IConsultSend gateway)
+    private readonly ZoomApi _zoomApi;
+
+    public ConsultationManagement(IConsultSend gateway, ZoomApi zoomApi)
     {
         _gateway = gateway;
+        _zoomApi = zoomApi;
     }
 
     public Task uploadRecording(string filePath)
@@ -25,6 +29,36 @@ public class ConsultationManagement : IConsultReceive
     )
     {
         return _gateway.insertConsultation(appointment.Timing, notes, zoomLink, appointment.Id);
+    }
+
+    public Task<ZoomApi.MeetingResponse?> generateZoomLink(string accessToken)
+    {
+        return _zoomApi.createMeeting(
+            accessToken,
+            new ZoomApi.MeetingData
+            {
+                Agenda = $"Test meeting at {DateTime.Now}",
+                Settings = new ZoomApi.MeetingData.SettingsData
+                {
+                    AutoRecording = ZoomApi.MeetingData.SettingsData.AutoRecordingOption.Cloud
+                }
+            }
+        );
+    }
+
+    public string getOAuthZoomRedirectUri(
+        string callbackUri
+    )
+    {
+        return _zoomApi.generateAuthorizeLink(callbackUri);
+    }
+
+    public Task<ZoomApi.TokenResponse?> generateAccessToken(
+        string authCode,
+        string redirectUri
+        )
+    {
+        return _zoomApi.generateAccessToken(authCode, redirectUri);
     }
 
     public Task<List<ConsultationSession>> getConsultations()
