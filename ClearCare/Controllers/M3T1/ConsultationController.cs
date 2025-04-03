@@ -1,3 +1,4 @@
+using ClearCare.API;
 using ClearCare.DataSource.M3T1;
 using ClearCare.Models.Control.M3T1;
 using ClearCare.Models.Entities;
@@ -11,9 +12,23 @@ public class ConsultationController : Controller
 {
     private readonly ConsultationManagement manager;
 
+    private const string ZOOM_ACCESS_TOKEN_KEY = "cc-zoomAccessToken";
+    private const string ZOOM_REFRESH_TOKEN_KEY = "cc-zoomRefreshToken";
+
     public ConsultationController()
     {
-        manager = new ConsultationManagement(new ConsultationGateway());
+        var clientId = Environment.GetEnvironmentVariable("ZOOM_CLIENT_ID");
+        var clientSecret = Environment.GetEnvironmentVariable("ZOOM_CLIENT_SECRET");
+
+        if (clientId == null || clientSecret == null)
+        {
+            Console.WriteLine(
+                "Client ID/secret for Zoom API was not specified, setting to empty string");
+            clientId = "";
+            clientSecret = "";
+        }
+
+        manager = new ConsultationManagement(new ConsultationGateway(), new ZoomApi(clientId, clientSecret));
     }
 
     [Route("")]
@@ -41,6 +56,21 @@ public class ConsultationController : Controller
         return View("~/Views/M3T1/Consultation/List.cshtml", filteredSessions);
     }
 
+    public class AddConsultationViewModel
+    {
+        public AddConsultationViewModel(
+            List<Appointment> appointments,
+            ZoomApi.MeetingResponse? meetingResponse
+        )
+        {
+            Appointments = appointments;
+            MeetingResponse = meetingResponse;
+        }
+
+        public readonly List<Appointment> Appointments;
+        public readonly ZoomApi.MeetingResponse? MeetingResponse;
+    }
+
     [Route("Add")]
     [HttpGet]
     public async Task<IActionResult> addConsultation()
@@ -48,8 +78,18 @@ public class ConsultationController : Controller
         ViewBag.UserRole = "Doctor"; // Hardcoded for testing
 
         var appointments = await manager.getAppointments();
+        ZoomApi.MeetingResponse? response = null;
 
-        return View("~/Views/M3T1/Consultation/Add.cshtml", appointments);
+        if (Request.Cookies.ContainsKey(ZOOM_ACCESS_TOKEN_KEY))
+        {
+            Console.WriteLine($"Access token: {Request.Cookies[ZOOM_ACCESS_TOKEN_KEY]}");
+            response = await manager.generateZoomLink(Request.Cookies[ZOOM_ACCESS_TOKEN_KEY]);
+            Console.WriteLine($"Response: {response.JoinUrl}");
+        }
+
+        return View("~/Views/M3T1/Consultation/Add.cshtml", new AddConsultationViewModel(
+            appointments, response
+        ));
     }
 
     [Route("Add")]
@@ -196,5 +236,44 @@ public class ConsultationController : Controller
         if (consultation == null) return RedirectToAction("listConsultations");
 
         return View("~/Views/M3T1/Consultation/View.cshtml", consultation);
+    }
+
+    [HttpGet("Zoom/Auth/Redirect")]
+    public IActionResult redirectToOAuth()
+    {
+        return Redirect(manager.getOAuthZoomRedirectUri(
+            Url.Action("oAuthCallback", null, null, Request.Scheme))
+        );
+    }
+
+    // Zoom OAuth
+    [HttpGet("Zoom/Auth/Callback")]
+    public async Task<IActionResult> oAuthCallback(
+        string code
+    )
+    {
+        // Send POST request
+        var token = await manager.generateAccessToken(code,
+            Url.Action("addConsultation", null, null, Request.Scheme));
+
+        if (token != null)
+        {
+            Response.Cookies.Append(ZOOM_REFRESH_TOKEN_KEY, token.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                // SameSite = SameSiteMode.Strict,
+                // Refresh tokens expire in 90 days, see
+                // https://developers.zoom.us/docs/integrations/oauth/#refresh-an-access-token
+                Expires = DateTime.UtcNow.AddDays(90)
+            });
+            Response.Cookies.Append(ZOOM_ACCESS_TOKEN_KEY, token.AccessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                // SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddHours(1)
+            });
+        }
+
+        return RedirectToAction("addConsultation");
     }
 }

@@ -1,4 +1,4 @@
-@model IEnumerable<ClearCare.Models.Entities.Appointment>
+@model ClearCare.Controllers.M3T1.ConsultationController.AddConsultationViewModel
 
 @{
     ViewData["Title"] = "Add Session";
@@ -19,19 +19,27 @@
         <div class="form-group">
             <label for="appointmentId" class="form-label">Appointment</label>
             <select class="form-select" id="appointmentId" name="appointmentId" required>
-                @foreach (var appt in Model)
+                @foreach (var appt in Model.Appointments)
                 {
                     <option value="@appt.Id">@appt.Title @@ @appt.Timing</option>
                 }
             </select>
         </div>
-        
-        <!-- Meeting field -->
-        <div class="form-group">
-            <label for="meetingLink" class="form-label">Meeting Link</label>
-            <input class="form-control" id="meetingLink" name="zoomLink" type="url" required />
-        </div>
 
+        <!-- Meeting field -->
+        @if (Model.MeetingResponse != null)
+        {
+            <div class="form-group">
+                <label for="meetingLink" class="form-label">Meeting Link</label>
+                <input class="form-control" id="meetingLink" name="zoomLink" type="url" readonly
+                       value="@(Model.MeetingResponse?.JoinUrl)"/>
+            </div>
+        }
+        else
+        {
+            <a asp-controller="Consultation" asp-action="redirectToOAuth" class="btn btn-primary"><i
+                    class="bi bi-camera-video me-1" aria-hidden="true"></i> Login with Zoom</a>
+        }
         <div class="form-group text-right">
             <button type="submit" class="btn btn-success">Submit Session</button>
             <a asp-controller="Consultation" asp-action="listConsultations" class="btn btn-danger">Cancel</a>
