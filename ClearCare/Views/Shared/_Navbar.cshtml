@@ -30,17 +30,6 @@
                         <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Dashboard"><i class="bi bi-person me-1"></i>Manage users</a>
                     </li>
                 }
-                @* Check if user is doctor or nurse *@
-                @if (userRole == "Doctor" || userRole == "Nurse"){
-                    <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="ViewRecord" asp-action="DisplayViewRecord"><i class="bi bi-file-earmark-medical me-1"></i>Patient Records</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Analytics" asp-action="AppointmentsAnalytics">
-                            <i class="bi bi-bar-chart me-1"></i> Appointments Analytics
-                        </a>
-                    </li>
-                }
                 @if (userRole == "Doctor"){
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="ServiceTypeInput" asp-action="Index">Service Type</a>
@@ -61,6 +50,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="NurseAvailability" asp-action="Index">Nurse Availability</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="ServiceHistory" asp-action="Index">Service History</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-controller="ServiceCompletionInput" asp-action="GetAppointmentDetails"><i class="bi bi-check-circle me-1"></i>Service Completion</a>
