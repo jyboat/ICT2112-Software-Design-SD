@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Viewing Post";
     var post = Model;
-    var userId = "1";
+    string userId = Context.Session.GetString("UserID") ?? "";
 }
 
 <section class="container post">
