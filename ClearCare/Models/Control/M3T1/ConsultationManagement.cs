@@ -46,9 +46,16 @@ public class ConsultationManagement : IConsultReceive
         return Task.FromResult(appointments);
     }
 
-    public Task deleteConsultationById(string consultationId)
+    public async Task<Appointment?> getAppointmentById(string appointmentId)
     {
-        return _gateway.deleteConsultationById(consultationId);
+        // Real-world would delegate to the appointment gateway
+        var appointments = await getAppointments();
+        return appointments.Find(a => a.Id == appointmentId);
+    }
+
+    public Task deleteConsultationById(string id)
+    {
+        return _gateway.deleteConsultationById(id);
     }
 
     public Task receiveConsultations(List<ConsultationSession> sessions)
