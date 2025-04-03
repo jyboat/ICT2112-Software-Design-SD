@@ -49,7 +49,7 @@
 
             <!-- Reset -->
             <div class="col d-flex gap-2 align-items-baseline">
-                <input type="submit" value="Search" class="btn btn-primary" />
+                <input type="submit" value="Search" class="btn btn-primary"/>
                 <a href="/Consultation" class="btn btn-outline-dark"><i class="bi bi-arrow-clockwise me-2"></i>Reset
                     Filters</a>
             </div>
@@ -78,15 +78,23 @@
                             <p class="card-text">@session.Notes</p>
                         </div>
 
-                        @if (session.ZoomLink.Length > 0)
-                        {
-                            <div class="card-footer d-flex justify-content-end">
+                        <div class="card-footer d-flex justify-content-end gap-3">
+                            @if (!string.IsNullOrWhiteSpace(session.ZoomLink))
+                            {
                                 <a href="@(session.ZoomLink)" class="btn btn-primary">
                                     <i class="bi bi-camera-video me-1" aria-hidden="true"></i>
                                     Join Session
                                 </a>
-                            </div>
-                        }
+                            }
+                            @if (!string.IsNullOrWhiteSpace(session.Id))
+                            {
+                                <a asp-controller="Consultation" asp-action="viewConsultation"
+                                   asp-route-consultationId="@(session.Id)" class="btn btn-outline-secondary">
+                                    <i class="bi bi-card-text me-1" aria-hidden="true"></i>
+                                    View Details
+                                </a>
+                            }
+                        </div>
                     </div>
                 </div>
             }
