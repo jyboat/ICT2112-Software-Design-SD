@@ -7,6 +7,7 @@
         @if (ViewBag.UserRole == "Caregiver" || ViewBag.UserRole == "Doctor")
         {
             <a role="button" asp-controller="Consultation" asp-action="deleteConsultation"
+               asp-route-consultationId="@Model.Id"
                class="btn btn-md btn-danger">Delete
                 Session
                 <i

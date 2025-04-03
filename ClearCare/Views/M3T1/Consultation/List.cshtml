@@ -8,6 +8,13 @@
 
 
 <section class="container consultations">
+    @if (TempData["FlashMsg"] != null)
+    {
+        <div role="alert" class="alert alert-danger d-flex align-items-center gap-3">
+            <i class="bi bi-exclamation-octagon" aria-hidden="true"></i>
+            @(TempData["FlashMsg"])
+        </div>
+    }
     <h2>Consultation Sessions</h2>
     @if (ViewBag.UserRole == "Caregiver" || ViewBag.UserRole == "Doctor")
     {
