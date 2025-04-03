@@ -3,11 +3,12 @@
 @{
     ViewData["Title"] = "Feedback List";
     var query = Context.Request.Query;
+    string userRole = Context.Session.GetString("Role") ?? "";
 }
 
 <section class="container feedbacks">
     <h2>Feedbacks</h2>
-    @if (ViewBag.UserRole == "Patient" || ViewBag.UserRole == "Caregiver")
+    @if (userRole == "Patient" || userRole == "Caregiver")
     {
         <div class="text-center mb-3">
             <a role="button" href="/Feedback/Submission" class="btn btn-md btn-success">Submit new Feedback<i class="bi bi-plus ms-1"></i></a>
@@ -101,7 +102,7 @@
                     </div>
 
                     <!-- Patient View Response Section -->
-                    @if (ViewBag.UserRole == "Patient" && Convert.ToBoolean(feedback["HasResponded"]))
+                    @if (userRole == "Patient" && Convert.ToBoolean(feedback["HasResponded"]))
                     {
                         <div class="mt-3 p-3 bg-light border-start border-primary">
                             <h6 class="text-primary mb-1">Doctor's Response</h6>
@@ -111,7 +112,7 @@
                     }
 
                     <!-- Reply Section -->
-                    @if (ViewBag.UserRole == "Doctor")
+                    @if (userRole == "Doctor")
                     { /// if user is doctor
                         if (!Convert.ToBoolean(feedback["HasResponded"])) // Replace with feedback replied flag (if not replied)
                         {

@@ -146,7 +146,7 @@ public class FeedbackController : Controller
     {
         string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
 
-        if (userRole != "Doctor" || userRole != "Nurse")
+        if (userRole != "Doctor" && userRole != "Nurse")
         {
             TempData["ErrorMessage"] = "Unauthorized access";
             return View("~/Views/Home/Index.cshtml");
@@ -190,7 +190,7 @@ public class FeedbackController : Controller
 
         string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
 
-        if (userRole != "Doctor" || userRole != "Nurse")
+        if (userRole != "Doctor" && userRole != "Nurse")
         {
             TempData["ErrorMessage"] = "Unauthorized access";
             return View("~/Views/Home/Index.cshtml");
@@ -223,7 +223,7 @@ public class FeedbackController : Controller
     {
         string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
 
-        if (userRole != "Doctor" || userRole != "Nurse")
+        if (userRole != "Doctor" && userRole != "Nurse")
         {
             TempData["ErrorMessage"] = "Unauthorized access";
             return View("~/Views/Home/Index.cshtml");
