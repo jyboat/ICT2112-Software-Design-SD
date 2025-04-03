@@ -85,6 +85,76 @@ public class ConsultationController : Controller
         return RedirectToAction("listConsultations");
     }
 
+    public class EditConsultationViewModel
+    {
+        public EditConsultationViewModel(List<Appointment> appointments, ConsultationSession session)
+        {
+            Appointments = appointments;
+            Session = session;
+        }
+
+        public readonly List<Appointment> Appointments;
+        public readonly ConsultationSession Session;
+    }
+
+    [Route("Edit/{consultationId}")]
+    [HttpGet]
+    public async Task<IActionResult> editConsultation(
+        string consultationId
+    )
+    {
+        if (string.IsNullOrWhiteSpace(consultationId)) return RedirectToAction("listConsultations");
+
+        ViewBag.UserRole = "Doctor"; // Hardcoded for testing
+
+        var consultation = await manager.getConsultationById(consultationId);
+
+        if (consultation == null)
+        {
+            TempData["FlashMsg"] = "No such consultation exists!";
+            return RedirectToAction("listConsultations");
+        }
+
+        var appointments = await manager.getAppointments();
+
+        return View("~/Views/M3T1/Consultation/Edit.cshtml", new EditConsultationViewModel(appointments, consultation));
+    }
+
+    [Route("Edit/{consultationId}")]
+    [HttpPost]
+    public async Task<IActionResult> postEditConsultation(
+        string consultationId,
+        string appointmentId,
+        string notes,
+        string zoomLink,
+        string recordingPath,
+        bool isCompleted
+    )
+    {
+        var appt = await manager.getAppointmentById(appointmentId);
+        if (appt == null)
+        {
+            TempData["FlashMsg"] = "No such appointment exists!";
+            return RedirectToAction("listConsultations");
+        }
+
+        try
+        {
+            await manager.updateConsultationById(consultationId, appt, notes, zoomLink, recordingPath, isCompleted);
+            await manager.receiveUpdateStatus(true);
+
+            return RedirectToAction("listConsultations");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            await manager.receiveUpdateStatus(false);
+
+            TempData["FlashMsg"] = "Could not update consultation.";
+            return RedirectToAction("listConsultations");
+        }
+    }
+
     [Route("Delete/{consultationId}")]
     [HttpGet]
     public async Task<IActionResult> deleteConsultation(
