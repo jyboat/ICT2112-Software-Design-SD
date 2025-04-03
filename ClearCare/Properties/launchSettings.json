@@ -13,22 +13,22 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "applicationUrl": "http://localhost:5007",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ZOOM_CLIENT_ID": "9xCSm0xcSyWttNx7MGn9WA",
-        "ZOOM_CLIENT_SECRET": "bbhVnkdkgYYWTKE5IX5pWcsm4DVBdiRu"
-      }
+        "environmentVariables": {
+            "ASPNETCORE_ENVIRONMENT": "Development",
+            "ZOOM_CLIENT_ID": "T3SJrrNSL2B7RTc1VxJJA",
+            "ZOOM_CLIENT_SECRET": "NBpbZF8W4TPnIrmuy3gzJ2nhYCUhQSTY"
+        }
     },
     "https": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "applicationUrl": "https://localhost:7148;http://localhost:5007",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ZOOM_CLIENT_ID": "9xCSm0xcSyWttNx7MGn9WA",
-        "ZOOM_CLIENT_SECRET": "bbhVnkdkgYYWTKE5IX5pWcsm4DVBdiRu"
-      }
+        "environmentVariables": {
+            "ASPNETCORE_ENVIRONMENT": "Development",
+            "ZOOM_CLIENT_ID": "T3SJrrNSL2B7RTc1VxJJA",
+            "ZOOM_CLIENT_SECRET": "NBpbZF8W4TPnIrmuy3gzJ2nhYCUhQSTY"
+        }
     },
     "IIS Express": {
       "commandName": "IISExpress",

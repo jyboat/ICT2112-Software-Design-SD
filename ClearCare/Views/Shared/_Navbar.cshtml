@@ -48,22 +48,15 @@
                             <i class="bi bi-chat-dots me-1"></i> Drug Interaction
                         </a>
                     </li>
-                    
-                   // to switch between patient & doctor (to remove bfr submission)
-                    <form id="userSwitchForm" asp-controller="UserSwitcher" asp-action="SwitchUser" method="post">
-                        <select name="userIdentifier" onchange="this.form.submit()" class="form-select">
-                            @foreach (var user in UserSwitcher.GetAvailableUsers())
-                            {
-                                <option value="@user.Key" selected="@(UserSwitcher.GetCurrentUserIdentifier() == user.Key)">
-                                    @user.Value
-                                </option>
-                            }
-                        </select>
-                    </form>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Consultation" asp-action="listConsultations"><i class="bi bi-people-fill me-1"></i>Consultations</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Summary" asp-action="Index">
-                            <i class="bi bi-file-earmark-medical me-1"></i>Patient Discharge Summaries</a>
+                            <i class="bi bi-file-earmark-medical me-1"></i>Patient Discharge Summaries
+                        </a>
                     </li>
+                   
                 }
                 else if (userRole == "Patient")
                 {
@@ -77,12 +70,6 @@
                             <i class="bi bi-chat-dots me-1"></i> Enquiry
                         </a>
                     </li>
-                }
-                @* Check if user is patient *@
-                @if (true){
-                    <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Consultation" asp-action="listConsultations"><i class="bi bi-people-fill me-1"></i>Consultations</a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Application" asp-action="goToSideEffects">
                             <i class="bi bi-chat-dots me-1"></i> SideEffects
@@ -94,32 +81,26 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Application" asp-action="goToDrugLog">
+                        <a class="nav-link" asp-area="" asp-controller="Application" asp-action="goToDoctorDrugLog">
                             <i class="bi bi-chat-dots me-1"></i> DrugLog
                         </a>
                     </li>
-
-                     // to switch between patient & doctor (to remove bfr submission)
-                    <form id="userSwitchForm" asp-controller="UserSwitcher" asp-action="SwitchUser" method="post">
-                        <select name="userIdentifier" onchange="this.form.submit()" class="form-select">
-                            @foreach (var user in UserSwitcher.GetAvailableUsers())
-                            {
-                                <option value="@user.Key" selected="@(UserSwitcher.GetCurrentUserIdentifier() == user.Key)">
-                                    @user.Value
-                                </option>
-                            }
-                        </select>
-                    </form>
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Community" asp-action="Index"><i class="bi bi-person-heart me-1"></i>Community</a>
+                        <a class="nav-link" asp-area="" asp-controller="Consultation" asp-action="listConsultations"><i class="bi bi-people-fill me-1"></i>Consultations</a>
                     </li>
                 }
-                else
-                {
-                    <li class="nav-item">
-                        <span class="nav-link disabled">No access</span>
-                    </li>
-                }
+                @* to switch between patient & doctor (to remove bfr submission) *@
+                <form id="userSwitchForm" asp-controller="UserSwitcher" asp-action="SwitchUser" method="post">
+                    <select name="userIdentifier" onchange="this.form.submit()" class="form-select">
+                        @foreach (var user in UserSwitcher.GetAvailableUsers())
+                        {
+                            <option value="@user.Key" selected="@(UserSwitcher.GetCurrentUserIdentifier() == user.Key)">
+                                @user.Value
+                            </option>
+                        }
+                    </select>
+                </form>
+                
             </ul>
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">

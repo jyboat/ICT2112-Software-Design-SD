@@ -41,7 +41,7 @@ namespace ClearCare.DataSource.M3T2
 
             // Safely access Session using null-conditional
             string patientId =
-                _httpContextAccessor.HttpContext?.Session?.GetString("UserUUID") ?? "";
+                _httpContextAccessor.HttpContext?.Session?.GetString("UserID") ?? "";
 
             try
             {
