@@ -83,7 +83,7 @@ namespace ClearCare.Models.Control
             if (!string.IsNullOrEmpty(type))
             {
                 appointments = appointments
-                    .Where(a => a.GetAttribute("Service") == type || a.GetAttribute("ServiceTypeId") == type)
+                    .Where(a => a.GetAttribute("Service") == type)
                     .ToList();
             }
 

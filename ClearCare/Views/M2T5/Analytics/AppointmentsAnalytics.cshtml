@@ -1,21 +1,23 @@
+
 @{
     var analytics = ViewData["AppointmentAnalytics"] as Dictionary<string, object>;
     var appointmentsPerType = analytics?["AppointmentsPerType"] as Dictionary<string, int>;
     var appointmentsPerDoctor = analytics?["AppointmentsPerDoctor"] as Dictionary<string, int>;
     var appointmentsPerMonth = analytics?["AppointmentsPerMonth"] as Dictionary<string, int>;
 
+    // Populate dynamic dropdown lists using the analytics data:
+    var serviceTypes = appointmentsPerType != null 
+        ? appointmentsPerType.Keys.ToList() 
+        : new List<string>();
+    var doctorIds = appointmentsPerDoctor != null 
+        ? appointmentsPerDoctor.Keys.ToList() 
+        : new List<string>();
 
-    // Optionally, you could provide lists of available Service Types and Doctors to populate your dropdowns.
-    // For example, these could be provided from the controller via ViewData.
-    var serviceTypes = new List<string> { "Blood Test", "Medication Counselling", "Home Safety Assessments" };  
+    // If you have a dynamic list for statuses, you could extract them from your appointments data.
+    // Otherwise, you can continue using a predefined list or pass them from the controller.
     var serviceStatuses = new List<string> { "completed", "cancelled", "missed", "pending" };
-    var doctorIds = new List<string> { "101", "102", "103" };
-
-    // // Retrieve dynamic dropdown lists from ViewData
-    // var serviceTypes = ViewData["ServiceTypes"] as List<string>;
-    // var serviceStatuses = ViewData["ServiceStatuses"] as List<string>;
-    // var doctorIds = ViewData["DoctorIds"] as List<string>;
 }
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -30,6 +32,7 @@
     transform: scale(1.02);
 }
 </style>
+
 
 
 <!-- Filter Form -->
@@ -74,6 +77,7 @@
         </div>
     </form>
 </div>
+
 
 <!-- Dashboard Header -->
 <div class="container mt-4">

@@ -42,6 +42,11 @@
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="ServiceHistory" asp-action="Index">Service History</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Analytics" asp-action="AppointmentsAnalytics">
+                            <i class="bi bi-bar-chart me-1"></i> Appointments Analytics
+                        </a>
+                    </li>
 
                 }
                 @if (userRole == "Nurse"){

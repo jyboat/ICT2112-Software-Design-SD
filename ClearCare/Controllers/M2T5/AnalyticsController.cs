@@ -31,41 +31,62 @@ namespace ClearCare.Controllers
         }
 
         [HttpGet("ListAppointments")]
-        public async Task<IActionResult> ListAppointments(string filter = "all", string value = "")
+        public async Task<IActionResult> ListAppointments(string serviceType = "", string doctorId = "", string status = "")
         {
-            var appointments = await _manager.FetchFilteredAppointments("", "", "");
-            List<Dictionary<string, object>> filtered = appointments;
+            // Pass the filtering criteria to the manager
+            var appointments = await _manager.FetchFilteredAppointments(status, doctorId, serviceType);
 
-            switch (filter.ToLower())
+            // Set a title based on the provided filters (you can customize this as needed)
+            if (!string.IsNullOrEmpty(serviceType) || !string.IsNullOrEmpty(doctorId) || !string.IsNullOrEmpty(status))
             {
-                case "servicetype":
-                    filtered = appointments.FindAll(a => a["Service"]?.ToString() == value);
-                    ViewData["Title"] = $"🏥 Appointments for Service Type: {value}";
-                    break;
-                case "doctor":
-                    filtered = appointments.FindAll(a => a["DoctorId"]?.ToString() == value);
-                    ViewData["Title"] = $"👨‍⚕️ Appointments for Doctor: {value}";
-                    break;
-                case "completed":
-                case "cancelled":
-                case "missed":
-                    filtered = appointments.FindAll(a => a["Status"]?.ToString().ToLower() == filter.ToLower());
-                    ViewData["Title"] = $"📋 {char.ToUpper(filter[0]) + filter[1..]} Appointments";
-                    break;
-
-                case "pending":
-                    filtered = appointments.FindAll(a => a["Status"]?.ToString().ToLower() == "missed");
-                    ViewData["Title"] = $"📋 Missed Appointments";
-                    break;
-
-
-                default:
-                    ViewData["Title"] = "📅 All Appointments";
-                    break;
+                ViewData["Title"] = "Filtered Appointments";
+            }
+            else
+            {
+                ViewData["Title"] = "All Appointments";
             }
 
-            ViewData["Appointments"] = filtered;
+            ViewData["Appointments"] = appointments;
             return View("~/Views/M2T5/Analytics/FilteredAppointmentsList.cshtml");
         }
+
+
+        // [HttpGet("ListAppointments")]
+        // public async Task<IActionResult> ListAppointments(string filter = "all", string value = "")
+        // {
+        //     var appointments = await _manager.FetchFilteredAppointments("", "", "");
+        //     List<Dictionary<string, object>> filtered = appointments;
+
+        //     switch (filter.ToLower())
+        //     {
+        //         case "servicetype":
+        //             filtered = appointments.FindAll(a => a["Service"]?.ToString() == value);
+        //             ViewData["Title"] = $"🏥 Appointments for Service Type: {value}";
+        //             break;
+        //         case "doctor":
+        //             filtered = appointments.FindAll(a => a["DoctorId"]?.ToString() == value);
+        //             ViewData["Title"] = $"👨‍⚕️ Appointments for Doctor: {value}";
+        //             break;
+        //         case "completed":
+        //         case "cancelled":
+        //         case "missed":
+        //             filtered = appointments.FindAll(a => a["Status"]?.ToString().ToLower() == filter.ToLower());
+        //             ViewData["Title"] = $"📋 {char.ToUpper(filter[0]) + filter[1..]} Appointments";
+        //             break;
+
+        //         case "pending":
+        //             filtered = appointments.FindAll(a => a["Status"]?.ToString().ToLower() == "missed");
+        //             ViewData["Title"] = $"📋 Missed Appointments";
+        //             break;
+
+
+        //         default:
+        //             ViewData["Title"] = "📅 All Appointments";
+        //             break;
+        //     }
+
+        //     ViewData["Appointments"] = filtered;
+        //     return View("~/Views/M2T5/Analytics/FilteredAppointmentsList.cshtml");
+        // }
     }
 }
