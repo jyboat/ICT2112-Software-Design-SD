@@ -102,7 +102,7 @@
                     </div>
 
                     <!-- Patient View Response Section -->
-                    @if (userRole == "Patient" && Convert.ToBoolean(feedback["HasResponded"]))
+                    @if ((userRole == "Patient" || userRole == "Caregiver") && Convert.ToBoolean(feedback["HasResponded"]))
                     {
                         <div class="mt-3 p-3 bg-light border-start border-primary">
                             <h6 class="text-primary mb-1">Doctor's Response</h6>
@@ -112,7 +112,7 @@
                     }
 
                     <!-- Reply Section -->
-                    @if (userRole == "Doctor")
+                    @if (userRole == "Doctor" || userRole == "Nurse")
                     { /// if user is doctor
                         if (!Convert.ToBoolean(feedback["HasResponded"])) // Replace with feedback replied flag (if not replied)
                         {
