@@ -77,7 +77,7 @@ public class AssessmentController : Controller
     {
         string userRole = HttpContext.Session.GetString("Role") ?? "Unknown";
 
-        if (userRole != "Patient" || userRole != "Caregiver")
+        if (userRole != "Patient" && userRole != "Caregiver")
         {
             TempData["ErrorMessage"] = "Unauthorized access";
             return View("~/Views/Home/Index.cshtml");
