@@ -126,7 +126,10 @@
                     </div>
                     <div class="mb-3">
                         <label for="serviceDuration" class="form-label">Duration (minutes)</label>
-                        <input type="number" class="form-control" id="serviceDuration" name="duration" min="60" required>
+                            <select class="form-control" id="serviceDuration" name="duration" required>
+                                <option value="60" selected>60 minutes</option>
+                            </select>
+
                         <div class="invalid-feedback">Service duration must be at least 60 minute.</div>
                     </div>
                     <div class="mb-3">
@@ -150,7 +153,7 @@
     </div>
 </div>
 
-
+<!-- Edit Service Modal -->
 @foreach (var service in Model)
 {
     <div class="modal fade" id="editServiceModal-@service.ServiceTypeId" tabindex="-1"
@@ -172,8 +175,10 @@
                         <div class="mb-3">
                             <label for="editServiceDuration-@service.ServiceTypeId" class="form-label">Duration
                                 (minutes)</label>
-                            <input type="number" class="form-control" id="editServiceDuration-@service.ServiceTypeId"
-                                name="duration" value="@service.Duration" required>
+                                <select class="form-control" id="serviceDuration" name="duration" required>
+                                    <option value="60" selected>60 minutes</option>
+                                </select>
+
                         </div>
                         <select class="form-control" name="modality" required>
                             @if (service.Modality == "Virtual")
@@ -229,34 +234,46 @@
 
 @section Scripts {
     <script>
-        // Live search functionality
         const input = document.getElementById("liveSearch");
+        const resultsList = document.getElementById("searchResults");
+        const table = document.getElementById("servicesTable").querySelector("tbody");
 
-        input.addEventListener("input", function () {
-            const searchTerm = this.value.trim().toLowerCase();
-            const rows = document.querySelectorAll("#servicesTable tbody tr");
+        input.addEventListener("input", async function () {
+            const term = this.value.trim();
 
-            rows.forEach(row => {
-                const name = row.children[1].textContent.trim().toLowerCase(); // Name column
-                const modality = row.children[3].textContent.trim().toLowerCase(); // Modality column
-                const requirements = row.children[4].textContent.trim().toLowerCase(); // Requirements column
+            if (term === "") {
+                location.reload(); // Reload the full page when search box is cleared
+                return;
+            }
 
-                // Reset visibility if search is empty
-                if (searchTerm === "") {
-                    row.style.display = "";
-                }
-                else if (
-                    name.includes(searchTerm) ||
-                    modality.includes(searchTerm) ||
-                    requirements.includes(searchTerm)
-                ) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
+            const response = await fetch(`/ServiceTypeInput/SearchServices?term=${encodeURIComponent(term)}`);
+            const data = await response.json();
+
+            // Clear the current table
+            table.innerHTML = "";
+
+            if (data.length === 0) {
+                table.innerHTML = `<tr><td colspan="6" class="text-muted text-center">No services found.</td></tr>`;
+                return;
+            }
+
+            data.forEach((service, index) => {
+                const row = document.createElement("tr");
+                row.id = `service-${service.id}`;
+
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${service.name}</td>
+                    <td>60</td>
+                    <td>${service.modality}</td>
+                    <td>...</td>
+                    <td>
+                        <span class="badge bg-secondary">Discontinued</span>
+                    </td>
+                `;
+                table.appendChild(row);
             });
         });
-
 
         document.addEventListener("click", (e) => {
             if (!e.target.closest("#liveSearch")) {
@@ -264,8 +281,7 @@
             }
         });
 
-        // Sorting
-
+        // Sorting (unchanged)
         document.getElementById("sortDropdown").addEventListener("change", function () {
             const columnMap = {
                 "name": 1,
@@ -276,8 +292,7 @@
             const columnIndex = columnMap[sortBy];
             if (!columnIndex && columnIndex !== 0) return;
 
-            const table = document.getElementById("servicesTable");
-            const rows = Array.from(table.querySelectorAll("tbody tr"));
+            const rows = Array.from(table.querySelectorAll("tr"));
 
             rows.sort((a, b) => {
                 const aText = a.children[columnIndex].textContent.trim().toLowerCase();
@@ -287,9 +302,9 @@
 
             rows.forEach((row, i) => {
                 row.querySelector("td").textContent = i + 1;
-                table.querySelector("tbody").appendChild(row);
+                table.appendChild(row);
             });
         });
-
     </script>
 }
+
