@@ -27,6 +27,16 @@
                -moz-appearance: textfield;
           }
      </style>
+
+     <script>
+          document.addEventListener("DOMContentLoaded", function () {
+               const nameInput = document.getElementById("name");
+
+               nameInput.addEventListener("input", function () {
+                    this.value = this.value.replace(/[^A-Za-z\s]/g, '');
+               });
+          });
+     </script>
 </head>
 
 <div class="container py-4">
@@ -73,7 +83,7 @@
 
                                    <div class="col-12">
                                         <div class="form-floating mb-3">
-                                             <input type="text" id="name" name="name" class="form-control" required>
+                                             <input type="text" id="name" name="name" class="form-control" pattern="[A-Za-z\s]+" required>
                                              <label for="name"><i class="bi bi-person me-1"></i>Name</label>
                                         </div>
                                    </div>

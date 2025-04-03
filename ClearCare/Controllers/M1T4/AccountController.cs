@@ -81,7 +81,7 @@ namespace ClearCare.Controllers
             else
             {
                 ViewBag.ErrorMessage = result;
-                TempData["SuccessMessage"] = result;
+                TempData["ErrorMessage"] = result;
                 return View("~/Views/Register/Register.cshtml");
             }
         }

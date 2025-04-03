@@ -31,26 +31,35 @@
         function validatePasswords() {
             const password = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirmPassword").value;
+            const mobileNumber = document.getElementById("mobileNumber").value;
+            const dob = document.getElementById("dateOfBirth").value;
 
             if (password !== confirmPassword) {
                 alert("Passwords do not match. Please try again.");
                 return false;
             }
+
+            if (mobileNumber.length < 7){
+                alert("Mobile number must be at least 7 digits.")
+                return false;
+            }
             return true;
         }
+
+            // Check if DOB is in the future
+            const selectedDate = new Date(dob);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // remove time portion
+
 
             document.addEventListener("DOMContentLoaded", function () {
             const nameInput = document.getElementById("name");
             const mobileInput = document.getElementById("mobileNumber");
 
-            // Allow only letters and spaces for name
-            nameInput.addEventListener("input", function () {
-                this.value = this.value.replace(/[^A-Za-z\s]/g, '');
-            });
-
-            // Allow only digits for mobile number
-            mobileInput.addEventListener("input", function () {
-                this.value = this.value.replace(/\D/g, '');
+            if (selectedDate > today) {
+                alert("Date of Birth cannot be in the future.");
+                return false;
+            }    
             });
         });
     </script>
@@ -74,7 +83,14 @@
                 </div>
                 <div class="mb-3">
                     <label for="name" class="form-label">Name:</label>
-                    <input type="text" id="name" name="name" class="form-control" required>
+                    <input type="text" 
+                                        name="name" 
+                                        id="name"
+                                        class="form-control shadow-sm" 
+                                        pattern="^[A-Za-z\s]+$" 
+                                        title="Please enter only letters and spaces" 
+                                        oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')"
+                                        required />
                 </div>
                 <!-- new edited -->
                 <div class="row">
@@ -93,7 +109,7 @@
                                 <option value="@code">+@code</option>
                             }
                         </select>
-                        <input type="tel" id="mobileNumber" name="mobileNumber" class="form-control" placeholder="e.g. 91234567" required>
+                        <input type="tel" id="mobileNumber" name="mobileNumber" class="form-control" pattern="[/\D/g]+$" placeholder="e.g. 91234567" oninput="this.value = this.value.replace(/\D/g, '');" required>
                     </div>
                 </div>
                 </div>
