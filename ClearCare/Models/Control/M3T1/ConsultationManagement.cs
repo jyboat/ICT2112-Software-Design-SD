@@ -58,6 +58,13 @@ public class ConsultationManagement : IConsultReceive
         return _gateway.deleteConsultationById(id);
     }
 
+    public Task updateConsultationById(
+        string id, Appointment appointment, string notes, string zoomLink, string recordingPath, bool isCompleted
+    )
+    {
+        return _gateway.updateConsultationById(id, appointment.Timing, notes, zoomLink, appointment.Id);
+    }
+
     public Task receiveConsultations(List<ConsultationSession> sessions)
     {
         Console.WriteLine($"Consultation list received: {sessions}");
