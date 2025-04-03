@@ -69,7 +69,6 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center">
         <h2 class="fw-bold">📅 Service Appointments Dashboard</h2>
-        <h5 class="text-muted">March 2025</h5>
     </div>
 
 
@@ -119,56 +118,6 @@
         </div>
     </div>
 
-    <!-- Data Tables -->
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <h4 class="text-center">📊 Appointments Per Service Type</h4>
-            <table class="table table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Service Type</th>
-                        <th>Total Appointments</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (appointmentsPerType != null)
-                    {
-                        @foreach (var type in appointmentsPerType)
-                        {
-                            <tr>
-                                <td>@type.Key</td>
-                                <td>@type.Value</td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
-        </div>
-
-        <div class="col-md-6">
-            <h4 class="text-center">📊 Appointments Per Doctor</h4>
-            <table class="table table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Doctor ID</th>
-                        <th>Total Appointments</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (appointmentsPerDoctor != null)
-                    {
-                        @foreach (var doctor in appointmentsPerDoctor)
-                        {
-                            <tr>
-                                <td>@doctor.Key</td>
-                                <td>@doctor.Value</td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
 </div>
 
 <!-- Chart.js Scripts -->
