@@ -161,11 +161,5 @@ namespace ClearCare.Models.Control
 
             return filtered;
         }
-
-
-
-
-
-
     }
 }
