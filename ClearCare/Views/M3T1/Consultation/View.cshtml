@@ -26,11 +26,23 @@
             <dt><i class="bi bi-clock me-1" aria-hidden="true"></i>Completion Status</dt>
             <dd>@(Model.Completed ? "Completed" : "Not Completed")</dd>
             <dt><i class="bi bi-card-text me-1" aria-hidden="true"></i>Notes</dt>
-            <dd>@Model.Notes</dd>
+            @if (!string.IsNullOrWhiteSpace(Model.Notes))
+            {
+                <dd>@Model.Notes</dd>
+            }
+            else
+            {
+                <dd class="fst-italic">&lt;No notes&gt;</dd>
+            }
             @if (!string.IsNullOrWhiteSpace(Model.ZoomLink))
             {
                 <dt><i class="bi bi-camera-video me-1" aria-hidden="true"></i>Zoom Link</dt>
                 <dd><a href="@Model.ZoomLink">Join Session</a></dd>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.ZoomPwd))
+            {
+                <dt><i class="bi bi-key me-1" aria-hidden="true"></i>Zoom Password</dt>
+                <dd>@Model.ZoomPwd</dd>
             }
             @if (!string.IsNullOrWhiteSpace(Model.RecordingPath))
             {

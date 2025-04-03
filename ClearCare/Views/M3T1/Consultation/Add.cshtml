@@ -34,6 +34,12 @@
                 <input class="form-control" id="meetingLink" name="zoomLink" type="url" readonly
                        value="@(Model.MeetingResponse?.JoinUrl)"/>
             </div>
+            
+            <div class="form-group">
+                <label for="meetingPwd" class="form-label">Meeting Password</label>
+                <input class="form-control" id="meetingPwd" name="zoomPwd" type="text" readonly
+                       value="@(Model.MeetingResponse?.Password)"/>
+            </div>
         }
         else
         {

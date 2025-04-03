@@ -30,6 +30,8 @@ public class ConsultationSession
 
     [FirestoreProperty] public string ZoomLink { get; set; }
 
+    [FirestoreProperty] public string ZoomPwd { get; set; }
+    
     [FirestoreProperty] public string RecordingPath { get; set; }
 
     [FirestoreProperty] public bool Completed { get; set; }

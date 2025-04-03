@@ -17,7 +17,8 @@ public class ConsultationGateway : IConsultSend
         _collectionRef = _db.Collection("Consultations");
     }
 
-    public async Task<string> insertConsultation(DateTime timing, string notes, string zoomLink, string appointmentId)
+    public async Task<string> insertConsultation(DateTime timing, string notes, string zoomLink, string zoomPwd,
+        string appointmentId)
     {
         DocumentReference docRef = _collectionRef.Document();
 
@@ -26,6 +27,7 @@ public class ConsultationGateway : IConsultSend
             { "Timing", Timestamp.FromDateTime(timing.ToUniversalTime()) },
             { "Notes", notes },
             { "ZoomLink", zoomLink },
+            { "ZoomPwd", zoomPwd },
             { "AppointmentId", appointmentId }
         };
         await docRef.SetAsync(consultation);

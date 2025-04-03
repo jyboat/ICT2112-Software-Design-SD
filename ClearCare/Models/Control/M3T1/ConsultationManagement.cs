@@ -25,10 +25,10 @@ public class ConsultationManagement : IConsultReceive
 
     public Task<string> insertConsultation(
         Appointment appointment,
-        string notes, string zoomLink, bool completed
+        string notes, string zoomLink, string zoomPwd, bool completed
     )
     {
-        return _gateway.insertConsultation(appointment.Timing, notes, zoomLink, appointment.Id);
+        return _gateway.insertConsultation(appointment.Timing, notes, zoomLink, zoomPwd, appointment.Id);
     }
 
     public Task<ZoomApi.MeetingResponse?> generateZoomLink(string accessToken)

@@ -98,7 +98,8 @@ public class ConsultationController : Controller
         string notes,
         string appointmentId,
         bool isCompleted,
-        string zoomLink
+        string zoomLink,
+        string zoomPwd
     )
     {
         // Get the selected appointment
@@ -112,7 +113,7 @@ public class ConsultationController : Controller
 
         try
         {
-            await manager.insertConsultation(appointment, notes, zoomLink, isCompleted);
+            await manager.insertConsultation(appointment, notes, zoomLink, zoomPwd, isCompleted);
             await manager.receiveAddStatus(true);
         }
         catch (Exception e)
