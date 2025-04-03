@@ -9,12 +9,10 @@ namespace ClearCare.Models.Control
 {
     public class AnalyticsDashboardManager
     {
-        private readonly AnalyticsGateway _gateway;
         private readonly IAppointmentStatus _appointmentStatusManager;
 
         public AnalyticsDashboardManager(IAppointmentStatus appointmentStatusManager)
         {
-            _gateway = new AnalyticsGateway();
             _appointmentStatusManager = appointmentStatusManager;
         }
 
