@@ -12,10 +12,6 @@
     var doctorIds = appointmentsPerDoctor != null 
         ? appointmentsPerDoctor.Keys.ToList() 
         : new List<string>();
-
-    // If you have a dynamic list for statuses, you could extract them from your appointments data.
-    // Otherwise, you can continue using a predefined list or pass them from the controller.
-    var serviceStatuses = new List<string> { "completed", "cancelled", "missed", "pending" };
 }
 
 
@@ -50,16 +46,6 @@
                 </select>
             </div>
             <div class="col-md-4">
-                <label for="status" class="form-label">Service Status</label>
-                <select name="status" id="status" class="form-select">
-                    <option value="">All</option>
-                    @foreach(var status in serviceStatuses)
-                    {
-                        <option value="@status">@status</option>
-                    }
-                </select>
-            </div>
-            <div class="col-md-4">
                 <label for="doctor" class="form-label">Doctor ID</label>
                 <select name="doctor" id="doctor" class="form-select">
                     <option value="">All</option>
@@ -86,33 +72,6 @@
         <h5 class="text-muted">March 2025</h5>
     </div>
 
-   <!-- Summary Metrics -->
-<div class="row text-center mt-4 g-3">
-    <div class="col-6 col-md-4">
-        <a href="/Analytics/ListAppointments?filter=all" style="text-decoration: none;">
-            <div class="card bg-primary text-white shadow-lg p-3">
-                <h6>📊 Total Appointments</h6>
-                <h3 class="fw-bold">@analytics?["TotalAppointments"]</h3>
-            </div>
-        </a>
-    </div>
-    <div class="col-6 col-md-4">
-        <a href="/Analytics/ListAppointments?filter=completed" style="text-decoration: none;">
-            <div class="card bg-success text-white shadow-lg p-3">
-                <h6>✅ Completed Appointments</h6>
-                <h3 class="fw-bold">@analytics?["CompletedAppointments"]</h3>
-            </div>
-        </a>
-    </div>
-    <div class="col-6 col-md-4">
-        <a href="/Analytics/ListAppointments?filter=missed" style="text-decoration: none;">
-            <div class="card bg-warning text-dark shadow-lg p-3">
-                <h6>❗ Missed Appointments</h6>
-                <h3 class="fw-bold">@analytics?["PendingAppointments"]</h3> 
-            </div>
-        </a>
-    </div>
-</div>
 
 
 
