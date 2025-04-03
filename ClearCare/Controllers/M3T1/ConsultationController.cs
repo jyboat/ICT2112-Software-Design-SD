@@ -38,4 +38,21 @@ public class ConsultationController : Controller
 
         return View("~/Views/M3T1/Consultation/List.cshtml", filteredSessions);
     }
+
+    [Route("View/{consultationId}")]
+    [HttpGet]
+    public async Task<IActionResult> viewConsultation(
+        string consultationId
+        )
+    {
+        ViewBag.UserRole = "Doctor"; // Hardcoded for testing
+
+        if (string.IsNullOrWhiteSpace(consultationId)) return RedirectToAction("listConsultations");
+
+        var consultation = await manager.getConsultationById(consultationId);
+
+        if (consultation == null) return RedirectToAction("listConsultations");
+
+        return View("~/Views/M3T1/Consultation/View.cshtml", consultation);
+    }
 }

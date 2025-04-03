@@ -224,3 +224,17 @@ main {
     width: 30px;
     height: 2px;
 }
+
+
+.definition-list {
+    display: grid;
+    grid-template-columns: max-content auto;
+}
+
+.definition-list dt {
+    grid-column-start: 1;
+}
+
+.definition-list dd {
+    grid-column-start: 2;
+}
