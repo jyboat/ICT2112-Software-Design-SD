@@ -46,7 +46,9 @@ namespace ClearCare.Models.Control {
             // string phone = "+6500000000"; // Placeholder
 
             string email = user["Email"].ToString();
-            string phone = user["MobileNumber"].ToString();
+            string phone = "+" + user["MobileNumber"].ToString();
+            Console.WriteLine($"UserID: {userId}, Email: {email}, Phone: {user["MobileNumber"]}");
+
             Console.WriteLine(TimeZoneInfo.Local.Id);
             sendTime = sendTime.ToUniversalTime();
             Console.WriteLine($"UserID: {userId}, Email: {email}, Phone: {phone}, Methods: {methods}, SendNow: {sendNow}, Send Time: {sendTime}");
