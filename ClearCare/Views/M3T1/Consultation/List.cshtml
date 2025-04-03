@@ -19,7 +19,9 @@
     @if (ViewBag.UserRole == "Caregiver" || ViewBag.UserRole == "Doctor")
     {
         <div class="text-center mb-3">
-            <a role="button" href="/Consultation/Submission" class="btn btn-md btn-success">Submit new Session<i
+            <a role="button" asp-controller="Consultation" asp-action="addConsultation" class="btn btn-md btn-success">Submit
+                new Session
+                <i
                     class="bi bi-plus ms-1"></i></a>
         </div>
     }
