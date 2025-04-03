@@ -3,22 +3,20 @@
 @{
     ViewData["Title"] = "View Summary";
     var summary = Model.Summary.GetSummaryDetails();
-    var assessment = Model.Assessment.getAssessmentDetails();
+    var assessment = Model.Assessment != null ? Model.Assessment.getAssessmentDetails() : null;
     var prescription = Model.Prescription;
 }
 
 <div class="container view-summary">
     <div class="card shadow p-4">
-        <h2 class="text-info mb-3">Discharge Summary for {patient name}</h2>
+        <h2 class="text-info mb-3">Discharge Summary for @summary["PatientId"]</h2>
             <div class="table-responsive">
                 <table class="table table-bordered summary-table">
                     <tbody>
                         <tr>
-                            <th>Patient details</th>
+                            <th>Patient ID</th>
                             <td>
-                                <p class="mb-3"><strong>Name:</strong>{name}</p>
-                                <p class="mb-3"><strong>Date of Birth:</strong>{DOB}</p>
-                                <p class="mb-3"><strong>ID:</strong>{ID}</p>
+                            @summary["PatientId"]
                             </td>
                         </tr>
                         <tr>
@@ -38,7 +36,7 @@
                                     <ul>
                                     @foreach (var drug in @prescription.Medications)
                                     {
-                                        <li>@drug</li>
+                                        <li>@drug.DrugName - @drug.Dosage</li>
                                     }
                                 </ul>
                                 }
@@ -57,12 +55,21 @@
                         </tr>
                         <tr>
                             <th>Home assessment recommendations:</th>
+                            @if (assessment != null){
                             <td>
                                 @assessment["Recommendation"]
                             </td>
+                            }
+                            else{
+                            <td>
+                                None added
+                            </td>
+                            }
+
                         </tr>
                         <tr>
                             <th>Assessment checklist:</th>
+                            @if (assessment != null){
                             <td>
                                 @if (assessment.ContainsKey("HomeAssessmentChecklist") && assessment["HomeAssessmentChecklist"] is Dictionary<string, bool> checklist)
                                 {
@@ -75,10 +82,17 @@
                                         }
                                     </ul>
                                 }
-                                else{
+                                else
+                                {
                                     <p>None to show</p>
                                 }
                             </td>
+                            }
+                            else{
+                                <td>
+                                    None added
+                                </td>
+                            }
                         </tr>
                     </tbody>
                 </table>

@@ -7,17 +7,15 @@
 
 <div class="container update-summary">
     <div class="card shadow p-4">
-        <h2 class="text-info mb-3">Updating Summary for {patient name}</h2>
+        <h2 class="text-info mb-3">Updating Summary for @summary["PatientId"]</h2>
         <form action="/Summary/Edit/@summary["Id"]" method="post">
             <div class="table-responsive">
                 <table class="table table-bordered summary-table">
                     <tbody>
                         <tr>
-                            <th>Patient details</th>
+                            <th>Patient ID</th>
                             <td>
-                                <p class="mb-3"><strong>Name:</strong>{name}</p>
-                                <p class="mb-3"><strong>Date of Birth:</strong>{DOB}</p>
-                                <p class="mb-3"><strong>ID:</strong>{ID}</p>
+                                @summary["PatientId"]
                             </td>
                         </tr>
                         <tr>
