@@ -41,7 +41,7 @@ public class ConsultationGateway : IConsultSend
 
         var updatedData = new Dictionary<string, object>
         {
-            { "Timing", time },
+            { "Timing", Timestamp.FromDateTime(time.ToUniversalTime()) },
             { "Notes", notes },
             { "ZoomLink", zoomLink },
             { "AppointmentId", appointmentId }
