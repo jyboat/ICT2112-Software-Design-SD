@@ -16,20 +16,29 @@
 
 
 <!-- Button to trigger add service modal & search bar -->
-<div class="d-flex justify-content-between align-items-center mb-3 position-relative">
+<div class="d-flex justify-content-between align-items-center mb-3 gap-2 flex-wrap">
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServiceModal">
         Add a Service
     </button>
 
+    <!-- Sort Dropdown -->
+    <div>
+        <select id="sortDropdown" class="form-select">
+            <option value="">Sort By...</option>
+            <option value="name">Name (A-Z)</option>
+            <option value="modality">Modality (A-Z)</option>
+        </select>
+    </div>
+
     <div style="position: relative; max-width: 400px; width: 100%;">
-        <input type="text" id="liveSearch" class="form-control" placeholder="Search services..." autocomplete="off" />
+        <input type="text" id="liveSearch" class="form-control" placeholder="Search services..." autocomplete="on" />
         <ul id="searchResults" class="list-group position-absolute w-100 z-3"
             style="top: 100%; max-height: 200px; overflow-y: auto;"></ul>
     </div>
 </div>
 
 <div class="table-responsive">
-    <table class="table table-striped table-hover table-bordered">
+    <table id="servicesTable" class="table table-striped table-hover table-bordered">
         <thead class="table-primary">
             <tr>
                 <th>ID</th>
@@ -41,10 +50,12 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var service in Model)
+        @{
+            var index = 1;
+            foreach (var service in Model)
             {
                 <tr id="service-@service.ServiceTypeId">
-                    <td>@service.ServiceTypeId</td>
+                    <td>@index</td> <!-- Index instead of ServiceTypeId -->
                     <td>@service.Name</td>
                     <td>@service.Duration</td>
                     <td>@service.Modality</td>
@@ -56,18 +67,24 @@
                         }
                         else
                         {
-                            <button class="btn btn-warning" data-bs-toggle="modal"
-                                data-bs-target="#editServiceModal-@service.ServiceTypeId">
-                                Edit
-                            </button>
-                            <button class="btn btn-danger" onclick="loadDiscontinueModal(@service.ServiceTypeId)">
-                                Discontinue
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-warning" data-bs-toggle="modal"
+                                        data-bs-target="#editServiceModal-@service.ServiceTypeId">
+                                    Edit
+                                </button>
+                                <button class="btn btn-danger" onclick="loadDiscontinueModal(@service.ServiceTypeId)">
+                                    Discontinue
+                                </button>
+                            </div>
                         }
                     </td>
+
                 </tr>
+                index++;
             }
+        }
         </tbody>
+
 
     </table>
 </div>
@@ -212,46 +229,67 @@
 
 @section Scripts {
     <script>
+        // Live search functionality
         const input = document.getElementById("liveSearch");
-        const resultsList = document.getElementById("searchResults");
 
-        input.addEventListener("input", async function () {
-            const term = this.value.trim();
-            resultsList.innerHTML = "";
+        input.addEventListener("input", function () {
+            const searchTerm = this.value.trim().toLowerCase();
+            const rows = document.querySelectorAll("#servicesTable tbody tr");
 
-            if (term.length < 2) return;
+            rows.forEach(row => {
+                const name = row.children[1].textContent.trim().toLowerCase(); // Name column
+                const modality = row.children[3].textContent.trim().toLowerCase(); // Modality column
+                const requirements = row.children[4].textContent.trim().toLowerCase(); // Requirements column
 
-            const response = await fetch(`/ServiceTypeInput/SearchServices?term=${encodeURIComponent(term)}`);
-            const data = await response.json();
-
-            if (data.length === 0) {
-                resultsList.innerHTML = `<li class="list-group-item text-muted">No matches found</li>`;
-                return;
-            }
-
-            data.forEach(service => {
-                const li = document.createElement("li");
-                li.classList.add("list-group-item", "list-group-item-action");
-                li.textContent = `${service.name} (${service.modality})`;
-                li.style.cursor = "pointer";
-
-                li.addEventListener("click", () => {
-                    const targetRow = document.getElementById(`service-${service.id}`);
-                    if (targetRow) {
-                        targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
-                        targetRow.classList.add("table-warning");
-                        setTimeout(() => targetRow.classList.remove("table-warning"), 2000);
-                    }
-                });
-
-                resultsList.appendChild(li);
+                // Reset visibility if search is empty
+                if (searchTerm === "") {
+                    row.style.display = "";
+                }
+                else if (
+                    name.includes(searchTerm) ||
+                    modality.includes(searchTerm) ||
+                    requirements.includes(searchTerm)
+                ) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
             });
         });
+
 
         document.addEventListener("click", (e) => {
             if (!e.target.closest("#liveSearch")) {
                 resultsList.innerHTML = "";
             }
         });
+
+        // Sorting
+
+        document.getElementById("sortDropdown").addEventListener("change", function () {
+            const columnMap = {
+                "name": 1,
+                "modality": 3
+            };
+
+            const sortBy = this.value;
+            const columnIndex = columnMap[sortBy];
+            if (!columnIndex && columnIndex !== 0) return;
+
+            const table = document.getElementById("servicesTable");
+            const rows = Array.from(table.querySelectorAll("tbody tr"));
+
+            rows.sort((a, b) => {
+                const aText = a.children[columnIndex].textContent.trim().toLowerCase();
+                const bText = b.children[columnIndex].textContent.trim().toLowerCase();
+                return aText.localeCompare(bText);
+            });
+
+            rows.forEach((row, i) => {
+                row.querySelector("td").textContent = i + 1;
+                table.querySelector("tbody").appendChild(row);
+            });
+        });
+
     </script>
 }
