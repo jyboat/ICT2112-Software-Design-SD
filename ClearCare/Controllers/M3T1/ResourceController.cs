@@ -77,7 +77,7 @@ public class ResourceController : Controller
     string description,
     string? url,
     string resourceType,
-    int uploadedBy)
+    string uploadedBy)
     {
         byte[] imageFileBytes = Array.Empty<byte>();
         string imageFileName = string.Empty;
@@ -148,7 +148,8 @@ public class ResourceController : Controller
     string description,
     string? url,
     string resourceType,
-    string? existingUrl) 
+    string? existingUrl,
+    string uploadedBy) 
     {
         byte[] imageFileBytes = Array.Empty<byte>();
         string imageFileName = string.Empty;

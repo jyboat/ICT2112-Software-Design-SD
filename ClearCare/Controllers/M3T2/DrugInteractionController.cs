@@ -37,7 +37,7 @@ namespace ClearCare.Controllers.M3T2
         [HttpGet]
         public IActionResult index()
         {
-            return View("~/Views/M3T2/PatientDrugLog/Index.cshtml");
+            return View("~/Views/M3T2/DrugInteraction/Index.cshtml");
         }
 
         /// <summary>

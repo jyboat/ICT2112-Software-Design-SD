@@ -47,7 +47,7 @@ namespace ClearCare.Models.Control.M3T1
         }
 
         // Gateway Forwarding Methods
-        public Task<string> addResource(string title, string description, int uploadedBy, string dateCreated, byte[] image, string coverImageName, string? url)
+        public Task<string> addResource(string title, string description, string uploadedBy, string dateCreated, byte[] image, string coverImageName, string? url)
         {
             return _gateway.insertResource(title, description, uploadedBy, dateCreated, image, coverImageName, url);
         }
@@ -75,7 +75,7 @@ namespace ClearCare.Models.Control.M3T1
         public async Task<string> processResourceWithStrategy(
             string title,
             string description,
-            int uploadedBy,
+            string uploadedBy,
             string dateCreated,
             byte[] image,
             string coverImageName,

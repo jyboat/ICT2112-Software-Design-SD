@@ -24,7 +24,7 @@ namespace ClearCare.DataSource.M3T1
             set => _receiver = value;
         }
 
-        public async Task<string> insertResource(string title, string description, int uploadedBy, string dateCreated, byte[] image, string coverImageName, string? url)
+        public async Task<string> insertResource(string title, string description, string uploadedBy, string dateCreated, byte[] image, string coverImageName, string? url)
         {
             DocumentReference docRef = _db.Collection("Resource").Document();
 
@@ -58,7 +58,7 @@ namespace ClearCare.DataSource.M3T1
                 {
                     string title = doc.ContainsField("Title") ? doc.GetValue<string>("Title") : "";
                     string description = doc.ContainsField("Description") ? doc.GetValue<string>("Description") : "";
-                    int uploadedBy = doc.ContainsField("UploadedBy") ? doc.GetValue<int>("UploadedBy") : 0;
+string uploadedBy = doc.ContainsField("UploadedBy") ? doc.GetValue<object>("UploadedBy")?.ToString() ?? "" : "";
                     string dateCreated = doc.ContainsField("DateCreated") ? doc.GetValue<string>("DateCreated") : "";
                     byte[] coverImage = doc.ContainsField("CoverImage") ? doc.GetValue<byte[]>("CoverImage") : Array.Empty<byte>();
                     string coverImageName = doc.ContainsField("CoverImageName") ? doc.GetValue<string>("CoverImageName") : "";
@@ -99,7 +99,7 @@ namespace ClearCare.DataSource.M3T1
     id,
     snapshot.GetValue<string>("Title"),
     snapshot.GetValue<string>("Description"),
-    snapshot.GetValue<int>("UploadedBy"),
+    snapshot.GetValue<string>("UploadedBy"),
     snapshot.GetValue<string>("DateCreated"),
     snapshot.GetValue<byte[]>("CoverImage"),
     snapshot.GetValue<string>("CoverImageName"),
@@ -111,7 +111,7 @@ namespace ClearCare.DataSource.M3T1
                 id,
                 snapshot.GetValue<string>("Title"),
                 snapshot.GetValue<string>("Description"),
-                snapshot.GetValue<int>("UploadedBy"),
+                snapshot.GetValue<string>("UploadedBy"),
                 snapshot.GetValue<string>("DateCreated"),
                 snapshot.GetValue<byte[]>("CoverImage"),
                 snapshot.GetValue<string>("CoverImageName"),

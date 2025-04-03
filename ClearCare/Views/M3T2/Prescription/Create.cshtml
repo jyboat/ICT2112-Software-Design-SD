@@ -4,7 +4,7 @@
 
 @{
     ViewData["Title"] = "Create Prescription";
-    
+
     // Retrieve the current user's UUID from session.
     string currentUserUUID = Context.Session.GetString("UserID") ?? "";
 
@@ -32,21 +32,20 @@
         <!-- Hidden field for DoctorId is now populated from session -->
         <input type="hidden" asp-for="DoctorId" value="@currentUserUUID" />
     </div>
-    
+
     <div>
         <h4>Medications</h4>
         <div id="medications-container">
             @for (int i = 0; i < Model.Medications.Count; i++)
             {
-
                 <div class="medication-row row mb-3 d-flex">
                     <div class="col-md-4">
                         <label class="mb-0">Drug Name:</label>
-                        <input class="form-control w-100" name="Medications[@i].DrugName" value="" required/>
+                        <input class="form-control w-100" name="Medications[@i].DrugName" required />
                     </div>
                     <div class="col-md-4">
                         <label class="mb-0">Dosage:</label>
-                        <input class="form-control w-100" name="Medications[@i].Dosage" value="" required/>
+                        <input class="form-control w-100" name="Medications[@i].Dosage" required />
                     </div>
                     <div class="col-md-2 d-flex flex-column justify-content-end">
                         <button class="btn btn-danger" type="button" onclick="removeRow(this)">Remove</button>
@@ -59,18 +58,17 @@
             <div class="medication-row row mb-3 d-flex">
                 <div class="col-md-4">
                     <label class="mb-0">Drug Name:</label>
-                    <input class="form-control w-100" />
+                    <input class="form-control w-100 template-drugname" />
                 </div>
                 <div class="col-md-4">
                     <label class="mb-0">Dosage:</label>
-                    <input class="form-control w-100" />
+                    <input class="form-control w-100 template-dosage" />
                 </div>
                 <div class="col-md-2 d-flex flex-column justify-content-end">
                     <button class="btn btn-danger" type="button" onclick="removeRow(this)">Remove</button>
                 </div>
             </div>
         </div>
-
     </div>
 
     <br>
@@ -81,30 +79,37 @@
 
 @section Scripts {
     <script>
-    let counter = @Model.Medications.Count;
-    function addMedicationRow() {
-        const container = document.getElementById("medications-container");
-        const templateHtml = document
-            .getElementById("medication-template")
-            .innerHTML;
+        let counter = @Model.Medications.Count;
+        function addMedicationRow() {
+            const container = document.getElementById("medications-container");
+            const templateHtml = document.getElementById("medication-template").innerHTML;
 
-        // Create a new row from template
-        const tempDiv = document.createElement("div");
-        tempDiv.innerHTML = templateHtml.trim();
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = templateHtml.trim();
 
-        // Find the new inputs
-        const drugNameInput  = tempDiv.querySelector(".template-drugname");
-        const dosageInput    = tempDiv.querySelector(".template-dosage");
+            const drugNameInput = tempDiv.querySelector(".template-drugname");
+            const dosageInput = tempDiv.querySelector(".template-dosage");
 
-        // Assign name attributes & required
-        drugNameInput.setAttribute("name", `Medications[${counter}].DrugName`);
-        drugNameInput.setAttribute("required", true);
+            if (!drugNameInput || !dosageInput) {
+                console.error("Error: Could not find drug name or dosage input in template");
+                return;
+            }
 
-        dosageInput.setAttribute("name", `Medications[${counter}].Dosage`);
-        dosageInput.setAttribute("required", true);
+            drugNameInput.setAttribute("name", `Medications[${counter}].DrugName`);
+            drugNameInput.setAttribute("required", true);
 
-        counter++;
-        container.appendChild(tempDiv.firstElementChild);
-    }
-</script>
+            dosageInput.setAttribute("name", `Medications[${counter}].Dosage`);
+            dosageInput.setAttribute("required", true);
+
+            counter++;
+            container.appendChild(tempDiv.firstElementChild);
+        }
+
+        function removeRow(button) {
+            const container = document.getElementById("medications-container");
+            if (container.children.length > 1) {
+                button.closest(".medication-row").remove();
+            }
+        }
+    </script>
 }
