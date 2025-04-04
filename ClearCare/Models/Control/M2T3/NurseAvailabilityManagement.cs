@@ -16,23 +16,17 @@ namespace ClearCare.Models.Control
             _dbGateway.Receiver = this;
         }
 
-        // Implementing INurseAvailability Interface - used by ServiceAppointments not the DB Interfaces!!
-
         // Get all availabilities for all nurses - implemented in INurseAvailability 
         public async Task<List<NurseAvailability>> getAllStaffAvailability()
         {
             List<NurseAvailability> availabilities = await _dbGateway.fetchAvailability();
-
-            // returning availabilities as a List cuz ServiceAppointments need it
-            return availabilities;
+            return availabilities; 
         }
 
         // Get availability for a specific nurse - implemented in INurseAvailability 
         public async Task<List<NurseAvailability>> getAvailabilityByStaff(string nurseId)
         {
             List<NurseAvailability> availabilities = await _dbGateway.fetchAvailabilityByStaff(nurseId);
-
-            // returning availabilities as a List cuz ServiceAppointments need it
             return availabilities;
         }
 
@@ -48,48 +42,6 @@ namespace ClearCare.Models.Control
             else
             {
                 Console.WriteLine($"Received {allAvailability.Count} nurse availabilities.");
-            }
-            return Task.CompletedTask;
-        }
-
-        // Handle add operation success/failure - implemented in IAvailabilityDB_Receive; used in NurseAvailabilityGateway (createAvailability)
-        public Task receiveAddStatus(string status)
-        {
-            if (status == "Success")
-            {
-                Console.WriteLine("Availability added successfully.");
-            }
-            else
-            {
-                Console.WriteLine($"Failed to add availability: {status}");
-            }
-            return Task.CompletedTask;
-        }
-
-        // Handle update operation success/failure - implemented in IAvailabilityDB_Receive; used in NurseAvailabilityGateway (modifyAvailability)
-        public Task receiveUpdateStatus(string status)
-        {
-            if (status == "Success")
-            {
-                Console.WriteLine("Availability updated successfully.");
-            }
-            else
-            {
-                Console.WriteLine($"Failed to update availability: {status}");
-            }
-            return Task.CompletedTask;
-        }
-
-        // Handle delete operation success/failure - implemented in IAvailabilityDB_Receive; used in NurseAvailabilityGateway (removeAvailability)
-        public Task receiveDeleteStatus(string status)
-        {
-            if (status == "Success")
-            {
-                Console.WriteLine("Availability deleted successfully.");
-            }
-            else
-            {
-                Console.WriteLine($"Failed to delete availability: {status}");
             }
             return Task.CompletedTask;
         }
@@ -138,6 +90,47 @@ namespace ClearCare.Models.Control
         {
             await _dbGateway.removeAvailability(availabilityId);
         }
-    }
 
+        // Handle add operation success/failure - implemented in IAvailabilityDB_Receive; used in NurseAvailabilityGateway (createAvailability)
+        public Task receiveAddStatus(string status)
+        {
+            if (status == "Success")
+            {
+                Console.WriteLine("Availability added successfully.");
+            }
+            else
+            {
+                Console.WriteLine($"Failed to add availability: {status}");
+            }
+            return Task.CompletedTask;
+        }
+
+        // Handle delete operation success/failure - implemented in IAvailabilityDB_Receive; used in NurseAvailabilityGateway (removeAvailability)
+        public Task receiveDeleteStatus(string status)
+        {
+            if (status == "Success")
+            {
+                Console.WriteLine("Availability deleted successfully.");
+            }
+            else
+            {
+                Console.WriteLine($"Failed to delete availability: {status}");
+            }
+            return Task.CompletedTask;
+        }
+
+        // Handle update operation success/failure - implemented in IAvailabilityDB_Receive; used in NurseAvailabilityGateway (modifyAvailability)
+        public Task receiveUpdateStatus(string status)
+        {
+            if (status == "Success")
+            {
+                Console.WriteLine("Availability updated successfully.");
+            }
+            else
+            {
+                Console.WriteLine($"Failed to update availability: {status}");
+            }
+            return Task.CompletedTask;
+        } 
+    }
 }
