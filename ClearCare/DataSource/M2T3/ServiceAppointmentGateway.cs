@@ -87,6 +87,10 @@ namespace ClearCare.DataSource
 
         public async Task<bool> updateAppointment(ServiceAppointment appointment)
         {
+            // debug the incoming data
+            string appointmentJson = JsonConvert.SerializeObject(appointment);
+            Console.WriteLine($"attempting to update appointment with data: {appointmentJson}");
+            
             // safely get the appointment id and validate it
             string appointmentId = appointment?.getAttribute("AppointmentId");
             Console.WriteLine($"extracted appointmentId: '{appointmentId}'");
