@@ -24,10 +24,10 @@ namespace ClearCare.Control
                 nurseSlotTracker.ContainsKey(n) ? nurseSlotTracker[n].Count : 0
             ).ToList();
 
-            // Concat backlog entries with the newly created appointments
+            // Concat backlog entries with the unscheduled appointments
             var combinedAppointments = backlogEntries.Concat(unscheduledAppointment).ToList();
 
-            // Group and sort backlog will be scheduled first if any
+            // Group and sort backlog to be scheduled first, if any
             var groupedAppointments = unscheduledAppointment
                 .GroupBy(a => a.getAttribute("PatientId"))
                 .OrderBy(g => g.Count());
@@ -51,7 +51,6 @@ namespace ClearCare.Control
 
                     if (assignedSlot == -1)
                     {
-                        // Print all appointments for debugging purposes
                         foreach (var appt in combinedAppointments)
                         {
                             Console.WriteLine($"Appointment ID: {appt.getAttribute("AppointmentId")}, " +
@@ -60,7 +59,7 @@ namespace ClearCare.Control
                                             $"Service: {appt.getAttribute("Service")}, " +
                                             $"Slot: {appt.getIntAttribute("Slot")}");
                         }
-                        Console.WriteLine("Error: No available slots for patient left");
+                        Console.WriteLine("Error: No available slots for patient(s) left");
 
                         return combinedAppointments;
                     }
@@ -85,18 +84,16 @@ namespace ClearCare.Control
                     // Update service slot tracker
                     if (!serviceSlotTracker.ContainsKey(Service))
                         serviceSlotTracker[Service] = new Dictionary<int, int>();
+                        
                     if (!serviceSlotTracker[Service].ContainsKey(assignedSlot))
                         serviceSlotTracker[Service][assignedSlot] = 0;
                     serviceSlotTracker[Service][assignedSlot]++;
                     
                     // Rotate nurse index for round-robin scheduling
-                    // Inside the for loop as theres no need for nurse to be tied to patient
-                    // Might have a issue
                     nurseIndex = (nurseIndex + 1) % sortedNurses.Count;
                 }
             }
 
-            // Print all appointments
             foreach (var appt in combinedAppointments)
             {
                 Console.WriteLine($"Appointment ID: {appt.getAttribute("AppointmentId")}, " +
@@ -105,7 +102,6 @@ namespace ClearCare.Control
                                 $"Service: {appt.getAttribute("Service")}, " +
                                 $"Slot: {appt.getIntAttribute("Slot")}");
             }
-
             return combinedAppointments;
         }
 
