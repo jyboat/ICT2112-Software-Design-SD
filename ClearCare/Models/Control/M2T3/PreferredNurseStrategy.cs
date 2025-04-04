@@ -28,7 +28,16 @@ namespace ClearCare.Control
             var combinedAppointments = backlogEntries.Concat(unscheduledAppointment).ToList();
 
             // Group and sort backlog will be scheduled first if any
-            var combinedGroups = getCombinedAppointmentGroups(unscheduledAppointment, backlogEntries);
+            // Group and sort backlog will be scheduled first if any
+            var groupedAppointments = unscheduledAppointment
+                .GroupBy(a => a.getAttribute("PatientId"))
+                .OrderBy(g => g.Count());
+
+            var groupedBacklog = backlogEntries
+                .GroupBy(a => a.getAttribute("PatientId"))
+                .OrderBy(g => g.Count());
+
+            var combinedGroups = groupedBacklog.Concat(groupedAppointments);
 
             foreach (var patientAppointments in combinedGroups)
             {
@@ -54,8 +63,6 @@ namespace ClearCare.Control
                         }
                         Console.WriteLine("Error: No available slots for patient left");
 
-                        // Also print the trackers
-                        PrintTrackers(patientSlotTracker, serviceSlotTracker, nurseSlotTracker);
                         return combinedAppointments;
                     }
 
@@ -98,25 +105,7 @@ namespace ClearCare.Control
                                 $"Slot: {appt.getIntAttribute("Slot")}");
             }
 
-            // Print tracking dictionaries
-            PrintTrackers(patientSlotTracker, serviceSlotTracker, nurseSlotTracker);
-
             return combinedAppointments;
-        }
-
-        // Groups new appointments and backlog appointments, placing backlog infront prioritizing them
-        private IEnumerable<IGrouping<string, ServiceAppointment>> getCombinedAppointmentGroups(
-            List<ServiceAppointment> appointments, List<ServiceAppointment> backlogEntries)
-        {
-            var groupedAppointments = appointments
-                .GroupBy(a => a.getAttribute("PatientId"))
-                .OrderBy(g => g.Count());
-
-            var groupedBacklog = backlogEntries
-                .GroupBy(a => a.getAttribute("PatientId"))
-                .OrderBy(g => g.Count());
-
-            return groupedBacklog.Concat(groupedAppointments);
         }
 
         // Finds the first available slot for the given appointment based on current trackers.
@@ -157,34 +146,6 @@ namespace ClearCare.Control
 
                 if (assignedSlot > totalSlots)
                     return -1; // No available slot found
-            }
-        }
-
-        private void PrintTrackers(
-            Dictionary<string, List<int>> patientSlotTracker,
-            Dictionary<string, Dictionary<int, int>> serviceSlotTracker,
-            Dictionary<string, List<int>> nurseSlotTracker)
-        {
-            Console.WriteLine("Patient Slot Tracker:");
-            foreach (var kvp in patientSlotTracker)
-            {
-                Console.WriteLine($"PatientId: {kvp.Key} -> Slots: {string.Join(", ", kvp.Value)}");
-            }
-
-            Console.WriteLine("Service Slot Tracker:");
-            foreach (var service in serviceSlotTracker)
-            {
-                Console.WriteLine($"Service: {service.Key}");
-                foreach (var slot in service.Value)
-                {
-                    Console.WriteLine($"  Slot: {slot.Key} -> Count: {slot.Value}");
-                }
-            }
-
-            Console.WriteLine("Nurse Slot Tracker:");
-            foreach (var kvp in nurseSlotTracker)
-            {
-                Console.WriteLine($"NurseId: {kvp.Key} -> Slots: {string.Join(", ", kvp.Value)}");
             }
         }
     }

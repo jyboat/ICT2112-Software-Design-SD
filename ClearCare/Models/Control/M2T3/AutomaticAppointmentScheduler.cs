@@ -53,7 +53,7 @@ namespace ClearCare.Models.Control
             _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; 
         }
 
-        public async Task<List<ServiceAppointment>> automaticallyScheduleAppointment(List<ServiceAppointment> unscheduledAppointment, string doctorId)
+        public async Task<List<ServiceAppointment>> automaticallyScheduleAppointment(List<ServiceAppointment> selectedUnscheduledAppointment)
         {
             var userList = await _iUserList.retrieveAllUsers();
             var timeslot = new Dictionary<int, DateTime>
@@ -225,7 +225,7 @@ namespace ClearCare.Models.Control
 
             // Call the auto-assignment function
             var serviceAppointment = _iAutomaticScheduleStrategy.automaticallySchedule(
-                unscheduledAppointment,
+                selectedUnscheduledAppointment,
                 nurses, 
                 services, 
                 backlogEntries,
