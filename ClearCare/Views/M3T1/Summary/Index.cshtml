@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "View Summary";
-    var summary = Model.Summary.GetSummaryDetails();
+    var summary = Model.Summary.getSummaryDetails();
     var assessment = Model.Assessment != null ? Model.Assessment.getAssessmentDetails() : null;
     var prescription = Model.Prescription;
 }
