@@ -13,13 +13,11 @@ namespace ClearCare.Models.Control
     {
         private readonly IRetrieveAllAppointments _retrieveAllAppointments;
         private readonly INurseAvailability _getAvailabilityByStaff;
-
         public CalendarManagement()
         {
             _retrieveAllAppointments = (IRetrieveAllAppointments) new ServiceAppointmentStatusManagement();
             _getAvailabilityByStaff = (INurseAvailability) new NurseAvailabilityManagement();
         }
-
         public async Task<JsonResult> getAppointmentsForCalendar(
             string? doctorId,
             string? patientId,
@@ -139,9 +137,6 @@ namespace ClearCare.Models.Control
 
                 foreach (var service in services)
                 {
-                    // var status = service?.GetType().GetProperty("Status")?.GetValue(service)?.ToString();
-                    // if (!string.IsNullOrEmpty(status) && status != "Completed" && status != "Scheduled")
-                    //     return true;
                     var status = service?.GetType().GetProperty("Status")?.GetValue(service)?.ToString();
                     if (string.IsNullOrEmpty(status) || status == "Missed" || status == "Backlog")
                         return true;
@@ -150,14 +145,6 @@ namespace ClearCare.Models.Control
                 return false;
             })
             .ToList();     
-
-            // // Optional: raw JSON
-            // string rawJson = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
-            // Console.WriteLine($"Raw suggestPatients() result:\n{rawJson}");
-
-            // string filteredJson = JsonSerializer.Serialize(filtered, new JsonSerializerOptions { WriteIndented = true });
-            // Console.WriteLine($"✅ Filtered Patients:\n{filteredJson}");
-
 
             return filtered;
         }
