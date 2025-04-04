@@ -17,7 +17,7 @@ namespace ClearCare.Models.Control
         private readonly IServiceAppointmentDB_Send _dbGateway;
         public ServiceAppointmentManagement()
         {
-            _iServiceType = (IServiceType) new ServiceTypeManager();
+            _iServiceType = (IServiceType)new ServiceTypeManager();
             _dbGateway = (IServiceAppointmentDB_Send)new ServiceAppointmentGateway();
             _dbGateway.Receiver = this;
         }
@@ -178,8 +178,6 @@ namespace ClearCare.Models.Control
             return Task.CompletedTask;
         }
 
-      
-
         public async Task<List<string>> getServiceTypeNames()
         {
             var services = await _iServiceType.getServiceTypes();
@@ -206,12 +204,6 @@ namespace ClearCare.Models.Control
             return Task.CompletedTask;
         }
 
-        public class Patient
-        {
-            public string PatientId { get; set; } = string.Empty;
-            public string Name { get; set; } = string.Empty;
-        }
-
         public async Task<(List<Dictionary<string, object>> appointments, Dictionary<string, string> patientNames)> getUnscheduledPatients()
         {
             // Call the gateway to get the unscheduled patients and patient names
@@ -220,5 +212,4 @@ namespace ClearCare.Models.Control
             return (appointments, patientNames);
         }
     }
-
 }
