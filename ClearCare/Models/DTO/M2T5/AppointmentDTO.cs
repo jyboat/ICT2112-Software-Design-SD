@@ -10,7 +10,7 @@ using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.DTO
 {
-    public class AppointmentDTO
+    public class appointmentDTO
     {
         // Private fields
         private string AppointmentId;
@@ -29,7 +29,7 @@ namespace ClearCare.Models.DTO
         private string DoctorName;
 
         // Constructor that maps data from ServiceAppointment entity
-        public AppointmentDTO(ServiceAppointment appointment)
+        public appointmentDTO(ServiceAppointment appointment)
         {
             AppointmentId = appointment.getAttribute("AppointmentId");
             PatientId = appointment.getAttribute("PatientId");
@@ -91,7 +91,7 @@ namespace ClearCare.Models.DTO
         }
 
         // Public method to set all names at once
-        public void SetNames(string patientName, string nurseName, string doctorName)
+        public void setNames(string patientName, string nurseName, string doctorName)
         {
             PatientName = patientName;
             NurseName = nurseName;
