@@ -269,7 +269,12 @@ namespace ClearCare.DataSource
 
             foreach (DocumentSnapshot document in snapshot2.Documents)
             {
-                services.Add(document.GetValue<string>("name"));
+                if(document.GetValue<string>("status") != "discontinued"){
+                    services.Add(document.GetValue<string>("name"));
+                }
+                else{
+                    continue;
+                }
             }
             return services;
         }
