@@ -17,7 +17,7 @@ namespace ClearCare.DataSource
             _db = FirebaseService.Initialize();
         }
 
-        public async Task SaveNotificationPreferenceAsync(NotificationPreference preference)
+        public async Task UpdateNotificationPreferences(NotificationPreference preference)
         {
 
             try{
@@ -46,7 +46,7 @@ namespace ClearCare.DataSource
         }
 
 
-        public async Task<List<NotificationPreference>> GetNotificationPreferencesAsync()
+        public async Task<List<NotificationPreference>> GetNotificationPreferences()
         {
             var preferences = new List<NotificationPreference>();
             var preferenceCollection = _db.Collection("notification_preferences");
