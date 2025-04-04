@@ -10,12 +10,12 @@ namespace ClearCare.Controllers
 {
     public class ServiceTypeInputController : Controller
     {
-        private ServiceTypeManager serviceManager = new ServiceTypeManager();
+        private ServiceTypeManager _serviceTypeManager = new ServiceTypeManager();
 
         public async Task<IActionResult> Index(string searchTerm)
         {
-            await serviceManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
-            var serviceTypes = serviceManager.getCachedServiceTypes(); // ✅ Access processed data
+            await _serviceTypeManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
+            var serviceTypes = _serviceTypeManager.getCachedServiceTypes(); // ✅ Access processed data
 
 
             if (!string.IsNullOrEmpty(searchTerm))
@@ -32,23 +32,12 @@ namespace ClearCare.Controllers
             ViewBag.SearchTerm = searchTerm;
             return View("~/Views/M2T5/ServiceType/ServiceType.cshtml", serviceTypes);
         }
-        
-        public async Task<IActionResult> TestObserver()
-        {
-            await serviceManager.fetchServiceTypes();
-            var types = serviceManager.getCachedServiceTypes();
-
-            Console.WriteLine("Types fetched: " + types.Count);
-            return Json(types); // optional
-        }
-
 
         [HttpGet]
         public async Task<JsonResult> SearchServices(string term)
         {
-            await serviceManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
-            var serviceTypes = serviceManager.getCachedServiceTypes(); // ✅ Access processed data
-
+            await _serviceTypeManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
+            var serviceTypes = _serviceTypeManager.getCachedServiceTypes(); // ✅ Access processed data
 
             var results = serviceTypes
                 .Where(s =>
@@ -72,8 +61,8 @@ namespace ClearCare.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(string name, int duration, string requirements, string modality)
         {
-            await serviceManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
-            var serviceTypes = serviceManager.getCachedServiceTypes(); // ✅ Access processed data
+            await _serviceTypeManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
+            var serviceTypes = _serviceTypeManager.getCachedServiceTypes(); // ✅ Access processed data
 
             bool nameExists = serviceTypes.Any(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
@@ -83,7 +72,7 @@ namespace ClearCare.Controllers
                 return RedirectToAction("Index");
             }
 
-            await serviceManager.createServiceType(name, duration, requirements, modality);
+            await _serviceTypeManager.createServiceType(name, duration, requirements, modality);
             TempData["SuccessMessage"] = "Service added successfully.";
             return RedirectToAction("Index");
         }
@@ -91,8 +80,8 @@ namespace ClearCare.Controllers
         [HttpPost]
             public async Task<IActionResult> Edit(int id, string name, int duration, string requirements, string modality)
             {
-                await serviceManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
-                var serviceTypes = serviceManager.getCachedServiceTypes(); // ✅ Access processed data
+                await _serviceTypeManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
+                var serviceTypes = _serviceTypeManager.getCachedServiceTypes(); // ✅ Access processed data
 
                 bool nameExists = serviceTypes.Any(s =>
                     s.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
@@ -104,40 +93,31 @@ namespace ClearCare.Controllers
                     return RedirectToAction("Index");
                 }
 
-                await serviceManager.updateServiceType(id, name, duration, requirements, modality);
+                await _serviceTypeManager.updateServiceType(id, name, duration, requirements, modality);
                 TempData["SuccessMessage"] = "Service updated successfully.";
                 return RedirectToAction("Index");
             }
 
-
-
         [HttpGet]
         public async Task<IActionResult> ConfirmDiscontinue(int id)
         {
-            await serviceManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
-            var serviceTypes = serviceManager.getCachedServiceTypes(); // ✅ Access processed data
-
+            await _serviceTypeManager.fetchServiceTypes();
+            var serviceTypes = _serviceTypeManager.getCachedServiceTypes();
             var service = serviceTypes.Find(s => s.ServiceTypeId == id);
-
-            var appointmentChecker = new ServiceAppointmentStatusManagement();
-            var allAppointments = await appointmentChecker.getAppointmentDetails();
-
-            var upcomingApptIds = allAppointments
-                .Where(appt => appt.getAttribute("Service") == service.Name)
-                .Select(appt => appt.getAttribute("AppointmentId"))
-                .ToList();
+            
+            // Call the ServiceTypeManager to get upcoming appointment IDs
+            var upcomingApptIds = await _serviceTypeManager.getUpcomingAppointmentIdsAsync(service.Name);
 
             ViewBag.UpcomingAppointmentIds = upcomingApptIds;
-
             return PartialView("~/Views/M2T5/ServiceType/_ConfirmDiscontinue.cshtml", service);
-
         }
+
 
 
         [HttpPost]
         public async Task<IActionResult> DiscontinueConfirmed(int id)
         {
-            await serviceManager.discontinueServiceType(id);
+            await _serviceTypeManager.discontinueServiceType(id);
             TempData["SuccessMessage"] = "Service discontinued.";
             return RedirectToAction("Index");
         }

@@ -73,5 +73,16 @@ namespace ClearCare.Models.Control
             await _serviceTypeRepository.discontinueServiceType(id);
         }
 
+        public async Task<List<string>> getUpcomingAppointmentIdsAsync(string serviceName)
+        {
+            var allAppointments = await new ServiceAppointmentStatusManagement().getAppointmentDetails();
+
+            var upcomingApptIds = allAppointments
+                .Where(appt => appt.getAttribute("Service") == serviceName)
+                .Select(appt => appt.getAttribute("AppointmentId"))
+                .ToList();
+
+            return upcomingApptIds;
+        }
     }
 }
