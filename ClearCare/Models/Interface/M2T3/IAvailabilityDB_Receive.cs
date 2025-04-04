@@ -1,6 +1,3 @@
-// defines the callback methods for receiving results or status updates from the database operations
-// implemented by NurseAvailabilityManagement; used by NurseAvailabilityGateway
-
 using System.Collections.Generic;
 using ClearCare.Models.Entities;
 using System.Threading.Tasks;
@@ -14,8 +11,8 @@ namespace ClearCare.Interfaces
 
         // Receive the status of adding an availability - implemented from NurseAvailabilityManagement; used in NurseAvailabilityGateway (createAvailability)
         Task receiveAddStatus(string status);
-
         // Receive the status of updating an availability - implemented from NurseAvailabilityManagement; used in NurseAvailabilityGateway (modifyAvailability)
+
         Task receiveUpdateStatus(string status);
 
         // Receive the status of deleting an availability - implemented from NurseAvailabilityManagement; used in NurseAvailabilityGateway (removeAvailability)
