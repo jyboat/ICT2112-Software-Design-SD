@@ -1,6 +1,3 @@
-// defines the methods for sending (or initiating) database operations such as fetching, creating, updating, and deleting nurse availabilities.
-// implemented by NurseAvailabilityGateway; used by NurseAvailabilityManagement 
-
 using ClearCare.Models.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
