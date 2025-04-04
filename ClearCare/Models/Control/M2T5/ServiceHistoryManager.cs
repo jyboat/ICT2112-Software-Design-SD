@@ -9,6 +9,7 @@ namespace ClearCare.Models.Control
     {
         private readonly ServiceHistoryMapper _ServiceHistoryMapper;
         private readonly IUserList _UserList;
+        private List<ServiceHistory> _cachedServiceHistory = new List<ServiceHistory>();
 
         public ServiceHistoryManager(ServiceHistoryMapper serviceHistoryMapper, IUserList userList)
         {
@@ -20,7 +21,11 @@ namespace ClearCare.Models.Control
         // GET ALL SERVICE HISTORY
         public async Task<List<Dictionary<string, object>>> getAllServiceHistory(string userRole, string userId)
         {
-            List<ServiceHistory> serviceHistoryList = await _ServiceHistoryMapper.fetchAllServiceHistory();
+            if (_cachedServiceHistory == null || !_cachedServiceHistory.Any())
+            {
+                await fetchServiceHistory(); // trigger async update and populate cache
+            }
+            List<ServiceHistory> serviceHistoryList = _cachedServiceHistory;
             List<Dictionary<string, object>> serviceHistoryDictionaryList = new();
 
             List<User> users = await _UserList.retrieveAllUsers();
@@ -54,6 +59,11 @@ namespace ClearCare.Models.Control
             return serviceHistoryDictionaryList;
         }
 
+        public async Task fetchServiceHistory()
+        {
+            await _ServiceHistoryMapper.fetchAllServiceHistory();
+        }
+
         // CREATE SERVICE HISTORY
         public async Task<string> createServiceHistory(string appointmentId, string service, string patientId, string nurseId, string doctorId, DateTime serviceDate, string location, string serviceOutcomes)
         {
@@ -70,16 +80,11 @@ namespace ClearCare.Models.Control
 
         public void update(Subject subject, object data)
         {
-            if (data is bool isSuccess)
+            Console.WriteLine("ServiceHistoryManager: Observer triggered! Data received from Repository.");
+
+            if (data is List<ServiceHistory> serviceHistoryList)
             {
-                if (isSuccess)
-                {
-                    Console.WriteLine("[ServiceHistoryManager] Service History created successfully.");
-                }
-                else
-                {
-                    Console.WriteLine("[ServiceHistoryManager] Service History creation failed.");
-                }
+                _cachedServiceHistory = serviceHistoryList;
             }
         }
     }
