@@ -14,9 +14,11 @@
     body {
         background-color: #f8f9fa;
     }
+
     .card {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
+
     .select2-container--default .select2-selection--multiple {
         min-height: 38px;
     }
@@ -44,9 +46,8 @@
                         string patientId = appointment["PatientId"];
                         string service = appointment["Service"];
                         string name = ViewBag.PatientNames.ContainsKey(patientId)
-                            ? ViewBag.PatientNames[patientId]
-                            : "Unknown";
-
+                        ? ViewBag.PatientNames[patientId]
+                        : "Unknown";
                         <option value="@patientId-@service">@name (@patientId) - @service</option>
                     }
                 </select>
@@ -65,7 +66,8 @@
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title" id="resultModalLabel">Scheduled Appointments</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <ul id="modalAppointmentList" class="list-group"></ul>
