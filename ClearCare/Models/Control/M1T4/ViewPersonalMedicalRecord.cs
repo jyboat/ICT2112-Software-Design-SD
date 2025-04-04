@@ -6,7 +6,7 @@ using ClearCare.DataSource;
 
 namespace ClearCare.Models.Control
 {
-    public class ViewPersonalMedicalRecord : IMedRecord
+    public class ViewPersonalMedicalRecord
     {
         private readonly MedicalRecordGateway _medicalRecordGateway;
         private readonly EncryptionManagement _encryptionManagement;
