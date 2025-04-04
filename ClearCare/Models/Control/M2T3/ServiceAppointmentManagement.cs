@@ -11,7 +11,7 @@ using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
-    public class ServiceAppointmentManagement : ICreateAppointment, IServiceAppointmentDB_Receive, IAppointmentTime, IServiceStatus, IDeleteAppointment
+    public class ServiceAppointmentManagement : ICreateAppointment, IServiceAppointmentDB_Receive, IAppointmentTime, IServiceStatus
     {
         private readonly IServiceType _iServiceType;
         private readonly IServiceAppointmentDB_Send _dbGateway;

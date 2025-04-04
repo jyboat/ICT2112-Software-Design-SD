@@ -16,14 +16,14 @@ namespace ClearCare.Controllers
     {
         private readonly ServiceBacklogManagement _manager;
         private readonly IUserList _userList;
-        private readonly IDeleteAppointment _appointmentManager;
+        private readonly ICreateAppointment _appointmentManager;
 
         public ServiceBacklogController()
         {
             _manager = new ServiceBacklogManagement();
             _manager.setController(this);
             _userList = (IUserList) new AdminManagement(new UserGateway());
-            _appointmentManager = (IDeleteAppointment) new ServiceAppointmentManagement();
+            _appointmentManager = (ICreateAppointment) new ServiceAppointmentManagement();
         }
 
         // Displays All Backlogs
