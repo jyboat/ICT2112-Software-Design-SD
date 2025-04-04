@@ -7,7 +7,6 @@ namespace ClearCare.Models.Interface.M2T3
     public abstract class AbstractSchedulingNotifier
     {
         private List<ISchedulingListener> listeners = new List<ISchedulingListener>();
-
         public void attach(ISchedulingListener listener)
         {
             listeners.Add(listener);
