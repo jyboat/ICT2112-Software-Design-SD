@@ -178,33 +178,7 @@ namespace ClearCare.Models.Control
             return Task.CompletedTask;
         }
 
-        // i hardcode the "retrieval" of services, nurse and patients first, later once get from mod 1, will update
-        public List<Dictionary<string, string>> getAllDoctors()
-        {
-            return new List<Dictionary<string, string>>
-                {
-                    new Dictionary<string, string> {{"id", "1"}, {"name", "John Doe"}},
-                    new Dictionary<string, string> {{"id", "2"}, {"name", "Jane Doe"}},
-                };
-        }
-        public List<Dictionary<string, string>> getAllPatients()
-        {
-            return new List<Dictionary<string, string>>
-                {
-                    new Dictionary<string, string> {{"id", "1"}, {"name", "John Doe"}},
-                    new Dictionary<string, string> {{"id", "2"}, {"name", "Jane Doe"}},
-                };
-        }
-
-        public List<Dictionary<string, string>> getAllNurses()
-        {
-            return new List<Dictionary<string, string>>
-                {
-                    new Dictionary<string, string> {{"id", "1"}, {"name", "Mike Tyson"}},
-                    new Dictionary<string, string> {{"id", "2"}, {"name", "Rocky Balboa"}},
-                    new Dictionary<string, string> {{"id", "USR003"}, {"name", "USR003"}},
-                };
-        }
+      
 
         public async Task<List<string>> getServiceTypeNames()
         {

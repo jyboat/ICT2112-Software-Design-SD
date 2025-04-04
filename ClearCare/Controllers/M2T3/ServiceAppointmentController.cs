@@ -105,17 +105,6 @@ public class ServiceAppointmentsController : Controller
         return View("~/Views/M2T3/ServiceAppointments/Calendar.cshtml");
     }
 
-    [HttpGet]
-    [Route("CreatePage")]
-    public async Task<IActionResult> create()
-    {
-
-        ViewBag.Patients = ServiceAppointmentManagement.getAllPatients();
-        ViewBag.Nurses = ServiceAppointmentManagement.getAllNurses();
-        ViewBag.Service = await _manualAppointmentScheduler.getServices();
-
-        return View("~/Views/M2T3/ServiceAppointments/CreateServiceAppt.cshtml");
-    }
 
     [HttpGet]
     [Route("AutoScheduling")]
@@ -127,52 +116,6 @@ public class ServiceAppointmentsController : Controller
         return View("~/Views/M2T3/ServiceAppointments/AddPatientsAutoScheduling.cshtml");
     }
 
-    // POST: Create a new appointment
-    // Route: localhost:5007/api/ServiceAppointments/Create that retriggers POST
-    // Need add form and button to retrieve data and trigger this
-    [HttpPost]
-    [Route("Create")]
-    public async Task<IActionResult> createAppointment([FromBody] Dictionary<string, JsonElement> requestData)
-    {
-        var appointment = await _manualAppointmentScheduler.scheduleAppointment(
-            requestData["PatientId"].GetString() ?? "",
-            requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "",
-            requestData["DoctorId"].GetString() ?? "",
-            requestData["Service"].GetString() ?? "",
-            requestData["Status"].GetString() ?? "",
-            requestData["DateTime"].GetDateTime(),
-            requestData["Slot"].GetInt32(),
-            requestData["Location"].GetString() ?? "");
-
-
-        // No record exists
-        if (appointment != "" && appointment.Any())
-        {
-            return Ok(new { Message = "Appointment created successfully", AppointmentId = appointment });
-        }
-        else
-        {
-            return NotFound(new { Message = "Error Creating Appointment" });
-        }
-    }
-
-    // // GET: Retrieve an appointment
-    // Route localhost:5007/api/ServiceAppointments/Retrieve/{Id} that retriggers GET
-    [HttpGet]
-    [Route("Retrieve/{documentId}")]
-    public async Task<IActionResult> getAppointment(string documentId)
-    {
-        ServiceAppointment appointment = await ServiceAppointmentManagement.getAppointmentByID(documentId);
-
-        if (appointment != null)
-        {
-            return View("~/Views/M2T3/ServiceAppointments/AppointmentDetails.cshtml", appointment);
-        }
-        else
-        {
-            return NotFound(new { Message = "Error" });
-        }
-    }
 
     [HttpPut]
     [Route("Update")]
@@ -356,11 +299,7 @@ public class ServiceAppointmentsController : Controller
     [Route("GetSuggestedPatients")]
     public async Task<IActionResult> getSuggestedPatients()
     {
-
         var result = await _calendarManagement.getSuggestedPatients();
         return Ok(result);
     }
-
-
-
 }
