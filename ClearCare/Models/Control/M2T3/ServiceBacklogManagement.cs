@@ -52,7 +52,7 @@ namespace ClearCare.Models.Control
             List<ServiceBacklog> serviceBacklogs = await getAllBacklogs();
 
             var ServiceBacklogDTOs = new List<ServiceBacklogDTO>();
-            IRetrieveAllAppointments serviceStatusMgmt = new ServiceAppointmentStatusManagement();
+            IRetrieveAllAppointments serviceStatusMgmt = (IRetrieveAllAppointments) new ServiceAppointmentStatusManagement();
 
             // Get details for each service backlog
             foreach (var serviceBacklog in serviceBacklogs)
@@ -99,7 +99,7 @@ namespace ClearCare.Models.Control
         {
             try
             {
-                var scheduler = new ManualAppointmentScheduler();
+                var scheduler = (IRescheduleAppointment) new ManualAppointmentScheduler();
                 bool updateSuccess = await scheduler.rescheduleAppointment(
                     appointmentId: AppointmentId,
                     patientId: PatientId,
