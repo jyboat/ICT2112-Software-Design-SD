@@ -11,7 +11,6 @@ using ClearCare.Control;
 using ClearCare.Models.Interface;
 using Google.Api;
 
-
 // Request Handling
 [Route("api/[controller]")]
 [ApiController]
@@ -28,9 +27,6 @@ public class ServiceAppointmentsController : Controller
     public ServiceAppointmentsController()
     {
 
-
-
-
         _nurseAvailabilityManagement = new NurseAvailabilityManagement();
 
         _notificationManagement = new NotificationManager();
@@ -44,26 +40,11 @@ public class ServiceAppointmentsController : Controller
         _manualAppointmentScheduler = new ManualAppointmentScheduler();
 
         _userList = new AdminManagement(new UserGateway());
-
-    }
-
-
-    [HttpGet]
-    [Route("GetAppointmentsForCalendar")]
-    public async Task<JsonResult> getAppointmentsForCalendar(
-        [FromQuery] string? doctorId,
-        [FromQuery] string? patientId,
-        [FromQuery] string? nurseId,
-        [FromQuery] string? location,
-        [FromQuery] string? service,
-        [FromQuery] string? timeSlot)
-    {
-        return await _calendarManagement.getAppointmentsForCalendar(doctorId, patientId, nurseId, location, service, timeSlot);
     }
 
     [HttpGet]
     [Route("Index")]
-    public async Task<IActionResult> calendar()
+    public async Task<IActionResult> index()
     {
         var users = await _userList.retrieveAllUsers();
         var usersFiltered = users
@@ -97,7 +78,7 @@ public class ServiceAppointmentsController : Controller
 
         var uniqueLocations = services
         .GroupBy(s => s.Modality)  // Group by 'Modality' (location)
-        .Select(g => g.First())    // Take the first element from each group (removes duplicates)
+        .Select(g => g.First())    // Keep unique location(s) only
         .ToList();
 
         ViewBag.UniqueLocations = uniqueLocations;
@@ -107,6 +88,13 @@ public class ServiceAppointmentsController : Controller
         return View("~/Views/M2T3/ServiceAppointments/Calendar.cshtml");
     }
 
+    [HttpGet]
+    [Route("GetSuggestedPatients")]
+    public async Task<IActionResult> getSuggestedPatients()
+    {
+        var result = await _calendarManagement.getSuggestedPatients();
+        return Ok(result);
+    }
 
     [HttpGet]
     [Route("AutoScheduling")]
@@ -118,6 +106,41 @@ public class ServiceAppointmentsController : Controller
         return View("~/Views/M2T3/ServiceAppointments/AddPatientsAutoScheduling.cshtml");
     }
 
+    [HttpPost]
+    [Route("AddAppt")]
+    public async Task<IActionResult> addAppt([FromBody] Dictionary<string, JsonElement> requestData)
+    {
+        string appointmentId = requestData["AppointmentId"].GetString() ?? "";
+        string patientId = requestData["PatientId"].GetString() ?? "";
+        string nurseId = requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "";
+        string doctorId = requestData["DoctorId"].GetString() ?? "";
+        string Service = requestData["Service"].GetString() ?? "";
+        string status = "Scheduled"; // set "Scheduled" as the default status
+        DateTime dateTime = requestData["DateTime"].GetDateTime();
+        int slot = requestData["Slot"].GetInt32();
+        string location = requestData["Location"].GetString() ?? "";
+
+        try
+        {
+            string createdAppointmentId = await _manualAppointmentScheduler.scheduleAppointment(
+                patientId, nurseId, doctorId, Service, status, dateTime, slot, location
+            );
+
+            return Ok(new { Message = "Appointment created successfully", AppointmentId = createdAppointmentId });
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Log the exception message
+            Console.WriteLine($"Error: {ex.Message}");
+            return BadRequest(new { Message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            // Handle other exceptions
+            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            return StatusCode(500, new { Message = "An unexpected error occurred." });
+        }
+    }
 
     [HttpPut]
     [Route("Update")]
@@ -125,8 +148,6 @@ public class ServiceAppointmentsController : Controller
     {
         try
         {
-            Console.WriteLine("Received JSON request body: " + JsonSerializer.Serialize(requestData));
-
             string appointmentId = requestData["AppointmentId"].GetString();
             string patientId = requestData["PatientId"].GetString() ?? "";
             string nurseId = requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "";
@@ -163,7 +184,6 @@ public class ServiceAppointmentsController : Controller
         }
     }
 
-    // delete appointment
     [HttpDelete]
     [Route("Delete/{appointmentId}")]
     public async Task<IActionResult> deleteAppointment(string appointmentId)
@@ -171,7 +191,6 @@ public class ServiceAppointmentsController : Controller
         try
         {
             var result = await _manualAppointmentScheduler.deleteAppointment(appointmentId);
-            // TODO - Should we strictly return a view or can we return a JSON response? - dinie
             if (result)
             {
                 return Ok(new { Success = true, Message = "Appointment deleted successfully" });
@@ -187,7 +206,6 @@ public class ServiceAppointmentsController : Controller
         }
     }
 
-    // Auto Interface
     [HttpPost]
     [Route("AutoAppointment")]
     public async Task<IActionResult> autoAppointment([FromForm] string appointmentsJson, [FromForm] string algorithm)
@@ -237,7 +255,7 @@ public class ServiceAppointmentsController : Controller
             AutomaticAppointmentScheduler.setAlgorithm(new EarliestsPossibleTimeSlotStrategy());
         }
 
-        // Pass this full appointment list to your scheduler
+        // Pass the full appointment list to scheduler
         var assignedAppointments = await AutomaticAppointmentScheduler.automaticallyScheduleAppointment(appointments);
 
         return Ok(new
@@ -255,51 +273,16 @@ public class ServiceAppointmentsController : Controller
         });
     }
 
-    [HttpPost]
-    [Route("AddAppt")]
-    public async Task<IActionResult> addAppt([FromBody] Dictionary<string, JsonElement> requestData)
-    {
-        string jsonRequestBody = JsonSerializer.Serialize(requestData);
-
-        Console.WriteLine("Received JSON request body: " + jsonRequestBody);
-
-        string appointmentId = requestData["AppointmentId"].GetString() ?? "";
-        string patientId = requestData["PatientId"].GetString() ?? "";
-        string nurseId = requestData.ContainsKey("NurseId") ? requestData["NurseId"].GetString() ?? "" : "";
-        string doctorId = requestData["DoctorId"].GetString() ?? "";
-        string Service = requestData["Service"].GetString() ?? "";
-        string status = "Scheduled"; // hardcoded to always set Scheduled as the default status
-        DateTime dateTime = requestData["DateTime"].GetDateTime();
-        int slot = requestData["Slot"].GetInt32();
-        string location = requestData["Location"].GetString() ?? "";
-
-        try
-        {
-            string createdAppointmentId = await _manualAppointmentScheduler.scheduleAppointment(
-                patientId, nurseId, doctorId, Service, status, dateTime, slot, location
-            );
-
-            return Ok(new { Message = "Appointment created successfully", AppointmentId = createdAppointmentId });
-        }
-        catch (InvalidOperationException ex)
-        {
-            // Log the exception message
-            Console.WriteLine($"Error: {ex.Message}");
-            return BadRequest(new { Message = ex.Message });
-        }
-        catch (Exception ex)
-        {
-            // Handle other exceptions
-            Console.WriteLine($"An unexpected error occurred: {ex.Message}");
-            return StatusCode(500, new { Message = "An unexpected error occurred." });
-        }
-    }
-
     [HttpGet]
-    [Route("GetSuggestedPatients")]
-    public async Task<IActionResult> getSuggestedPatients()
+    [Route("GetAppointmentsForCalendar")]
+    public async Task<JsonResult> getAppointmentsForCalendar(
+        [FromQuery] string? doctorId,
+        [FromQuery] string? patientId,
+        [FromQuery] string? nurseId,
+        [FromQuery] string? location,
+        [FromQuery] string? service,
+        [FromQuery] string? timeSlot)
     {
-        var result = await _calendarManagement.getSuggestedPatients();
-        return Ok(result);
+        return await _calendarManagement.getAppointmentsForCalendar(doctorId, patientId, nurseId, location, service, timeSlot);
     }
 }
