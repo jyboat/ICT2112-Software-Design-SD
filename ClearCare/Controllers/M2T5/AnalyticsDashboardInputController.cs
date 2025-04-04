@@ -17,7 +17,7 @@ namespace ClearCare.Controllers
         }
 
         [HttpGet("Appointments")]
-        public async Task<IActionResult> AppointmentsAnalytics(string status = "", string doctor = "", string type = "")
+        public async Task<IActionResult> appointmentsAnalytics(string status = "", string doctor = "", string type = "")
         {
             var analytics = await _manager.GenerateFilteredAppointmentAnalytics(status, doctor, type);
             ViewData["AppointmentAnalytics"] = analytics;
@@ -31,7 +31,7 @@ namespace ClearCare.Controllers
         }
 
         [HttpGet("ListAppointments")]
-        public async Task<IActionResult> ListAppointments(string filter = "", string value = "", string serviceType = "", string doctorId = "", string status = "")
+        public async Task<IActionResult> listAppointments(string filter = "", string value = "", string serviceType = "", string doctorId = "", string status = "")
         {
             // If a filter parameter is provided, override the other parameters accordingly.
             if (!string.IsNullOrEmpty(filter))
@@ -79,44 +79,5 @@ namespace ClearCare.Controllers
             ViewData["Appointments"] = appointments;
             return View("~/Views/M2T5/Analytics/FilteredAppointmentsList.cshtml");
         }
-
-
-        // [HttpGet("ListAppointments")]
-        // public async Task<IActionResult> ListAppointments(string filter = "all", string value = "")
-        // {
-        //     var appointments = await _manager.FetchFilteredAppointments("", "", "");
-        //     List<Dictionary<string, object>> filtered = appointments;
-
-        //     switch (filter.ToLower())
-        //     {
-        //         case "servicetype":
-        //             filtered = appointments.FindAll(a => a["Service"]?.ToString() == value);
-        //             ViewData["Title"] = $"🏥 Appointments for Service Type: {value}";
-        //             break;
-        //         case "doctor":
-        //             filtered = appointments.FindAll(a => a["DoctorId"]?.ToString() == value);
-        //             ViewData["Title"] = $"👨‍⚕️ Appointments for Doctor: {value}";
-        //             break;
-        //         case "completed":
-        //         case "cancelled":
-        //         case "missed":
-        //             filtered = appointments.FindAll(a => a["Status"]?.ToString().ToLower() == filter.ToLower());
-        //             ViewData["Title"] = $"📋 {char.ToUpper(filter[0]) + filter[1..]} Appointments";
-        //             break;
-
-        //         case "pending":
-        //             filtered = appointments.FindAll(a => a["Status"]?.ToString().ToLower() == "missed");
-        //             ViewData["Title"] = $"📋 Missed Appointments";
-        //             break;
-
-
-        //         default:
-        //             ViewData["Title"] = "📅 All Appointments";
-        //             break;
-        //     }
-
-        //     ViewData["Appointments"] = filtered;
-        //     return View("~/Views/M2T5/Analytics/FilteredAppointmentsList.cshtml");
-        // }
     }
 }

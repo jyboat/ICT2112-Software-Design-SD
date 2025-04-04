@@ -107,7 +107,7 @@
 
 <script>
     function loadDiscontinueModal(serviceId) {
-        fetch(`/ServiceTypeInput/ConfirmDiscontinue/${serviceId}`)
+        fetch(`/ServiceTypeInput/confirmDiscontinue/${serviceId}`)
             .then(response => response.text())
             .then(html => {
                 document.getElementById("discontinueModalContent").innerHTML = html;
@@ -126,7 +126,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form asp-action="Create" asp-controller="ServiceTypeInput" method="post">
+                <form asp-action="create" asp-controller="ServiceTypeInput" method="post">
                     <div class="mb-3">
                         <label for="serviceName" class="form-label">Service Name</label>
                         <input type="text" class="form-control" id="serviceName" name="name" required>
@@ -173,7 +173,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form asp-action="Edit" asp-controller="ServiceTypeInput" method="post">
+                    <form asp-action="edit" asp-controller="ServiceTypeInput" method="post">
                         <input type="hidden" name="id" value="@service.ServiceTypeId" />
                         <div class="mb-3">
                             <label for="editServiceName-@service.ServiceTypeId" class="form-label">Service Name</label>
@@ -254,7 +254,7 @@
                 return;
             }
 
-            const response = await fetch(`/ServiceTypeInput/SearchServices?term=${encodeURIComponent(term)}`);
+            const response = await fetch(`/ServiceTypeInput/searchServices?term=${encodeURIComponent(term)}`);
             const data = await response.json();
 
             // Clear the current table

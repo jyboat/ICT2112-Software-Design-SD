@@ -150,8 +150,6 @@ namespace ClearCare.Controllers
                 return StatusCode(500, new { Message = "Server error", Error = ex.Message, StackTrace = ex.StackTrace });
             }
         }
-
-
     }
 }
 

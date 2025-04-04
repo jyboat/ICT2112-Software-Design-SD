@@ -21,7 +21,7 @@
     else
     {
         <div class="alert alert-success">No upcoming appointments. You may proceed.</div>
-        <form method="post" asp-action="DiscontinueConfirmed" asp-controller="ServiceTypeInput">
+        <form method="post" asp-action="discontinueConfirmed" asp-controller="ServiceTypeInput">
             <input type="hidden" name="id" value="@Model.ServiceTypeId" />
             <button type="submit" class="btn btn-danger">Confirm Discontinue</button>
         </form>

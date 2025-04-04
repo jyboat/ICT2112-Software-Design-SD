@@ -34,7 +34,7 @@ namespace ClearCare.Controllers
         }
 
         [HttpGet]
-        public async Task<JsonResult> SearchServices(string term)
+        public async Task<JsonResult> searchServices(string term)
         {
             await _serviceTypeManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
             var serviceTypes = _serviceTypeManager.getCachedServiceTypes(); // ✅ Access processed data
@@ -59,7 +59,7 @@ namespace ClearCare.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(string name, int duration, string requirements, string modality)
+        public async Task<IActionResult> create(string name, int duration, string requirements, string modality)
         {
             await _serviceTypeManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
             var serviceTypes = _serviceTypeManager.getCachedServiceTypes(); // ✅ Access processed data
@@ -78,28 +78,28 @@ namespace ClearCare.Controllers
         }
 
         [HttpPost]
-            public async Task<IActionResult> Edit(int id, string name, int duration, string requirements, string modality)
+        public async Task<IActionResult> edit(int id, string name, int duration, string requirements, string modality)
+        {
+            await _serviceTypeManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
+            var serviceTypes = _serviceTypeManager.getCachedServiceTypes(); // ✅ Access processed data
+
+            bool nameExists = serviceTypes.Any(s =>
+                s.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+                s.ServiceTypeId != id);
+
+            if (nameExists)
             {
-                await _serviceTypeManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
-                var serviceTypes = _serviceTypeManager.getCachedServiceTypes(); // ✅ Access processed data
-
-                bool nameExists = serviceTypes.Any(s =>
-                    s.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
-                    s.ServiceTypeId != id);
-
-                if (nameExists)
-                {
-                    TempData["ErrorMessage"] = "Another service with the same name already exists.";
-                    return RedirectToAction("Index");
-                }
-
-                await _serviceTypeManager.updateServiceType(id, name, duration, requirements, modality);
-                TempData["SuccessMessage"] = "Service updated successfully.";
+                TempData["ErrorMessage"] = "Another service with the same name already exists.";
                 return RedirectToAction("Index");
             }
 
+            await _serviceTypeManager.updateServiceType(id, name, duration, requirements, modality);
+            TempData["SuccessMessage"] = "Service updated successfully.";
+            return RedirectToAction("Index");
+        }
+
         [HttpGet]
-        public async Task<IActionResult> ConfirmDiscontinue(int id)
+        public async Task<IActionResult> confirmDiscontinue(int id)
         {
             await _serviceTypeManager.fetchServiceTypes();
             var serviceTypes = _serviceTypeManager.getCachedServiceTypes();
@@ -115,7 +115,7 @@ namespace ClearCare.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> DiscontinueConfirmed(int id)
+        public async Task<IActionResult> discontinueConfirmed(int id)
         {
             await _serviceTypeManager.discontinueServiceType(id);
             TempData["SuccessMessage"] = "Service discontinued.";

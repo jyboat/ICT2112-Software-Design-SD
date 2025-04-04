@@ -27,7 +27,7 @@ namespace ClearCare.Controllers
         }
 
         [HttpPost("save")]
-        public async Task<IActionResult> CustomizePreferences([FromBody] Dictionary<string, string> preferenceData)
+        public async Task<IActionResult> customizePreferences([FromBody] Dictionary<string, string> preferenceData)
         {
             string userID = HttpContext.Session.GetString("UserID");
 
@@ -106,7 +106,7 @@ namespace ClearCare.Controllers
         }
 
         [HttpGet("get-all")]
-        public async Task<IActionResult> DisplayPreferences()
+        public async Task<IActionResult> displayPreferences()
         {
             string userId = HttpContext.Session.GetString("UserID");
 
