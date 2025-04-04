@@ -103,7 +103,14 @@ public class SummaryController : Controller
         // Process the summary here
         string id = await _manager.generateSummary(details, instructions, currentDate, patientId);
 
-        TempData["SuccessMessage"] = "Summary added successfully!";
+        if (!string.IsNullOrEmpty(id))
+        {
+            TempData["SuccessMessage"] = "Summary added successfully!";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Error adding summary";
+        }
 
         return RedirectToAction("list");
     }
@@ -137,9 +144,16 @@ public class SummaryController : Controller
             TempData["ErrorMessage"] = "Please fill in all required fields";
         }
 
-        await _manager.updateSummary(summaryId, details, instructions);
+        bool success = await _manager.updateSummary(summaryId, details, instructions);
 
-        TempData["SuccessMessage"] = "Summary updated successfully!";
+        if (success)
+        {
+            TempData["SuccessMessage"] = "Summary updated successfully!";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Error updating summary";
+        }
 
         return RedirectToAction("list");
     }
@@ -148,9 +162,15 @@ public class SummaryController : Controller
     [HttpPost]
    public async Task<IActionResult> updateSummaryStatus(string summaryId)
     {
-        await _manager.updateSummaryStatus(summaryId);
-
-        TempData["SuccessMessage"] = "Summary deleted successfully!";
+        bool success = await _manager.updateSummaryStatus(summaryId);
+        if (success)
+        {
+            TempData["SuccessMessage"] = "Summary deleted successfully!";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "Error deleting summary";
+        }
 
         return RedirectToAction("list");
     }
