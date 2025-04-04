@@ -1,0 +1,105 @@
+@model List<ClearCare.Models.Enquiry>
+@using ClearCare
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "List of Enquiries";
+    
+    // Retrieve the user's role from session.
+    string userRole = Context.Session.GetString("Role") ?? "Unknown";
+
+    // Doctor name mapping for Patients
+    var doctorMapping = new Dictionary<string, string>
+    {
+        { "uuid-alice", "Dr. Alice" },
+        { "uuid-bob", "Dr. Bob" },
+        { "uuid-carol", "Dr. Carol" },
+        { "uuid-doctor-john", "Dr. John" }
+    };
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">@ViewData["Title"]</h2>
+        </div>
+        <div class="card-body">
+            <!-- If there are no enquiries, show a message -->
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info mb-3">
+                    @if (userRole == "Doctor")
+                    {
+                        <span>No enquiries available.</span>
+                    }
+                    else if (userRole == "Patient")
+                    {
+                        <span>You have no enquiries to view.</span>
+                    }
+                    else
+                    {
+                        <span>No enquiries found.</span>
+                    }
+                </div>
+
+                <!-- Show a "Go to Enquiry Page" button if user is a Patient -->
+                @if (userRole == "Patient")
+                {
+                    <a asp-controller="Application" 
+                       asp-action="goToEnquiry" 
+                       class="btn btn-primary">
+                        Go to Enquiry Page
+                    </a>
+                }
+            }
+            else
+            {
+                <!-- If we do have enquiries, show them in a table -->
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            @if (userRole == "Doctor")
+                            {
+                                <th>Name</th>
+                                <th>Topic</th>
+                            }
+                            else if (userRole == "Patient")
+                            {
+                                <th>Doctor</th>
+                                <th>Topic</th>
+                            }
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var e in Model)
+                        {
+                            <tr>
+                                @if (userRole == "Doctor")
+                                {
+                                    <td>@e.Name</td>
+                                    <td>@e.Topic</td>
+                                }
+                                else if (userRole == "Patient")
+                                {
+                                    <td>
+                                        @(doctorMapping.TryGetValue(e.DoctorUUID, out var doctorName)
+                                            ? doctorName
+                                            : e.DoctorUUID)
+                                    </td>
+                                    <td>@e.Topic</td>
+                                }
+                                <td>
+                                    <a href="@Url.Action("Reply", "Enquiry", new { id = e.FirestoreId })" 
+                                       class="btn btn-success btn-sm">
+                                        Reply
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>

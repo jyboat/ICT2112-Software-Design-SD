@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Enquiry Submitted";
+
+    // Create a mapping of doctor UUIDs to their names.
+    var doctorMapping = new Dictionary<string, string>
+    {
+        { "uuid-alice", "Dr. Alice" },
+        { "uuid-bob", "Dr. Bob" },
+        { "uuid-carol", "Dr. Carol" },
+        { "uuid-doctor-john", "Dr. John" }
+
+    };
+
+    // Retrieve the doctor UUID passed via ViewData.
+    string doctorUuid = ViewData["DoctorUUID"] as string ?? "";
+    // Look up the doctor's name using the mapping.
+    string doctorName = doctorMapping.ContainsKey(doctorUuid) ? doctorMapping[doctorUuid] : doctorUuid;
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h2 class="mb-0">@ViewData["Title"]</h2>
+        </div>
+        <div class="card-body">
+            <p class="lead">Your enquiry has been submitted successfully!</p>
+            <div class="mb-3">
+                <strong>Send to Doctor :</strong> @doctorName
+            </div>
+            <div class="d-flex gap-2">
+                <a href="@Url.Action("Index", "Enquiry")" class="btn btn-primary">Back to Enquiry Form</a>
+            </div>
+        </div>
+    </div>
+</div>

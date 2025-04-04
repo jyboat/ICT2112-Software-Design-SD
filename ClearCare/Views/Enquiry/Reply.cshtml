@@ -1,0 +1,119 @@
+@model ReplyToEnquiryViewModel
+@using ClearCare
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Reply to Enquiry";
+    int currentPage = ViewBag.CurrentPage != null ? (int)ViewBag.CurrentPage : 1;
+    int totalPages = ViewBag.TotalPages != null ? (int)ViewBag.TotalPages : 1;
+    int totalReplies = ViewBag.TotalReplies != null ? (int)ViewBag.TotalReplies : 0;
+
+    // Retrieve the current user's UUID from session.
+    string currentUserUUID = Context.Session.GetString("UserID") ?? "";
+    string userName = Context.Session.GetString("Name") ?? "";
+
+}
+
+<h2>Reply to Enquiry</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Enquiry Details</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Name:</dt>
+                    <dd class="col-sm-8">@Model.Enquiry.Name</dd>
+                     <dt class="col-sm-4">Topic:</dt>
+                    <dd class="col-sm-8">@Model.Enquiry.Topic</dd>
+                    <dt class="col-sm-4">Message:</dt>
+                    <dd class="col-sm-8">@Model.Enquiry.Message</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4>Your Reply</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="SendReply" method="post">
+                    <!-- Retrieve sender's UUID from session instead of hardcoded value -->
+                    <input type="hidden" name="senderName" value="@userName" />
+                    <input type="hidden" name="enquiryId" value="@Model.Enquiry.FirestoreId" />
+                    <input type="hidden" name="recipientName" value="@Model.Enquiry.Name" />
+                    <input type="hidden" name="originalMessage" value="@Model.Enquiry.Message" />
+                    <!-- Optionally, if you want to pass the current user's UUID in this field -->
+                    <input type="hidden" name="userUUID" value="@currentUserUUID" />
+                    
+                    <div class="form-group">
+                        <label for="replyMessage">Reply Message</label>
+                        <textarea class="form-control" id="replyMessage" name="message" rows="6" required></textarea>
+                    </div>
+                    
+                    <div class="form-group mt-3">
+                        <button type="submit" class="btn btn-success">Send Reply</button>
+                        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr />
+
+<h3>Previous Replies</h3>
+
+@if (Model.Replies != null && Model.Replies.Any())
+{
+    <div class="card">
+        <div class="card-header">
+            <h4>Thread</h4>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                <!-- Only show the actual replies -->
+                @foreach (var reply in Model.Replies)
+                {
+                    <li class="list-group-item">
+                        <strong>User:</strong> @reply.SenderName <br />
+                        <strong>Message:</strong> @reply.Message <br />
+                        <small class="text-muted">
+                            Sent on: @reply.CreatedAt.ToLocalTime()
+                        </small>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <!-- Pagination controls -->
+    <div class="mt-3">
+        <span>
+            Page @currentPage of @totalPages 
+            (Total replies: @totalReplies)
+        </span>
+        <br />
+
+        @if (currentPage > 1)
+        {
+            <a href="@Url.Action("reply", "Enquiry", new { id = Model.Enquiry.FirestoreId, pageNumber = currentPage - 1 })"
+               class="btn btn-primary">Previous</a>
+        }
+
+        @if (currentPage < totalPages)
+        {
+            <a href="@Url.Action("reply", "Enquiry", new { id = Model.Enquiry.FirestoreId, pageNumber = currentPage + 1 })"
+               class="btn btn-primary">Next</a>
+        }
+    </div>
+}
+else
+{
+    <p>No replies yet.</p>
+}

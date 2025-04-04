@@ -1,0 +1,88 @@
+@using ClearCare  
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Enquiry";
+    
+    // Retrieve user role and UUID from session.
+    string userRole = Context.Session.GetString("Role") ?? "Unknown";
+    string userUUID = Context.Session.GetString("UserID") ?? "";
+    
+    // Example list of doctors; in a real scenario, pass them via model or database.
+    var doctorList = new List<SelectListItem>
+    {
+        new SelectListItem { Text = "Dr. Alice", Value = "uuid-alice" },
+        new SelectListItem { Text = "Dr. Bob",   Value = "uuid-bob"   },
+        new SelectListItem { Text = "Dr. Carol", Value = "uuid-carol" },
+        new SelectListItem { Text = "Dr. John", Value = "uuid-doctor-john" }
+
+    };
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">@ViewData["Title"]</h2>
+        </div>
+        <div class="card-body">
+            <form asp-controller="Enquiry" asp-action="SubmitEnquiry" method="post">
+                <!-- Use the user UUID from session -->
+                <input type="hidden" name="UserUUID" value="@userUUID" />
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name" name="Name" required />
+                </div>
+
+                <!-- Topic Field -->
+                <div class="mb-3">
+                    <label for="topic" class="form-label">Topic</label>
+                    <input type="text" class="form-control" id="topic" name="Topic" required />
+                </div>
+
+                <div class="mb-3">
+                    <label for="message" class="form-label">Message</label>
+                    <textarea class="form-control" id="message" name="Message" rows="3" required></textarea>
+                </div>
+
+                <!-- Dropdown for Doctor selection -->
+                <div class="mb-3">
+                    <label for="doctor" class="form-label">Select Doctor</label>
+                    <select class="form-select" id="doctor" name="DoctorUUID" required>
+                        <option value="">-- Select a Doctor --</option>
+                        @foreach (var doctor in doctorList)
+                        {
+                            <option value="@doctor.Value">@doctor.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="submit" class="btn btn-success">Submit</button>
+
+                    @if (userRole == "Doctor")
+                    {
+                        <!-- If the user is a Doctor, link to ListAllEnquiries -->
+                        <a asp-controller="Enquiry"
+                           asp-action="listEnquiriesByDoctor"
+                           asp-route-userUuid="@userUUID"
+                           class="btn btn-outline-primary">
+                            View All Enquiries
+                        </a>
+                    }
+                    else if (userRole == "Patient")
+                    {
+                        <!-- If the user is a Patient, link to ListEnquiriesByUser -->
+                        <a asp-controller="Enquiry"
+                           asp-action="ListEnquiriesByUser"
+                           asp-route-userUuid="@userUUID"
+                           class="btn btn-outline-primary">
+                           View My Enquiries
+                        </a>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
