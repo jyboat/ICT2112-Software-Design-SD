@@ -95,7 +95,7 @@ namespace ClearCare.Controllers
                 }
 
                 // Save preferences
-                await _manager.UpdateNotificationPreferences(userID, methodsString, dndDays, dndTimeRangeObj);
+                await _manager.updateNotificationPreferences(userID, methodsString, dndDays, dndTimeRangeObj);
 
                 return Ok(new { message = "Preference saved successfully!" });
             }
@@ -117,7 +117,7 @@ namespace ClearCare.Controllers
 
             try
             {
-                var preferences = await _manager.GetNotificationPreferences(userId);
+                var preferences = await _manager.getNotificationPreferences(userId);
                 var response = preferences.Select(p => new 
                 {
                     UserID = p.GetUserID(),
