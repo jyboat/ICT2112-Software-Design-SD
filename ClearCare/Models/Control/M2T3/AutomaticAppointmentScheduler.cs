@@ -297,5 +297,12 @@ namespace ClearCare.Models.Control
             return serviceAppointment;
         }
 
+        public async Task<(List<Dictionary<string, object>> appointments, Dictionary<string, string> patientNames)> getUnscheduledPatients()
+        {
+            IGetUnscheduledPatients _iunscheduledPatients = (IGetUnscheduledPatients) new ServiceAppointmentManagement();
+
+            return await _iunscheduledPatients.getUnscheduledPatients();
+        }
+
     }
 }

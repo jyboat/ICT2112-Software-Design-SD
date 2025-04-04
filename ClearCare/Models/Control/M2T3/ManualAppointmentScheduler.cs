@@ -190,5 +190,10 @@ namespace ClearCare.Models.Control
 
             return updated;
         }
+
+         public async Task<bool> deleteAppointment (string appointmentId) {
+            bool deleted = await _iCreateAppointment.deleteAppointment(appointmentId);
+            return deleted;
+         }
     }
 }
