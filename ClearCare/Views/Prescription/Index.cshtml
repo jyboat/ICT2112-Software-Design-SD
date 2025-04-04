@@ -1,0 +1,97 @@
+@model List<ClearCare.Models.PrescriptionModel>
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Prescriptions";
+    // Retrieve the user's role from session.
+    string userRole = Context.Session.GetString("Role") ?? "Unknown";
+    bool isDoctor = (userRole == "Doctor");
+}
+
+<div class="container py-4">
+
+    <h1 class="mb-4">Prescriptions</h1>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            @if (isDoctor)
+            {
+                <a asp-controller="Prescription" asp-action="Create" class="btn btn-primary mb-3">
+                    Add New Prescription
+                </a>
+            }
+            else
+            {
+                <p>You do not have permission to add new prescriptions.</p>
+            }
+        </div>
+
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search...">
+                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <table class="table table-bordered" id="prescriptionTable">
+            <thead class="table-light">
+                <tr>
+                    @if (userRole == "Doctor")
+                    {
+                        <th scope="col">Patient ID</th>
+                    }
+
+                    @if (userRole == "Patient")
+                    {
+                        <th scope="col">Doctor ID</th>
+                    }
+                    <th scope="col">Medications</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        @if (userRole == "Doctor")
+                        {
+                            <td>@item.PatientId</td>
+                        }
+                        @if (userRole == "Patient")
+                        {
+                            <td>@item.DoctorId</td>
+                        }
+                        <td>
+                            <ul class="mb-0">
+                                @foreach (var med in item.Medications)
+                                {
+                                    <li>
+                                        <strong>Drug:</strong> @med.DrugName,
+                                        <strong>Dosage:</strong> @med.Dosage
+                                    </li>
+                                }
+                            </ul>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            No prescriptions found.
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        initializeTableSearch('searchInput', 'searchButton', 'prescriptionTable');
+    </script>
+}
+
