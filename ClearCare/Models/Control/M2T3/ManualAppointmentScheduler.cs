@@ -5,26 +5,26 @@ using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
-    public class ManualAppointmentScheduler: IRescheduleAppointment
+    public class ManualAppointmentScheduler : IRescheduleAppointment
     {
         private readonly ICreateAppointment _iCreateAppointment;
         private readonly IRetrieveAllAppointments _iRetrieveAppointment;
         private readonly INurseAvailability _iNurseAvailability;
         private readonly INotification _iNotification;
         private readonly IServiceType _iServiceType;
-
         public ManualAppointmentScheduler()
         {
-            _iCreateAppointment = (ICreateAppointment) new ServiceAppointmentManagement();
-            _iNurseAvailability = (INurseAvailability) new NurseAvailabilityManagement();
-            _iNotification = (INotification) new NotificationManager();
-            _iRetrieveAppointment = (IRetrieveAllAppointments) new ServiceAppointmentStatusManagement();
-            _iServiceType = (IServiceType) new ServiceTypeManager();
+            _iCreateAppointment = (ICreateAppointment)new ServiceAppointmentManagement();
+            _iNurseAvailability = (INurseAvailability)new NurseAvailabilityManagement();
+            _iNotification = (INotification)new NotificationManager();
+            _iRetrieveAppointment = (IRetrieveAllAppointments)new ServiceAppointmentStatusManagement();
+            _iServiceType = (IServiceType)new ServiceTypeManager();
         }
 
-        public async Task<List<ServiceType>> getServices () {
+        public async Task<List<ServiceType>> getServices()
+        {
             List<ServiceType> services = await _iServiceType.getServiceTypes();
-            return services; 
+            return services;
         }
 
         private async Task<bool> validateAppointmentSlot(string patientId, string nurseId,
@@ -35,13 +35,13 @@ namespace ClearCare.Models.Control
             // convert datetime to SGT for validation
             DateTime sgtDateTime = dateTime.AddHours(8);
 
-            // 0th check: is the dateTime in the past?
+            // 1st check: is the dateTime in the past?
             if (sgtDateTime.Date < DateTime.Now.Date)
             {
                 return false; // invalid if date is in the past
             }
 
-            // 1st check: is the nurse available on this day?
+            // 2nd check: is the nurse available on this day?
 
             // retrieve staff availability
             var nurseAvailability = await _iNurseAvailability.getAvailabilityByStaff(nurseId);
@@ -49,8 +49,7 @@ namespace ClearCare.Models.Control
             // Use SGT datetime instead of UTC datetime
             var requestedDate = sgtDateTime.Date;
 
-            // if any availability records show that the nurse is unavailable for that day, return false
-            // New logic: return false if there's NO availability record for the nurse on the requested day
+            // return false if there's NO availability record for the nurse on the requested day
             bool hasValidAvailability = false;
 
             foreach (var availability in nurseAvailability)
@@ -73,15 +72,14 @@ namespace ClearCare.Models.Control
                 return false;
             }
 
-            // 2nd check: is the same nurse already booked for another appointment at this time?
-            
+            // 3rd check: is the same nurse already booked for another appointment at this time?
             var nurseAppointments = await _iRetrieveAppointment.retrieveAllAppointmentsByNurse(nurseId);
 
             foreach (var appointment in nurseAppointments)
             {
                 string apptId = appointment.getAttribute("AppointmentId");
 
-                // Skip current appointment if we are doing rescheduling
+                // Skip current appointment if doing rescheduling
                 if (currentAppointmentId != null && apptId == currentAppointmentId)
                 {
                     continue;
@@ -96,7 +94,6 @@ namespace ClearCare.Models.Control
                     return false; // conflict found
                 }
             }
-
             return isValid;
         }
 
@@ -116,18 +113,14 @@ namespace ClearCare.Models.Control
             string createdAppointmentId = await _iCreateAppointment.createAppointment(
                 patientId, nurseId, doctorId, Service, status, dbDateTime, slot, location);
 
-            if (!string.IsNullOrEmpty(createdAppointmentId))
-            {
-                // Appointment created successfully
-            }
-            else
+            if (string.IsNullOrEmpty(createdAppointmentId))
             {
                 throw new InvalidOperationException("Failed to create the appointment.");
             }
 
-            var message = "Your appointment has been scheduled." ;
+            var message = "Your appointment has been scheduled.";
 
-            await _iNotification.createNotification("USR007", message);
+            await _iNotification.createNotification(patientId, message);
 
             return createdAppointmentId;
         }
@@ -191,9 +184,10 @@ namespace ClearCare.Models.Control
             return updated;
         }
 
-         public async Task<bool> deleteAppointment (string appointmentId) {
+        public async Task<bool> deleteAppointment(string appointmentId)
+        {
             bool deleted = await _iCreateAppointment.deleteAppointment(appointmentId);
             return deleted;
-         }
+        }
     }
 }
