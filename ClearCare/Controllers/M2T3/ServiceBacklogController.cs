@@ -21,7 +21,6 @@ namespace ClearCare.Controllers
         public ServiceBacklogController()
         {
             _manager = new ServiceBacklogManagement();
-            _manager.setController(this);
             _userList = (IUserList) new AdminManagement(new UserGateway());
             _appointmentManager = (ICreateAppointment) new ServiceAppointmentManagement();
         }

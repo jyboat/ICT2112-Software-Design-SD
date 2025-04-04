@@ -10,15 +10,10 @@ namespace ClearCare.Models.Control
     public class ServiceBacklogManagement: IServiceBacklogDB_Receive, ISchedulingListener, IBacklogAppointments
     {
         private readonly IServiceBacklogDB_Send _dbGateway;
-        private ServiceBacklogController? _controller;
         
         public ServiceBacklogManagement()
         {
             _dbGateway = new ServiceBacklogGateway(this);
-        }
-        public void setController(ServiceBacklogController controller)
-        {
-            _controller = controller;
         }
 
         public async Task<ServiceBacklog> getBacklog(string backlogId)
