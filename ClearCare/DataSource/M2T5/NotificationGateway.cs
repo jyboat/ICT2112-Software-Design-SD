@@ -51,7 +51,7 @@ namespace ClearCare.DataSource
                     var data = document.ToDictionary();
 
                     // Map Firestore data to Notification entity
-                    var notification = FromFirestoreData(data);
+                    var notification = fromFirestoreData(data);
 
                     notifications.Add(notification);
 
@@ -75,7 +75,7 @@ namespace ClearCare.DataSource
             }
         }
 
-        private Notification FromFirestoreData(Dictionary<string, object> data)
+        private Notification fromFirestoreData(Dictionary<string, object> data)
         {
             // Retrieve data from Firestore
             string userId = data.ContainsKey("userId") ? data["userId"].ToString() : "";

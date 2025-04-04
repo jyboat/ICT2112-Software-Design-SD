@@ -6,6 +6,6 @@ using ClearCare.Models.Entities;
     {
         public interface INotificationPreferences
         {
-            Task<List<NotificationPreference>> GetNotificationPreferences(string userId);
+            Task<List<NotificationPreference>> getNotificationPreferences(string userId);
         }
     }

@@ -18,17 +18,17 @@ namespace ClearCare.Models.Control
             _dataGateway.attachObserver(this);
         }
 
-        public async Task UpdateNotificationPreferences(string userId, string methods, string dndDays, TimeRange dndTimeRange)
+        public async Task updateNotificationPreferences(string userId, string methods, string dndDays, TimeRange dndTimeRange)
         {
             Console.WriteLine($"NotificationPreferenceManager: Saving preference for UserID {userId}");
 
             var preferenceEntity = new NotificationPreference(userId, methods, dndDays, dndTimeRange);
-            await _dataGateway.UpdateNotificationPreferences(preferenceEntity);
+            await _dataGateway.updateNotificationPreferences(preferenceEntity);
 
             Console.WriteLine($"NotificationPreferenceManager: Preference for UserID {userId} saved successfully.");
         }
 
-        public async Task<List<NotificationPreference>> GetNotificationPreferences(string userId)
+        public async Task<List<NotificationPreference>> getNotificationPreferences(string userId)
         {
             Console.WriteLine($"NotificationPreferenceManager: Fetching notification preferences for UserID {userId}");
             if (_cachedNotificationPreference == null || !_cachedNotificationPreference.Any())
@@ -53,7 +53,7 @@ namespace ClearCare.Models.Control
 
         public async Task fetchNotificationPreferences()
         {
-            await _dataGateway.GetNotificationPreferences();
+            await _dataGateway.fetchNotificationPreferences();
         }
 
         public void update(Subject subject, object data)

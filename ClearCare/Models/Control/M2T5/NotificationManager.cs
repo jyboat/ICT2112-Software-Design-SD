@@ -57,7 +57,7 @@ namespace ClearCare.Models.Control {
 
         // checkPreferences retrieves user preference and checks if notification should be sent now
         private async Task<(string methods, bool sendNow, DateTime sendTime)> checkPreference(string userId) {
-            var preference = await _notificationPreference.GetNotificationPreferences(userId);
+            var preference = await _notificationPreference.getNotificationPreferences(userId);
 
             var userPreference = preference.First();
             // Get the notification methods, DND days, and DND time range from the preference
