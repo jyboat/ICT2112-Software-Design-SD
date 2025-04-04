@@ -103,21 +103,20 @@ namespace ClearCare.DataSource
             return true;
         }
 
-        public Dictionary<string, object> BacklogToFirestoreDictionary(ServiceBacklog backlog)
-        {
-            Dictionary<string, string> backlogInfo = backlog.getBacklogInformation();
-            return new Dictionary<string, object>
-            {
-                { "appointmentId", backlogInfo["appointmentId"]},
-            };
-        }
-
         public Dictionary<string, string> FirestoreToBacklogDictionary(string backlogId, Dictionary<string, object> firestoreObject)
         {
             return new Dictionary<string, string>
             {
                 { "backlogId", backlogId},
                 { "appointmentId", firestoreObject["appointmentId"]?.ToString() ?? string.Empty},
+            };
+        }
+        public Dictionary<string, object> BacklogToFirestoreDictionary(ServiceBacklog backlog)
+        {
+            Dictionary<string, string> backlogInfo = backlog.getBacklogInformation();
+            return new Dictionary<string, object>
+            {
+                { "appointmentId", backlogInfo["appointmentId"]},
             };
         }
     }
