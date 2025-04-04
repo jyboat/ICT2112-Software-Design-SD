@@ -19,8 +19,7 @@ namespace ClearCare.Models.Entities
         public string Status { get; set; } = "active"; // can be "active" or "discontinued"
         public string Modality { get; set; } // default can be "Virtual" or "Physical (Level 1 Room A)"
 
-
-
+        // Constructor
         public ServiceType() { }
 
         public ServiceType(int id, string name, int duration, string requirements, string modality)
@@ -31,6 +30,25 @@ namespace ClearCare.Models.Entities
             Requirements = requirements;
             Modality = modality;
         }
+
+        // Getter and Setter Methods
+        public int getServiceTypeId() => ServiceTypeId;
+        public void setServiceTypeId(int id) => ServiceTypeId = id;
+
+        public string getName() => Name;
+        public void setName(string name) => Name = name;
+
+        public int getDuration() => Duration;
+        public void setDuration(int duration) => Duration = duration;
+
+        public string getRequirements() => Requirements;
+        public void setRequirements(string requirements) => Requirements = requirements;
+
+        public string getStatus() => Status;
+        public void setStatus(string status) => Status = status;
+
+        public string getModality() => Modality;
+        public void setModality(string modality) => Modality = modality;
 
     }
 }
