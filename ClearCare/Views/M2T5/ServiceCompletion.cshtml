@@ -1,4 +1,4 @@
-@model List<ClearCare.Models.DTO.ServiceAppointmentDTO>
+@model List<ClearCare.Models.DTO.AppointmentDTO>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -34,24 +34,24 @@
                 @foreach (var appointment in Model)
                 {
                     <tr>
-                        <td>@appointment.AppointmentId</td>
-                        <td>@appointment.PatientName</td>
-                        <td>@appointment.NurseName</td>
-                        <td>@appointment.DoctorName</td>
-                        <td>@appointment.Service</td>
-                        <td>@appointment.Status</td>
+                        <td>@appointment.getAppointmentId</td>
+                        <td>@appointment.getPatientName</td>
+                        <td>@appointment.getNurseName</td>
+                        <td>@appointment.getDoctorName</td>
+                        <td>@appointment.getService</td>
+                        <td>@appointment.getStatus</td>
                         <td>
                             <!-- Update Button -->
                             <button class="btn btn-primary update-btn"
-                                    data-appointment-id="@appointment.AppointmentId"
-                                    data-patient-id="@appointment.PatientId"
-                                    data-nurse-id="@appointment.NurseId"
-                                    data-doctor-id="@appointment.DoctorId"
-                                    data-patient-name="@appointment.PatientName"
-                                    data-nurse-name="@appointment.NurseName"
-                                    data-doctor-name="@appointment.DoctorName"
-                                    data-service="@appointment.Service"
-                                    data-status="@appointment.Status">
+                                    data-appointment-id="@appointment.getAppointmentId"
+                                    data-patient-id="@appointment.getPatientId"
+                                    data-nurse-id="@appointment.getNurseId"
+                                    data-doctor-id="@appointment.getDoctorId"
+                                    data-patient-name="@appointment.getPatientName"
+                                    data-nurse-name="@appointment.getNurseName"
+                                    data-doctor-name="@appointment.getDoctorName"
+                                    data-service="@appointment.getService"
+                                    data-status="@appointment.getStatus">
                                 Mark as Complete
                             </button>
                         </td>

@@ -45,15 +45,15 @@ namespace ClearCare.Controllers
             List<ServiceAppointment> appointments = await _appointmentManager.getAllServiceCompletion();
 
             // Map appointments to DTOs
-            List<ServiceAppointmentDTO> appointmentDTOs = appointments
-                .Select(appointment => new ServiceAppointmentDTO(appointment))
+            List<AppointmentDTO> appointmentDTOs = appointments
+                .Select(appointment => new AppointmentDTO(appointment))
                 .ToList();
 
             // Filter appointments based on the doctorId from session
             if (!string.IsNullOrEmpty(userId))
             {
                 appointmentDTOs = appointmentDTOs
-                    .Where(dto => dto.NurseId == userId) // Only appointments for this doctor
+                    .Where(dto => dto.getNurseId == userId) // Only appointments for this doctor
                     .ToList();
             }
 
@@ -62,9 +62,9 @@ namespace ClearCare.Controllers
             // Fetch user names from IUserList
             foreach (var dto in appointmentDTOs)
             {
-                var patient = users.FirstOrDefault(u => u.getProfileData()["UserID"].ToString() == dto.PatientId);
-                var nurse = users.FirstOrDefault(u => u.getProfileData()["UserID"].ToString() == dto.NurseId);
-                var doctor = users.FirstOrDefault(u => u.getProfileData()["UserID"].ToString() == dto.DoctorId);
+                var patient = users.FirstOrDefault(u => u.getProfileData()["UserID"].ToString() == dto.getPatientId);
+                var nurse = users.FirstOrDefault(u => u.getProfileData()["UserID"].ToString() == dto.getNurseId);
+                var doctor = users.FirstOrDefault(u => u.getProfileData()["UserID"].ToString() == dto.getDoctorId);
 
                 var patientName = patient != null ? patient.getProfileData()["Name"].ToString() ?? "Unknown" : "Unknown";
                 var nurseName = nurse != null ? nurse.getProfileData()["Name"].ToString() ?? "Unknown" : "Unknown";
@@ -74,7 +74,7 @@ namespace ClearCare.Controllers
             }
 
             // Create the message to display in the view or return as part of the JSON
-            string message = $"UserId (from session): {userId} | DoctorId: {string.Join(", ", appointmentDTOs.Select(dto => dto.NurseId).Distinct())}";
+            string message = $"UserId (from session): {userId} | DoctorId: {string.Join(", ", appointmentDTOs.Select(dto => dto.getNurseId).Distinct())}";
 
             if (json)
             {
