@@ -1,5 +1,3 @@
-// implemented by NurseAvailabilityManagement; used by ServiceAppointment
-
 using System.Collections.Generic;
 using ClearCare.Models.Entities;
 
