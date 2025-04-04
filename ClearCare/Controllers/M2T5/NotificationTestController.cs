@@ -4,12 +4,12 @@ using ClearCare.Models.Control;
 
 namespace ClearCare.Controllers
 {
-    public class NotificationTestController : Controller
+    public class NotificationInputController : Controller
     {
         private readonly NotificationManager _notificationManager;
 
         // Constructor injection
-        public NotificationTestController(NotificationManager notificationManager)
+        public NotificationInputController(NotificationManager notificationManager)
         {
             _notificationManager = notificationManager;
         }
