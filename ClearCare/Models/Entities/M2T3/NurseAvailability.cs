@@ -20,18 +20,16 @@ namespace ClearCare.Models.Entities
         [FirestoreProperty]
         private string EndTime { get; set; } = "16:00:00";
 
-        // 🔹 Private Getter Methods (Encapsulation)
+        // 🔹 Private Getters and Setters (Encapsulation)
         private int getAvailabilityId() => AvailabilityId;
-        private string getNurseId() => NurseID;
-        private string getDate() => Date;
-        private string getStartTime() => StartTime;
-        private string getEndTime() => EndTime;
-
-        // 🔹 Private Setter Methods
         private void setAvailabilityId(int availabilityId) => AvailabilityId = availabilityId;
+        private string getNurseId() => NurseID;
         private void setNurseId(string nurseId) => NurseID = nurseId;
+        private string getDate() => Date;
         private void setDate(string date) => Date = date;
+        private string getStartTime() => StartTime;
         private void setStartTime(string startTime) => StartTime = startTime;
+        private string getEndTime() => EndTime;
         private void setEndTime(string endTime) => EndTime = endTime;
 
         // Public function to set availability details
