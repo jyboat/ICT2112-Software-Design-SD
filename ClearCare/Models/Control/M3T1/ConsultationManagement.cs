@@ -31,16 +31,16 @@ public class ConsultationManagement : IConsultReceive
         return _gateway.insertConsultation(appointment.Timing, notes, zoomLink, zoomPwd, appointment.Id);
     }
 
-    public Task<ZoomApi.MeetingResponse?> generateZoomLink(string accessToken)
+    public Task<IZoomApi.MeetingResponse?> generateZoomLink(string accessToken)
     {
         return _zoomApi.createMeeting(
             accessToken,
-            new ZoomApi.MeetingData
+            new IZoomApi.MeetingData
             {
                 Agenda = $"Test meeting at {DateTime.Now}",
-                Settings = new ZoomApi.MeetingData.SettingsData
+                Settings = new IZoomApi.MeetingData.SettingsData
                 {
-                    AutoRecording = ZoomApi.MeetingData.SettingsData.AutoRecordingOption.Cloud
+                    AutoRecording = IZoomApi.MeetingData.SettingsData.AutoRecordingOption.Cloud
                 }
             }
         );
@@ -53,7 +53,7 @@ public class ConsultationManagement : IConsultReceive
         return _zoomApi.generateAuthorizeLink(callbackUri);
     }
 
-    public Task<ZoomApi.TokenResponse?> generateAccessToken(
+    public Task<IZoomApi.TokenResponse?> generateAccessToken(
         string authCode,
         string redirectUri
     )

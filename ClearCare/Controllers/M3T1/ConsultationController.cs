@@ -3,6 +3,7 @@ using ClearCare.DataSource.M3T1;
 using ClearCare.Models.Control.M3T1;
 using ClearCare.Models.Entities;
 using ClearCare.Models.Entities.M3T1;
+using ClearCare.Models.Interfaces.M3T1;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClearCare.Controllers.M3T1;
@@ -61,7 +62,7 @@ public class ConsultationController : Controller
     {
         public AddConsultationViewModel(
             List<Appointment> appointments,
-            ZoomApi.MeetingResponse? meetingResponse
+            IZoomApi.MeetingResponse? meetingResponse
         )
         {
             Appointments = appointments;
@@ -69,7 +70,7 @@ public class ConsultationController : Controller
         }
 
         public readonly List<Appointment> Appointments;
-        public readonly ZoomApi.MeetingResponse? MeetingResponse;
+        public readonly IZoomApi.MeetingResponse? MeetingResponse;
     }
 
     [Route("Add")]
@@ -79,7 +80,7 @@ public class ConsultationController : Controller
         ViewBag.UserRole = "Doctor"; // Hardcoded for testing
 
         var appointments = await manager.getAppointments();
-        ZoomApi.MeetingResponse? response = null;
+        IZoomApi.MeetingResponse? response = null;
 
         string? token = Request.Cookies[ZOOM_ACCESS_TOKEN_SERVER_KEY];
 

@@ -1,41 +1,10 @@
-using System.ComponentModel.DataAnnotations;
 using System.Text;
-using System.Text.Json.Serialization;
+using ClearCare.Models.Interfaces.M3T1;
 
 namespace ClearCare.API;
 
-public class ZoomApi
+public class ZoomApi : IZoomApi
 {
-    public class MeetingData
-    {
-        [StringLength(2000)]
-        [JsonPropertyName("agenda")]
-        public string? Agenda { get; set; }
-
-        [JsonPropertyName("settings")] public SettingsData? Settings { get; set; }
-
-        public class SettingsData
-        {
-            [JsonPropertyName("auto_recording")] public AutoRecordingOption? AutoRecording { get; set; }
-
-            public enum AutoRecordingOption
-            {
-                [JsonPropertyName("local")] Local,
-                [JsonPropertyName("cloud")] Cloud,
-                [JsonPropertyName("none")] None
-            }
-        }
-    }
-
-    public class MeetingResponse
-    {
-        [JsonPropertyName("agenda")] public string? Agenda { get; set; }
-
-        [JsonPropertyName("password")] public string? Password { get; set; }
-
-        [JsonPropertyName("join_url")] public string? JoinUrl { get; set; }
-    }
-
     private readonly HttpClient _httpClient;
 
     private readonly string _clientId;
@@ -62,18 +31,8 @@ public class ZoomApi
         return $"https://zoom.us/oauth/authorize?response_type=code&client_id={_clientId}&redirect_uri={redirectUri}";
     }
 
-    public class TokenResponse
-    {
-        [JsonPropertyName("access_token")] public string AccessToken { get; set; }
-
-        [JsonPropertyName("refresh_token")] public string RefreshToken { get; set; }
-
-        [JsonPropertyName("expires_in")] public int ExpiresIn { get; set; }
-    }
-
-    public async Task<TokenResponse?> generateAccessToken(
-        string authorizationCode,
-        string redirectUri
+    public async Task<IZoomApi.TokenResponse?> generateAccessToken(
+        string authorizationCode
     )
     {
         Console.WriteLine($"Auth code: {authorizationCode}, auth token: {getAuthToken()}");
@@ -97,12 +56,12 @@ public class ZoomApi
 
         using var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<TokenResponse>();
+        return await response.Content.ReadFromJsonAsync<IZoomApi.TokenResponse>();
     }
 
-    public async Task<TokenResponse?> generateServerAccessToken(
+    public async Task<IZoomApi.TokenResponse?> generateServerAccessToken(
         string accountId
-            )
+    )
     {
         // Console.WriteLine($"Auth code: {authorizationCode}, auth token: {getAuthToken()}");
         var request = new HttpRequestMessage
@@ -125,10 +84,10 @@ public class ZoomApi
 
         using var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<TokenResponse>();
+        return await response.Content.ReadFromJsonAsync<IZoomApi.TokenResponse>();
     }
 
-    public async Task<TokenResponse?> refreshAccessToken(
+    public async Task<IZoomApi.TokenResponse?> refreshAccessToken(
         string refreshToken
     )
     {
@@ -152,12 +111,12 @@ public class ZoomApi
 
         using var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<TokenResponse>();
+        return await response.Content.ReadFromJsonAsync<IZoomApi.TokenResponse>();
     }
 
-    public async Task<MeetingResponse?> createMeeting(
+    public async Task<IZoomApi.MeetingResponse?> createMeeting(
         string accessToken,
-        MeetingData zoomData
+        IZoomApi.MeetingData data
     )
     {
         var request = new HttpRequestMessage
@@ -170,11 +129,11 @@ public class ZoomApi
                     "Authorization", $"Bearer {accessToken}"
                 }
             },
-            Content = JsonContent.Create(zoomData)
+            Content = JsonContent.Create(data)
         };
 
         using var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<MeetingResponse>();
+        return await response.Content.ReadFromJsonAsync<IZoomApi.MeetingResponse>();
     }
 }
