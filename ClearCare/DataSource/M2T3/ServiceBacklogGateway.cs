@@ -14,14 +14,12 @@ namespace ClearCare.DataSource
     {
         private readonly FirestoreDb _db;
         private readonly CollectionReference _dbCollection;
-        
         private IServiceBacklogDB_Receive _receiver;
         public IServiceBacklogDB_Receive Receiver
         {
             get { return _receiver; }
             set { _receiver = value; }
         }
-
 
         public ServiceBacklogGateway(IServiceBacklogDB_Receive receiver)
         {
@@ -42,7 +40,6 @@ namespace ClearCare.DataSource
                 
                 backlog.setBacklogInformation(docRef.Id, appointmentId);
                 Dictionary<string, object> backlogData = BacklogToFirestoreDictionary(backlog);
-                Console.WriteLine($"Writing backlog... {docRef.Id},{appointmentId}");
 
                 // Attempt to write to Firestore
                 await docRef.SetAsync(backlogData);
@@ -54,7 +51,6 @@ namespace ClearCare.DataSource
                 await _receiver.receiveAddStatus($"Error: {ex.Message}");
             }
         }
-
 
         // GET ALL BACKLOGS
         public async Task<List<Dictionary<string,string>>> fetchServiceBacklogs()
@@ -74,7 +70,6 @@ namespace ClearCare.DataSource
                     backlogList.Add(backlog);
                 }
             }
-
             await _receiver.receiveBacklogList(backlogList);
             return backlogList;
         }
@@ -108,7 +103,6 @@ namespace ClearCare.DataSource
             return true;
         }
 
-
         public Dictionary<string, object> BacklogToFirestoreDictionary(ServiceBacklog backlog)
         {
             Dictionary<string, string> backlogInfo = backlog.getBacklogInformation();
@@ -118,7 +112,6 @@ namespace ClearCare.DataSource
             };
         }
 
-        
         public Dictionary<string, string> FirestoreToBacklogDictionary(string backlogId, Dictionary<string, object> firestoreObject)
         {
             return new Dictionary<string, string>
@@ -127,6 +120,5 @@ namespace ClearCare.DataSource
                 { "appointmentId", firestoreObject["appointmentId"]?.ToString() ?? string.Empty},
             };
         }
-
     }
 }
