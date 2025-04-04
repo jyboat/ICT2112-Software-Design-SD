@@ -3,7 +3,7 @@ using ClearCare.Models.Control;
 using ClearCare.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http; 
+using Microsoft.AspNetCore.Http;
 using ClearCare.Interfaces;
 
 namespace ClearCare.Controllers
@@ -13,40 +13,14 @@ namespace ClearCare.Controllers
     public class NurseAvailabilityController : Controller
     {
         private readonly NurseAvailabilityManagement _manager;
-
         private readonly CalendarManagement _calendarManagement;
         private readonly ServiceAppointmentManagement _serviceAppointmentManagement;
-
-
 
         public NurseAvailabilityController()
         {
             _manager = new NurseAvailabilityManagement();
             _serviceAppointmentManagement = new ServiceAppointmentManagement();
-         
-
             _calendarManagement = new CalendarManagement();
-        }
-
-        // methods to get Id from current session 
-        private string getCurrentNurseId()
-         {
-             return HttpContext.Session.GetString("UserID") ?? string.Empty; 
-         }
-
-        // Displays Nurse Availability for Calendar
-        [HttpGet]
-        [Route("getAvailabilityByNurseIdForCalendar")]
-        public async Task<JsonResult> getAvailabilityByNurseIdForCalendar([FromQuery] string? nurseId)
-        //  public async Task<JsonResult> GetAvailabilityByNurseIdForCalendar([FromQuery] string? inputNurseId)
-        {
-            // return await _calendarManagement.getAvailabilityByNurseIdForCalendar("USR003"); // Dummy ID for testing
-
-            string currentNurseId = getCurrentNurseId();
-             if (string.IsNullOrEmpty(currentNurseId))
-                 return new JsonResult(new { error = "User not logged in." });
- 
-             return await _calendarManagement.getAvailabilityByNurseIdForCalendar(currentNurseId);
         }
 
         // Displays Nurse Availability View
@@ -54,10 +28,27 @@ namespace ClearCare.Controllers
         [Route("Index")]
         public IActionResult index()
         {
-            // var availabilityList = await _manager.getAvailabilityByStaff("USR003"); // Dummy ID for testing
-            // return View(availabilityList);
             return View("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
+
+        // Method to get Id from current session 
+        private string getCurrentNurseId()
+        {
+            return HttpContext.Session.GetString("UserID") ?? string.Empty;
+        }
+
+        // Displays Nurse Availability for Calendar
+        [HttpGet]
+        [Route("getAvailabilityByNurseIdForCalendar")]
+        public async Task<JsonResult> getAvailabilityByNurseIdForCalendar([FromQuery] string? nurseId)
+        {
+            string currentNurseId = getCurrentNurseId();
+            if (string.IsNullOrEmpty(currentNurseId))
+                return new JsonResult(new { error = "User not logged in." });
+
+            return await _calendarManagement.getAvailabilityByNurseIdForCalendar(currentNurseId);
+        }
+
 
         // Add Availability (Handles Form Submission)
         [HttpPost]
@@ -65,12 +56,11 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> addAvailability([FromForm] string date)
         {
             string nurseId = getCurrentNurseId();
-             if (string.IsNullOrEmpty(nurseId))
-                 return BadRequest("User is not logged in.");
- 
-             await _manager.addAvailability(nurseId, date);
-            
-            // await _manager.addAvailability("USR003", date);
+            if (string.IsNullOrEmpty(nurseId))
+                return BadRequest("User is not logged in.");
+
+            await _manager.addAvailability(nurseId, date);
+
             return Ok(new { message = "Availability added successfully!" });
             return RedirectToAction("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
@@ -81,12 +71,11 @@ namespace ClearCare.Controllers
         public async Task<IActionResult> updateAvailability([FromForm] int availabilityId, [FromForm] string date)
         {
             string nurseId = getCurrentNurseId();
-             if (string.IsNullOrEmpty(nurseId))
-                 return BadRequest("User is not logged in.");
- 
-             await _manager.updateAvailability(availabilityId, nurseId, date);
-            
-            // await _manager.updateAvailability(availabilityId, "USR003", date);
+            if (string.IsNullOrEmpty(nurseId))
+                return BadRequest("User is not logged in.");
+
+            await _manager.updateAvailability(availabilityId, nurseId, date);
+
             return Ok(new { message = "Availability updated successfully!" });
             return RedirectToAction("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
@@ -96,12 +85,9 @@ namespace ClearCare.Controllers
         [Route("Delete/{availabilityId}")]
         public async Task<IActionResult> deleteAvailability(int availabilityId)
         {
-            // Console.WriteLine($"Attempting to delete availability with ID: {availabilityId}");
             await _manager.deleteAvailability(availabilityId);
             return Ok(new { message = "Availability deleted successfully!" });
             return RedirectToAction("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
-
-        
     }
 }
