@@ -31,24 +31,24 @@ namespace ClearCare.Models.Entities
 
         // Getter and Setter
         private string getAppointmentID() => AppointmentId;
-        private string getPatientID() => PatientId;
-        private string getNurseID() => NurseId;
-        private string getDoctorID() => DoctorId;
-        private string getServiceType() => Service;
-        private string getStatus() => Status;
-        private DateTime getDateTime() => DateTime; 
-        private int getSlot() => Slot;
-        private string getLocation() => Location;
-
         private void SetAppointmentID(string appointmentId) => AppointmentId = appointmentId;
+        private string getPatientID() => PatientId;
         private void setPatientID(string patientId) => PatientId = patientId;
+        private string getNurseID() => NurseId;
         private void setNurseID(string nurseId) => NurseId = nurseId;
+        private string getDoctorID() => DoctorId;
         private void setDoctorID(string doctorId) => DoctorId = doctorId;
+        private string getServiceType() => Service;
         private void setServiceId(string Service) => Service = Service;
+        private string getStatus() => Status;
         private void setStatus(string status) => Status = status;
+        private DateTime getDateTime() => DateTime; 
         public void setDateTime(DateTime dateTime) => DateTime = dateTime;
+        private int getSlot() => Slot;
         private void setSlot(int slot) => Slot = slot;
+        private string getLocation() => Location;
         private void setLocation(string location) => Location = location;
+
 
         public void appointNurseToPatient(string nurseId, int slot){
             setNurseID(nurseId);
@@ -82,9 +82,7 @@ namespace ClearCare.Models.Entities
         }
 
         public DateTime getAppointmentDateTime (ServiceAppointment appointment) {
-           
             return getDateTime();
-
         }
 
         public ServiceAppointment updateServiceAppointementById (ServiceAppointment appointment, string patientId, string nurseId,
@@ -200,8 +198,5 @@ namespace ClearCare.Models.Entities
                 Status = newStatus;
             }
         }
-
     }
-
-
 }
