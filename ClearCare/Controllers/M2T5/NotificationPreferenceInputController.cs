@@ -120,10 +120,10 @@ namespace ClearCare.Controllers
                 var preferences = await _manager.getNotificationPreferences(userId);
                 var response = preferences.Select(p => new 
                 {
-                    UserID = p.GetUserID(),
-                    Methods = p.GetMethods(),
-                    DndDays = p.GetDndDays(),
-                    DndTimeRange = $"{p.GetDndTimeRange().GetStartTime()}-{p.GetDndTimeRange().GetEndTime()}"
+                    UserID = p.getUserID(),
+                    Methods = p.getMethods(),
+                    DndDays = p.getDndDays(),
+                    DndTimeRange = $"{p.getDndTimeRange().getStartTime()}-{p.getDndTimeRange().getEndTime()}"
                 }).ToList();
 
                 return Ok(response);

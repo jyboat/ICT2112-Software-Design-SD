@@ -41,14 +41,9 @@ namespace ClearCare.Models.Control
 
         public async Task<List<ServiceType>> getServiceTypes()
         {
-            if (_cachedServiceTypes == null || !_cachedServiceTypes.Any())
-            {
-                await fetchServiceTypes(); // trigger async update and populate cache
-            }
-
+            await fetchServiceTypes(); // trigger async update and populate cache
             return _cachedServiceTypes;
         }
-
 
         public async Task createServiceType(string name, int duration, string requirements, string modality)
         {

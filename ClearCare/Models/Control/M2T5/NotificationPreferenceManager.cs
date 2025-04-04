@@ -31,14 +31,11 @@ namespace ClearCare.Models.Control
         public async Task<List<NotificationPreference>> getNotificationPreferences(string userId)
         {
             Console.WriteLine($"NotificationPreferenceManager: Fetching notification preferences for UserID {userId}");
-            if (_cachedNotificationPreference == null || !_cachedNotificationPreference.Any())
-            {
-                await fetchNotificationPreferences(); // trigger async update and populate cache
-            }
-             var preferences =  _cachedNotificationPreference;
+            await fetchNotificationPreferences(); // trigger async update and populate cache
+            var preferences =  _cachedNotificationPreference;
 
             // Filter by userId to return the relevant preference
-            var userPreference = preferences.Where(p => p.GetUserID() == userId).ToList();
+            var userPreference = preferences.Where(p => p.getUserID() == userId).ToList();
             Console.WriteLine($"NotificationPreferenceManager: Fetched {userPreference.Count} preferences for UserID {userId}");
 
             if (userPreference.Count == 0) {

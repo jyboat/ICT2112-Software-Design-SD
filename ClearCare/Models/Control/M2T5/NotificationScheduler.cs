@@ -14,12 +14,12 @@ namespace ClearCare.Models.Control
             _notificationManager = notificationManager;
             // Set timer to fire every 1 minute (60,000 ms)
             _timer = new System.Timers.Timer(60000);
-            _timer.Elapsed += async (sender, e) => await TimerElapsed();
+            _timer.Elapsed += async (sender, e) => await timerElapsed();
             _timer.AutoReset = true;
             _timer.Start();
         }
 
-        private async Task TimerElapsed()
+        private async Task timerElapsed()
         {
             DateTime now = DateTime.UtcNow;
 

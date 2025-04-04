@@ -19,7 +19,7 @@ namespace ClearCare.Controllers
         [HttpGet("Appointments")]
         public async Task<IActionResult> appointmentsAnalytics(string status = "", string doctor = "", string type = "")
         {
-            var analytics = await _manager.GenerateFilteredAppointmentAnalytics(status, doctor, type);
+            var analytics = await _manager.generateFilteredAppointmentAnalytics(status, doctor, type);
             ViewData["AppointmentAnalytics"] = analytics;
 
             // // Retrieve dynamic data from the database
@@ -75,7 +75,7 @@ namespace ClearCare.Controllers
             }
 
             // Retrieve the filtered appointments using your existing code.
-            var appointments = await _manager.FetchFilteredAppointments(status, doctorId, serviceType);
+            var appointments = await _manager.fetchFilteredAppointments(status, doctorId, serviceType);
             ViewData["Appointments"] = appointments;
             return View("~/Views/M2T5/Analytics/FilteredAppointmentsList.cshtml");
         }

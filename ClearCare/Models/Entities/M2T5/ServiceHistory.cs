@@ -88,29 +88,5 @@ namespace ClearCare.Models.Entities
         public void updateServiceHistoryId(string serviceHistoryId) {
             setServiceHistoryId(serviceHistoryId);
         }
-
-
-        // Data Normalization
-        // Convert firebase key-value pair into ServiceHistory Structure so it can be used directly
-        // No more key-value but return the object
-        // Extracts values from { "PatientId": "USR010", "NurseId": "USR001", .... }
-        // and maps them into the ServiceHistory model
-        // ServiceHistory { PatientId = "USR010", NurseId = "USR001", ... }
-        // Rich Domain Model Mapping
-        public static ServiceHistory FromFirestoreData(string serviceHistoryId, Dictionary<string, object> data)
-        {   
-            return new ServiceHistory
-            {
-                ServiceHistoryId = serviceHistoryId,
-                AppointmentId = data["AppointmentId"].ToString() ?? "",
-                Service = data["Service"].ToString() ?? "",
-                PatientId = data["PatientId"].ToString() ?? "",
-                NurseId = data.ContainsKey("NurseId") ? data["NurseId"].ToString() ?? "" : "" ,
-                DoctorId = data["DoctorId"].ToString() ?? "",
-                ServiceDate = ((Timestamp)data["ServiceDate"]).ToDateTime().ToLocalTime(),
-                Location = data["Location"].ToString()  ?? "",
-                ServiceOutcomes = data["ServiceOutcomes"].ToString()  ?? ""
-            };
-        }
     }
 }

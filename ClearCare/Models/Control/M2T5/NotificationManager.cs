@@ -43,11 +43,11 @@ namespace ClearCare.Models.Control {
             } else  {   
                 // Else, calculate sendTime. Then make object and check whether to put in cache or database.
                 // DateTime sendTime = DateTime.UtcNow.AddMinutes(1); // Placeholder
-                Notification notification = Notification.SetNotificationDetails(userId, methods, sendTime, content, email, phone);
+                Notification notification = Notification.setNotificationDetails(userId, methods, sendTime, content, email, phone);
 
                 // Check if scheduled time is within the current cache interval.
-                if (NotificationCache.IsWithinCurrentInterval(sendTime)) {
-                    NotificationCache.AddNotification(notification);
+                if (NotificationCache.isWithinCurrentInterval(sendTime)) {
+                    NotificationCache.addNotification(notification);
                 } else {
                     // If not within current cache interval, write it directly to DB.
                     await _notificationGateway.createNotification(notification);
@@ -61,9 +61,9 @@ namespace ClearCare.Models.Control {
 
             var userPreference = preference.First();
             // Get the notification methods, DND days, and DND time range from the preference
-            var methods = userPreference.GetMethods();
-            var dndDaysString = userPreference.GetDndDays();
-            var dndTimeRange = userPreference.GetDndTimeRange();
+            var methods = userPreference.getMethods();
+            var dndDaysString = userPreference.getDndDays();
+            var dndTimeRange = userPreference.getDndTimeRange();
 
             // Parse DndDays into a list (e.g., "Monday,Tuesday,Wednesday" becomes a list of strings)
             var dndDays = dndDaysString.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(day => day.Trim()).ToList();
@@ -76,7 +76,7 @@ namespace ClearCare.Models.Control {
             bool isTodayDnd = dndDays.Contains(currentDay);
 
             // Check if the current time is within the DND time range
-            bool isTimeInRange = dndTimeRange.IsTimeInRange(currentTime);
+            bool isTimeInRange = dndTimeRange.isTimeInRange(currentTime);
 
             // If today is a DND day and the current time is within the specified range, do not send now
             bool sendNow = !(isTodayDnd && isTimeInRange);
@@ -86,7 +86,7 @@ namespace ClearCare.Models.Control {
             if (!sendNow)
             {   
                 DateTime localDate = DateTime.Now.Date;
-                DateTime localSendTime = localDate.Add(dndTimeRange.GetEndTime());
+                DateTime localSendTime = localDate.Add(dndTimeRange.getEndTime());
 
                 sendTime = localSendTime.ToUniversalTime();
             }
@@ -110,24 +110,24 @@ namespace ClearCare.Models.Control {
 
         // flushCache: writes all notifications from the cache to the database and clears the cache.
         public async Task flushCache() {
-            var pendingNotifications = NotificationCache.GetAllNotifications();
+            var pendingNotifications = NotificationCache.getAllNotifications();
             foreach (var notification in pendingNotifications)
             {
                 await _notificationGateway.createNotification(notification);
             }
-            NotificationCache.ClearCache();
+            NotificationCache.clearCache();
         }
 
         // checkCacheAndSend: checks the cache for due notifications, sends them, and removes them from the cache.
         public async Task checkCacheAndSend() {
             DateTime now = DateTime.UtcNow;
-            var dueNotifications = NotificationCache.GetDueNotifications(now);
+            var dueNotifications = NotificationCache.getDueNotifications(now);
             foreach (var notification in dueNotifications)
             {
-                Dictionary<string, object> details = notification.GetNotificationDetails();
+                Dictionary<string, object> details = notification.getNotificationDetails();
                 await sendNotification(details["method"].ToString(), details["email"].ToString(), details["phone"].ToString(), details["content"].ToString());
             }
-            NotificationCache.RemoveNotifications(dueNotifications);
+            NotificationCache.removeNotifications(dueNotifications);
         }
 
         // Scheduler should call getNotifications to fetch notifications for the next interval
@@ -146,13 +146,13 @@ namespace ClearCare.Models.Control {
                 // Add fetched notifications to the cache or store them in the database
                 foreach (var notification in notifications)
                 {
-                    Console.WriteLine($"Checking notification with timing: {notification.GetTiming()}");
+                    Console.WriteLine($"Checking notification with timing: {notification.getTiming()}");
 
                     // Check if the notification's timing is within the current interval
-                    if (notification.GetTiming() >= intervalStart && notification.GetTiming() <= intervalEnd)
+                    if (notification.getTiming() >= intervalStart && notification.getTiming() <= intervalEnd)
                     {
                         // If within the interval, add to cache
-                        NotificationCache.AddNotification(notification);
+                        NotificationCache.addNotification(notification);
                         Console.WriteLine("[NotificationManager] ADDED TO CACHE");
                     }
                     else

@@ -25,7 +25,7 @@ namespace ClearCare.DataSource
                 if (document.Exists)
                 {
                     var data = document.ToDictionary();
-                    ServiceHistory serviceHistory = ServiceHistory.FromFirestoreData(document.Id, data);
+                    var serviceHistory = fromFirestoreData(document.Id, data);
                     serviceHistoryList.Add(serviceHistory);
                 }
             }
@@ -54,6 +54,28 @@ namespace ClearCare.DataSource
                 Console.WriteLine($"Error creating service history: {ex.Message}");
                 return null;
             }
+        }
+
+        // Data Normalization
+        // Convert firebase key-value pair into ServiceHistory Structure so it can be used directly
+        // No more key-value but return the object
+        // Extracts values from { "PatientId": "USR010", "NurseId": "USR001", .... }
+        // and maps them into the ServiceHistory model
+        // ServiceHistory { PatientId = "USR010", NurseId = "USR001", ... }
+        // Rich Domain Model Mapping
+        public static ServiceHistory fromFirestoreData(string serviceHistoryId, Dictionary<string, object> data)
+        {   
+            string appointmentId = data["AppointmentId"].ToString() ?? "";
+            string service = data["Service"].ToString() ?? "";
+            string patientId = data["PatientId"].ToString() ?? "";
+            string nurseId = data.ContainsKey("NurseId") ? data["NurseId"].ToString() ?? "" : "" ;
+            string doctorId = data["DoctorId"].ToString() ?? "";
+            DateTime serviceDate = ((Timestamp)data["ServiceDate"]).ToDateTime().ToLocalTime();
+            string location = data["Location"].ToString()  ?? "";
+            string serviceOutcomes = data["ServiceOutcomes"].ToString()  ?? "";
+
+            ServiceHistory serviceHistory = ServiceHistory.setServiceHistoryDetails(appointmentId, service, patientId, nurseId, doctorId, serviceDate, location, serviceOutcomes);
+            return serviceHistory;
         }
     }
 }

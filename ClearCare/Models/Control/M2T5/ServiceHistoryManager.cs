@@ -21,10 +21,7 @@ namespace ClearCare.Models.Control
         // GET ALL SERVICE HISTORY
         public async Task<List<Dictionary<string, object>>> getAllServiceHistory(string userRole, string userId)
         {
-            if (_cachedServiceHistory == null || !_cachedServiceHistory.Any())
-            {
-                await fetchServiceHistory(); // trigger async update and populate cache
-            }
+            await fetchServiceHistory(); // trigger async update and populate cache
             List<ServiceHistory> serviceHistoryList = _cachedServiceHistory;
             List<Dictionary<string, object>> serviceHistoryDictionaryList = new();
 

@@ -8,45 +8,45 @@ namespace ClearCare.Models.Control
     {
         private static List<Notification> _cache = new List<Notification>();
 
-        public static DateTime CurrentIntervalEnd { get; private set; } = GetCurrentIntervalEnd();
+        public static DateTime CurrentIntervalEnd { get; private set; } = getCurrentIntervalEnd();
 
-        private static DateTime GetCurrentIntervalEnd()
+        private static DateTime getCurrentIntervalEnd()
         {
             DateTime now = DateTime.UtcNow;
             // Round up to the next whole hour.
             return new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0).AddHours(1);
         }
 
-        public static bool IsWithinCurrentInterval(DateTime scheduledTime)
+        public static bool isWithinCurrentInterval(DateTime scheduledTime)
         {   
             Console.WriteLine($"NotificationCache: scheduledTime: {scheduledTime}, CurrentIntervalEnd: {CurrentIntervalEnd}");
             return scheduledTime <= CurrentIntervalEnd;
         }
 
-        public static void AddNotification(Notification notification)
+        public static void addNotification(Notification notification)
         {
             _cache.Add(notification);
             Console.WriteLine($"[NotificationCache] Notification added to cache.");
         }
 
-        public static List<Notification> GetDueNotifications(DateTime now)
+        public static List<Notification> getDueNotifications(DateTime now)
         {
             Console.WriteLine($"[NotificationCache]: Fetching notifications due before {now}");
 
             // Fetch notifications that are due
-            var dueNotifications = _cache.FindAll(n => n.GetTiming() <= now);
+            var dueNotifications = _cache.FindAll(n => n.getTiming() <= now);
 
             // Print details of each notification in the cache
             foreach (var notification in dueNotifications)
             {
                 // Assuming Notification has properties like Id, Timing, Content, etc.
-                Console.WriteLine($"Timing: {notification.GetTiming()}");
+                Console.WriteLine($"Timing: {notification.getTiming()}");
             }
 
             return dueNotifications;
         }
 
-        public static void RemoveNotifications(List<Notification> notifications)
+        public static void removeNotifications(List<Notification> notifications)
         {
             foreach (var notification in notifications)
             {
@@ -54,15 +54,15 @@ namespace ClearCare.Models.Control
             }
         }
 
-        public static List<Notification> GetAllNotifications()
+        public static List<Notification> getAllNotifications()
         {
             return new List<Notification>(_cache);
         }
 
-        public static void ClearCache()
+        public static void clearCache()
         {
             _cache.Clear();
-            CurrentIntervalEnd = GetCurrentIntervalEnd();
+            CurrentIntervalEnd = getCurrentIntervalEnd();
         }
     }
 }

@@ -16,7 +16,7 @@ namespace ClearCare.Models.Control
             _appointmentStatusManager = appointmentStatusManager;
         }
 
-        public async Task<List<Dictionary<string, object>>> FetchFilteredAppointments(string status, string doctor, string type)
+        public async Task<List<Dictionary<string, object>>> fetchFilteredAppointments(string status, string doctor, string type)
         {
             var appointments = await _appointmentStatusManager.getAllServiceAppointments();
             var filtered = appointments;
@@ -52,7 +52,7 @@ namespace ClearCare.Models.Control
         }
 
 
-        public async Task<Dictionary<string, object>> GenerateFilteredAppointmentAnalytics(string status, string doctor, string type)
+        public async Task<Dictionary<string, object>> generateFilteredAppointmentAnalytics(string status, string doctor, string type)
         {
             // Retrieve all appointments using the appointment status manager.
             List<ServiceAppointment> appointments = await _appointmentStatusManager.getAllServiceAppointments();

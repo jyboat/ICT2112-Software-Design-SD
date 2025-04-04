@@ -21,7 +21,7 @@ namespace ClearCare.DataSource
             try
             {   
                 DocumentReference docRef = _db.Collection("Notification").Document();
-                await docRef.SetAsync(notification.GetNotificationDetails());
+                await docRef.SetAsync(notification.getNotificationDetails());
                 Console.WriteLine("[NotificationGateway] Notification created in Firestore.");
                 return true;
             }
@@ -93,7 +93,7 @@ namespace ClearCare.DataSource
             }
 
             // Use the SetNotificationDetails method to create a Notification object
-            Notification notification = Notification.SetNotificationDetails(userId, method, timing, content, email, phone);
+            Notification notification = Notification.setNotificationDetails(userId, method, timing, content, email, phone);
             return notification;
         }
     }

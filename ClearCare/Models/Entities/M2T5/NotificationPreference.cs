@@ -19,35 +19,9 @@ namespace ClearCare.Models.Entities
             DndTimeRange = dndTimeRange ?? new TimeRange(TimeSpan.Zero, TimeSpan.FromHours(24));
         }
 
-        public string GetUserID() => UserID;
-        public string GetMethods() => Methods;
-        public string GetDndDays() => DndDays;
-        public TimeRange GetDndTimeRange() => DndTimeRange;
-    }
-
-    public class TimeRange
-    {
-        private TimeSpan Start { get; set; }
-        private TimeSpan End { get; set; }
-
-        public TimeRange()
-        {
-            Start = TimeSpan.Zero;
-            End = TimeSpan.FromHours(24);
-        }
-
-        public TimeRange(TimeSpan start, TimeSpan end)
-        {
-            Start = start;
-            End = end;
-        }
-
-        public TimeSpan GetStartTime() => Start;
-        public TimeSpan GetEndTime() => End;
-
-        public bool IsTimeInRange(TimeSpan currentTime)
-        {
-            return currentTime >= Start && currentTime <= End;
-        }
+        public string getUserID() => UserID;
+        public string getMethods() => Methods;
+        public string getDndDays() => DndDays;
+        public TimeRange getDndTimeRange() => DndTimeRange;
     }
 }

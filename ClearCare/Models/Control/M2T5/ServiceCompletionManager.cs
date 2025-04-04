@@ -15,9 +15,7 @@ namespace ClearCare.Models.Control
         private readonly ServiceHistoryManager _serviceHistoryManager; // Add ServiceHistoryManager dependency
 
         // Inject IAppointmentStatus and INotification through the constructor
-        public ServiceCompletionManager(IAppointmentStatus appointmentStatus, INotification notificationManager 
-        ,ServiceHistoryManager serviceHistoryManager)
-
+        public ServiceCompletionManager(IAppointmentStatus appointmentStatus, INotification notificationManager, ServiceHistoryManager serviceHistoryManager)
         {
             _appointmentStatus = appointmentStatus;
             _notificationManager = notificationManager; // Assign the injected INotification instance
@@ -47,8 +45,7 @@ namespace ClearCare.Models.Control
             await _notificationManager.createNotification(nurseId, notificationContent); // Create the nurse notification
         }
 
-        public async Task<string> logServiceCompletion(string appointmentId, string service, string patientId, 
-            string nurseId, string doctorId, DateTime serviceDate, string location, string serviceOutcomes)
+        public async Task<string> logServiceCompletion(string appointmentId, string service, string patientId, string nurseId, string doctorId, DateTime serviceDate, string location, string serviceOutcomes)
         {
 
             // Log all input variables

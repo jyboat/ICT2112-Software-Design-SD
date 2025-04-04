@@ -23,15 +23,15 @@ namespace ClearCare.DataSource
             try
             {
                 var preferenceCollection = _db.Collection("notification_preferences");
-                DocumentReference docRef = preferenceCollection.Document(preference.GetUserID());
+                DocumentReference docRef = preferenceCollection.Document(preference.getUserID());
 
 
                 var data = new Dictionary<string, object>
                 {
-                    { "UserID", preference.GetUserID() },
-                    { "Methods", preference.GetMethods() },
-                    { "DndDays", preference.GetDndDays() },
-                    { "DndTimeRange", $"{preference.GetDndTimeRange().GetStartTime()}-{preference.GetDndTimeRange().GetEndTime()}" }
+                    { "UserID", preference.getUserID() },
+                    { "Methods", preference.getMethods() },
+                    { "DndDays", preference.getDndDays() },
+                    { "DndTimeRange", $"{preference.getDndTimeRange().getStartTime()}-{preference.getDndTimeRange().getEndTime()}" }
 
                 };
                 await docRef.SetAsync(data);
