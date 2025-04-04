@@ -56,11 +56,10 @@ public class ConsultationManagement : IConsultReceive
     public Task<ZoomApi.TokenResponse?> generateAccessToken(
         string authCode,
         string redirectUri
-        )
+    )
     {
         // return _zoomApi.generateAccessToken(authCode, redirectUri);
-        // TODO: REMOVE ACCOUNT ID!!!!
-        return _zoomApi.generateServerAccessToken("OXUEiX4PQqWwK-YTuAGKNA");
+        return _zoomApi.generateServerAccessToken(Environment.GetEnvironmentVariable("ZOOM_ACCOUNT_ID"));
     }
 
     public Task<List<ConsultationSession>> getConsultations()
