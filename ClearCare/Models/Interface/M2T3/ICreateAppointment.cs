@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using ClearCare.Models.Entities;
 using System.Threading.Tasks;
 
-
 namespace ClearCare.Interfaces
 {
     public interface ICreateAppointment
