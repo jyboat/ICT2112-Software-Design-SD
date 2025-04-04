@@ -8,7 +8,7 @@ namespace ClearCare.Models.Control
     {
         private static List<Notification> _cache = new List<Notification>();
 
-        public static DateTime CurrentIntervalEnd { get; private set; } = getCurrentIntervalEnd();
+        public static DateTime currentIntervalEnd { get; private set; } = getCurrentIntervalEnd();
 
         private static DateTime getCurrentIntervalEnd()
         {
@@ -19,8 +19,8 @@ namespace ClearCare.Models.Control
 
         public static bool isWithinCurrentInterval(DateTime scheduledTime)
         {   
-            Console.WriteLine($"NotificationCache: scheduledTime: {scheduledTime}, CurrentIntervalEnd: {CurrentIntervalEnd}");
-            return scheduledTime <= CurrentIntervalEnd;
+            Console.WriteLine($"NotificationCache: scheduledTime: {scheduledTime}, CurrentIntervalEnd: {currentIntervalEnd}");
+            return scheduledTime <= currentIntervalEnd;
         }
 
         public static void addNotification(Notification notification)
@@ -62,7 +62,7 @@ namespace ClearCare.Models.Control
         public static void clearCache()
         {
             _cache.Clear();
-            CurrentIntervalEnd = getCurrentIntervalEnd();
+            currentIntervalEnd = getCurrentIntervalEnd();
         }
     }
 }
