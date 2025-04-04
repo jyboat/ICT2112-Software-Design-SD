@@ -23,16 +23,12 @@ namespace ClearCare.DataSource
                 DocumentReference docRef = _db.Collection("Notification").Document();
                 await docRef.SetAsync(notification.GetNotificationDetails());
                 Console.WriteLine("[NotificationGateway] Notification created in Firestore.");
-                // Notify observers about the successful creation
-                notifyObservers(true);
                 return true;
             }
             catch (Exception ex)
             {
                 // Log any error that occurred during the creation
                 Console.WriteLine($"Error while creating notification: {ex.Message}");
-                // Notify observers about the failure
-                notifyObservers(false);
                 return false;
             }
         }
@@ -53,12 +49,9 @@ namespace ClearCare.DataSource
                 {
                     // Check the document data
                     var data = document.ToDictionary();
-                    Console.WriteLine($"Document Data: {string.Join(", ", data.Select(kv => $"{kv.Key}: {kv.Value}"))}");
 
                     // Map Firestore data to Notification entity
                     var notification = FromFirestoreData(data);
-
-                    Console.WriteLine($"GATEWAY notification timing: {notification.GetTiming()}");
 
                     notifications.Add(notification);
 
@@ -101,79 +94,7 @@ namespace ClearCare.DataSource
 
             // Use the SetNotificationDetails method to create a Notification object
             Notification notification = Notification.SetNotificationDetails(userId, method, timing, content, email, phone);
-
-
             return notification;
         }
-
     }
 }
-
-        // // fetchNotification() retrieves all documents in the "Notification" collection, extracts the "notificationId" from each, and returns the highest integer value. If no documents exist, it returns 0.
-        // public async Task<int> fetchNotification()
-        // {
-        //     int highestId = 0;
-        //     CollectionReference notificationRef = _db.Collection("Notification");
-        //     QuerySnapshot snapshot = await notificationRef.GetSnapshotAsync();
-
-        //     foreach (DocumentSnapshot document in snapshot.Documents)
-        //     {
-        //         if (document.Exists)
-        //         {
-        //             Dictionary<string, object> data = document.ToDictionary();
-        //             if (data.ContainsKey("notificationId"))
-        //             {
-        //                 int id = Convert.ToInt32(data["notificationId"]);
-        //                 if (id > highestId)
-        //                 {
-        //                     highestId = id;
-        //                 }
-        //             }
-        //         }
-        //     }
-
-        //     // Notify observers that the highest ID has been fetched.
-        //     notifyObservers($"Highest Notification ID fetched: {highestId}");
-        //     return highestId;
-        // }
-
-                // // This method fetches notifications from Firestore with sendTime within the next hourly cache interval
-        // public async Task fetchNotifications(DateTime intervalStart, DateTime intervalEnd)
-        // {
-        //     try
-        //     {
-        //         Console.WriteLine($"Gateway: {intervalStart.ToUniversalTime()}, {intervalEnd.ToUniversalTime()}");
-        //         // Query Firestore for notifications with a sendTime within the specified range
-        //         var query = _db.Collection("Notification")
-        //                        .WhereGreaterThanOrEqualTo("sendTime", intervalStart.ToUniversalTime())
-        //                        .WhereLessThanOrEqualTo("sendTime", intervalEnd.ToUniversalTime());
-
-        //         var snapshot = await query.GetSnapshotAsync();
-        //         List<Notification> notifications = new List<Notification>();
-
-        //         foreach (var document in snapshot.Documents)
-        //         {
-        //             var notification = document.ConvertTo<Notification>();
-        //             notifications.Add(notification);
-
-        //             // try
-        //             // {
-        //             //     await document.Reference.DeleteAsync();
-        //             //     Console.WriteLine($"Notification with ID {document.Id} deleted from Firestore.");
-        //             // }
-        //             // catch (Exception ex)
-        //             // {
-        //             //     Console.WriteLine($"Error deleting notification with ID {document.Id}: {ex.Message}");
-        //             // }
-        //         }
-
-        //         // Notify observers about the fetched notifications
-        //         notifyObservers(notifications);
-
-        //         Console.WriteLine("[NotificationGateway] Fetched notifications from Firestore.");
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         Console.WriteLine($"Error while fetching notifications: {ex.Message}");
-        //     }
-        // }

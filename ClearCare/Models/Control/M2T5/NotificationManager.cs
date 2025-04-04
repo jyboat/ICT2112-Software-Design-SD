@@ -28,30 +28,15 @@ namespace ClearCare.Models.Control {
 
         // createNotification: generates a new notification, stores it in the database, then triggers sending.
         public async Task createNotification(string userId, string content) {   
-            // string methods = "Email"; // Placeholder for INotificationPreferences
-            // string methods = "Email,SMS"; // Placeholder for INotificationPreferences
-            // Check doNotDisturb, if current time not inside, sendNow = True
-            //bool sendNow = true; // Placeholder
-            //bool sendNow = false; // Placeholder
-
             var (methods, sendNow, sendTime) = await checkPreference(userId);
             DateTime timing = DateTime.UtcNow;
 
             var userdata = await _userDetails.getUserDetails(userId);
             var user = userdata.getProfileData();
-            Console.WriteLine($"NotifManager: {user}");
-
-
-            // string email = "example@gmail.com"; // Placeholder
-            // string phone = "+6500000000"; // Placeholder
 
             string email = user["Email"].ToString();
             string phone = "+" + user["MobileNumber"].ToString();
-            Console.WriteLine($"UserID: {userId}, Email: {email}, Phone: {user["MobileNumber"]}");
-
-            Console.WriteLine(TimeZoneInfo.Local.Id);
             sendTime = sendTime.ToUniversalTime();
-            Console.WriteLine($"UserID: {userId}, Email: {email}, Phone: {phone}, Methods: {methods}, SendNow: {sendNow}, Send Time: {sendTime}");
 
             if (sendNow) {
                 await sendNotification(methods, email, phone, content);
@@ -95,20 +80,16 @@ namespace ClearCare.Models.Control {
 
             // If today is a DND day and the current time is within the specified range, do not send now
             bool sendNow = !(isTodayDnd && isTimeInRange);
-
             var sendTime = DateTime.UtcNow;
-            Console.WriteLine($"1NotificationCheckPreference: Send Time: {sendTime}");
 
             // If sending is blocked, compute the next valid time
             if (!sendNow)
             {   
-                Console.WriteLine($"2NotificationCheckPreference: dndTimeRange: {dndTimeRange.GetEndTime()}, Send Time: {DateTime.UtcNow.Date.Add(dndTimeRange.GetEndTime())}");
                 DateTime localDate = DateTime.Now.Date;
                 DateTime localSendTime = localDate.Add(dndTimeRange.GetEndTime());
 
                 sendTime = localSendTime.ToUniversalTime();
             }
-            Console.WriteLine($"NotificationCheckPreference: Send Time: {sendTime}");
             return (methods, sendNow, sendTime);
         }
 
@@ -152,28 +133,12 @@ namespace ClearCare.Models.Control {
         // Scheduler should call getNotifications to fetch notifications for the next interval
         public async Task getNotifications()
         {
-            // DateTime intervalStart = DateTime.UtcNow;
-            // DateTime intervalEnd = NotificationCache.CurrentIntervalEnd; // Fetch notifications for the next hourly interval
-            // Console.WriteLine($"NotificationManager: intervalEnd: {intervalEnd}");
-            // DateTime intervalEndTest = DateTime.UtcNow.AddHours(1);
-            // Console.WriteLine($"NotificationManager: intervalEndTest: {intervalEndTest}");
             await _notificationGateway.fetchNotifications();
         }
 
         // update: Observer method called by NotificationGateway when a change occurs.
         public void update(Subject subject, object data) {
-            if (data is bool isSuccess)
-            {
-                // Handle success/failure of createNotification
-                if (isSuccess)
-                {
-                    Console.WriteLine("[NotificationManager] Notification created successfully.");
-                }
-                else
-                {
-                    Console.WriteLine("[NotificationManager] Notification creation failed.");
-                }
-            } else if (data is List<Notification> notifications)  {
+            if (data is List<Notification> notifications)  {
                 Console.WriteLine("[NotificationManager] Notifications fetched from Firestore.");
                 DateTime intervalStart = DateTime.UtcNow;
                 DateTime intervalEnd = NotificationCache.CurrentIntervalEnd;
