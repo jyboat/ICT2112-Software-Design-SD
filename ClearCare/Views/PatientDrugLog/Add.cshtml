@@ -1,0 +1,88 @@
+@using ClearCare  
+@using Microsoft.AspNetCore.Http
+
+@{
+    ViewData["Title"] = "Upload Drug";
+    string userUUID = Context.Session.GetString("UserID") ?? "";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Upload Drug</h1>
+
+    <form asp-action="add" method="post">
+        <div class="mb-3">
+            <input type="hidden"
+                   class="form-control"
+                   id="PatientId"
+                   name="PatientId"
+                   value="@userUUID"
+                   readonly />
+        </div>
+
+        <div class="mb-3">
+            <label for="DrugName" class="form-label">Drug Name</label>
+            <input type="text" class="form-control" id="DrugName" name="DrugName" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="ReportedSideEffects" class="form-label">Reported Side Effects</label>
+            <textarea class="form-control" id="ReportedSideEffects" name="ReportedSideEffects" rows="6" disabled></textarea>
+        </div>
+
+        <div class="mb-3 text-end">
+            <button type="button" class="btn btn-success" id="fetchSideEffectsBtn">Show Side Effects</button>
+        </div>
+
+        <div class="mb-3">
+            <label for="SideEffects" class="form-label">Report New Side Effects</label>
+            <textarea class="form-control" id="SideEffects" name="SideEffects" rows="3" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="DrugInformation" class="form-label">Information</label>
+            <textarea class="form-control" id="DrugInformation" name="DrugInformation" rows="3" required></textarea>
+        </div>
+
+        <div class="form-group col-md-4 mb-3">
+            <label for="status">Status</label>
+            <select id="status" name="status" class="form-control">
+                <option selected>Currently Taking</option>
+                <option>Not Taking</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Upload Drug Info</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+<script>
+document.getElementById("fetchSideEffectsBtn").addEventListener("click", async function() {
+    const drugName = document.getElementById("DrugName").value.trim();
+
+    if (!drugName) {
+        alert("Please enter a drug name first.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`/PatientDrugLog/fetchDrugSideEffect?drugName=${encodeURIComponent(drugName)}`);
+        
+        if (!response.ok) {
+            throw new Error("Failed to fetch side effects.");
+        }
+
+        const data = await response.json(); 
+        
+        if (data.results && data.results.length > 0) {
+            const sideEffects = data.results[0].sideEffects.split(',').map(effect => `• ${effect.trim()}`).join('\n');
+            document.getElementById("ReportedSideEffects").value = sideEffects;
+        } else {
+            document.getElementById("ReportedSideEffects").value = "No side effects found.";
+        }
+    } catch (error) {
+        console.error("Error fetching side effects:", error);
+        document.getElementById("ReportedSideEffects").value = "Could not retrieve any reported side effects.";
+    }
+});
+</script>

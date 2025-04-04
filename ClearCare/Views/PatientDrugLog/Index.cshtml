@@ -1,0 +1,66 @@
+@model List<ClearCare.Models.PatientDrugLogModel>
+
+@using ClearCare 
+@{
+    ViewData["Title"] = "Drug Log";
+}
+
+<div class="container mt-5">
+
+    <h1 class="mb-4">Drug Log</h1>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <a asp-action="add" class="btn btn-primary mb-3">Upload Drug Info</a>
+        </div>
+
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search...">
+                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <table class="table table-bordered" id="druglogTable">
+            <thead class="table-light">
+                <tr>
+                    <th>Patient ID</th>
+                    <th>Drug Name</th>
+                    <th>Drug Information</th>
+                    <th>Side Effects</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var drugInfo in Model)
+                {
+                    <tr>
+                        <td>@drugInfo.PatientId</td>
+                        <td>@drugInfo.DrugName</td>
+                        <td>@drugInfo.DrugInformation</td>
+                        <td>@drugInfo.SideEffects</td>
+                        <td>@drugInfo.Status</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            No drugs have been uploaded.
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    <script>
+        initializeTableSearch('searchInput', 'searchButton', 'druglogTable');
+    </script>
+}
