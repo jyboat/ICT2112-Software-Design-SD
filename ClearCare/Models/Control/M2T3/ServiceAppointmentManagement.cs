@@ -219,12 +219,6 @@ namespace ClearCare.Models.Control
 
             return (appointments, patientNames);
         }
-
-        public async Task<List<string>> getAllServices()
-        {
-            List<string> services = await _dbGateway.getAllServices();
-            return services;
-        }
     }
 
 }

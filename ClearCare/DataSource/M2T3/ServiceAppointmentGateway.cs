@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using ClearCare.Interfaces;
+using ClearCare.Models.Interface;
+using ClearCare.Models.Control;
 using Google.Api;
 using System.ComponentModel;
 
@@ -14,9 +16,13 @@ namespace ClearCare.DataSource
     {
         private readonly FirestoreDb _db;
         private IServiceAppointmentDB_Receive _receiver;
+        
+        private readonly IServiceType _iServiceType;
+        
         public ServiceAppointmentGateway()
         {
             _db = FirebaseService.Initialize();
+            _iServiceType = (IServiceType) new ServiceTypeManager();
         }
 
         // Property for setting the receiver after instantiation (Since gateway handle receiver callback - creates circular dependency. SO need break cycle by property injection)
@@ -259,26 +265,6 @@ namespace ClearCare.DataSource
             public string Name { get; set; } = string.Empty;
         }
 
-        // To be changed delete once got interface from other teams
-        public async Task<List<string>> getAllServices()
-        {
-            Query serviceQuery = _db.Collection("service_type");
-            QuerySnapshot snapshot2 = await serviceQuery.GetSnapshotAsync();
-
-            var services = new List<string>();
-
-            foreach (DocumentSnapshot document in snapshot2.Documents)
-            {
-                if(document.GetValue<string>("status") != "discontinued"){
-                    services.Add(document.GetValue<string>("name"));
-                }
-                else{
-                    continue;
-                }
-            }
-            return services;
-        }
-
         // To do: Retrieve from firebase/interface
         public async Task<(List<Dictionary<string, object>> appointments, Dictionary<string, string> patientNames)> fetchAllUnscheduledPatients()
         {
@@ -297,7 +283,12 @@ namespace ClearCare.DataSource
             }
 
             var unscheduledPatients = new List<ServiceAppointment>();
-            var services = await getAllServices();
+            var services = await _iServiceType.getServiceTypes();
+
+            var serviceNames = services
+                .Where(s => s.Status != "discontinued")
+                .Select(s => s.Name)
+                .ToList();
 
             foreach (var patient in patients)
             {
@@ -312,7 +303,9 @@ namespace ClearCare.DataSource
                                                .ToList();
 
                 // Find missing services (those that exist in the service list but not in the existing appointments)
-                var missingServices = services.Where(service => !existingServices.Contains(service)).ToList();
+                var missingServices = serviceNames
+                    .Where(serviceName => !existingServices.Contains(serviceName))
+                    .ToList();
 
                 // For each missing service, create a new service appointment
                 foreach (var service in missingServices)

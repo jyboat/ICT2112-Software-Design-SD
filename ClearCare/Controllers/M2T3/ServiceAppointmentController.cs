@@ -187,10 +187,10 @@ public class ServiceAppointmentsController : Controller
         }
     }
 
-    // Test Auto Interface
+    // Auto Interface
     [HttpPost]
-    [Route("TestAutoAppointment")]
-    public async Task<IActionResult> testAutoAppointment([FromForm] string appointmentsJson, [FromForm] string algorithm)
+    [Route("AutoAppointment")]
+    public async Task<IActionResult> autoAppointment([FromForm] string appointmentsJson, [FromForm] string algorithm)
     {
         // Deserialize the JSON into a list of dictionaries
         var rawData = JsonSerializer.Deserialize<List<Dictionary<string, object>>>(appointmentsJson);

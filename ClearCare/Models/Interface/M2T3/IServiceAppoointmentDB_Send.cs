@@ -20,8 +20,6 @@ namespace ClearCare.Interfaces
     Task<DateTime?> fetchAppointmentTime(string appointmentId);
     
     Task<(List<Dictionary<string, object>> appointments, Dictionary<string, string> patientNames)> fetchAllUnscheduledPatients();
-    
-    // To be changed delete once got interface from other teams
-    Task<List<string>> getAllServices();
+
    }
 }
