@@ -92,6 +92,9 @@ public class ServiceAppointmentsController : Controller
             .ToList();
 
         var services = await _manualAppointmentScheduler.getServices();
+        services = services
+        .Where(s => s.Status != "discontinued") // Exclude discontinued services
+        .ToList();
 
         var uniqueLocations = services
         .GroupBy(s => s.Modality)  // Group by 'Modality' (location)
