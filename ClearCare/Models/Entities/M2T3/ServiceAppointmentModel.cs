@@ -10,31 +10,22 @@ namespace ClearCare.Models.Entities
     [FirestoreData]
     public class ServiceAppointment
     {
-        // string.Empty = set empty default or else it will throw error FCK U ASP.NET
-        // [FirestoreProperty]
+        [FirestoreProperty]
         private string AppointmentId { get; set; } = string.Empty;
-
         [FirestoreProperty]
         private string PatientId { get; set; } = string.Empty;
-
         [FirestoreProperty]
         private string NurseId { get; set; } = string.Empty;
-
         [FirestoreProperty]
         private string DoctorId { get; set; } = string.Empty;
-
         [FirestoreProperty]
         private string Service { get; set; } = string.Empty;
-
         [FirestoreProperty]
         private string Status { get; set; } = string.Empty;
-
         [FirestoreProperty]
         private DateTime DateTime { get; set; }
-
         [FirestoreProperty]
         private int Slot { get; set; } = 0; 
-
         [FirestoreProperty]
         private string Location { get; set; } = string.Empty;
 
@@ -49,7 +40,7 @@ namespace ClearCare.Models.Entities
         private int getSlot() => Slot;
         private string getLocation() => Location;
 
-        // private void SetAppointmentID(string appointmentId) => AppointmentId = appointmentId;
+        private void SetAppointmentID(string appointmentId) => AppointmentId = appointmentId;
         private void setPatientID(string patientId) => PatientId = patientId;
         private void setNurseID(string nurseId) => NurseId = nurseId;
         private void setDoctorID(string doctorId) => DoctorId = doctorId;
