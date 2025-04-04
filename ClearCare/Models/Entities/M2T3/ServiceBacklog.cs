@@ -9,14 +9,12 @@ namespace ClearCare.Models.Entities
     public class ServiceBacklog
     {
         private string BacklogId { get; set; }
-
         private string AppointmentId { get; set; }
 
         // private getters and setters
         private string getBacklogId() => BacklogId;
-        private string getServiceAppointmentId() => AppointmentId;
-
         private void setBacklogId(string backlogID) => BacklogId = backlogID;
+        private string getServiceAppointmentId() => AppointmentId;
         private void setServiceAppointmentId(string appointmentID) => AppointmentId = appointmentID;
 
         // public constructor
@@ -36,7 +34,7 @@ namespace ClearCare.Models.Entities
                 { "appointmentId", getServiceAppointmentId() },
             };
         }
-
+        
         public void setBacklogInformation(string backlogID, string appointmentID)
         {
             setBacklogId(backlogID);
