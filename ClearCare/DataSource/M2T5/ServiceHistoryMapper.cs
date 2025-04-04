@@ -15,30 +15,21 @@ namespace ClearCare.DataSource
         }
 
         // GET ALL SERVICE HISTORY
-        public async Task<List<ServiceHistory>> fetchAllServiceHistory()
+        public async Task fetchAllServiceHistory()
         {
-            try
-            {
-                QuerySnapshot snapshot = await _dbCollection.GetSnapshotAsync();
-                List<ServiceHistory> serviceHistoryList = new List<ServiceHistory>();
+            QuerySnapshot snapshot = await _dbCollection.GetSnapshotAsync();
+            List<ServiceHistory> serviceHistoryList = new List<ServiceHistory>();
 
-                foreach (DocumentSnapshot document in snapshot.Documents)
-                {
-                    if (document.Exists)
-                    {
-                        var data = document.ToDictionary();
-                        ServiceHistory serviceHistory = ServiceHistory.FromFirestoreData(document.Id, data);
-                        serviceHistoryList.Add(serviceHistory);
-                    }
-                }
-        
-                return serviceHistoryList;
-            }
-            catch (Exception ex)
+            foreach (DocumentSnapshot document in snapshot.Documents)
             {
-                Console.WriteLine($"[ServiceHistoryMapper] Error retrieving service history: {ex.Message}");
-                return null;
+                if (document.Exists)
+                {
+                    var data = document.ToDictionary();
+                    ServiceHistory serviceHistory = ServiceHistory.FromFirestoreData(document.Id, data);
+                    serviceHistoryList.Add(serviceHistory);
+                }
             }
+            notifyObservers(serviceHistoryList);
         }
 
         // CREATE SERVICE HISTORY
@@ -56,13 +47,11 @@ namespace ClearCare.DataSource
                 // Overwrite field if exist, creat new if doesn't exist
                 await docRef.SetAsync(serviceHistoryData);
 
-                notifyObservers(true);
                 return docRef.Id;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error creating service history: {ex.Message}");
-                notifyObservers(false);
                 return null;
             }
         }
