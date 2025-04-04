@@ -14,13 +14,13 @@ namespace ClearCare.Controllers
             _notificationManager = notificationManager;
         }
 
-        // GET: /NotificationTest/
+        // GET: /NotificationInput/
         public IActionResult Index()
         {
-            return View("~/Views/M2T5/NotificationTest/Index.cshtml");
+            return View("~/Views/M2T5/Notification/Index.cshtml");
         }
 
-        // POST: /NotificationTest/Create
+        // POST: /NotificationInput/Create
         [HttpPost]
         public async Task<IActionResult> CreateNotification()
         {
