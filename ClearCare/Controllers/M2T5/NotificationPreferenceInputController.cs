@@ -20,6 +20,7 @@ namespace ClearCare.Controllers
             _manager = manager;
         }
 
+        [HttpGet("Index")]
         public IActionResult Index()
         {
             return View("~/Views/M2T5/NotificationPreferences/Index.cshtml");
