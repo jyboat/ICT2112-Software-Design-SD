@@ -67,7 +67,7 @@ namespace ClearCare.Controllers
                 return RedirectToAction("Index");
             }
 
-            await serviceManager.CreateServiceType(name, duration, requirements, modality);
+            await serviceManager.createServiceType(name, duration, requirements, modality);
             TempData["SuccessMessage"] = "Service added successfully.";
             return RedirectToAction("Index");
         }
@@ -86,7 +86,7 @@ namespace ClearCare.Controllers
                     return RedirectToAction("Index");
                 }
 
-                await serviceManager.UpdateServiceType(id, name, duration, requirements, modality);
+                await serviceManager.updateServiceType(id, name, duration, requirements, modality);
                 TempData["SuccessMessage"] = "Service updated successfully.";
                 return RedirectToAction("Index");
             }
@@ -117,7 +117,7 @@ namespace ClearCare.Controllers
         [HttpPost]
         public async Task<IActionResult> DiscontinueConfirmed(int id)
         {
-            await serviceManager.DiscontinueServiceType(id);
+            await serviceManager.discontinueServiceType(id);
             TempData["SuccessMessage"] = "Service discontinued.";
             return RedirectToAction("Index");
         }

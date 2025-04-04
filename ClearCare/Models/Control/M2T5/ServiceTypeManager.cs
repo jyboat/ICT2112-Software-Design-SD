@@ -12,30 +12,30 @@ namespace ClearCare.Models.Control
 
         public async Task<List<ServiceType>> getServiceTypes()
         {
-            return await _serviceTypeRepository.GetServiceTypes();
+            return await _serviceTypeRepository.getServiceTypes();
         }
 
-        public async Task CreateServiceType(string name, int duration, string requirements, string modality)
+        public async Task createServiceType(string name, int duration, string requirements, string modality)
         {
-            var existing = await _serviceTypeRepository.GetServiceTypes();
+            var existing = await _serviceTypeRepository.getServiceTypes();
             var newId = existing.Count + 1;
             var newService = new ServiceType(newId, name, duration, requirements, modality);
-            await _serviceTypeRepository.AddServiceType(newService);
+            await _serviceTypeRepository.addServiceType(newService);
         }
 
-        public async Task UpdateServiceType(int id, string name, int duration, string requirements, string modality)
+        public async Task updateServiceType(int id, string name, int duration, string requirements, string modality)
         {
             ServiceType updatedService = new ServiceType(id, name, duration, requirements, modality);
             updatedService.Modality = modality;
-            await _serviceTypeRepository.UpdateServiceType(id, updatedService);
+            await _serviceTypeRepository.updateServiceType(id, updatedService);
         }
 
 
 
-        public async Task DiscontinueServiceType(int id)
+        public async Task discontinueServiceType(int id)
         {
             // TODO: Check appointments before continuing
-            await _serviceTypeRepository.DiscontinueServiceType(id);
+            await _serviceTypeRepository.discontinueServiceType(id);
         }
 
     }
