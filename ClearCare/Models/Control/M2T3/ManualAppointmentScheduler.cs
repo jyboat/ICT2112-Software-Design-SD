@@ -5,7 +5,7 @@ using ClearCare.Models.Interface;
 
 namespace ClearCare.Models.Control
 {
-    public class ManualAppointmentScheduler
+    public class ManualAppointmentScheduler: IRescheduleAppointment
     {
         private readonly ICreateAppointment _iCreateAppointment;
         private readonly IRetrieveAllAppointments _iRetrieveAppointment;
@@ -27,7 +27,7 @@ namespace ClearCare.Models.Control
             return services; 
         }
 
-        public async Task<bool> validateAppointmentSlot(string patientId, string nurseId,
+        private async Task<bool> validateAppointmentSlot(string patientId, string nurseId,
             string doctorId, DateTime dateTime, int slot, string currentAppointmentId = null)
         {
             bool isValid = true;
