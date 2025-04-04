@@ -14,9 +14,7 @@ namespace ClearCare.Controllers
 
         public async Task<IActionResult> Index(string searchTerm)
         {
-            await serviceManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
-            var serviceTypes = serviceManager.getCachedServiceTypes(); // ✅ Access processed data
-
+            var serviceTypes = await serviceManager.getServiceTypes();
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
@@ -32,25 +30,13 @@ namespace ClearCare.Controllers
             ViewBag.SearchTerm = searchTerm;
             return View("~/Views/M2T5/ServiceType/ServiceType.cshtml", serviceTypes);
         }
-        
-        public async Task<IActionResult> TestObserver()
-        {
-            await serviceManager.fetchServiceTypes();
-            var types = serviceManager.getCachedServiceTypes();
-
-            Console.WriteLine("Types fetched: " + types.Count);
-            return Json(types); // optional
-        }
-
 
         [HttpGet]
         public async Task<JsonResult> SearchServices(string term)
         {
-            await serviceManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
-            var serviceTypes = serviceManager.getCachedServiceTypes(); // ✅ Access processed data
+            var all = await serviceManager.getServiceTypes();
 
-
-            var results = serviceTypes
+            var results = all
                 .Where(s =>
                     s.Name.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                     s.Modality.Contains(term, StringComparison.OrdinalIgnoreCase) ||
@@ -72,10 +58,8 @@ namespace ClearCare.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(string name, int duration, string requirements, string modality)
         {
-            await serviceManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
-            var serviceTypes = serviceManager.getCachedServiceTypes(); // ✅ Access processed data
-
-            bool nameExists = serviceTypes.Any(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            var allServices = await serviceManager.getServiceTypes();
+            bool nameExists = allServices.Any(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
             if (nameExists)
             {
@@ -91,10 +75,8 @@ namespace ClearCare.Controllers
         [HttpPost]
             public async Task<IActionResult> Edit(int id, string name, int duration, string requirements, string modality)
             {
-                await serviceManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
-                var serviceTypes = serviceManager.getCachedServiceTypes(); // ✅ Access processed data
-
-                bool nameExists = serviceTypes.Any(s =>
+                var allServices = await serviceManager.getServiceTypes();
+                bool nameExists = allServices.Any(s =>
                     s.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
                     s.ServiceTypeId != id);
 
@@ -114,9 +96,7 @@ namespace ClearCare.Controllers
         [HttpGet]
         public async Task<IActionResult> ConfirmDiscontinue(int id)
         {
-            await serviceManager.fetchServiceTypes(); // 🔄 Asynchronous trigger
-            var serviceTypes = serviceManager.getCachedServiceTypes(); // ✅ Access processed data
-
+            var serviceTypes = await serviceManager.getServiceTypes();
             var service = serviceTypes.Find(s => s.ServiceTypeId == id);
 
             var appointmentChecker = new ServiceAppointmentStatusManagement();

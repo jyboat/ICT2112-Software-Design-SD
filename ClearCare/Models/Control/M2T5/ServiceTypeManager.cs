@@ -3,57 +3,21 @@ using System.Threading.Tasks;
 using ClearCare.Models.Entities;
 using ClearCare.DataSource;
 using ClearCare.Models.Interface;
-using ClearCare.Interfaces;
 
 namespace ClearCare.Models.Control
 {
-    public class ServiceTypeManager: IServiceType, IDatabaseObserver
+    public class ServiceTypeManager: IServiceType
     {
-        private List<ServiceType> _cachedServiceTypes = new List<ServiceType>();
-
-        public ServiceTypeManager()
-        {
-            _serviceTypeRepository = new ServiceTypeRepository();
-            _serviceTypeRepository.attachObserver(this);
-        }
-        public void update(Subject subject, object data)
-        {
-            Console.WriteLine("✅ Observer triggered! Data received from repository.");
-
-            if (data is List<ServiceType> serviceTypes)
-            {
-                Console.WriteLine($"✅ Received {serviceTypes.Count} service types.");
-                processServiceTypes(serviceTypes);
-            }
-        }
-        private void processServiceTypes(List<ServiceType> types)
-        {
-            Console.WriteLine("🔧 Processing service types inside manager.");
-            _cachedServiceTypes = types;
-        }
-
         private ServiceTypeRepository _serviceTypeRepository = new ServiceTypeRepository();
 
-        public async Task fetchServiceTypes()
+        public async Task<List<ServiceType>> getServiceTypes()
         {
-            await _serviceTypeRepository.getServiceTypesAsync();
-        }
-
-        public List<ServiceType> getCachedServiceTypes()
-        {
-            return _cachedServiceTypes;
-        }
-
-        public Task<List<ServiceType>> getServiceTypes()
-        {
-            return Task.FromResult(getCachedServiceTypes());
+            return await _serviceTypeRepository.getServiceTypes();
         }
 
         public async Task createServiceType(string name, int duration, string requirements, string modality)
         {
-            await fetchServiceTypes();
-            var existing = getCachedServiceTypes();
-
+            var existing = await _serviceTypeRepository.getServiceTypes();
             var newId = existing.Count + 1;
             var newService = new ServiceType(newId, name, duration, requirements, modality);
             await _serviceTypeRepository.addServiceType(newService);
