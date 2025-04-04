@@ -144,7 +144,9 @@ namespace ClearCare.Models.Control
 
         public async Task<object> suggestPatients()
         {
-            var services = await IType.getServiceTypes(); // all available services
+            // var services = (await IType.getServiceTypes()).Where(s => s.Status != "discontinued").ToList();
+
+            var services = await this.getServices(); // all available services
             var allAppointments = await this.getAllServiceAppointments();
 
             var patientList = allAppointments
@@ -186,7 +188,7 @@ namespace ClearCare.Models.Control
         }
 
         public async Task<List<ServiceType>> getServices () {
-            List<ServiceType> services = await IType.getServiceTypes();
+            var services = (await IType.getServiceTypes()).Where(s => s.Status != "discontinued").ToList();
             return services; 
         }
 

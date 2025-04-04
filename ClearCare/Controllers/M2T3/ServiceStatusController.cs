@@ -31,7 +31,7 @@ namespace ClearCare.Controllers
                 ViewBag.PatientIdFilter = patientId;
             }
             //  await to wait for task complete or data to retrieve before executing
-            var appointment =  await _manager.getAppointmentDetails();
+            var allAppointments =  await _manager.getAppointmentDetails();
 
             var users = await _userList.retrieveAllUsers();
             var usersFiltered = users
@@ -62,6 +62,12 @@ namespace ClearCare.Controllers
             var services = await _manager.getServices();
             ViewBag.Services = services;
             
+
+            var activeServiceNames = services.Select(s => s.Name).ToHashSet();
+
+            var appointment = allAppointments
+                .Where(appt => activeServiceNames.Contains(appt.getAttribute("Service")))
+                .ToList();
             
             // No record exists
             if (appointment != null && appointment.Any())
