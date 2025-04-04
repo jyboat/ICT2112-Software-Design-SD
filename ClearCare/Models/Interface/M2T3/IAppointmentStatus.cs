@@ -6,9 +6,10 @@ using ClearCare.Models.Control;
 
 namespace ClearCare.Models.Interface
 {
-    public interface IAppointmentStatus {
-        Task<List<ServiceAppointment>> getAllServiceAppointments();
+    public interface IAppointmentStatus
+    {
         Task<List<ServiceAppointment>> getAppointmentDetails();
         Task updateAppointmentStatus(string appointmentId);
+        Task<List<ServiceAppointment>> getAllServiceAppointments();
     }
 }
