@@ -12,11 +12,13 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        #editDoctorDisplay, #editPatientDisplay,#modalDoctorDisplay, #modalPatientDisplay {
+        #editDoctorDisplay,
+        #editPatientDisplay,
+        #modalDoctorDisplay,
+        #modalPatientDisplay {
             background-color: #e9ecef;
             border-radius: 4px;
-            min-height: 38px
-            display: flex;
+            min-height: 38px display: flex;
             align-items: center;
             padding-left: 10px;
         }
@@ -25,240 +27,226 @@
 
 <body>
     <div class="container"></div>
-        <h1 class="my-4">@ViewData["Title"]</h1>
+    <h1 class="my-4">@ViewData["Title"]</h1>
 
-        @if (Model != null && Model.Count > 0)
-        {
-            <table class="table table-striped mt-3">
-                <thead>
+    @if (Model != null && Model.Count > 0)
+    {
+        <table class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Service Type</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var backlog in Model)
+                {
                     <tr>
-                        @* <th>Backlog ID</th>
-                        <th>Appointment ID</th> *@
-                        @* <th>DateTime</th> *@
-                        <th>Patient</th>
-                        @* <th>Nurse</th> *@
-                        <th>Doctor</th>
-                        <th>Service Type</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var backlog in Model)
-                    {
-                        <tr>
-                            @* <td>@backlog.BacklogId</td>
-                            <td>@backlog.AppointmentId</td> *@
-                            @* <td>@backlog.DateTime.ToString("yyyy-MM-dd HH:mm")</td> *@
-                            <td>@backlog.PatientId</td>
-                            @* <td>@backlog.NurseId</td> *@
-                            <td>@backlog.DoctorId</td>
-                            <td>@backlog.ServiceType</td>
-                            <td>
-                                <form id="deleteForm" method="post" asp-action="Delete" asp-route-id="@backlog.BacklogId" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete the backlog with ID @backlog.BacklogId?');">
-                                    <button type="button" class="btn btn-danger btn-sm"
+                        <td>@backlog.PatientId</td>
+                        <td>@backlog.DoctorId</td>
+                        <td>@backlog.ServiceType</td>
+                        <td>
+                            <form id="deleteForm" method="post" asp-action="Delete" asp-route-id="@backlog.BacklogId"
+                                style="display:inline;"
+                                onsubmit="return confirm('Are you sure you want to delete the backlog with ID @backlog.BacklogId?');">
+                                <button type="button" class="btn btn-danger btn-sm"
                                     onclick="openDeletePopup('@backlog.PatientId', '@backlog.DoctorId', '@backlog.ServiceType')">Delete</button>
-                                </form>
-                                <form method="get" asp-action="Reassign" asp-route-id="@backlog.BacklogId" style="display:inline;" onsubmit="return confirm('Are you sure you want to reassign the backlog with ID @backlog.BacklogId?');">
-                                    <button type="button" class="btn btn-warning btn-sm"
-                                        onclick="openReassignPopup('@backlog.BacklogId', '@backlog.AppointmentId', '@backlog.PatientId', '@backlog.DoctorId', '@backlog.NurseId', '@backlog.DateTime.ToString("yyyy-MM-ddTHH:mm")', '@backlog.ServiceType', '@backlog.Location')">
-                                        Reassign
-                                    </button>                                
-                                </form>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-        else
-        {
-            <div class="alert alert-warning mt-3">No backlogs found.</div>
-        }
+                            </form>
+                            <form method="get" asp-action="Reassign" asp-route-id="@backlog.BacklogId" style="display:inline;"
+                                onsubmit="return confirm('Are you sure you want to reassign the backlog with ID @backlog.BacklogId?');">
+                                <button type="button" class="btn btn-warning btn-sm"
+                                    onclick="openReassignPopup('@backlog.BacklogId', '@backlog.AppointmentId', '@backlog.PatientId', '@backlog.DoctorId', '@backlog.NurseId', '@backlog.DateTime.ToString("yyyy-MM-ddTHH:mm")', '@backlog.ServiceType', '@backlog.Location')">
+                                    Reassign
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-warning mt-3">No backlogs found.</div>
+    }
 
-        <!-- Reassign Modal -->
-        <div id="reassignModal" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Reassign Service Backlog</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
-                            <span>&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            @* <label for="modalBacklogId">Backlog ID</label> *@
-                            <input type="hidden" class="form-control" id="modalBacklogId" readonly>
-                        </div>
-
-                        <div class="form-group">
-                            @* <label for="modalAppointmentId">Appointment ID</label> *@
-                            <input type="hidden" class="form-control" id="modalAppointmentId" readonly>
-                        </div>
-
-                        @* <div class="form-group">
-                            <label for="editDoctorId">Doctor ID</label>
-                            <input type="text" class="form-control" id="editDoctorId" readonly>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="editPatientId">Patient ID</label>
-                            <input type="text" class="form-control" id="editPatientId" readonly >
-                        </div> *@
-<div class="form-group">
-    <label for="editDoctorId">Doctor</label>
-    <input type="hidden" id="editDoctorId" name="editDoctorId"> <!-- Hidden field for ID -->
-    <p class="form-control-plaintext border px-2" id="editDoctorDisplay"></p> <!-- Mimic readonly input -->
-</div>
-
-<div class="form-group">
-    <label for="editPatientId">Patient</label>
-    <input type="hidden" id="editPatientId" name="editPatientId"> <!-- Hidden field for ID -->
-    <p class="form-control-plaintext border px-2" id="editPatientDisplay"></p> <!-- Mimic readonly input -->
-</div>
-
-                        <div class="form-group">
-                            <label for="editNurseId">Nurse</label>
-                            <select id="editNurseId" class="form-control" name="NurseId" required>
-                                <option value="">Select Nurse</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="editDate">Date:</label>
-                            <input type="date" class="form-control" id="editDate" name="Date" required>
-
-                            <label for="editSlot">Time Slot:</label>
-                            <select id="editSlot" class="form-control" name="TimeSlot" required>
-                                <option value="">Select Time Slot</option>
-                                <option value="0">08:00 - 09:00</option>
-                                <option value="1">09:00 - 10:00</option>
-                                <option value="2">10:00 - 11:00</option>
-                                <option value="3">11:00 - 12:00</option>
-                                <option value="4">12:00 - 13:00</option>
-                                <option value="5">13:00 - 14:00</option>
-                                <option value="6">14:00 - 15:00</option>
-                                <option value="7">15:00 - 16:00</option>
-                            </select>
-                        </div> 
-                        
-                        <div class="form-group">
-                            @* <label for="editLocation">Location</label> *@
-                            <input type="hidden" class="form-control" id="editLocation">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="editServiceType">Service Type</label>
-                            <input type="text" class="form-control" id="editServiceType" readonly>
-                        </div>
+    <!-- Reassign Modal -->
+    <div id="reassignModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reassign Service Backlog</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeModal()">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="hidden" class="form-control" id="modalBacklogId" readonly>
                     </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="confirmReassign">Confirm Reassign</button>
+                    <div class="form-group">
+                        <input type="hidden" class="form-control" id="modalAppointmentId" readonly>
                     </div>
+
+                    <div class="form-group">
+                        <label for="editDoctorId">Doctor</label>
+                        <input type="hidden" id="editDoctorId" name="editDoctorId"> <!-- Hidden field for ID -->
+                        <p class="form-control-plaintext border px-2" id="editDoctorDisplay"></p>
+                        <!-- Mimic readonly input -->
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPatientId">Patient</label>
+                        <input type="hidden" id="editPatientId" name="editPatientId"> <!-- Hidden field for ID -->
+                        <p class="form-control-plaintext border px-2" id="editPatientDisplay"></p>
+                        <!-- Mimic readonly input -->
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editNurseId">Nurse</label>
+                        <select id="editNurseId" class="form-control" name="NurseId" required>
+                            <option value="">Select Nurse</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editDate">Date:</label>
+                        <input type="date" class="form-control" id="editDate" name="Date" required>
+
+                        <label for="editSlot">Time Slot:</label>
+                        <select id="editSlot" class="form-control" name="TimeSlot" required>
+                            <option value="">Select Time Slot</option>
+                            <option value="0">08:00 - 09:00</option>
+                            <option value="1">09:00 - 10:00</option>
+                            <option value="2">10:00 - 11:00</option>
+                            <option value="3">11:00 - 12:00</option>
+                            <option value="4">12:00 - 13:00</option>
+                            <option value="5">13:00 - 14:00</option>
+                            <option value="6">14:00 - 15:00</option>
+                            <option value="7">15:00 - 16:00</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="hidden" class="form-control" id="editLocation">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editServiceType">Service Type</label>
+                        <input type="text" class="form-control" id="editServiceType" readonly>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmReassign">Confirm Reassign</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Delete Modal -->
-        <div id="deleteModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="deleteModalLabel">Delete Service Backlog</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeDeleteModal()">
-                            <span>&times;</span>
-                        </button>
+    <!-- Delete Modal -->
+    <div id="deleteModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Delete Service Backlog</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                        onclick="closeDeleteModal()">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete the backlog with the following details?</p>
+                    <div class="form-group">
+                        <label for="modalPatientId">Patient ID</label>
+                        <input type="hidden" class="form-control" id="modalPatientId" readonly>
+                        <p class="form-control-plaintext border px-2" id="modalPatientDisplay"></p>
+                        <!-- Mimic readonly input -->
                     </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete the backlog with the following details?</p>
-                        <div class="form-group">
-                            <label for="modalPatientId">Patient ID</label>
-                            <input type="hidden" class="form-control" id="modalPatientId" readonly>
-                            <p class="form-control-plaintext border px-2" id="modalPatientDisplay"></p> <!-- Mimic readonly input -->
-                        </div>
 
-                        <div class="form-group">
-                            <label for="modalDoctorId">Doctor ID</label>
-                            <input type="hidden" class="form-control" id="modalDoctorId" readonly>
-                            <p class="form-control-plaintext border px-2" id="modalDoctorDisplay"></p> <!-- Mimic readonly input -->
-                        </div>
+                    <div class="form-group">
+                        <label for="modalDoctorId">Doctor ID</label>
+                        <input type="hidden" class="form-control" id="modalDoctorId" readonly>
+                        <p class="form-control-plaintext border px-2" id="modalDoctorDisplay"></p>
+                        <!-- Mimic readonly input -->
+                    </div>
 
-                        <div class="form-group">
-                            <label for="modalServiceType">Service Type</label>
-                            <input type="text" class="form-control" id="modalServiceType" readonly>
-                        </div>
+                    <div class="form-group">
+                        <label for="modalServiceType">Service Type</label>
+                        <input type="text" class="form-control" id="modalServiceType" readonly>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
-                        <button type="button" class="btn btn-danger" id="confirmDelete">Confirm Delete</button>
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">Confirm Delete</button>
                 </div>
             </div>
         </div>
-
-        
+    </div>
     </div>
     <script>
-    
         document.addEventListener("DOMContentLoaded", function () {
             fetch('/ServiceBacklog/GetReassignDetails')
-            .then(response => {
-                console.log(response);
-                if (!response.ok) {
-                throw new Error('Failed to fetch nurse details.');
-                }
-                return response.json();
-            })
-            .then(data => {
-
-                // Filter doctors and patients separately
-                const doctors = data.filter(user => user.role.toLowerCase() === "doctor");
-                const patients = data.filter(user => user.role.toLowerCase() === "patient");
-
-                window.doctorMap = {};
-                doctors.forEach(doctor => window.doctorMap[doctor.userID] = doctor.name);
-
-                window.patientMap = {};
-                patients.forEach(patient => window.patientMap[patient.userID] = patient.name);
-
-                // Update the table with names
-                document.querySelectorAll("tbody tr").forEach(row => {
-                    const patientIdCell = row.children[0]; // Assuming Patient ID is the first <td>
-                    const doctorIdCell = row.children[1]; // Assuming Doctor ID is the second <td>
-
-                    const patientId = patientIdCell.textContent.trim();
-                    const doctorId = doctorIdCell.textContent.trim();
-
-                    if (patientMap[patientId]) {
-                        patientIdCell.textContent += `: ${patientMap[patientId]}`;
+                .then(response => {
+                    console.log(response);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch nurse details.');
                     }
+                    return response.json();
+                })
+                .then(data => {
 
-                    if (doctorMap[doctorId]) {
-                        doctorIdCell.textContent += `: ${doctorMap[doctorId]}`;
+                    // Filter doctors and patients separately
+                    const doctors = data.filter(user => user.role.toLowerCase() === "doctor");
+                    const patients = data.filter(user => user.role.toLowerCase() === "patient");
+
+                    window.doctorMap = {};
+                    doctors.forEach(doctor => window.doctorMap[doctor.userID] = doctor.name);
+
+                    window.patientMap = {};
+                    patients.forEach(patient => window.patientMap[patient.userID] = patient.name);
+
+                    // Update the table with names
+                    document.querySelectorAll("tbody tr").forEach(row => {
+                        const patientIdCell = row.children[0]; // Assuming Patient ID is the first <td>
+                        const doctorIdCell = row.children[1]; // Assuming Doctor ID is the second <td>
+
+                        const patientId = patientIdCell.textContent.trim();
+                        const doctorId = doctorIdCell.textContent.trim();
+
+                        if (patientMap[patientId]) {
+                            patientIdCell.textContent += `: ${patientMap[patientId]}`;
+                        }
+
+                        if (doctorMap[doctorId]) {
+                            doctorIdCell.textContent += `: ${doctorMap[doctorId]}`;
+                        }
+                    });
+
+                    const nurseDropdown = document.getElementById('editNurseId');
+                    const nurses = data.filter(user => user.role.toLowerCase() === "nurse");
+                    if (nurses.length === 0) {
+                        toastr.warning('No nurses found.', 'Warning');
+                        return;
                     }
+                    nurses.forEach(nurse => {
+                        const option = document.createElement('option');
+                        option.value = nurse.userID;
+                        option.textContent = `${nurse.userID}: ${nurse.name}`;
+                        nurseDropdown.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching nurse details:', error);
+                    toastr.error('Error fetching nurse details.', 'Error');
                 });
-
-                const nurseDropdown = document.getElementById('editNurseId');
-                const nurses = data.filter(user => user.role.toLowerCase() === "nurse");
-                if (nurses.length === 0) {
-                toastr.warning('No nurses found.', 'Warning');
-                return;
-                }
-                nurses.forEach(nurse => {
-                    const option = document.createElement('option');
-                    option.value = nurse.userID;
-                    option.textContent = `${nurse.userID}: ${nurse.name}`;
-                    nurseDropdown.appendChild(option);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching nurse details:', error);
-                toastr.error('Error fetching nurse details.', 'Error');
-            });
         });
-        
+
         function openDeletePopup(patientId, doctorId, serviceType) {
             document.getElementById('modalPatientId').value = patientId;
             document.getElementById('modalDoctorId').value = doctorId;
@@ -272,7 +260,7 @@
 
         function closeDeleteModal() {
             $('#deleteModal').modal('hide');
-        }   
+        }
 
         document.getElementById('confirmDelete').onclick = function () {
             document.getElementById('deleteForm').submit();
@@ -286,13 +274,9 @@
             document.getElementById("editDoctorId").value = doctorId;
             document.getElementById("editDoctorDisplay").textContent = `${doctorId}: ${window.doctorMap[doctorId]}`;
             document.getElementById("editPatientDisplay").textContent = `${patientId}: ${window.patientMap[patientId]}`;
-
-            @* document.getElementById("editNurseId").value = nurseId; *@
             document.getElementById("editDate").value = dateTime;
-            @* document.getElementById("editSlot").value = slot; *@
             document.getElementById("editLocation").value = location;
             document.getElementById("editServiceType").value = serviceType;
-            @* document.getElementById("editStatus").value = status; *@
 
             // Show the modal
             $("#reassignModal").modal("show");
@@ -303,102 +287,101 @@
         }
 
         // Handle Reassignment via POST Request
-    $("#confirmReassign").click(function () {
-        var button = $(this);
-        button.prop("disabled", true);
-        button.text("Processing...");
+        $("#confirmReassign").click(function () {
+            var button = $(this);
+            button.prop("disabled", true);
+            button.text("Processing...");
 
-        var backlogId = $("#modalBacklogId").val();
-        var appointmentId = $("#modalAppointmentId").val();
-        var patientId = $("#editPatientId").val();
-        var doctorId = $("#editDoctorId").val();
-        var serviceType = $("#editServiceType").val();
-        var nurseId = $("#editNurseId").val();
-        var dateTime = $("#editDate").val();
-        var slot = $("#editSlot").val();
-        var location = $("#editLocation").val();
+            var backlogId = $("#modalBacklogId").val();
+            var appointmentId = $("#modalAppointmentId").val();
+            var patientId = $("#editPatientId").val();
+            var doctorId = $("#editDoctorId").val();
+            var serviceType = $("#editServiceType").val();
+            var nurseId = $("#editNurseId").val();
+            var dateTime = $("#editDate").val();
+            var slot = $("#editSlot").val();
+            var location = $("#editLocation").val();
 
-        if (!dateTime || slot === "") {
-            toastr.warning("Please select both a date and time slot.", "Warning");
-            button.prop("disabled", false);
-            button.text("Confirm Reassign");
-            return;
-        }
-        if (!nurseId) {
-            toastr.warning("Please select a nurse.", "Warning");
-            button.prop("disabled", false);
-            button.text("Confirm Reassign");
-            return;
-        }
+            if (!dateTime || slot === "") {
+                toastr.warning("Please select both a date and time slot.", "Warning");
+                button.prop("disabled", false);
+                button.text("Confirm Reassign");
+                return;
+            }
+            if (!nurseId) {
+                toastr.warning("Please select a nurse.", "Warning");
+                button.prop("disabled", false);
+                button.text("Confirm Reassign");
+                return;
+            }
 
-        let hour = parseInt(slot);
-        
-        // manually construct the ISO DateTime string
-        let isoDateTime = `${dateTime}T${hour.toString().padStart(2, '0')}:00:00.000Z`;
+            let hour = parseInt(slot);
 
-        console.log("Sending data to server:");
-        console.log({ backlogId, appointmentId, doctorId, patientId, nurseId, isoDateTime, slot, location, serviceType });
+            // manually construct the ISO DateTime string
+            let isoDateTime = `${dateTime}T${hour.toString().padStart(2, '0')}:00:00.000Z`;
 
-        fetch("/ServiceBacklog/Reassign", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({
-            BacklogId: backlogId,
-            AppointmentId: appointmentId,
-            PatientId: patientId,
-            DoctorId: doctorId,
-            ServiceType: serviceType,
-            NurseId: nurseId,
-            _DateTime: isoDateTime,
-            Slot: slot,
-            Location: location
+            console.log("Sending data to server:");
+            console.log({ backlogId, appointmentId, doctorId, patientId, nurseId, isoDateTime, slot, location, serviceType });
+
+            fetch("/ServiceBacklog/Reassign", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({
+                    BacklogId: backlogId,
+                    AppointmentId: appointmentId,
+                    PatientId: patientId,
+                    DoctorId: doctorId,
+                    ServiceType: serviceType,
+                    NurseId: nurseId,
+                    _DateTime: isoDateTime,
+                    Slot: slot,
+                    Location: location
+                })
             })
-        })
-        .then(response => {
-            if (!response.ok) {
-            return response.json().then(data => {
-                throw new Error(data.message || "Error reassigning backlog.");
-            });
-            }
-            return response.json();
-        })
-        .then(data => {
-            toastr.success(data.message, "Success");
-            closeModal();
-            setTimeout(() => {
-            window.location.reload();
-            }, 600);
-        })
-        .catch(error => {
-            toastr.error(error.message, "Error");
-            console.error("Error:", error);
-            button.prop("disabled", false);
-            button.text("Confirm Reassign");
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.message || "Error reassigning backlog.");
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    toastr.success(data.message, "Success");
+                    closeModal();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 600);
+                })
+                .catch(error => {
+                    toastr.error(error.message, "Error");
+                    console.error("Error:", error);
+                    button.prop("disabled", false);
+                    button.text("Confirm Reassign");
+                });
+
         });
 
-    });
-
-    document.getElementById("generateDummy").addEventListener("click", function() {
-        fetch("/ServiceBacklog/GenerateDummy", {
-            method: "POST"
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Failed to generate dummy backlogs.");
-            }
-            return response.json();
-        })
-        .then(data => {
-            alert("Dummy backlogs generated successfully.");
-            window.location.reload();
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("Error generating dummy backlogs.");
+        document.getElementById("generateDummy").addEventListener("click", function () {
+            fetch("/ServiceBacklog/GenerateDummy", {
+                method: "POST"
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to generate dummy backlogs.");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert("Dummy backlogs generated successfully.");
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Error generating dummy backlogs.");
+                });
         });
-    });
     </script>
-
-
 </body>
+
 </html>
