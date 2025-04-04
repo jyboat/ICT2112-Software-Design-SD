@@ -12,21 +12,13 @@ namespace ClearCare.Models.Entities
         [Key]
         [FirestoreProperty]
         private int AvailabilityId { get; set; }
-
-        [FirestoreProperty]
-        // private string NurseID { get; set; } = "USR003"; // Dummy NurseID for testing
-
         private string NurseID { get; set; } = string.Empty;
-
         [FirestoreProperty]
         private string Date { get; set; } = string.Empty;
-
         [FirestoreProperty]
         private string StartTime { get; set; } = "08:00:00";
-
         [FirestoreProperty]
         private string EndTime { get; set; } = "16:00:00";
-
 
         // 🔹 Private Getter Methods (Encapsulation)
         private int getAvailabilityId() => AvailabilityId;
@@ -41,7 +33,6 @@ namespace ClearCare.Models.Entities
         private void setDate(string date) => Date = date;
         private void setStartTime(string startTime) => StartTime = startTime;
         private void setEndTime(string endTime) => EndTime = endTime;
-
 
         // Public function to set availability details
         public static NurseAvailability setAvailabilityDetails(int availabilityId, string nurseID, string date, string startTime, string endTime)
