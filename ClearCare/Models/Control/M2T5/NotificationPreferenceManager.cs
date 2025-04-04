@@ -17,22 +17,22 @@ namespace ClearCare.Models.Control
             _dataGateway.attachObserver(this);
         }
 
-        public async Task SaveNotificationPreferenceAsync(string userId, string methods, string dndDays, TimeRange dndTimeRange)
+        public async Task UpdateNotificationPreferences(string userId, string methods, string dndDays, TimeRange dndTimeRange)
         {
             Console.WriteLine($"Saving preference for UserID {userId}");
 
             var preferenceEntity = new NotificationPreference(userId, methods, dndDays, dndTimeRange);
-            await _dataGateway.SaveNotificationPreferenceAsync(preferenceEntity);
+            await _dataGateway.UpdateNotificationPreferences(preferenceEntity);
 
             Console.WriteLine($"Preference for UserID {userId} saved successfully.");
         }
 
-        public async Task<List<NotificationPreference>> GetNotificationPreferenceAsync(string userId)
+        public async Task<List<NotificationPreference>> GetNotificationPreferences(string userId)
         {
             Console.WriteLine($"Fetching notification preferences for UserID {userId}");
 
             // Call the interface method to get preferences for the user
-            var preferences = await _dataGateway.GetNotificationPreferencesAsync();
+            var preferences = await _dataGateway.GetNotificationPreferences();
 
             // Filter by userId to return the relevant preference
             var userPreference = preferences.Where(p => p.GetUserID() == userId).ToList();
