@@ -18,15 +18,14 @@ namespace ClearCare.DataSource
             _db = FirebaseService.Initialize();
         }
 
-        // Property for setting the receiver after instantiation (Since gateway handle receiver callback - creates circular dependency. SO need break cycle by property injection)
+        // Property for setting the receiver after instantiation (Since gateway handle receiver callback - creates circular dependency. Break the cycle using property injection.)
         public IAvailabilityDB_Receive Receiver
         {
             get { return _receiver; }
             set { _receiver = value; }
         }
 
-
-        // Implementing IAvailabilityDB_Send Interfaces
+        // Implementing IAvailabilityDB_Send interface
 
         // Retrieve ALL Nurse Availabilities - implemented in IAvailabilityDB_Send; used in NurseAvailabilityManagement (getAllStaffAvailability)
         public async Task<List<NurseAvailability>> fetchAllStaffAvailability()
@@ -127,7 +126,7 @@ namespace ClearCare.DataSource
                 await document.Reference.SetAsync(availabilityData, SetOptions.MergeAll);
             }
 
-           await _receiver.receiveUpdateStatus("Success");
+            await _receiver.receiveUpdateStatus("Success");
         }
 
         // Delete Availability - implemented in IAvailabilityDB_Send; used in NurseAvailabilityManagement (deleteAvailability)
