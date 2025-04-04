@@ -100,26 +100,5 @@ namespace ClearCare.Models.Entities.M3T1
             return details;
         }
 
-        // Update assessment details from a dictionary
-        public void SetAssessmentDetails(Dictionary<string, object> assessmentDetails)
-        {
-            if (assessmentDetails == null)
-            {
-                throw new ArgumentNullException(nameof(assessmentDetails));
-            }
-
-            if (assessmentDetails.ContainsKey("Id")) setId(assessmentDetails["Id"]?.ToString() ?? string.Empty);
-            if (assessmentDetails.ContainsKey("RiskLevel")) setRiskLevel(assessmentDetails["RiskLevel"]?.ToString() ?? string.Empty);
-            if (assessmentDetails.ContainsKey("Recommendation")) setRecommendation(assessmentDetails["Recommendation"]?.ToString() ?? string.Empty);
-            if (assessmentDetails.ContainsKey("CreatedAt")) setCreatedAt(Convert.ToDateTime(assessmentDetails["CreatedAt"] ?? DateTime.Now));
-            if (assessmentDetails.ContainsKey("PatientId")) setPatientId(assessmentDetails["PatientId"]?.ToString() ?? string.Empty);
-            if (assessmentDetails.ContainsKey("ImagePath")) setImagePath(assessmentDetails["ImagePath"]?.ToString() ?? string.Empty);
-            
-            // Add checklist setting
-            if (assessmentDetails.ContainsKey("HomeAssessmentChecklist"))
-            {
-                setHomeAssessmentChecklist(assessmentDetails["HomeAssessmentChecklist"] as Dictionary<string, bool> ?? new Dictionary<string, bool>());
-            }
-        }
     }
 }
