@@ -362,25 +362,6 @@
 
         });
 
-        document.getElementById("generateDummy").addEventListener("click", function () {
-            fetch("/ServiceBacklog/GenerateDummy", {
-                method: "POST"
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Failed to generate dummy backlogs.");
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    alert("Dummy backlogs generated successfully.");
-                    window.location.reload();
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    alert("Error generating dummy backlogs.");
-                });
-        });
     </script>
 </body>
 

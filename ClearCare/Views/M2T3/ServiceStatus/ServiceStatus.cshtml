@@ -8,8 +8,7 @@
 <div class="container mt-4">
     <h2 class="mb-3">Service Appointments Statuses</h2>
 
-    <!-- 🔹 Bootstrap Filters: Search Bars + Dropdowns -->
-    <div class="row g-2 mb-3">
+   
         <div class="col-md-3">
             <select id="searchPatient" class="form-select" onchange="filterTable()">
                     <option value="">Select Patient...</option>
@@ -18,8 +17,7 @@
                         <option value="@patient.UserID">@patient.UserID</option>
                     }
             </select>
-            <!-- <input type="text" id="searchPatient" class="form-control" onkeyup="filterTable()" placeholder="Search by Patient ID"> -->
-        </div>
+            </div>
         <div class="col-md-3">
                 <select id="searchNurse" class="form-select" onchange="filterTable()">
                     <option value="">Select Nurse...</option>
@@ -28,8 +26,7 @@
                         <option value="@nurse.UserID">@nurse.UserID</option>
                     }
                 </select>
-            <!-- <input type="text" id="searchNurse" class="form-control" onkeyup="filterTable()" placeholder="Search by Nurse ID"> -->
-        </div>
+            </div>
         
         <div class="col-md-3">
             <select id="searchDoctor" class="form-select" onchange="filterTable()">
@@ -39,16 +36,14 @@
                         <option value="@doctor.UserID">@doctor.UserID</option>
                     }
                 </select>
-            <!-- <input type="text" id="searchDoctor" class="form-control" onkeyup="filterTable()" placeholder="Search by Doctor ID"> -->
-        </div>
+            </div>
         <div class="col-md-3">
             <select id="filterStatus" class="form-select" onchange="filterTable()">
                 <option value="">Filter by Status</option>
                 <option value="Missed">Missed</option>
                 <option value="Scheduled">Scheduled</option>
                 <option value="Completed">Completed</option>
-                <!-- <option value="Backlog">Backlog</option> -->
-            </select>
+                </select>
         </div>
         <div class="col-md-3">
             <select id="filterServiceType" class="form-select"  onchange="filterTable()">
@@ -103,21 +98,6 @@
                 }
             </tbody>
 
-            <!-- <tbody>
-                @foreach (var appointment in Model)
-                {
-                    <tr>
-                        <td>@appointment.getAttribute("PatientId")</td>
-                        <td>@appointment.getAttribute("NurseId")</td>
-                        <td>@appointment.getAttribute("DoctorId")</td>
-                        <td>@appointment.getAttribute("Service")</td>
-                        <td>@appointment.getAttribute("Status")</td>
-                        <td>@Convert.ToDateTime(appointment.getAttribute("Datetime")).ToString("yyyy-MM-dd HH:mm")</td>
-                        <td>@appointment.getAttribute("Slot")</td>
-                        <td>@appointment.getAttribute("Location")</td>
-                    </tr>
-                }
-            </tbody> -->
         </table>
     </div>
 </div>
