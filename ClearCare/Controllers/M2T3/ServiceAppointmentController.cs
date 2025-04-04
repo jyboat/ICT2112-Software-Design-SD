@@ -17,7 +17,6 @@ using Google.Api;
 [ApiController]
 public class ServiceAppointmentsController : Controller
 {
-    private readonly ServiceAppointmentManagement ServiceAppointmentManagement;
     private readonly AutomaticAppointmentScheduler AutomaticAppointmentScheduler;
     private readonly CalendarManagement _calendarManagement;
     private readonly NurseAvailabilityManagement _nurseAvailabilityManagement;
@@ -29,7 +28,7 @@ public class ServiceAppointmentsController : Controller
     public ServiceAppointmentsController()
     {
 
-        ServiceAppointmentManagement = new ServiceAppointmentManagement();
+
 
 
         _nurseAvailabilityManagement = new NurseAvailabilityManagement();
@@ -113,7 +112,7 @@ public class ServiceAppointmentsController : Controller
     [Route("AutoScheduling")]
     public async Task<IActionResult> addPatients()
     {
-        var (appointments, patientNames) = await ServiceAppointmentManagement.getUnscheduledPatients();
+        var (appointments, patientNames) = await AutomaticAppointmentScheduler.getUnscheduledPatients();
         ViewBag.Appointment = appointments;
         ViewBag.PatientNames = patientNames;
         return View("~/Views/M2T3/ServiceAppointments/AddPatientsAutoScheduling.cshtml");
@@ -171,7 +170,7 @@ public class ServiceAppointmentsController : Controller
     {
         try
         {
-            var result = await ServiceAppointmentManagement.deleteAppointment(appointmentId);
+            var result = await _manualAppointmentScheduler.deleteAppointment(appointmentId);
             // TODO - Should we strictly return a view or can we return a JSON response? - dinie
             if (result)
             {
