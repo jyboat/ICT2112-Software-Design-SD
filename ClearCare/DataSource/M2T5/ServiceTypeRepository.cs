@@ -6,7 +6,7 @@ using ClearCare.Models.Entities;
 
 namespace ClearCare.DataSource
 {
-    public class ServiceTypeRepository
+    public class ServiceTypeRepository : AbstractDatabaseSubject
     {
         private FirestoreDb _firestoreDb;
 
@@ -15,7 +15,7 @@ namespace ClearCare.DataSource
             _firestoreDb = FirebaseService.Initialize();
         }
 
-        public async Task<List<ServiceType>> getServiceTypes()
+        public async Task getServiceTypesAsync()
         {
             List<ServiceType> serviceTypes = new List<ServiceType>();
             Query query = _firestoreDb.Collection("service_type");
@@ -40,7 +40,7 @@ namespace ClearCare.DataSource
                     serviceTypes.Add(serviceType);
                 }
             }
-            return serviceTypes;
+            notifyObservers(serviceTypes); //  Notify observers instead of returning
         }
 
         public async Task addServiceType(ServiceType serviceType)
