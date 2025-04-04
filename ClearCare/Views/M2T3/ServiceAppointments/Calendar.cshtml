@@ -125,8 +125,6 @@
             // init calendar
             loadCalendar();
 
-
-
             // filter button
             document.getElementById('filterButton').addEventListener('click', function () {
                 event.preventDefault();
@@ -293,13 +291,6 @@
             }
         }
 
-        console.log("Doctors data:", doctorsData);
-        console.log("Patients data:", patientsData);
-        console.log("Nurses data:", nursesData);
-        console.log("Services data:", serviceTypes);
-        console.log("unique locations:", uniqueLocations);
-
-
         function generateAppointmentId(length = 20) {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             let result = '';
@@ -308,7 +299,6 @@
                 const randomIndex = Math.floor(Math.random() * chars.length);
                 result += chars.charAt(randomIndex);
             }
-
             return result;
         }
 
@@ -403,7 +393,6 @@
                 }
             });
 
-
             // calc hour based on the selected time slot
             let hour = 8 + parseInt(selectedTimeSlot);
 
@@ -449,7 +438,6 @@
                     console.error("Error:", error);
                 });
         }
-
 
         function loadSuggestedPatients(selectedDateTime) {
             const container = document.getElementById('suggestedPatients');
@@ -498,7 +486,6 @@
                         </div>
                     </div>
                 `;
-
                         // Add click handler
                         card.addEventListener('click', () => {
                             // Redirect to another page with patientId as a query parameter
@@ -517,7 +504,6 @@
                 });
         }
 
-
         function getDotClass(status) {
             switch ((status || "").toLowerCase()) {
                 case "completed": return "service-complete";
@@ -527,7 +513,6 @@
                 default: return "service-unknown";
             }
         }
-
     </script>
 </head>
 
@@ -605,10 +590,10 @@
                     <option value="7">15:00 - 16:00</option>
                 </select>
             </div>
-            
+
             <!-- Filter and Reset Buttons -->
-                <button id="filterButton" class="btn btn-success">Filter</button>
-                <button id="resetButton" class="btn btn-primary">Reset Filters</button>
+            <button id="filterButton" class="btn btn-success">Filter</button>
+            <button id="resetButton" class="btn btn-primary">Reset Filters</button>
         </div>
     </form>
 
@@ -616,7 +601,7 @@
 
         <a href="/api/ServiceAppointments/AutoScheduling" class="btn btn-primary me-2">Auto Assign Appointment</a>
         <a href="/ServiceBacklog/Index" class="btn btn-primary me-2">Backlog</a>
-       </div>
+    </div>
 
     <div id="calendar"></div>
 
@@ -829,7 +814,8 @@
                                 <span class="service-dot service-scheduled mr-1"></span> <small>Scheduled</small>
                             </div>
                             <div class="d-flex align-items-center mr-3">
-                                <span class="service-dot service-missed mr-1"></span> <small>Missed / Unscheduled</small>
+                                <span class="service-dot service-missed mr-1"></span> <small>Missed /
+                                    Unscheduled</small>
                             </div>
                         </div>
                     </div>
