@@ -28,7 +28,6 @@ namespace ClearCare.Control
             var combinedAppointments = backlogEntries.Concat(unscheduledAppointment).ToList();
 
             // Group and sort backlog will be scheduled first if any
-            // Group and sort backlog will be scheduled first if any
             var groupedAppointments = unscheduledAppointment
                 .GroupBy(a => a.getAttribute("PatientId"))
                 .OrderBy(g => g.Count());
