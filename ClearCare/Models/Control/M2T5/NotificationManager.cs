@@ -141,7 +141,7 @@ namespace ClearCare.Models.Control {
             if (data is List<Notification> notifications)  {
                 Console.WriteLine("[NotificationManager] Notifications fetched from Firestore.");
                 DateTime intervalStart = DateTime.UtcNow;
-                DateTime intervalEnd = NotificationCache.CurrentIntervalEnd;
+                DateTime intervalEnd = NotificationCache.currentIntervalEnd;
 
                 // Add fetched notifications to the cache or store them in the database
                 foreach (var notification in notifications)
