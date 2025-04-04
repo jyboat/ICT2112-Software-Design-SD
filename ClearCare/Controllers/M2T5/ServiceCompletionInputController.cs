@@ -28,7 +28,7 @@ namespace ClearCare.Controllers
         }
 
         [HttpGet("appointments")]
-        public async Task<IActionResult> GetAppointmentDetails(bool json = false)
+        public async Task<IActionResult> getAppointmentDetails(bool json = false)
         {
             // Retrieve userId from the session
             string userId = HttpContext.Session.GetString("UserID");
@@ -45,8 +45,8 @@ namespace ClearCare.Controllers
             List<ServiceAppointment> appointments = await _appointmentManager.getAllServiceCompletion();
 
             // Map appointments to DTOs
-            List<AppointmentDTO> appointmentDTOs = appointments
-                .Select(appointment => new AppointmentDTO(appointment))
+            List<appointmentDTO> appointmentDTOs = appointments
+                .Select(appointment => new appointmentDTO(appointment))
                 .ToList();
 
             // Filter appointments based on the doctorId from session
@@ -70,7 +70,7 @@ namespace ClearCare.Controllers
                 var nurseName = nurse != null ? nurse.getProfileData()["Name"].ToString() ?? "Unknown" : "Unknown";
                 var doctorName = doctor != null ? doctor.getProfileData()["Name"].ToString() ?? "Unknown" : "Unknown";
                 
-                dto.SetNames(patientName, nurseName, doctorName);
+                dto.setNames(patientName, nurseName, doctorName);
             }
 
             // Create the message to display in the view or return as part of the JSON
@@ -125,15 +125,15 @@ namespace ClearCare.Controllers
                     requestData["serviceOutcomes"].GetString() ?? ""
                 );
 
-        Console.WriteLine("Step 1: Values extracted:");
-        Console.WriteLine($"  - Appointment ID: {requestData["appointmentId"].GetString()}");
-        Console.WriteLine($"  - Service Type: {requestData["service"].GetString()}");
-        Console.WriteLine($"  - Patient ID: {requestData["patientId"].GetString()}");
-        Console.WriteLine($"  - Nurse ID: {requestData["nurseId"].GetString()}");
-        Console.WriteLine($"  - Doctor ID: {requestData["doctorId"].GetString()}");
-        Console.WriteLine($"  - Service Date: {requestData["serviceDate"].GetDateTime()}");
-        Console.WriteLine($"  - Location: {requestData["location"].GetString()}");
-        Console.WriteLine($"  - Service Outcomes: {requestData["serviceOutcomes"].GetString()}");
+                // Console.WriteLine("Step 1: Values extracted:");
+                // Console.WriteLine($"  - Appointment ID: {requestData["appointmentId"].GetString()}");
+                // Console.WriteLine($"  - Service Type: {requestData["service"].GetString()}");
+                // Console.WriteLine($"  - Patient ID: {requestData["patientId"].GetString()}");
+                // Console.WriteLine($"  - Nurse ID: {requestData["nurseId"].GetString()}");
+                // Console.WriteLine($"  - Doctor ID: {requestData["doctorId"].GetString()}");
+                // Console.WriteLine($"  - Service Date: {requestData["serviceDate"].GetDateTime()}");
+                // Console.WriteLine($"  - Location: {requestData["location"].GetString()}");
+                // Console.WriteLine($"  - Service Outcomes: {requestData["serviceOutcomes"].GetString()}");
 
                 if (!string.IsNullOrEmpty(serviceHistoryId))
                 {
