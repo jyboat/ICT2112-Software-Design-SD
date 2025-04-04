@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 namespace ClearCare.Controllers
 {
     [Route("Analytics")]
-    public class AnalyticsController : Controller
+    public class AnalyticsDashboardInputController : Controller
     {
         private readonly AnalyticsDashboardManager _manager;
 
         // DI via constructor injection
-        public AnalyticsController(AnalyticsDashboardManager manager)
+        public AnalyticsDashboardInputController(AnalyticsDashboardManager manager)
         {
             _manager = manager;
         }
