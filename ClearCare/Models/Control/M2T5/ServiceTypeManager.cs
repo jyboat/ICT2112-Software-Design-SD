@@ -18,18 +18,13 @@ namespace ClearCare.Models.Control
         }
         public void update(Subject subject, object data)
         {
-            Console.WriteLine("✅ Observer triggered! Data received from repository.");
+            Console.WriteLine("ServiceTypeManager: Observer triggered! Data received from Repository.");
 
             if (data is List<ServiceType> serviceTypes)
             {
-                Console.WriteLine($"✅ Received {serviceTypes.Count} service types.");
-                processServiceTypes(serviceTypes);
+                Console.WriteLine($"ServiceTypeManager: Received {serviceTypes.Count} service types.");
+                _cachedServiceTypes = serviceTypes;
             }
-        }
-        private void processServiceTypes(List<ServiceType> types)
-        {
-            Console.WriteLine("🔧 Processing service types inside manager.");
-            _cachedServiceTypes = types;
         }
 
         private ServiceTypeRepository _serviceTypeRepository = new ServiceTypeRepository();
@@ -58,7 +53,7 @@ namespace ClearCare.Models.Control
         public async Task createServiceType(string name, int duration, string requirements, string modality)
         {
             await fetchServiceTypes();
-            var existing = getCachedServiceTypes();
+            var existing = _cachedServiceTypes;
 
             var newId = existing.Count + 1;
             var newService = new ServiceType(newId, name, duration, requirements, modality);
@@ -71,8 +66,6 @@ namespace ClearCare.Models.Control
             updatedService.Modality = modality;
             await _serviceTypeRepository.updateServiceType(id, updatedService);
         }
-
-
 
         public async Task discontinueServiceType(int id)
         {

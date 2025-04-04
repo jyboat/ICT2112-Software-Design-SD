@@ -20,33 +20,31 @@ namespace ClearCare.DataSource
         public async Task UpdateNotificationPreferences(NotificationPreference preference)
         {
 
-            try{
-            var preferenceCollection = _db.Collection("notification_preferences");
-            DocumentReference docRef = preferenceCollection.Document(preference.GetUserID());
-
-
-            var data = new Dictionary<string, object>
+            try
             {
-                { "UserID", preference.GetUserID() },
-                { "Methods", preference.GetMethods() },
-                { "DndDays", preference.GetDndDays() },
-                { "DndTimeRange", $"{preference.GetDndTimeRange().GetStartTime()}-{preference.GetDndTimeRange().GetEndTime()}" }
+                var preferenceCollection = _db.Collection("notification_preferences");
+                DocumentReference docRef = preferenceCollection.Document(preference.GetUserID());
 
-            };
-            await docRef.SetAsync(data);
-                notifyObservers(true);
+
+                var data = new Dictionary<string, object>
+                {
+                    { "UserID", preference.GetUserID() },
+                    { "Methods", preference.GetMethods() },
+                    { "DndDays", preference.GetDndDays() },
+                    { "DndTimeRange", $"{preference.GetDndTimeRange().GetStartTime()}-{preference.GetDndTimeRange().GetEndTime()}" }
+
+                };
+                await docRef.SetAsync(data);
 
             }
             catch(Exception ex)
             {
                 Console.WriteLine($"Error while creating notification: {ex.Message}");
-                // Notify observers about the failure
-                notifyObservers(false);
             }
         }
 
 
-        public async Task<List<NotificationPreference>> GetNotificationPreferences()
+        public async Task GetNotificationPreferences()
         {
             var preferences = new List<NotificationPreference>();
             var preferenceCollection = _db.Collection("notification_preferences");
@@ -72,7 +70,7 @@ namespace ClearCare.DataSource
 
                 preferences.Add(new NotificationPreference(userID, string.Join(",", methods), dndDays, dndTimeRangeObj));
             }
-            return preferences;
+            notifyObservers(preferences);
         }
     }
 }

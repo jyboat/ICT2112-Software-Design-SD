@@ -35,8 +35,6 @@ namespace ClearCare.DataSource
                         Modality = data["modality"]?.ToString(), // if you added modality
                         Status = data.ContainsKey("status") ? data["status"].ToString() : "active"
                     };
-
-
                     serviceTypes.Add(serviceType);
                 }
             }
@@ -86,14 +84,12 @@ namespace ClearCare.DataSource
                 DocumentReference docRef = doc.Reference;
 
                 Dictionary<string, object> updatedData = new Dictionary<string, object>
-        {
-            { "status", "discontinued" }
-        };
+                {
+                    { "status", "discontinued" }
+                };
 
                 await docRef.UpdateAsync(updatedData);
             }
         }
-
-
     }
 }
