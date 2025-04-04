@@ -25,7 +25,7 @@ namespace ClearCare.DataSource
             _iServiceType = (IServiceType) new ServiceTypeManager();
         }
 
-        // Property for setting the receiver after instantiation (Since gateway handle receiver callback - creates circular dependency. SO need break cycle by property injection)
+        // Property for setting the receiver after instantiation (Since gateway handle receiver callback - creates circular dependency. Break the cycle using property injection.)
         public IServiceAppointmentDB_Receive Receiver
         {
             get { return _receiver; }
@@ -47,8 +47,6 @@ namespace ClearCare.DataSource
                     appointmentList.Add(appointment);
                 }
             }
-
-            // await CheckAndUpdateStatusAsync(appointmentList);
             await _receiver.receiveServiceAppointmentList(appointmentList);
             return appointmentList;
         }
@@ -68,9 +66,6 @@ namespace ClearCare.DataSource
 
             // Convert Firestore document to a ServiceAppointment object
             ServiceAppointment appointment = ServiceAppointment.fromFirestoreData(documentId, data);
-
-            
-            // appointment = await CheckAndUpdateStatusAsync(appointment);
             
             await _receiver.receiveServiceAppointmentById(appointment);
             return appointment;
@@ -84,20 +79,14 @@ namespace ClearCare.DataSource
             // Convert input data to firestore data format for insert
             Dictionary<string, object> appointmentData = appointment.toFirestoreDictionary();
 
-            // Overwrite field if exist, create new if doesn't
+            // Overwrite field if it exists, otherwise create new field 
             await docRef.SetAsync(appointmentData);
-
             await _receiver.receiveCreatedServiceAppointmentId(docRef.Id);
-
             return docRef.Id;
         }
 
         public async Task<bool> updateAppointment(ServiceAppointment appointment)
         {
-            // debug the incoming data
-            string appointmentJson = JsonConvert.SerializeObject(appointment);
-            Console.WriteLine($"attempting to update appointment with data: {appointmentJson}");
-
             // safely get the appointment id and validate it
             string appointmentId = appointment?.getAttribute("AppointmentId");
             Console.WriteLine($"extracted appointmentId: '{appointmentId}'");
@@ -126,10 +115,8 @@ namespace ClearCare.DataSource
 
                 // update with the new data
                 Dictionary<string, object> appointmentData = appointment.toFirestoreDictionary();
-                Console.WriteLine($"converted data for firestore: {JsonConvert.SerializeObject(appointmentData)}");
                 await docRef.SetAsync(appointmentData);
                 _receiver.receiveUpdatedServiceAppointmentStatus(true);
-                Console.WriteLine("update successful");
                 return true;
             }
             catch (Exception ex)
@@ -181,6 +168,7 @@ namespace ClearCare.DataSource
                 throw;
             }
         }
+
         public async Task<DateTime?> fetchAppointmentTime(string appointmentId)
         {
             // Get Firestore document reference
@@ -195,13 +183,13 @@ namespace ClearCare.DataSource
 
             try
             {
-                // ✅ Retrieve and convert Firestore timestamp to DateTime
+                // Retrieve and convert Firestore timestamp to DateTime
                 if (snapshot.ContainsField("DateTime"))
                 {
                     Timestamp firestoreTimestamp = snapshot.GetValue<Timestamp>("DateTime");
                     DateTime appointmentTime = firestoreTimestamp.ToDateTime();
 
-                    // ✅ Send the result via the receiver
+                    // Send the result via the receiver
                     await _receiver.receiveServiceAppointmentTimeById(appointmentTime);
 
                     return appointmentTime;
@@ -219,15 +207,6 @@ namespace ClearCare.DataSource
             }
         }
 
-  
-
-        public class Patient
-        {
-            public string PatientId { get; set; } = string.Empty;
-            public string Name { get; set; } = string.Empty;
-        }
-
-        // To do: Retrieve from firebase/interface
         public async Task<(List<Dictionary<string, object>> appointments, Dictionary<string, string> patientNames)> fetchAllUnscheduledPatients()
         {
             var patients = new List<string>();
@@ -292,8 +271,5 @@ namespace ClearCare.DataSource
 
             return (result, patientNameMap);
         }
-
     }
-
-   
 }
