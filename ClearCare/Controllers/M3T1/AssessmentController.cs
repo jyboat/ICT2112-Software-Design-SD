@@ -242,5 +242,21 @@ public class AssessmentController : Controller
         }
     }
 
+    [Route("GetChecklist")]
+    [HttpGet]
+    public IActionResult getChecklist([FromQuery] string hazardType)
+    {
+        try
+        {
+            _manager.setHazardType(hazardType);
+            var checklist = _manager.getDefaultChecklist();
+            return Json(checklist);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Error: {ex.Message}");
+        }
+    }
+
 
 }

@@ -47,7 +47,7 @@ namespace ClearCare.Models.Entities.M3T1
             PatientId = patientId;
         }
 
-        public Dictionary<string, object> GetSummaryDetails()
+        public Dictionary<string, object> getSummaryDetails()
         {
             return new Dictionary<string, object>
             {
