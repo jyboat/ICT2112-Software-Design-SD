@@ -37,7 +37,7 @@ public class SummaryController : Controller
 
         List<DischargeSummary> summaries = await _manager.getSummaries();
 
-        var summaryList = summaries.Select(s => s.GetSummaryDetails()).ToList();  
+        var summaryList = summaries.Select(s => s.getSummaryDetails()).ToList();  
 
         return View("~/Views/M3T1/Summary/List.cshtml", summaryList); 
     }
@@ -60,7 +60,7 @@ public class SummaryController : Controller
         {
             return View("list");
         }
-        string patientId = (string)summary.GetSummaryDetails()["PatientId"];
+        string patientId = (string)summary.getSummaryDetails()["PatientId"];
 
         var prescription = await _manager.getPrescription(patientId);
         var assessment = await _manager.getAssessment(patientId);
