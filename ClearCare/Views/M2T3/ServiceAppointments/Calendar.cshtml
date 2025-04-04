@@ -660,7 +660,7 @@
                             <select class="form-control" id="editServiceType" required>
                                 @if (ViewBag.ServiceNames != null)
                                 {
-                                    foreach (ClearCare.Models.Entities.ServiceType_SDM service in ViewBag.ServiceNames)
+                                    foreach (ClearCare.Models.Entities.ServiceType service in ViewBag.ServiceNames)
                                     {
                                         <option value="@service.Name">@service.Name</option>
                                     }
@@ -771,7 +771,7 @@
                                 <option value="">Select Service Type</option>
                                 @if (ViewBag.ServiceNames != null)
                                 {
-                                    foreach (ClearCare.Models.Entities.ServiceType_SDM service in ViewBag.ServiceNames)
+                                    foreach (ClearCare.Models.Entities.ServiceType service in ViewBag.ServiceNames)
                                     {
                                         <option value="@service.Name">@service.Name</option>
                                     }

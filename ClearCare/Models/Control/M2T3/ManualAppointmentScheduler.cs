@@ -22,8 +22,8 @@ namespace ClearCare.Models.Control
             _iServiceType = (IServiceType) new ServiceTypeManager();
         }
 
-        public async Task<List<ServiceType_SDM>> getServices () {
-            List<ServiceType_SDM> services = await _iServiceType.getServiceTypes();
+        public async Task<List<ServiceType>> getServices () {
+            List<ServiceType> services = await _iServiceType.getServiceTypes();
             return services; 
         }
 

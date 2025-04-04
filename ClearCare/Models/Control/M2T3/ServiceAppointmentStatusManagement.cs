@@ -185,8 +185,8 @@ namespace ClearCare.Models.Control
             return patientList;
         }
 
-        public async Task<List<ServiceType_SDM>> getServices () {
-            List<ServiceType_SDM> services = await IType.getServiceTypes();
+        public async Task<List<ServiceType>> getServices () {
+            List<ServiceType> services = await IType.getServiceTypes();
             return services; 
         }
 

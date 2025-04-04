@@ -15,9 +15,9 @@ namespace ClearCare.DataSource
             _firestoreDb = FirebaseService.Initialize();
         }
 
-        public async Task<List<ServiceType_SDM>> GetServiceTypes()
+        public async Task<List<ServiceType>> GetServiceTypes()
         {
-            List<ServiceType_SDM> serviceTypes = new List<ServiceType_SDM>();
+            List<ServiceType> serviceTypes = new List<ServiceType>();
             Query query = _firestoreDb.Collection("service_type");
             QuerySnapshot snapshot = await query.GetSnapshotAsync();
 
@@ -26,7 +26,7 @@ namespace ClearCare.DataSource
                 if (doc.Exists)
                 {
                     Dictionary<string, object> data = doc.ToDictionary();
-                    ServiceType_SDM serviceType = new ServiceType_SDM
+                    ServiceType serviceType = new ServiceType
                     {
                         ServiceTypeId = Convert.ToInt32(data["serviceTypeId"]),
                         Name = data["name"].ToString(),
@@ -43,7 +43,7 @@ namespace ClearCare.DataSource
             return serviceTypes;
         }
 
-        public async Task AddServiceType(ServiceType_SDM serviceType)
+        public async Task AddServiceType(ServiceType serviceType)
         {
             CollectionReference colRef = _firestoreDb.Collection("service_type");
             Dictionary<string, object> serviceData = new Dictionary<string, object>
@@ -57,7 +57,7 @@ namespace ClearCare.DataSource
             await colRef.AddAsync(serviceData);
         }
 
-        public async Task UpdateServiceType(int id, ServiceType_SDM serviceType)
+        public async Task UpdateServiceType(int id, ServiceType serviceType)
         {
             Query query = _firestoreDb.Collection("service_type").WhereEqualTo("serviceTypeId", id);
             QuerySnapshot snapshot = await query.GetSnapshotAsync();

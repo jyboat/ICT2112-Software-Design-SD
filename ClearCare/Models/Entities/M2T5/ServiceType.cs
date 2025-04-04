@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ClearCare.Models.Entities
 {
-    public class ServiceType_SDM
+    public class ServiceType
     {
         public int ServiceTypeId { get; set; }
 
@@ -21,9 +21,9 @@ namespace ClearCare.Models.Entities
 
 
 
-        public ServiceType_SDM() { }
+        public ServiceType() { }
 
-        public ServiceType_SDM(int id, string name, int duration, string requirements, string modality)
+        public ServiceType(int id, string name, int duration, string requirements, string modality)
         {
             ServiceTypeId = id;
             Name = name;

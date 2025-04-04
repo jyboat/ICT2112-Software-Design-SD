@@ -10,7 +10,7 @@ namespace ClearCare.Models.Control
     {
         private ServiceTypeRepository _serviceTypeRepository = new ServiceTypeRepository();
 
-        public async Task<List<ServiceType_SDM>> getServiceTypes()
+        public async Task<List<ServiceType>> getServiceTypes()
         {
             return await _serviceTypeRepository.GetServiceTypes();
         }
@@ -19,13 +19,13 @@ namespace ClearCare.Models.Control
         {
             var existing = await _serviceTypeRepository.GetServiceTypes();
             var newId = existing.Count + 1;
-            var newService = new ServiceType_SDM(newId, name, duration, requirements, modality);
+            var newService = new ServiceType(newId, name, duration, requirements, modality);
             await _serviceTypeRepository.AddServiceType(newService);
         }
 
         public async Task UpdateServiceType(int id, string name, int duration, string requirements, string modality)
         {
-            ServiceType_SDM updatedService = new ServiceType_SDM(id, name, duration, requirements, modality);
+            ServiceType updatedService = new ServiceType(id, name, duration, requirements, modality);
             updatedService.Modality = modality;
             await _serviceTypeRepository.UpdateServiceType(id, updatedService);
         }
