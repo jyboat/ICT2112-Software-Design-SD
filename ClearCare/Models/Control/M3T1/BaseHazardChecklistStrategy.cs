@@ -10,7 +10,6 @@ namespace ClearCare.Models.Control.M3T1
 {
     public abstract class BaseHazardChecklistStrategy : IHazardChecklistStrategy
     {
-        public abstract string HazardType { get; }
         public abstract Dictionary<string, bool> getDefaultChecklist();
     }
 }

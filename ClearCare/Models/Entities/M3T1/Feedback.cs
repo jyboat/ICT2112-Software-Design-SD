@@ -19,7 +19,7 @@ namespace ClearCare.Models.Entities.M3T1
         [FirestoreProperty]
         private string DateCreated { get; set; }
         [FirestoreProperty]
-        public bool HasResponded { get; set; }
+        private bool HasResponded { get; set; }
 
         private string getId() => Id;
         private string getContent() => Content;

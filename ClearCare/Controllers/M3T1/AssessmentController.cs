@@ -86,30 +86,6 @@ public class AssessmentController : Controller
         return View("~/Views/M3T1/Assessment/Add.cshtml");
     }
 
-    //[Route("Delete/{assessmentId}")]
-    //[HttpPost]
-    //public async Task<IActionResult> deleteAssessment(string assessmentId)
-    //{
-    //    // First get the assessment to delete associated files
-    //    var assessment = await _manager.getAssessment(assessmentId);
-    //    if (assessment != null)
-    //    {
-    //        // Delete files from local storage
-    //        foreach (var imagePath in assessment.getImagePath())
-    //        {
-    //            var physicalPath = Path.Combine(_environment.WebRootPath, imagePath.TrimStart('/'));
-    //            if (System.IO.File.Exists(physicalPath))
-    //            {
-    //                System.IO.File.Delete(physicalPath);
-    //            }
-    //        }
-    //    }
-
-    //    await _manager.deleteAssessment(assessmentId);
-    //    TempData["SuccessMessage"] = "Assessment deleted successfully!";
-    //    return RedirectToAction("List");
-    //}
-
     [Route("Add")]
     [HttpPost]
     public async Task<IActionResult> addAssessment(IFormFile file)
@@ -268,7 +244,7 @@ public class AssessmentController : Controller
 
     [Route("GetChecklist")]
     [HttpGet]
-    public IActionResult GetChecklist([FromQuery] string hazardType)
+    public IActionResult getChecklist([FromQuery] string hazardType)
     {
         try
         {
