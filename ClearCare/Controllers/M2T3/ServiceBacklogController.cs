@@ -29,7 +29,7 @@ namespace ClearCare.Controllers
         // Displays All Backlogs
         [HttpGet]
         [Route("Index")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> index()
         {
             var backlogs = await _manager.getAllBacklogDetails();
             return View("~/Views/M2T3/ServiceBacklog/Index.cshtml", backlogs);
@@ -37,7 +37,7 @@ namespace ClearCare.Controllers
 
         [HttpPost]
         [Route("Delete/{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> delete(string id)
         {
             var backlog = await _manager.getBacklog(id);
             if (backlog == null)
@@ -47,13 +47,13 @@ namespace ClearCare.Controllers
             else {
                 await _manager.deleteBacklog(id);
                 await _appointmentManager.deleteAppointment(backlog.getBacklogInformation()["appointmentId"]);
-                return await Index();
+                return await index();
             }
         }
         
         [HttpPost]
         [Route("Reassign")] 
-        public async Task<IActionResult> Reassign([FromForm] string BacklogId,
+        public async Task<IActionResult> reassign([FromForm] string BacklogId,
                 [FromForm] string AppointmentId,
                 [FromForm] string PatientId,
                 [FromForm] string DoctorId,
@@ -90,7 +90,7 @@ namespace ClearCare.Controllers
 
         [HttpGet]
         [Route("GetReassignDetails")]
-        public async Task<IActionResult> GetReassignDetails()
+        public async Task<IActionResult> getReassignDetails()
         {
             var users = await _userList.retrieveAllUsers();
             var usersFiltered = users
@@ -110,18 +110,18 @@ namespace ClearCare.Controllers
             return Ok(usersFiltered);
         }
 
-        [HttpPost]
-        [Route("GenerateDummy")] 
-        public async Task<IActionResult> GenerateDummyBacklogs()
-        {
-            ServiceAppointmentManagement svcMgr = new ServiceAppointmentManagement();
-            var allAppointments = (await svcMgr.retrieveAllAppointments()).Take(5);
-            foreach (var appointment in allAppointments)
-            {
-                await _manager.addBacklog(appointment.getAttribute("AppointmentId"));
-            }
+        // [HttpPost]
+        // [Route("GenerateDummy")] 
+        // public async Task<IActionResult> GenerateDummyBacklogs()
+        // {
+        //     ServiceAppointmentManagement svcMgr = new ServiceAppointmentManagement();
+        //     var allAppointments = (await svcMgr.retrieveAllAppointments()).Take(5);
+        //     foreach (var appointment in allAppointments)
+        //     {
+        //         await _manager.addBacklog(appointment.getAttribute("AppointmentId"));
+        //     }
 
-            return Ok(new { message = "dummy dummy done!" });
-        }
+        //     return Ok(new { message = "dummy dummy done!" });
+        // }
     }
 }

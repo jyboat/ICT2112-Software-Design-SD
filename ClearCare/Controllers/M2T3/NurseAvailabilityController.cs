@@ -52,7 +52,7 @@ namespace ClearCare.Controllers
         // Displays Nurse Availability View
         [HttpGet]
         [Route("Index")]
-        public IActionResult Index()
+        public IActionResult index()
         {
             // var availabilityList = await _manager.getAvailabilityByStaff("USR003"); // Dummy ID for testing
             // return View(availabilityList);

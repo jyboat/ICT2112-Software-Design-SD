@@ -64,7 +64,7 @@ public class ServiceAppointmentsController : Controller
 
     [HttpGet]
     [Route("Index")]
-    public async Task<IActionResult> Calendar()
+    public async Task<IActionResult> calendar()
     {
         var users = await _userList.retrieveAllUsers();
         var usersFiltered = users
@@ -107,7 +107,7 @@ public class ServiceAppointmentsController : Controller
 
     [HttpGet]
     [Route("CreatePage")]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> create()
     {
 
         ViewBag.Patients = ServiceAppointmentManagement.getAllPatients();
@@ -119,7 +119,7 @@ public class ServiceAppointmentsController : Controller
 
     [HttpGet]
     [Route("AutoScheduling")]
-    public async Task<IActionResult> AddPatients()
+    public async Task<IActionResult> addPatients()
     {
         var (appointments, patientNames) = await ServiceAppointmentManagement.getUnscheduledPatients();
         ViewBag.Appointment = appointments;
@@ -132,7 +132,7 @@ public class ServiceAppointmentsController : Controller
     // Need add form and button to retrieve data and trigger this
     [HttpPost]
     [Route("Create")]
-    public async Task<IActionResult> CreateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
+    public async Task<IActionResult> createAppointment([FromBody] Dictionary<string, JsonElement> requestData)
     {
         var appointment = await _manualAppointmentScheduler.scheduleAppointment(
             requestData["PatientId"].GetString() ?? "",
@@ -160,7 +160,7 @@ public class ServiceAppointmentsController : Controller
     // Route localhost:5007/api/ServiceAppointments/Retrieve/{Id} that retriggers GET
     [HttpGet]
     [Route("Retrieve/{documentId}")]
-    public async Task<IActionResult> GetAppointment(string documentId)
+    public async Task<IActionResult> getAppointment(string documentId)
     {
         ServiceAppointment appointment = await ServiceAppointmentManagement.getAppointmentByID(documentId);
 
@@ -176,7 +176,7 @@ public class ServiceAppointmentsController : Controller
 
     [HttpPut]
     [Route("Update")]
-    public async Task<IActionResult> UpdateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
+    public async Task<IActionResult> updateAppointment([FromBody] Dictionary<string, JsonElement> requestData)
     {
         try
         {
@@ -221,7 +221,7 @@ public class ServiceAppointmentsController : Controller
     // delete appointment
     [HttpDelete]
     [Route("Delete/{appointmentId}")]
-    public async Task<IActionResult> DeleteAppointment(string appointmentId)
+    public async Task<IActionResult> deleteAppointment(string appointmentId)
     {
         try
         {
@@ -245,7 +245,7 @@ public class ServiceAppointmentsController : Controller
     // Test Auto Interface
     [HttpPost]
     [Route("TestAutoAppointment")]
-    public async Task<IActionResult> TestAutoAppointment([FromForm] string appointmentsJson, [FromForm] string algorithm)
+    public async Task<IActionResult> testAutoAppointment([FromForm] string appointmentsJson, [FromForm] string algorithm)
     {
         // Deserialize the JSON into a list of dictionaries
         var rawData = JsonSerializer.Deserialize<List<Dictionary<string, object>>>(appointmentsJson);
@@ -314,7 +314,7 @@ public class ServiceAppointmentsController : Controller
 
     [HttpPost]
     [Route("AddAppt")]
-    public async Task<IActionResult> AddAppt([FromBody] Dictionary<string, JsonElement> requestData)
+    public async Task<IActionResult> addAppt([FromBody] Dictionary<string, JsonElement> requestData)
     {
         string jsonRequestBody = JsonSerializer.Serialize(requestData);
 
@@ -354,7 +354,7 @@ public class ServiceAppointmentsController : Controller
 
     [HttpGet]
     [Route("GetSuggestedPatients")]
-    public async Task<IActionResult> GetSuggestedPatients()
+    public async Task<IActionResult> getSuggestedPatients()
     {
 
         var result = await _calendarManagement.getSuggestedPatients();
