@@ -17,6 +17,12 @@ public class ConsultationManagement : IConsultReceive
         _zoomApi = zoomApi;
     }
 
+    public Task uploadRecording(string filePath)
+    {
+        // TODO
+        return Task.CompletedTask;
+    }
+
     public Task<string> insertConsultation(
         Appointment appointment,
         string notes, string zoomLink, string zoomPwd, bool completed
