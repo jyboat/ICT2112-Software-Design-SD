@@ -101,7 +101,7 @@ public class ConsultationManagement : IConsultReceive
     }
 
     public Task updateConsultationById(
-        string id, Appointment appointment, string notes, string zoomLink, string recordingPath, bool isCompleted
+        string id, Appointment appointment, string notes, string zoomLink, bool isCompleted
     )
     {
         return _gateway.updateConsultationById(id, appointment.Timing, notes, zoomLink, appointment.Id);

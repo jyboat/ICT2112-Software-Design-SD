@@ -194,7 +194,6 @@ public class ConsultationController : Controller
         string appointmentId,
         string notes,
         string zoomLink,
-        string recordingPath,
         bool isCompleted
     )
     {
@@ -207,7 +206,7 @@ public class ConsultationController : Controller
 
         try
         {
-            await manager.updateConsultationById(consultationId, appt, notes, zoomLink, recordingPath, isCompleted);
+            await manager.updateConsultationById(consultationId, appt, notes, zoomLink, isCompleted);
             await manager.receiveUpdateStatus(true);
 
             return RedirectToAction("listConsultations");

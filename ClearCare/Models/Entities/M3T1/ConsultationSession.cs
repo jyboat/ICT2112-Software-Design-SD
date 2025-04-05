@@ -10,14 +10,13 @@ public class ConsultationSession
     {
     }
 
-    public ConsultationSession(string id, DateTime timing, string notes, string zoomLink, string recordingPath,
+    public ConsultationSession(string id, DateTime timing, string notes, string zoomLink,
         bool completed, string appointmentId)
     {
         Id = id;
         Timing = Timestamp.FromDateTime(timing);
         Notes = notes;
         ZoomLink = zoomLink;
-        RecordingPath = recordingPath;
         Completed = completed;
         AppointmentId = appointmentId;
     }
@@ -32,8 +31,6 @@ public class ConsultationSession
 
     [FirestoreProperty] public string ZoomPwd { get; set; }
     
-    [FirestoreProperty] public string RecordingPath { get; set; }
-
     [FirestoreProperty] public bool Completed { get; set; }
 
     [FirestoreProperty] public string AppointmentId { get; set; }

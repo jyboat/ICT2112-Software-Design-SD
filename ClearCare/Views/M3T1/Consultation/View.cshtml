@@ -44,11 +44,6 @@
                 <dt><i class="bi bi-key me-1" aria-hidden="true"></i>Zoom Password</dt>
                 <dd>@Model.ZoomPwd</dd>
             }
-            @if (!string.IsNullOrWhiteSpace(Model.RecordingPath))
-            {
-                <dt><i class="bi bi-play-btn me-1" aria-hidden="true"></i>Zoom Recording Link</dt>
-                <dd><a href="@Model.RecordingPath">View Recording</a></dd>
-            }
         </dl>
     </div>
 </section>
