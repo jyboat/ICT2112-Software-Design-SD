@@ -45,6 +45,9 @@ ClearCare simplifies the discharge planning process by offering role-based acces
 - 📝 Drug Information Management
 - 🧪 Uploading detailed drug information 
 - ⚠️ Drug interaction checker 
+- 📋 View and document patient discharge information and summaries  
+- 🩺 Manage consultation sessions between doctors and patients  
+- 📚 Provide accessible educational materials for patients and caregivers
 
 ### 📁 Project Structure
 ```bash
