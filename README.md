@@ -57,7 +57,18 @@ ClearCare simplifies the discharge planning process by offering role-based acces
 ### ✅ Prerequisites
 1. Dotnet SDK
 
-### 🧪 Setup Instructions
+### 🧪 Setup Instruction
+
+#### Firebase Setup
+1. Log into firebase console (https://console.firebase.google.com/u/0/)
+2. Click **Project Settings** 
+3. Click **Service Accounts** >**Generate new private key**
+4. **Rename** .json file to "**firebase-adminsdk.json**"
+5. Insert **firebase-adminsdk.json** to "**/ClearCare/Firebase**" folder
+
+❗️**Do not** commit firebase-adminsdk to github repository.
+
+#### Application Setup
 1. Clone the repository:
 ```bash
    git clone https://github.com/jyboat/ICT2112-Software-Design-SD
@@ -90,11 +101,3 @@ ClearCare simplifies the discharge planning process by offering role-based acces
     http://localhost:5007
 ```
 
-#### Firebase Setup
-1. Log into firebase console (https://console.firebase.google.com/u/0/)
-2. Click **Project Settings** 
-3. Click **Service Accounts** >**Generate new private key**
-4. **Rename** .json file to "**firebase-adminsdk.json**"
-5. Insert **firebase-adminsdk.json** to "**/ClearCare/Firebase**" folder
-
-❗️**Do not** commit firebase-adminsdk to github repository.
