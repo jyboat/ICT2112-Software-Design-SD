@@ -24,9 +24,39 @@
 
 ## Overview
 
-ClearCare is an ASP.NET Core MVC application designed to manage various aspects of patient care, including enquiries, prescriptions, side effects, and drug interactions. It integrates with Firebase Firestore for data storage and utilizes external APIs for drug interaction and side effect information.
-
+ClearCare is a web application designed to streamline the coordination and scheduling of pre-discharge services for patients. The system is structured into three main modules, each representing a distinct set of functionalities to support hospital discharge workflows.
+ 
+This module (Med Track and Home Safe) focuses on improving communication about medications and home safety, including enquiries, prescriptions, side effects, and drug interactions. It integrates with Firebase Firestore for data storage and utilizes external APIs for drug interaction, zoom consultations, and side effect information.
+ 
 ## Features
+ 
+### Team 1
+ 
+*   **Home safety assessment system**
+    *   Enables submission of living conditions for assessment
+    *   Doctors in rehab team may assess living conditions without face-to-face visits
+    *   Provide recommendations and go through a checklist
+ 
+*   **Virtual consultation sessions**
+    *   Integration of Zoom for online consultations for appointments and follow-ups
+ 
+*   **Discharge summaries**
+    *   Summarizes a patient's discharge process and procedures, along with any prescriptions
+ 
+*   **Resource library**
+    *   Provide educational health-related resources for patients or caregivers to view
+    *   Allow healthcare professionals to create or edit resources
+ 
+*   **Community hub**
+    *   Foster discussions and peer support among patients or caregivers
+    *   Allows creation of community groups, with posts and comments
+ 
+*   **Feedback system**
+    *   Patients or caregivers can send feedback on the discharge process
+    *   Doctors and Nurses can reply
+    *   Notifies patient or caregiver on response
+ 
+### Team 2
 
 *   **Enquiry Management:**
     *   Patients can submit enquiries to doctors.
