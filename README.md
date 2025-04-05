@@ -75,7 +75,7 @@ ClearCare simplifies the discharge planning process by offering role-based acces
    cd ClearCare
 ```
 
-2. Checkout the module you want to run:
+2. Checkout the module you want to run:  
 🧾 Module 1 (Account and Data Hub)
 ```bash
    git checkout Module-1
