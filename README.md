@@ -13,25 +13,28 @@ ClearCare simplifies the discharge planning process by offering role-based acces
 - 🖋️ Filing of erratum upon amendment of records 
 - 🔒 Secure storage and communication of data
 
-### 🏥 Module 2 - Care Servie Orchestrator
-
-- 👩‍⚕️ Assignment of nurses to pre-discharge services
-- 🔔 Automated reminders and notifications for patients on upcoming service appointments
-- 🗂️ Recording of service history for patients
+### 🏥 Module 2 - Care Service Orchestrator
+- 📅: Manually Schedule Appointment
+- 🤖: Automatically Schedule Appointment
+- 👤: Manage Individual Schedule
+- ⏳: Manage Appointment Backlog
+- 🧭: Track Patient Pre-Discharge Services
+- 📆: Manage Integrated Calendar
+- 📊: Manage Dashboard Analytics
+- 🔔: Manage Notifications
+- 🎛️: Customize Notifications
+- 🗃️: Manage Patient Service History
+- ⚙️: Configure Service Types
+- ✅: Manage Service Completion
 
 ### 💊 Module 3 - Med Track and Home Safe
-
 - 💬 Medication counselling through reviewing of drug information
 - 🏡 Home safety assessments for rehab team to assess risks and recommend modifications
 - ☑️ Virtual checklist provided for asessment
 - 📄 Documentation of discussions and recommendations for the assessment
-- 📹 Online zoom integrated consultations
-
-### ✨ Additional Features
 - 🗣️ Feedback system
 - ❓ Enquiry system
 - 🌐 Community hub for patients and caregivers
-- 📃 Discharge summary generator
 
 ### 📁 Project Structure
 ```bash
