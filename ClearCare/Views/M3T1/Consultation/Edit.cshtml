@@ -7,12 +7,12 @@
 
 <div class="container update-consultation">
 	<h3>Update Consultation</h3>
-	<form method="post" asp-controller="Consultation" asp-action="postEditConsultation" asp-route-consultationId="@Model.Session.Id" class="d-flex flex-column gap-3">
+	<form method="post" asp-controller="Consultation" asp-action="postEditConsultation" asp-route-consultationId="@Model.Session.getConsultDetails()["Id"]" class="d-flex flex-column gap-3">
 
 		<!-- Notes field -->
 		<div class="form-group">
 			<label for="notes" class="form-label">Notes</label>
-			<textarea class="form-control" id="notes" name="notes">@Model.Session.Notes</textarea>
+			<textarea class="form-control" id="notes" name="notes">@Model.Session.getResultDetails()["Notes"]</textarea>
 		</div>
 
 		<!-- Appointment field -->
@@ -22,7 +22,7 @@
 				@foreach (var appt in Model.Appointments)
 				{
 					<option value="@appt.Id"
-					        selected="@(Model.Session.AppointmentId == @appt.Id)">@appt.Title @@ @appt.Timing</option>
+					        selected="@(Model.Session.getConsultDetails()["AppointmentId"] == @appt.Id)">@appt.Title @@ @appt.Timing</option>
 				}
 			</select>
 		</div>
@@ -30,7 +30,7 @@
 		<!-- Meeting field -->
 		<div class="form-group">
 			<label for="meetingLink" class="form-label">Meeting Link</label>
-			<input class="form-control" id="meetingLink" name="zoomLink" type="url" value="@Model.Session.ZoomLink"
+			<input class="form-control" id="meetingLink" name="zoomLink" type="url" value="@Model.Session.getConsultDetails()["ZoomLink"]"
 			       required/>
 		</div>
 

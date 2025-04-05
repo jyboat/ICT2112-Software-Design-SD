@@ -144,7 +144,7 @@ public class ConsultationManagement : IConsultReceive
         if (!string.IsNullOrWhiteSpace(query))
         {
             return sessions.Where(s =>
-                s.Notes.Contains(query, StringComparison.OrdinalIgnoreCase)
+                (s.getResultDetails()["Notes"] as string).Contains(query, StringComparison.OrdinalIgnoreCase)
             ).ToList();
         }
 

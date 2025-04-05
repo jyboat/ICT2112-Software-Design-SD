@@ -3,17 +3,17 @@
 
 <section class="container consultations d-flex flex-column gap-3">
     <header class="d-flex justify-content-between align-items-center">
-        <h2 class="me-auto">@Model.Timing.ToDateTime()</h2>
+        <h2 class="me-auto">@(Model.getConsultDetails()["Timing"] as DateTime?)</h2>
         @if (ViewBag.UserRole == "Caregiver" || ViewBag.UserRole == "Doctor")
         {
             <div>
                 <a role="button" asp-controller="Consultation" asp-action="editConsultation"
-                   asp-route-consultationId="@Model.Id"
+                   asp-route-consultationId="@Model.getConsultDetails()["Id"]"
                    class="btn btn-md btn-info">Edit
                     <i
                         class="bi bi-pencil ms-1" aria-hidden="true"></i></a>
                 <a role="button" asp-controller="Consultation" asp-action="deleteConsultation"
-                   asp-route-consultationId="@Model.Id"
+                   asp-route-consultationId="@Model.getConsultDetails()["Id"]"
                    class="btn btn-md btn-danger">Delete
                     <i
                         class="bi bi-trash ms-1" aria-hidden="true"></i></a>
@@ -24,25 +24,25 @@
     <div class="col-12">
         <dl class="definition-list gap-3">
             <dt><i class="bi bi-clock me-1" aria-hidden="true"></i>Completion Status</dt>
-            <dd>@(Model.Completed ? "Completed" : "Not Completed")</dd>
+            <dd>@(Model.getResultDetails()["Completed"] as bool? == true ? "Completed" : "Not Completed")</dd>
             <dt><i class="bi bi-card-text me-1" aria-hidden="true"></i>Notes</dt>
-            @if (!string.IsNullOrWhiteSpace(Model.Notes))
+            @if (!string.IsNullOrWhiteSpace(Model.getResultDetails()["Notes"] as string))
             {
-                <dd>@Model.Notes</dd>
+                <dd>@Model.getResultDetails()["Notes"]</dd>
             }
             else
             {
                 <dd class="fst-italic">&lt;No notes&gt;</dd>
             }
-            @if (!string.IsNullOrWhiteSpace(Model.ZoomLink))
+            @if (!string.IsNullOrWhiteSpace(Model.getConsultDetails()["ZoomLink"] as string))
             {
                 <dt><i class="bi bi-camera-video me-1" aria-hidden="true"></i>Zoom Link</dt>
-                <dd><a href="@Model.ZoomLink">Join Session</a></dd>
+                <dd><a href="@Model.getConsultDetails()["ZoomLink"]">Join Session</a></dd>
             }
-            @if (!string.IsNullOrWhiteSpace(Model.ZoomPwd))
+            @if (!string.IsNullOrWhiteSpace(Model.getConsultDetails()["ZoomPwd"] as string))
             {
                 <dt><i class="bi bi-key me-1" aria-hidden="true"></i>Zoom Password</dt>
-                <dd>@Model.ZoomPwd</dd>
+                <dd>@Model.getConsultDetails()["ZoomPwd"]</dd>
             }
         </dl>
     </div>
