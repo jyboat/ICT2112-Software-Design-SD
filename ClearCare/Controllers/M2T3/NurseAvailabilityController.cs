@@ -31,18 +31,12 @@ namespace ClearCare.Controllers
             return View("~/Views/M2T3/NurseAvailability/Index.cshtml");
         }
 
-        // Method to get Id from current session 
-        private string getCurrentNurseId()
-        {
-            return HttpContext.Session.GetString("UserID") ?? string.Empty;
-        }
-
         // Displays Nurse Availability for Calendar
         [HttpGet]
         [Route("getAvailabilityByNurseIdForCalendar")]
         public async Task<JsonResult> getAvailabilityByNurseIdForCalendar([FromQuery] string? nurseId)
         {
-            string currentNurseId = getCurrentNurseId();
+            string currentNurseId = HttpContext.Session.GetString("UserID") ?? string.Empty;
             if (string.IsNullOrEmpty(currentNurseId))
                 return new JsonResult(new { error = "User not logged in." });
 
@@ -55,7 +49,7 @@ namespace ClearCare.Controllers
         [Route("AddAvailability")]
         public async Task<IActionResult> addAvailability([FromForm] string date)
         {
-            string nurseId = getCurrentNurseId();
+            string nurseId = HttpContext.Session.GetString("UserID") ?? string.Empty;
             if (string.IsNullOrEmpty(nurseId))
                 return BadRequest("User is not logged in.");
 
@@ -70,7 +64,7 @@ namespace ClearCare.Controllers
         [Route("Update")]
         public async Task<IActionResult> updateAvailability([FromForm] int availabilityId, [FromForm] string date)
         {
-            string nurseId = getCurrentNurseId();
+            string nurseId = HttpContext.Session.GetString("UserID") ?? string.Empty;
             if (string.IsNullOrEmpty(nurseId))
                 return BadRequest("User is not logged in.");
 
