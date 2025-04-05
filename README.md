@@ -39,8 +39,12 @@ ClearCare simplifies the discharge planning process by offering role-based acces
 - ☑️ Virtual checklist provided for asessment
 - 📄 Documentation of discussions and recommendations for the assessment
 - 🗣️ Feedback system
-- ❓ Enquiry system
 - 🌐 Community hub for patients and caregivers
+- ❓ Enquiry system
+- 😷 Side Effect Logging & Analytics
+- 📝 Drug Information Management
+- 🧪 Uploading detailed drug information 
+- ⚠️ Drug interaction checker 
 
 ### 📁 Project Structure
 ```bash
