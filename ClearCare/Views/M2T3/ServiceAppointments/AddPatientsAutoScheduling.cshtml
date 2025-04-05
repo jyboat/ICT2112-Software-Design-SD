@@ -138,7 +138,8 @@
 
                         assigned.forEach(appt => {
                             const slot = appt.slot;
-                            const time = timeSlots[slot] || "Unknown";
+                            const time = timeSlots[slot] || "Sent to Backlog";
+                            const nurse = appt.nurseId || "No Available Nurse";
                             const type = appt.appointmentId ? "From Backlog" : "New Appointment";
 
                             list.append(
@@ -149,7 +150,7 @@
                                         <div><strong>Type:</strong> ${type}</div>
                                     </div>
                                     <div class="text-end">
-                                        <div><strong>Nurse:</strong> ${appt.nurseId}</div>
+                                        <div><strong>Nurse:</strong> ${nurse}</div>
                                         <div><strong>Time:</strong> ${time}</div>
                                     </div>
                                 </li>`

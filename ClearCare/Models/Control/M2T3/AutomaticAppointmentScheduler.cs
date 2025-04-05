@@ -139,12 +139,12 @@ namespace ClearCare.Models.Control
             {
                 Query nurseSlotList = db.Collection("ServiceAppointments")
                                     .WhereEqualTo("NurseId", nurse);
-                QuerySnapshot patientSnapshot = await nurseSlotList.GetSnapshotAsync();
-                foreach (DocumentSnapshot document in patientSnapshot.Documents)
+                QuerySnapshot nurseSnapshot = await nurseSlotList.GetSnapshotAsync();
+                foreach (DocumentSnapshot document in nurseSnapshot.Documents)
                 {
                     DateTime appointmentDateTime = document.GetValue<DateTime>("DateTime");
                     DateTime appointmentDate = appointmentDateTime.Date;
-                    DateTime todayDate = DateTime.Today;
+                    DateTime todayDate = DateTime.Today.AddDays(1);
 
                     if (appointmentDate == todayDate)
                     {
