@@ -6,12 +6,18 @@ ClearCare simplifies the discharge planning process by offering role-based acces
 
 ## 🧩 Modules Overview
 ### 🧾 Module 1: Account and Data Hub
-- 🔐 Handling of accounts, profiles, role-based access
-- 👤 Personalized profile page to view and edit information
-- 🛠️ Admins are able to reset passwords, delete accounts, and perform other adminnistrative tasks
-- 📄 Handling of patient medical records
-- 🖋️ Filing of erratum upon amendment of records 
-- 🔒 Secure storage and communication of data
+- ⌨️ Register Patient / Caregiver accounts
+- 🖥️ View Personal Medical Records
+- 🙆 Patient/Caregiver Delegation
+- 👨‍⚕️ Create Doctor/Nurses Accounts
+- ⚙️ Manage Doctor/Nurses Account
+- 🛠️ Audit Trail of Actions Performed by Any User
+- 🔐 Secure Data Encryption + Database Handling
+- 🖋️ File an erratum to update medical record
+- 👤 View and Edit Profile
+- 🙂 Login + Authentication
+- 📁 Create Original Medical Record
+- 📄 View and Export Medical Records
 
 ### 🏥 Module 2 - Care Service Orchestrator
 - 📅: Manually Schedule Appointment
