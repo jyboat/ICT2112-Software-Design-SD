@@ -2,8 +2,6 @@ namespace ClearCare.Models.Control.M3T1
 {
     public class WetConditionChecklistStrategy : BaseHazardChecklistStrategy
     {
-        public override string HazardType => "Wet Condition";
-
         public override Dictionary<string, bool> getDefaultChecklist()
         {
             return new Dictionary<string, bool>

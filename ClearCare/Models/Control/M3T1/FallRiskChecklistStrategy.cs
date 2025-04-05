@@ -2,8 +2,6 @@ namespace ClearCare.Models.Control.M3T1
 {
     public class FallRiskChecklistStrategy : BaseHazardChecklistStrategy
     {
-        public override string HazardType => "Fall Risk";
-
         public override Dictionary<string, bool> getDefaultChecklist() => new()
         {
             { "Are all stair railings secure and at proper height?", false },
