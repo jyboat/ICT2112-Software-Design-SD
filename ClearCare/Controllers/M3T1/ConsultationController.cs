@@ -1,8 +1,7 @@
 using ClearCare.API;
 using ClearCare.DataSource.M3T1;
 using ClearCare.Models.Control.M3T1;
-using ClearCare.Models.Entities;
-using ClearCare.Models.Entities.M3T1;
+using ClearCare.Models.DTO.M3T1;
 using ClearCare.Models.Interfaces.M3T1;
 using Microsoft.AspNetCore.Mvc;
 
@@ -58,21 +57,6 @@ public class ConsultationController : Controller
         return View("~/Views/M3T1/Consultation/List.cshtml", filteredSessions);
     }
 
-    public class AddConsultationViewModel
-    {
-        public AddConsultationViewModel(
-            List<Appointment> appointments,
-            IZoomApi.MeetingResponse? meetingResponse
-        )
-        {
-            Appointments = appointments;
-            MeetingResponse = meetingResponse;
-        }
-
-        public readonly List<Appointment> Appointments;
-        public readonly IZoomApi.MeetingResponse? MeetingResponse;
-    }
-
     [Route("Add")]
     [HttpGet]
     public async Task<IActionResult> addConsultation()
@@ -111,7 +95,7 @@ public class ConsultationController : Controller
         //     Console.WriteLine($"Response: {response.JoinUrl}");
         // }
 
-        return View("~/Views/M3T1/Consultation/Add.cshtml", new AddConsultationViewModel(
+        return View("~/Views/M3T1/Consultation/Add.cshtml", new AddConsultationDTO(
             appointments, response
         ));
     }
@@ -152,18 +136,6 @@ public class ConsultationController : Controller
         return RedirectToAction("listConsultations");
     }
 
-    public class EditConsultationViewModel
-    {
-        public EditConsultationViewModel(List<Appointment> appointments, ConsultationSession session)
-        {
-            Appointments = appointments;
-            Session = session;
-        }
-
-        public readonly List<Appointment> Appointments;
-        public readonly ConsultationSession Session;
-    }
-
     [Route("Edit/{consultationId}")]
     [HttpGet]
     public async Task<IActionResult> editConsultation(
@@ -184,7 +156,7 @@ public class ConsultationController : Controller
 
         var appointments = await manager.getAppointments();
 
-        return View("~/Views/M3T1/Consultation/Edit.cshtml", new EditConsultationViewModel(appointments, consultation));
+        return View("~/Views/M3T1/Consultation/Edit.cshtml", new EditConsultationDTO(appointments, consultation));
     }
 
     [Route("Edit/{consultationId}")]
