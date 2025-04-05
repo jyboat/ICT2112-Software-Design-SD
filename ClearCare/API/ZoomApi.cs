@@ -83,6 +83,11 @@ public class ZoomApi : IZoomApi
         };
 
         using var response = await _httpClient.SendAsync(request);
+        
+        if (!response.IsSuccessStatusCode)
+        {
+            Console.WriteLine($"Could not send request: {await response.Content.ReadAsStringAsync()}");
+        }
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<IZoomApi.TokenResponse>();
     }
@@ -110,6 +115,11 @@ public class ZoomApi : IZoomApi
         };
 
         using var response = await _httpClient.SendAsync(request);
+        
+        if (!response.IsSuccessStatusCode)
+        {
+            Console.WriteLine($"Could not send request: {await response.Content.ReadAsStringAsync()}");
+        }
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<IZoomApi.TokenResponse>();
     }
@@ -133,6 +143,11 @@ public class ZoomApi : IZoomApi
         };
 
         using var response = await _httpClient.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            Console.WriteLine($"Could not send request: {await response.Content.ReadAsStringAsync()}");
+        }
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<IZoomApi.MeetingResponse>();
     }
