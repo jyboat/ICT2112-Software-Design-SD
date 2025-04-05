@@ -10,44 +10,83 @@ public class ConsultationSession
     {
     }
 
-    public ConsultationSession(string id, DateTime timing, string notes, string zoomLink, string recordingPath,
+    public ConsultationSession(string id, DateTime timing, string notes, string zoomLink,
         bool completed, string appointmentId)
     {
         Id = id;
         Timing = Timestamp.FromDateTime(timing);
         Notes = notes;
         ZoomLink = zoomLink;
-        RecordingPath = recordingPath;
         Completed = completed;
         AppointmentId = appointmentId;
     }
 
-    [FirestoreDocumentId] public string Id { get; set; }
+    [FirestoreDocumentId] private string Id { get; set; }
 
-    [FirestoreProperty] public Timestamp Timing { get; set; }
+    private string getId() => Id;
+    private void setId(string id) => Id = id;
 
-    [FirestoreProperty] public string Notes { get; set; }
+    [FirestoreProperty] private Timestamp Timing { get; set; }
 
-    [FirestoreProperty] public string ZoomLink { get; set; }
+    private Timestamp getTiming() => Timing;
+    private void setTiming(Timestamp timing) => Timing = timing;
 
-    [FirestoreProperty] public string ZoomPwd { get; set; }
+    [FirestoreProperty] private string Notes { get; set; }
+
+    private string getNotes() => Notes;
+    private void setNotes(string notes) => Notes = notes;
     
-    [FirestoreProperty] public string RecordingPath { get; set; }
+    [FirestoreProperty] private string ZoomLink { get; set; }
+    
+    private string getZoomLink() => ZoomLink;
+    private void setZoomLink(string zoomLink) => ZoomLink = zoomLink;
 
-    [FirestoreProperty] public bool Completed { get; set; }
+    [FirestoreProperty] private string ZoomPwd { get; set; }
+    
+    private string getZoomPwd() => ZoomPwd;
+    private void setZoomPwd(string zoomPwd) => ZoomPwd = zoomPwd;
 
-    [FirestoreProperty] public string AppointmentId { get; set; }
+    [FirestoreProperty] private bool Completed { get; set; }
 
-    public void SetConsultDetails(DateTime timing, string zoomLink, string appointmentId)
+    private bool getCompleted() => Completed;
+    private void setCompleted(bool isCompleted) => Completed = isCompleted;
+
+    [FirestoreProperty] private string AppointmentId { get; set; }
+
+    private string getAppointmentId() => AppointmentId;
+    private void setAppointmentId(string appointmentId) => AppointmentId = appointmentId;
+
+    public void setConsultDetails(DateTime timing, string zoomLink, string appointmentId)
     {
         Timing = Timestamp.FromDateTime(timing);
         ZoomLink = zoomLink;
         AppointmentId = appointmentId;
     }
 
-    public void SetResultDetails(string notes, bool completed)
+    public Dictionary<string, object> getConsultDetails()
+    {
+        return new Dictionary<string, object>
+        {
+            { "Id", Id },
+            { "Timing", getTiming().ToDateTime() },
+            { "ZoomLink", getZoomLink() },
+            { "ZoomPwd", getZoomPwd() },
+            { "AppointmentId", getAppointmentId() }
+        };
+    }
+    
+    public void setResultDetails(string notes, bool completed)
     {
         Notes = notes;
         Completed = completed;
+    }
+
+    public Dictionary<string, object> getResultDetails()
+    {
+        return new Dictionary<string, object>
+        {
+            { "Notes", getNotes() },
+            { "Completed", getCompleted() }
+        };
     }
 }

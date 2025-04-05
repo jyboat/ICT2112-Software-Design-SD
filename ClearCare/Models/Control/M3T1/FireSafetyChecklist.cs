@@ -2,8 +2,6 @@ namespace ClearCare.Models.Control.M3T1
 {
     public class FireSafetyChecklistStrategy : BaseHazardChecklistStrategy
     {
-        public override string HazardType => "Fire Safety";
-
         public override Dictionary<string, bool> getDefaultChecklist() => new()
         {
             { "Are smoke detectors installed on every floor?", false },

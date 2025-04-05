@@ -9,9 +9,9 @@ public class ConsultationManagement : IConsultReceive
 {
     private readonly IConsultSend _gateway;
 
-    private readonly ZoomApi _zoomApi;
+    private readonly IZoomApi _zoomApi;
 
-    public ConsultationManagement(IConsultSend gateway, ZoomApi zoomApi)
+    public ConsultationManagement(IConsultSend gateway, IZoomApi zoomApi)
     {
         _gateway = gateway;
         _zoomApi = zoomApi;
@@ -31,16 +31,16 @@ public class ConsultationManagement : IConsultReceive
         return _gateway.insertConsultation(appointment.Timing, notes, zoomLink, zoomPwd, appointment.Id);
     }
 
-    public Task<ZoomApi.MeetingResponse?> generateZoomLink(string accessToken)
+    public Task<IZoomApi.MeetingResponse?> generateZoomLink(string accessToken)
     {
         return _zoomApi.createMeeting(
             accessToken,
-            new ZoomApi.MeetingData
+            new IZoomApi.MeetingData
             {
                 Agenda = $"Test meeting at {DateTime.Now}",
-                Settings = new ZoomApi.MeetingData.SettingsData
+                Settings = new IZoomApi.MeetingData.SettingsData
                 {
-                    AutoRecording = ZoomApi.MeetingData.SettingsData.AutoRecordingOption.Cloud
+                    AutoRecording = IZoomApi.MeetingData.SettingsData.AutoRecordingOption.Cloud
                 }
             }
         );
@@ -53,14 +53,13 @@ public class ConsultationManagement : IConsultReceive
         return _zoomApi.generateAuthorizeLink(callbackUri);
     }
 
-    public Task<ZoomApi.TokenResponse?> generateAccessToken(
+    public Task<IZoomApi.TokenResponse?> generateAccessToken(
         string authCode,
         string redirectUri
-        )
+    )
     {
         // return _zoomApi.generateAccessToken(authCode, redirectUri);
-        // TODO: REMOVE ACCOUNT ID!!!!
-        return _zoomApi.generateServerAccessToken("OXUEiX4PQqWwK-YTuAGKNA");
+        return _zoomApi.generateServerAccessToken(Environment.GetEnvironmentVariable("ZOOM_ACCOUNT_ID"));
     }
 
     public Task<List<ConsultationSession>> getConsultations()
@@ -102,7 +101,7 @@ public class ConsultationManagement : IConsultReceive
     }
 
     public Task updateConsultationById(
-        string id, Appointment appointment, string notes, string zoomLink, string recordingPath, bool isCompleted
+        string id, Appointment appointment, string notes, string zoomLink, bool isCompleted
     )
     {
         return _gateway.updateConsultationById(id, appointment.Timing, notes, zoomLink, appointment.Id);
@@ -145,7 +144,7 @@ public class ConsultationManagement : IConsultReceive
         if (!string.IsNullOrWhiteSpace(query))
         {
             return sessions.Where(s =>
-                s.Notes.Contains(query, StringComparison.OrdinalIgnoreCase)
+                (s.getResultDetails()["Notes"] as string).Contains(query, StringComparison.OrdinalIgnoreCase)
             ).ToList();
         }
 
