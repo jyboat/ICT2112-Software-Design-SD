@@ -36,6 +36,7 @@ namespace ClearCare.Models.Control
             _iBacklogAppointment = (IBacklogAppointments)new ServiceBacklogManagement();
             var userGateway = new UserGateway();
             _iUserList = (IUserList)new AdminManagement(userGateway);
+            attach(new ServiceBacklogManagement());
             
             _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; // to be set at runtime
             db = FirebaseService.Initialize();
@@ -49,22 +50,8 @@ namespace ClearCare.Models.Control
         public async Task<List<ServiceAppointment>> automaticallyScheduleAppointment(List<ServiceAppointment> selectedUnscheduledAppointment)
         {
             var userList = await _iUserList.retrieveAllUsers();
-            var timeslot = new Dictionary<int, DateTime>
-            {
-                { 0, DateTime.Parse("8:00 AM").ToUniversalTime().AddDays(1) },
-                { 1, DateTime.Parse("4:00 PM").ToUniversalTime().AddDays(1) },
-                { 2, DateTime.Parse("5:00 PM").ToUniversalTime().AddDays(1) },
-                { 3, DateTime.Parse("6:00 PM").ToUniversalTime().AddDays(1) },
-                { 4, DateTime.Parse("7:00 PM").ToUniversalTime().AddDays(1) },
-                { 5, DateTime.Parse("9:00 PM").ToUniversalTime().AddDays(1) },
-                { 6, DateTime.Parse("10:00 PM").ToUniversalTime().AddDays(1) },
-                { 7, DateTime.Parse("11:00 PM").ToUniversalTime().AddDays(1) },
-                { 8, DateTime.Parse("12:00 PM").ToUniversalTime().AddDays(1) }
-            };
 
             // Attach listener only when scheduling is called
-            var _serviceBacklogManagement = new ServiceBacklogManagement();
-            attach(_serviceBacklogManagement);
 
             if (_iAutomaticScheduleStrategy == null)
             {
@@ -226,6 +213,19 @@ namespace ClearCare.Models.Control
 
                 backlogEntries.Add(appointment);
             }
+            
+            var timeslot = new Dictionary<int, DateTime>
+            {
+                { 0, DateTime.Parse("8:00 AM").ToUniversalTime().AddDays(1) },
+                { 1, DateTime.Parse("4:00 PM").ToUniversalTime().AddDays(1) },
+                { 2, DateTime.Parse("5:00 PM").ToUniversalTime().AddDays(1) },
+                { 3, DateTime.Parse("6:00 PM").ToUniversalTime().AddDays(1) },
+                { 4, DateTime.Parse("7:00 PM").ToUniversalTime().AddDays(1) },
+                { 5, DateTime.Parse("9:00 PM").ToUniversalTime().AddDays(1) },
+                { 6, DateTime.Parse("10:00 PM").ToUniversalTime().AddDays(1) },
+                { 7, DateTime.Parse("11:00 PM").ToUniversalTime().AddDays(1) },
+                { 8, DateTime.Parse("12:00 PM").ToUniversalTime().AddDays(1) }
+            };
 
             // Call the auto-assignment function
             var serviceAppointment = _iAutomaticScheduleStrategy.automaticallySchedule(
@@ -265,7 +265,7 @@ namespace ClearCare.Models.Control
 
                     await _iNotification.createNotification(serviceAppt.getAttribute("PatientId"), message);
 
-                    // Console.WriteLine($"Successfully rescheduled Appointment: {serviceAppt.GetAttribute("AppointmentId")}");
+                    // When unscheduled appointment in backlog is rescheduled successfully
                     notify(serviceAppt.getAttribute("AppointmentId"), "success");
                 }
                 else
