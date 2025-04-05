@@ -9,9 +9,9 @@ public class ConsultationManagement : IConsultReceive
 {
     private readonly IConsultSend _gateway;
 
-    private readonly ZoomApi _zoomApi;
+    private readonly IZoomApi _zoomApi;
 
-    public ConsultationManagement(IConsultSend gateway, ZoomApi zoomApi)
+    public ConsultationManagement(IConsultSend gateway, IZoomApi zoomApi)
     {
         _gateway = gateway;
         _zoomApi = zoomApi;
