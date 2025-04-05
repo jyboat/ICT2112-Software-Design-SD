@@ -97,5 +97,5 @@ ClearCare simplifies the discharge planning process by offering role-based acces
 4. **Rename** .json file to "**firebase-adminsdk.json**"
 5. Insert **firebase-adminsdk.json** to "**/ClearCare/Firebase**" folder
 
-<span style="color: red;">❗️**Do not**</span> commit firebase-adminsdk to github repository. 
+❗️**Do not** commit firebase-adminsdk to github repository. 
 Make sure it's ignored in your .gitignore file to protect sensitive credentials.
