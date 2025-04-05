@@ -255,7 +255,6 @@ public class ServiceAppointmentsController : Controller
             AutomaticAppointmentScheduler.setAlgorithm(new EarliestsPossibleTimeSlotStrategy());
         }
 
-        // Pass the full appointment list to scheduler
         var assignedAppointments = await AutomaticAppointmentScheduler.automaticallyScheduleAppointment(appointments);
 
         return Ok(new

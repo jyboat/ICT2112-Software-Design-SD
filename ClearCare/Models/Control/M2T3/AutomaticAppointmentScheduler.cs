@@ -36,9 +36,10 @@ namespace ClearCare.Models.Control
             _iBacklogAppointment = (IBacklogAppointments)new ServiceBacklogManagement();
             var userGateway = new UserGateway();
             _iUserList = (IUserList)new AdminManagement(userGateway);
+            // to be set at runtime
+            _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; 
             attach(new ServiceBacklogManagement());
             
-            _iAutomaticScheduleStrategy = IAutomaticScheduleStrategy; // to be set at runtime
             db = FirebaseService.Initialize();
         }
 
