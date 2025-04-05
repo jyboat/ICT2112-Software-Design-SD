@@ -59,7 +59,7 @@ ClearCare simplifies the discharge planning process by offering role-based acces
 
 ### 🧪 Setup Instruction
 
-#### Firebase Setup
+#### 🔥 Firebase Setup
 1. Log into firebase console (https://console.firebase.google.com/u/0/)
 2. Click **Project Settings** 
 3. Click **Service Accounts** >**Generate new private key**
@@ -68,7 +68,7 @@ ClearCare simplifies the discharge planning process by offering role-based acces
 
 ❗️**Do not** commit firebase-adminsdk to github repository.
 
-#### Application Setup
+#### 🖥️ Application Setup
 1. Clone the repository:
 ```bash
    git clone https://github.com/jyboat/ICT2112-Software-Design-SD
